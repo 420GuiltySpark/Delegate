@@ -1,0 +1,344 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{535D9180-0277-45D0-9EF9-0239C03BF9A0}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Adjutant</RootNamespace>
+    <AssemblyName>Adjutant</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Adjutant\Tourist.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Library\Cache\AES.cs" />
+    <Compile Include="Library\Cache\CacheFile.cs" />
+    <Compile Include="Library\Cache\xcompress.cs" />
+    <Compile Include="Library\Controls\BitmapExtractor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\BitmapExtractor.Designer.cs">
+      <DependentUpon>BitmapExtractor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\Enums.cs" />
+    <Compile Include="Library\Controls\Events.cs" />
+    <Compile Include="Library\Controls\MetaViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewer.Designer.cs">
+      <DependentUpon>MetaViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\iValue.cs" />
+    <Compile Include="Library\Controls\MetaViewerControls\mBitmask.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mBitmask.Designer.cs">
+      <DependentUpon>mBitmask.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mEnum.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mEnum.Designer.cs">
+      <DependentUpon>mEnum.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\MetaViewerControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mHeader.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mHeader.Designer.cs">
+      <DependentUpon>mHeader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mMultiValue.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mMultiValue.Designer.cs">
+      <DependentUpon>mMultiValue.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mString.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mString.Designer.cs">
+      <DependentUpon>mString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mStructure.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mStructure.Designer.cs">
+      <DependentUpon>mStructure.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mTagRef.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mTagRef.Designer.cs">
+      <DependentUpon>mTagRef.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mValue.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\MetaViewerControls\mValue.Designer.cs">
+      <DependentUpon>mValue.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\ModelExtractor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\ModelExtractor.Designer.cs">
+      <DependentUpon>ModelExtractor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\ModelFunctions.cs" />
+    <Compile Include="Library\Controls\ModelViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\ModelViewer.Designer.cs">
+      <DependentUpon>ModelViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\Renderer.xaml.cs">
+      <DependentUpon>Renderer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\SoundExtractor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\SoundExtractor.Designer.cs">
+      <DependentUpon>SoundExtractor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\StringsViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\StringsViewer.Designer.cs">
+      <DependentUpon>StringsViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\DataTypes\DataTypes.cs" />
+    <Compile Include="Library\DataTypes\Float16\Half.cs" />
+    <Compile Include="Library\DataTypes\Float16\HalfHelper.cs" />
+    <Compile Include="Library\DataTypes\Space.cs" />
+    <Compile Include="Library\Definitions\Base\bitmap.cs" />
+    <Compile Include="Library\Definitions\Base\cache_file_resource_gestalt.cs" />
+    <Compile Include="Library\Definitions\Base\cache_file_resource_layout_table.cs" />
+    <Compile Include="Library\Definitions\Base\multilingual_unicode_string_list.cs" />
+    <Compile Include="Library\Definitions\Base\render_model.cs" />
+    <Compile Include="Library\Definitions\Base\shader.cs" />
+    <Compile Include="Library\Definitions\Base\sound.cs" />
+    <Compile Include="Library\Definitions\Base\sound_cache_file_gestalt.cs" />
+    <Compile Include="Library\Definitions\DefinitionsManager.cs" />
+    <Compile Include="Library\Definitions\Enums.cs" />
+    <Compile Include="Library\Definitions\Halo3Beta\cache_file_resource_gestalt.cs" />
+    <Compile Include="Library\Definitions\Halo3ODST\render_model.cs" />
+    <Compile Include="Library\Definitions\Halo3ODST\sound_cache_file_gestalt.cs" />
+    <Compile Include="Library\Definitions\Halo3Beta\bitmap.cs" />
+    <Compile Include="Library\Definitions\Halo3Retail\cache_file_resource_gestalt.cs" />
+    <Compile Include="Library\Definitions\Halo3Retail\cache_file_resource_layout_table.cs" />
+    <Compile Include="Library\Definitions\Halo3Retail\multilingual_unicode_string_list.cs" />
+    <Compile Include="Library\Definitions\Halo3Retail\render_model.cs" />
+    <Compile Include="Library\Definitions\Halo3Retail\shader.cs" />
+    <Compile Include="Library\Definitions\Halo3Retail\sound.cs" />
+    <Compile Include="Library\Definitions\Halo3Retail\sound_cache_file_gestalt.cs" />
+    <Compile Include="Library\Definitions\Halo4Retail\cache_file_resource_gestalt.cs" />
+    <Compile Include="Library\Definitions\Halo4Retail\cache_file_resource_layout_table.cs" />
+    <Compile Include="Library\Definitions\Halo4Retail\material.cs" />
+    <Compile Include="Library\Definitions\Halo4Retail\render_model.cs" />
+    <Compile Include="Library\Definitions\ReachBeta\bitmap.cs" />
+    <Compile Include="Library\Definitions\ReachBeta\multilingual_unicode_string_list.cs" />
+    <Compile Include="Library\Definitions\ReachBeta\render_model.cs" />
+    <Compile Include="Library\Definitions\ReachBeta\shader.cs" />
+    <Compile Include="Library\Definitions\ReachBeta\sound.cs" />
+    <Compile Include="Library\Definitions\ReachBeta\sound_cache_file_gestalt.cs" />
+    <Compile Include="Library\Definitions\ReachRetail\bitmap.cs" />
+    <Compile Include="Library\Definitions\ReachRetail\render_model.cs" />
+    <Compile Include="Library\Definitions\ReachRetail\sound_cache_file_gestalt.cs" />
+    <Compile Include="Library\Endian\EndianReader.cs" />
+    <Compile Include="Library\Endian\EndianWriter.cs" />
+    <Compile Include="Library\Endian\Enums.cs" />
+    <Compile Include="Library\Imaging\DDS.cs" />
+    <Compile Include="Library\Imaging\DXTDecoder.cs" />
+    <Compile Include="Library\Imaging\RGBAColor.cs" />
+    <Compile Include="Library\PluginConvert.cs" />
+    <Compile Include="Adjutant\Controls\Extractor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Adjutant\Controls\Extractor.Designer.cs">
+      <DependentUpon>Extractor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Adjutant\Controls\MapViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Adjutant\Controls\MapViewer.Designer.cs">
+      <DependentUpon>MapViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Adjutant\Controls\TagViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Adjutant\Controls\TagViewer.Designer.cs">
+      <DependentUpon>TagViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Adjutant\Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Adjutant\Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Adjutant\Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Adjutant\Settings.cs" />
+    <Compile Include="Adjutant\SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Adjutant\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Adjutant\UpdateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Adjutant\UpdateForm.designer.cs">
+      <DependentUpon>UpdateForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Library\Controls\BitmapExtractor.resx">
+      <DependentUpon>BitmapExtractor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\MetaViewer.resx">
+      <DependentUpon>MetaViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mBitmask.resx">
+      <DependentUpon>mBitmask.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mEnum.resx">
+      <DependentUpon>mEnum.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mHeader.resx">
+      <DependentUpon>mHeader.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mMultiValue.resx">
+      <DependentUpon>mMultiValue.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mString.resx">
+      <DependentUpon>mString.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mStructure.resx">
+      <DependentUpon>mStructure.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mTagRef.resx">
+      <DependentUpon>mTagRef.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mValue.resx">
+      <DependentUpon>mValue.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\ModelExtractor.resx">
+      <DependentUpon>ModelExtractor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\ModelViewer.resx">
+      <DependentUpon>ModelViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\SoundExtractor.resx">
+      <DependentUpon>SoundExtractor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\StringsViewer.resx">
+      <DependentUpon>StringsViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Adjutant\Controls\Extractor.resx">
+      <DependentUpon>Extractor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Adjutant\Controls\MapViewer.resx">
+      <DependentUpon>MapViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Adjutant\Controls\TagViewer.resx">
+      <DependentUpon>TagViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Adjutant\Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Adjutant\SettingsForm.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Adjutant\UpdateForm.resx">
+      <DependentUpon>UpdateForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Adjutant Help.chm" />
+    <None Include="Resources\Versions.xml" />
+    <None Include="Resources\Classes.xml" />
+    <None Include="Resources\Builds.xml" />
+    <None Include="Resources\EMF3Importer.mse" />
+    <None Include="Resources\update.exe" />
+    <Content Include="Adjutant\Tourist.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Library\Controls\Renderer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
