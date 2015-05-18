@@ -14,6 +14,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
     internal partial class mValue : MetaViewerControl
     {
         public int val = -1;
+        public int size = -1;
         public mValue(iValue Value, CacheFile Cache)
         {
             InitializeComponent();
@@ -70,6 +71,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
 
                 case iValue.ValueType.RawID:
                     val = reader.ReadInt32();
+                    if(cache.Version == Definitions.DefinitionSet.Halo2Xbox) size = reader.ReadInt32();
                     ContextMenuStrip = contextMenuStrip1;
                     txtValue.Text = val.ToString();
                     break;
@@ -100,7 +102,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
 
             if (sfd.ShowDialog() != DialogResult.OK) return;
 
-            var data = cache.GetRawFromID(val);
+            var data = cache.GetRawFromID(val, size);
             File.WriteAllBytes(sfd.FileName, data);
 
             MessageBox.Show("Done!");

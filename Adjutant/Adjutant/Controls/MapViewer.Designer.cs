@@ -36,13 +36,14 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.extractSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extractAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dumpFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dumpFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.extractor1 = new Adjutant.Controls.Extractor();
-            this.extractAll2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -106,11 +107,12 @@
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.extractSelectedToolStripMenuItem,
             this.extractAllToolStripMenuItem,
-            this.extractAll2ToolStripMenuItem,
+            this.dumpFileToolStripMenuItem,
+            this.dumpFolderToolStripMenuItem,
             this.copyToolStripMenuItem,
             this.refreshToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(157, 136);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(157, 158);
             // 
             // extractSelectedToolStripMenuItem
             // 
@@ -125,6 +127,20 @@
             this.extractAllToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.extractAllToolStripMenuItem.Text = "Extract All";
             this.extractAllToolStripMenuItem.Click += new System.EventHandler(this.extractAllToolStripMenuItem_Click);
+            // 
+            // dumpFileToolStripMenuItem
+            // 
+            this.dumpFileToolStripMenuItem.Name = "dumpFileToolStripMenuItem";
+            this.dumpFileToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.dumpFileToolStripMenuItem.Text = "Dump File";
+            this.dumpFileToolStripMenuItem.Click += new System.EventHandler(this.dumpFileToolStripMenuItem_Click);
+            // 
+            // dumpFolderToolStripMenuItem
+            // 
+            this.dumpFolderToolStripMenuItem.Name = "dumpFolderToolStripMenuItem";
+            this.dumpFolderToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.dumpFolderToolStripMenuItem.Text = "Dump Folder";
+            this.dumpFolderToolStripMenuItem.Click += new System.EventHandler(this.dumpFolderToolStripMenuItem_Click);
             // 
             // copyToolStripMenuItem
             // 
@@ -181,13 +197,6 @@
             this.extractor1.Size = new System.Drawing.Size(1341, 110);
             this.extractor1.TabIndex = 0;
             // 
-            // extractAll2ToolStripMenuItem
-            // 
-            this.extractAll2ToolStripMenuItem.Name = "extractAll2ToolStripMenuItem";
-            this.extractAll2ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
-            this.extractAll2ToolStripMenuItem.Text = "Extract All 2";
-            this.extractAll2ToolStripMenuItem.Click += new System.EventHandler(this.extractAll2ToolStripMenuItem_Click);
-            // 
             // MapViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -223,7 +232,8 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TextBox txtSearch;
         private System.Windows.Forms.ToolStripMenuItem extractAllToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem extractAll2ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dumpFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dumpFolderToolStripMenuItem;
 
 
     }

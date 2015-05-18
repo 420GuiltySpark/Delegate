@@ -11,7 +11,7 @@ namespace Adjutant.Library.Definitions
     {
         private static string errorMessage = "Supplied definition set does not support \"----\" tags.";
 
-        //---, H3R, ODST, HRB, HRR, H4R
+        //---, ---, H3R, ODST, HRB, HRR, H4R
         public static cache_file_resource_layout_table play(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             switch (Cache.Version)
@@ -31,7 +31,7 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //H3B, H3R, ODST, HRB, HRR, H4R
+        //---, H3B, H3R, ODST, HRB, HRR, H4R
         public static cache_file_resource_gestalt zone(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             switch (Cache.Version)
@@ -54,7 +54,7 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //---, H3R, ODST, HRB, HRR, ---
+        //---, ---, H3R, ODST, HRB, HRR, ---
         public static sound_cache_file_gestalt ugh_(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;
@@ -77,11 +77,14 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //H3B, H3R, ODST, HRB, HRR, H4R
+        //H2X, H3B, H3R, ODST, HRB, HRR, H4R
         public static bitmap bitm(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             switch (Cache.Version)
             {
+                case DefinitionSet.Halo2Xbox:
+                    return new Halo2Xbox.bitmap(Cache, Tag.Offset);
+
                 case DefinitionSet.Halo3Beta:
                 case DefinitionSet.Halo3Retail:
                 case DefinitionSet.Halo3ODST:
@@ -100,11 +103,14 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //H3B, H3R, ODST, HRB, HRR, H4R
+        //H2X, H3B, H3R, ODST, HRB, HRR, H4R
         public static render_model mode(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             switch (Cache.Version)
             {
+                case DefinitionSet.Halo2Xbox:
+                    return new Halo2Xbox.render_model(Cache, Tag.Offset);
+
                 case DefinitionSet.Halo3Beta:
                 case DefinitionSet.Halo3Retail:
                     return new Halo3Beta.render_model(Cache, Tag.Offset);
@@ -119,6 +125,8 @@ namespace Adjutant.Library.Definitions
                     return new ReachRetail.render_model(Cache, Tag.Offset);
 
                 case DefinitionSet.Halo4Beta:
+                    return new Halo4Beta.render_model(Cache, Tag.Offset);
+
                 case DefinitionSet.Halo4Retail:
                     return new Halo4Retail.render_model(Cache, Tag.Offset);
 
@@ -127,11 +135,14 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //H3B, H3R, ODST, ---, ---, ---
+        //H2X, H3B, H3R, ODST, HRB, HRR, H4R
         public static scenario_structure_bsp sbsp(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             switch (Cache.Version)
             {
+                case DefinitionSet.Halo2Xbox:
+                    return new Halo2Xbox.scenario_structure_bsp(Cache, Tag);
+
                 case DefinitionSet.Halo3Beta:
                     return new Halo3Beta.scenario_structure_bsp(Cache, Tag.Offset);
 
@@ -155,7 +166,7 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //H3B, H3R, ODST, HRB, HRR, ---
+        //---, H3B, H3R, ODST, HRB, HRR, ---
         public static render_method_template rmt2(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             switch (Cache.Version)
@@ -172,12 +183,15 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //H3B, H3R, ODST, HRB, HRR, H4R
+        //H2X, H3B, H3R, ODST, HRB, HRR, H4R
         public static shader rmsh(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)
             {
+                case DefinitionSet.Halo2Xbox:
+                    return new Halo2Xbox.shader(Cache, Tag.Offset);
+
                 case DefinitionSet.Halo3Beta:
                 case DefinitionSet.Halo3Retail:
                 case DefinitionSet.Halo3ODST:
@@ -196,7 +210,7 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //---, H3R, ODST, HRB, HRR, H4R
+        //---, ---, H3R, ODST, HRB, HRR, H4R
         public static sound snd_(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;
@@ -218,7 +232,7 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //---, ---, ----, ---, ---, H4R
+        //---, ---, ---, ----, ---, ---, H4R
         public static soundbank sbnk(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;
@@ -232,7 +246,20 @@ namespace Adjutant.Library.Definitions
             }
         }
 
-        //H3B, H3R, ODST, HRB, HRR, H4R
+        //---, ---, ---, ----, ---, ---, H4R
+        public static bink bink(CacheFile Cache, CacheFile.IndexItem Tag)
+        {
+            switch (Cache.Version)
+            {
+                case DefinitionSet.Halo4Retail:
+                    return new Halo4Retail.bink(Cache, Tag.Offset);
+
+                default:
+                    throw new NotSupportedException(errorMessage.Replace("----", "bink"));
+            }
+        }
+
+        //---, H3B, H3R, ODST, HRB, HRR, H4R
         public static multilingual_unicode_string_list unic(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;

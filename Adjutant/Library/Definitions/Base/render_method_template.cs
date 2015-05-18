@@ -7,7 +7,18 @@ namespace Adjutant.Library.Definitions
 {
     public abstract class render_method_template
     {
+        public List<ArgumentBlock> ArgumentBlocks;
         public List<UsageBlock> UsageBlocks;
+
+        public abstract class ArgumentBlock
+        {
+            public string Argument;
+
+            public override string ToString()
+            {
+                return Argument;
+            }
+        }
 
         public abstract class UsageBlock
         {

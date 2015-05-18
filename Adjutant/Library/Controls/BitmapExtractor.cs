@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using Adjutant.Library.S3D;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.Imaging;
@@ -20,6 +21,9 @@ namespace Adjutant.Library.Controls
         private CacheFile cache;
         private CacheFile.IndexItem tag;
         private bitmap bitm;
+        private S3DPak pak;
+        private S3DPak.PakItem item;
+        private S3DPICT pict;
         private bool isWorking;
 
         public BitmapFormat DefaultBitmFormat = BitmapFormat.TIF;
@@ -33,6 +37,8 @@ namespace Adjutant.Library.Controls
         #region Methods
         public void LoadBitmapTag(CacheFile Cache, CacheFile.IndexItem Tag)
         {
+            exportAllImagesToolStripMenuItem.Visible = true;
+
             cache = Cache;
             tag = Tag;
 
@@ -50,6 +56,35 @@ namespace Adjutant.Library.Controls
                         submap.Height.ToString(),
                         submap.Type.ToString(),
                         submap.Format.ToString()})
+                {
+                    Tag = (list[i] == null) ? GetErrorImage() : list[i]
+                });
+            }
+
+            lstBitmaps.FocusedItem = lstBitmaps.Items[0];
+            lstBitmaps_SelectedIndexChanged(null, null);
+        }
+
+        public void LoadBitmapTag(S3DPak Pak, S3DPak.PakItem Item)
+        {
+            exportAllImagesToolStripMenuItem.Visible = false;
+
+            pak = Pak;
+            item = Item;
+            pict = new S3DPICT(pak, item);
+
+            lstBitmaps.Items.Clear();
+            var list = new List<Bitmap>() { GetBitmapByTag(pak, pict, PixelFormat.Format32bppArgb) };
+            var map = list[0];
+            for (int i = 0; i < list.Count; i++)
+            {
+                lstBitmaps.Items.Add(new ListViewItem(new string[]
+                {
+                        i.ToString(), 
+                        pict.Width.ToString(), 
+                        pict.Height.ToString(),
+                        "S3DPICT".ToString(),
+                        pict.Format.ToString()})
                 {
                     Tag = (list[i] == null) ? GetErrorImage() : list[i]
                 });
@@ -102,6 +137,11 @@ namespace Adjutant.Library.Controls
             return GetBitmapByTag(Cache, bitm, Index, PF);
         }
 
+        public static Bitmap GetBitmapByTag(S3DPak Pak, S3DPak.PakItem Item, PixelFormat PF)
+        {
+            var pict = new S3DPICT(Pak, Item);
+            return GetBitmapByTag(Pak, pict, PF);
+        }
 
         /// <summary>
         /// Gets an image from a bitmap tag.
@@ -118,26 +158,34 @@ namespace Adjutant.Library.Controls
                 var submap = bitm.Bitmaps[Index];
 
                 byte[] raw;
-                if (bitm.RawChunkBs.Count > 0)
+                if (Cache.Version <= DefinitionSet.Halo2Vista)
                 {
-                    int rawID = bitm.RawChunkBs[submap.InterleavedIndex].RawID;
-                    byte[] buffer = Cache.GetRawFromID(rawID);
-                    raw = new byte[submap.RawSize];
-                    Array.Copy(buffer, submap.Index2 * submap.RawSize, raw, 0, submap.RawSize);
+                    var sub2 = (Definitions.Halo2Xbox.bitmap.BitmapData)submap;
+                    raw = Cache.GetRawFromID(sub2.LODOffset[0], sub2.RawSize);
                 }
                 else
                 {
-                    int rawID = bitm.RawChunkAs[Index].RawID;
-                    raw = Cache.GetRawFromID(rawID, submap.RawSize);
+                    if (bitm.RawChunkBs.Count > 0)
+                    {
+                        int rawID = bitm.RawChunkBs[submap.InterleavedIndex].RawID;
+                        byte[] buffer = Cache.GetRawFromID(rawID);
+                        raw = new byte[submap.RawSize];
+                        Array.Copy(buffer, submap.Index2 * submap.RawSize, raw, 0, submap.RawSize);
+                    }
+                    else
+                    {
+                        int rawID = bitm.RawChunkAs[Index].RawID;
+                        raw = Cache.GetRawFromID(rawID, submap.RawSize);
+                    }
                 }
 
                 int vHeight = submap.VirtualHeight;
                 int vWidth = submap.VirtualWidth;
 
                 if (submap.Type == TextureType.CubeMap)
-                    return DXTDecoder.DecodeCubeMap(raw, submap, PF);
+                    return DXTDecoder.DecodeCubeMap(raw, submap, PF, Cache.Version);
 
-                raw = DXTDecoder.DecodeBitmap(raw, submap);
+                raw = DXTDecoder.DecodeBitmap(raw, submap, Cache.Version);
 
                 //PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
                 Bitmap bitmap2 = new Bitmap(submap.Width, submap.Height, PF);
@@ -158,6 +206,47 @@ namespace Adjutant.Library.Controls
                 return null;
             }
         }
+
+        public static Bitmap GetBitmapByTag(S3DPak Pak, S3DPICT pict, PixelFormat PF)
+        {
+            try
+            {
+                byte[] raw;
+                Pak.Reader.SeekTo(pict.DataAddress);
+                raw = Pak.Reader.ReadBytes(pict.RawSize);
+
+                //change to BigEndian
+                if (pict.isLittleEndian)
+                {
+                    int block = 2;
+                    if (pict.Format == TextureFormat.A8R8G8B8 || pict.Format == TextureFormat.X8R8G8B8) block = 4;
+
+                    for (int i = 0; i < raw.Length; i += block)
+                        Array.Reverse(raw, i, block);
+                }
+
+                if (pict.Type == TextureType.CubeMap)
+                    return DXTDecoder.DecodeCubeMap(raw, pict, PF);
+
+                raw = DXTDecoder.DecodeBitmap(raw, pict);
+
+                //PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
+                Bitmap bitmap2 = new Bitmap(pict.Width, pict.Height, PF);
+                Rectangle rect = new Rectangle(0, 0, pict.Width, pict.Height);
+                BitmapData bitmapdata = bitmap2.LockBits(rect, ImageLockMode.WriteOnly, PF);
+                byte[] destinationArray = new byte[(pict.Width * pict.Height) * 4];
+
+                for (int j = 0; j < pict.Height; j++)
+                    Array.Copy(raw, j * pict.VirtualWidth * 4, destinationArray, j * pict.Width * 4, pict.Width * 4);
+
+                Marshal.Copy(destinationArray, 0, bitmapdata.Scan0, destinationArray.Length);
+                bitmap2.UnlockBits(bitmapdata);
+
+                return bitmap2;
+            }
+            catch { return null; }
+        }
+
         #endregion
 
         #region GetBitmapsByTag
@@ -222,17 +311,26 @@ namespace Adjutant.Library.Controls
             var submap = bitm.Bitmaps[Index];
 
             byte[] raw;
-            if (bitm.RawChunkBs.Count > 0)
+
+            if (Cache.Version <= DefinitionSet.Halo2Vista)
             {
-                int rawID = bitm.RawChunkBs[submap.InterleavedIndex].RawID;
-                byte[] buffer = Cache.GetRawFromID(rawID);
-                raw = new byte[submap.RawSize];
-                Array.Copy(buffer, submap.Index2 * submap.RawSize, raw, 0, submap.RawSize);
+                var sub2 = (Definitions.Halo2Xbox.bitmap.BitmapData)submap;
+                raw = Cache.GetRawFromID(sub2.LODOffset[0], sub2.RawSize);
             }
             else
             {
-                int rawID = bitm.RawChunkAs[Index].RawID;
-                raw = Cache.GetRawFromID(rawID, submap.RawSize);
+                if (bitm.RawChunkBs.Count > 0)
+                {
+                    int rawID = bitm.RawChunkBs[submap.InterleavedIndex].RawID;
+                    byte[] buffer = Cache.GetRawFromID(rawID);
+                    raw = new byte[submap.RawSize];
+                    Array.Copy(buffer, submap.Index2 * submap.RawSize, raw, 0, submap.RawSize);
+                }
+                else
+                {
+                    int rawID = bitm.RawChunkAs[Index].RawID;
+                    raw = Cache.GetRawFromID(rawID, submap.RawSize);
+                }
             }
 
             int vHeight = submap.VirtualHeight;
@@ -241,41 +339,41 @@ namespace Adjutant.Library.Controls
             if (Format == BitmapFormat.TIF || Format == BitmapFormat.PNG64)
             {
                 string ext = (Format == BitmapFormat.TIF) ? ".tif" : ".png";
-                int pLength = (Format == BitmapFormat.TIF) ? 4 : 8;
+                int pLength = (Format == BitmapFormat.TIF) ? 4 : 4;//8;
                 ImageFormat IF = (Format == BitmapFormat.TIF) ? ImageFormat.Tiff : ImageFormat.Png;
 
                 if (!Filename.EndsWith(ext)) Filename += ext;
 
                 if (submap.Type == TextureType.CubeMap)
                 {
-                    if (Format == BitmapFormat.PNG64) throw new Exception("Cubemaps not supported in 64bpp.");
+                    //if (Format == BitmapFormat.PNG64) throw new Exception("Cubemaps not supported in 64bpp.");
 
-                    var img = DXTDecoder.DecodeCubeMap(raw, submap, Alpha ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb);
+                    var img = DXTDecoder.DecodeCubeMap(raw, submap, Alpha ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb, Cache.Version);
                     if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
                     img.Save(Filename, ImageFormat.Tiff);
                     return;
                 }
 
-                raw = DXTDecoder.DecodeBitmap(raw, submap);
+                raw = DXTDecoder.DecodeBitmap(raw, submap, Cache.Version);
 
-                if (Format == BitmapFormat.PNG64)
-                {
-                    var br = new BinaryWriter(new MemoryStream());
+                //if (Format == BitmapFormat.PNG64)
+                //{
+                //    var br = new BinaryWriter(new MemoryStream());
 
-                    for (int i = 0; i < raw.Length; i++)
-                    {
-                        if (!Alpha && i % 4 == 3)
-                            br.Write((ushort)0xFFFF);
-                        else
-                            br.Write((ushort)(raw[i] * 257));
-                    }
+                //    for (int i = 0; i < raw.Length; i++)
+                //    {
+                //        if (!Alpha && i % 4 == 3)
+                //            br.Write((ushort)0xFFFF);
+                //        else
+                //            br.Write((ushort)(raw[i] * 257));
+                //    }
 
-                    br.BaseStream.Position = 0;
-                    raw = (new BinaryReader(br.BaseStream)).ReadBytes((int)br.BaseStream.Length);
-                }
+                //    br.BaseStream.Position = 0;
+                //    raw = (new BinaryReader(br.BaseStream)).ReadBytes((int)br.BaseStream.Length);
+                //}
 
                 PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
-                if (Format == BitmapFormat.PNG64) PF = PixelFormat.Format64bppArgb;
+                //if (Format == BitmapFormat.PNG64) PF = PixelFormat.Format64bppArgb;
 
                 Bitmap bitmap2 = new Bitmap(submap.Width, submap.Height, PF);
                 Rectangle rect = new Rectangle(0, 0, submap.Width, submap.Height);
@@ -325,8 +423,97 @@ namespace Adjutant.Library.Controls
 
                 File.WriteAllBytes(Filename, raw);
             }
-            else 
-                throw new InvalidOperationException("Invalid BitmapFormat received.");
+            else throw new InvalidOperationException("Invalid BitmapFormat received.");
+        }
+
+        public static void SaveImage(string Filename, S3DPak Pak, S3DPak.PakItem Item, BitmapFormat Format, bool Alpha)
+        {
+            var pict = new S3DPICT(Pak, Item);
+            SaveImage(Filename, Pak, pict, Format, Alpha);
+        }
+
+        public static void SaveImage(string Filename, S3DPak Pak, S3DPICT pict, BitmapFormat Format, bool Alpha)
+        {
+            byte[] raw;
+            Pak.Reader.SeekTo(pict.DataAddress);
+            raw = Pak.Reader.ReadBytes(pict.RawSize);
+
+            //change to BigEndian
+            if (pict.isLittleEndian)
+            {
+                int block = 2;
+                if (pict.Format == TextureFormat.A8R8G8B8 || pict.Format == TextureFormat.X8R8G8B8) block = 4;
+
+                for (int i = 0; i < raw.Length; i += block)
+                    Array.Reverse(raw, i, block);
+            }
+
+
+            if (Format == BitmapFormat.TIF || Format == BitmapFormat.PNG64)
+            {
+                string ext = (Format == BitmapFormat.TIF) ? ".tif" : ".png";
+                int pLength = (Format == BitmapFormat.TIF) ? 4 : 4;//8;
+                ImageFormat IF = (Format == BitmapFormat.TIF) ? ImageFormat.Tiff : ImageFormat.Png;
+                PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
+
+                if (!Filename.EndsWith(ext)) Filename += ext;
+
+                if (pict.Type == TextureType.CubeMap)
+                {
+                    var img = DXTDecoder.DecodeCubeMap(raw, pict, PF);
+                    if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+                    img.Save(Filename, ImageFormat.Tiff);
+                    return;
+                }
+
+                raw = DXTDecoder.DecodeBitmap(raw, pict);
+
+                Bitmap bitmap2 = new Bitmap(pict.Width, pict.Height, PF);
+                Rectangle rect = new Rectangle(0, 0, pict.Width, pict.Height);
+                BitmapData bitmapdata = bitmap2.LockBits(rect, ImageLockMode.WriteOnly, PF);
+                byte[] destinationArray = new byte[(pict.Width * pict.Height) * pLength];
+
+                for (int j = 0; j < pict.Height; j++)
+                    Array.Copy(raw, j * pict.VirtualWidth * pLength, destinationArray, j * pict.Width * pLength, pict.Width * pLength);
+
+                Marshal.Copy(destinationArray, 0, bitmapdata.Scan0, destinationArray.Length);
+                bitmap2.UnlockBits(bitmapdata);
+
+                if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+
+                bitmap2.Save(Filename, IF);
+            }
+            else if (Format == BitmapFormat.DDS)
+            {
+                if (!Filename.EndsWith(".dds")) Filename += ".dds";
+
+                if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+
+                var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
+                var bw = new BinaryWriter(fs);
+
+                if (pict.Format != TextureFormat.A8R8G8B8)
+                    for (int i = 0; i < raw.Length; i += 2)
+                        Array.Reverse(raw, i, 2);
+                else
+                    for (int i = 0; i < (raw.Length); i += 4)
+                        Array.Reverse(raw, i, 4);
+
+                //new DDS(submap).Write(bw);
+                bw.Write(raw);
+
+                bw.Close();
+                bw.Dispose();
+            }
+            else if (Format == BitmapFormat.RAW)
+            {
+                if (!Filename.EndsWith(".bin")) Filename += ".bin";
+
+                if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+
+                File.WriteAllBytes(Filename, raw);
+            }
+            else throw new InvalidOperationException("Invalid BitmapFormat received.");
         }
         #endregion
 
@@ -362,16 +549,16 @@ namespace Adjutant.Library.Controls
                     ext = ".tif";
                     break;
 
+                case BitmapFormat.PNG64:
+                    ext = ".png";
+                    break;
+
                 case BitmapFormat.DDS:
                     ext = ".dds";
                     break;
 
                 case BitmapFormat.RAW:
                     ext = ".bin";
-                    break;
-
-                case BitmapFormat.PNG64:
-                    ext = ".png";
                     break;
 
                 default:
@@ -396,9 +583,12 @@ namespace Adjutant.Library.Controls
 
             var img = lstBitmaps.FocusedItem.Tag as Bitmap;
             picImage.Image = chkAlpha.Checked ? img : img.Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format32bppRgb);
+            
             isWorking = true;
-            cmbFormat.SelectedIndex = (int)bitm.Bitmaps[lstBitmaps.FocusedItem.Index].Format;
+            if (bitm != null) cmbFormat.SelectedIndex = (int)bitm.Bitmaps[lstBitmaps.FocusedItem.Index].Format;
+            else cmbFormat.SelectedIndex = (int)pict.Format;
             isWorking = false;
+            
             UpdateBoxSize();
         }
 
@@ -413,8 +603,16 @@ namespace Adjutant.Library.Controls
 
             try
             {
-                bitm.Bitmaps[lstBitmaps.FocusedItem.Index].Format = (TextureFormat)cmbFormat.SelectedIndex;
-                lstBitmaps.FocusedItem.Tag = GetBitmapByTag(cache, bitm, lstBitmaps.FocusedItem.Index, PixelFormat.Format32bppArgb);
+                if (bitm != null)
+                {
+                    bitm.Bitmaps[lstBitmaps.FocusedItem.Index].Format = (TextureFormat)cmbFormat.SelectedIndex;
+                    lstBitmaps.FocusedItem.Tag = GetBitmapByTag(cache, bitm, lstBitmaps.FocusedItem.Index, PixelFormat.Format32bppArgb);
+                }
+                else
+                {
+                    pict.Format = (TextureFormat)cmbFormat.SelectedIndex;
+                    lstBitmaps.FocusedItem.Tag = GetBitmapByTag(pak, pict, PixelFormat.Format32bppArgb);
+                }
                 lstBitmaps_SelectedIndexChanged(null, null);
             }
             catch
@@ -427,13 +625,14 @@ namespace Adjutant.Library.Controls
         private void exportThisImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var index = lstBitmaps.FocusedItem.Index;
-            var fName = tag.Filename.Substring(tag.Filename.LastIndexOf('\\') + 1);
+            var fName = (tag != null) ? tag.Filename.Substring(tag.Filename.LastIndexOf('\\') + 1) : item.Name;
             fName = (index == 0) ? fName : fName + " [" + index.ToString() + "]";
+            object thing = (tag != null) ? (object)tag : (object)item;
 
             var sfd = new SaveFileDialog()
             {
                 FileName = fName,
-                Filter = "TIF Files|*.tif|DDS Files|*.dds|Raw Data|*.bin|64bpp PNG Files|*.png",
+                Filter = "TIF Files|*.tif|DDS Files|*.dds|Raw Data|*.bin|PNG Files|*.png",
                 FilterIndex = (int)DefaultBitmFormat + 1
             };
 
@@ -441,10 +640,11 @@ namespace Adjutant.Library.Controls
 
             try
             {
-                SaveImage(sfd.FileName, cache, bitm, index, (BitmapFormat)(sfd.FilterIndex - 1), chkAlpha.Checked);
-                TagExtracted(this, tag);
+                if (bitm != null) SaveImage(sfd.FileName, cache, bitm, index, (BitmapFormat)(sfd.FilterIndex - 1), chkAlpha.Checked);
+                else SaveImage(sfd.FileName, pak, pict, (BitmapFormat)(sfd.FilterIndex - 1), chkAlpha.Checked);
+                TagExtracted(this, thing);
             }
-            catch (Exception ex) { ErrorExtracting(this, tag, ex); }
+            catch (Exception ex) { ErrorExtracting(this, thing, ex); }
         }
 
         private void exportAllImagesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -452,7 +652,7 @@ namespace Adjutant.Library.Controls
             var sfd = new SaveFileDialog()
             {
                 FileName = tag.Filename.Substring(tag.Filename.LastIndexOf('\\') + 1),
-                Filter = "TIF Files|*.tif|DDS Files|*.dds|Raw Data|*.bin|64bpp PNG Files|*.png",
+                Filter = "TIF Files|*.tif|DDS Files|*.dds|Raw Data|*.bin|PNG Files|*.png",
                 FilterIndex = (int)DefaultBitmFormat + 1
             };
 

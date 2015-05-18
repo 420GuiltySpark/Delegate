@@ -48,11 +48,10 @@ namespace Adjutant.Library.Controls
 
             mode = DefinitionsManager.mode(cache, tag);
 
-            if (mode.InstancedGeometryIndex != -1) ModelFunctions.LoadModelRaw(cache, ref mode);
+            if (mode.InstancedGeometryIndex != -1) mode.LoadRaw();
 
             lblName.Text = mode.Name;
 
-            isWorking = true;
             tvRegions.Nodes.Clear();
             foreach (var region in mode.Regions)
             {
@@ -60,16 +59,12 @@ namespace Adjutant.Library.Controls
                 foreach (var perm in region.Permutations)
                 {
                     if (perm.PieceIndex != -1)
-                        if (mode.ModelSections[perm.PieceIndex].Submeshes.Count > 0)
+                        if (mode.ModelSections[perm.PieceIndex].Submeshes.Count > 0 /*&& mode.ModelParts[perm.PieceIndex].TotalVertexCount > 0*/)
                             node.Nodes.Add(new TreeNode(perm.Name) { Checked = true, Tag = perm });
                 }
                 if(node.Nodes.Count > 0)
                     tvRegions.Nodes.Add(node);
             }
-
-            tvRegions.Sort();
-
-            isWorking = false;
         }
 
         private void RecursiveExtract(object SaveFolder)
@@ -81,13 +76,40 @@ namespace Adjutant.Library.Controls
             foreach (render_model.Shader shader in mode.Shaders)
             {
                 var rmshTag = cache.IndexItems.GetItemByID(shader.tagID);
+                if (rmshTag == null) continue;
                 var rmsh = DefinitionsManager.rmsh(cache, rmshTag);
+
+                #region Halo 2 Extract
+                if (cache.Version == DefinitionSet.Halo2Xbox)
+                {
+                    var h2rmsh = rmsh as Definitions.Halo2Xbox.shader;
+                    for (int i = 0; i < h2rmsh.BitmIDs.Length; i++)
+                    {
+                        var bitmTag = cache.IndexItems.GetItemByID(h2rmsh.BitmIDs[i]);
+                        if (bitmTag == null) continue;
+
+                        //dont need to waste time extracting the same ones over and over
+                        if (tagsDone.Contains(bitmTag)) continue;
+
+                        try
+                        {
+                            BitmapExtractor.SaveAllImages((string)SaveFolder + "\\" + bitmTag.Filename, cache, bitmTag, DefaultBitmFormat, true);
+                            TagExtracted(this, bitmTag);
+                        }
+                        catch (Exception ex) { ErrorExtracting(this, bitmTag, ex); }
+
+                        tagsDone.Add(bitmTag);
+                    }
+                    continue;
+                }
+                #endregion
 
                 foreach (Definitions.shader.ShaderProperties prop in rmsh.Properties)
                 {
                     foreach (Definitions.shader.ShaderProperties.ShaderMap map in prop.ShaderMaps)
                     {
                         var bitmTag = cache.IndexItems.GetItemByID(map.BitmapTagID);
+                        if (bitmTag == null) continue;
 
                         //dont need to waste time extracting the same ones over and over
                         if (tagsDone.Contains(bitmTag)) continue;
@@ -147,7 +169,7 @@ namespace Adjutant.Library.Controls
         public static void SaveAllModelParts(string Filename, CacheFile Cache, CacheFile.IndexItem Tag, ModelFormat Format, bool SplitMeshes)
         {
             var mode = DefinitionsManager.mode(Cache, Tag);
-            ModelFunctions.LoadModelRaw(Cache, ref mode);
+            mode.LoadRaw();
 
             List<int> Parts = new List<int>();
             for (int i = 0; i < mode.ModelSections.Count; i++)

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using Adjutant.Library.Definitions;
+using Adjutant.Library.S3D;
 
 namespace Adjutant.Library.Imaging
 {
@@ -18,10 +19,12 @@ namespace Adjutant.Library.Imaging
      *     -DecodeDXT3A
      *     -DecodeDXT5A
      *     -DecodeCubeMap
+     *     -S3D related functions
+     *     -Everything in the Swizzle region is from troymac1ure's Entity.
      *     
      * Many edits and additons have been made to the derived code.
      ***************************************************************/
-    
+
     public static class DXTDecoder
     {
 
@@ -36,6 +39,19 @@ namespace Adjutant.Library.Imaging
         }
 
         #region Format Decoding
+        private static byte[] DecodeP8(byte[] data, int width, int height)
+        {
+            var buffer = new byte[data.Length * 4];
+            for (int i = 0; i < data.Length; i++)
+            {
+                buffer[i * 4 + 0] = data[i];
+                buffer[i * 4 + 1] = data[i];
+                buffer[i * 4 + 2] = data[i];
+                buffer[i * 4 + 3] = 255;
+            }
+            return buffer;
+        }
+
         private static byte[] DecodeA8R8G8B8(byte[] data, int width, int height)
         {
             for (int i = 0; i < (data.Length); i += 4)
@@ -873,7 +889,7 @@ namespace Adjutant.Library.Imaging
         }
         #endregion
 
-        public static Bitmap DecodeCubeMap(byte[] data, bitmap.BitmapData submap, PixelFormat PF)
+        public static Bitmap DecodeCubeMap(byte[] data, bitmap.BitmapData submap, PixelFormat PF, DefinitionSet version)
         {
             List<Bitmap> images = new List<Bitmap>();
             int imageSize = submap.VirtualWidth * submap.VirtualHeight * 4;
@@ -897,7 +913,7 @@ namespace Adjutant.Library.Imaging
             {
                 byte[] buffer = new byte[imageSize];
                 Array.Copy(data, i * tImageSize, buffer, 0, imageSize);
-                buffer = DecodeBitmap(buffer, submap);
+                buffer = DecodeBitmap(buffer, submap, version);
 
                 //PixelFormat PF = (alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
                 Bitmap bitmap = new Bitmap(submap.Width, submap.Height, PF);
@@ -954,11 +970,189 @@ namespace Adjutant.Library.Imaging
             return finalImage;
         }
 
-        public static byte[] DecodeBitmap(byte[] bitmRaw, bitmap.BitmapData submap)
+        public static Bitmap DecodeCubeMap(byte[] data, S3DPICT pict, PixelFormat PF)
         {
-            if (submap.Flags.Values[3])
-                bitmRaw = DXTDecoder.ConvertToLinearTexture(bitmRaw, submap.VirtualWidth, submap.VirtualHeight, submap.Format);
+            List<Bitmap> images = new List<Bitmap>();
+            int imageSize = pict.VirtualWidth * pict.VirtualHeight * 4;
+            int tImageSize = pict.RawSize / 6;
 
+            switch (pict.Format)
+            {
+                case TextureFormat.DXT1:
+                    imageSize = Math.Max(imageSize / 8, 8);
+                    break;
+                case TextureFormat.DXT3:
+                case TextureFormat.DXT5:
+                    imageSize = Math.Max(imageSize / 4, 16);
+                    break;
+                case TextureFormat.A8R8G8B8:
+                    imageSize = Math.Max(data.Length / 6, 16);
+                    break;
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                byte[] buffer = new byte[imageSize];
+                Array.Copy(data, i * tImageSize, buffer, 0, imageSize);
+                buffer = DecodeBitmap(buffer, pict);
+
+                //PixelFormat PF = (alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
+                Bitmap bitmap = new Bitmap(pict.Width, pict.Height, PF);
+                Rectangle rect = new Rectangle(0, 0, pict.Width, pict.Height);
+                BitmapData bitmapdata = bitmap.LockBits(rect, ImageLockMode.WriteOnly, PF);
+                byte[] destinationArray = new byte[pict.Width * pict.Height * 4];
+
+                for (int j = 0; j < pict.Height; j++)
+                    Array.Copy(buffer, j * pict.VirtualWidth * 4, destinationArray, j * pict.Width * 4, pict.Width * 4);
+
+                Marshal.Copy(destinationArray, 0, bitmapdata.Scan0, destinationArray.Length);
+                bitmap.UnlockBits(bitmapdata);
+                images.Add(bitmap);
+            }
+
+            Bitmap finalImage = new Bitmap(4 * pict.Width, 3 * pict.Height);
+
+            using (Graphics g = Graphics.FromImage(finalImage))
+            {
+                // set background color
+                g.Clear(Color.Empty);
+
+                int[] crossX = new int[6] { 0, 2, 1, 3, 0, 0 }; // Front, Left, Right, Back, Top, Bottom
+                int[] crossY = new int[6] { 1, 1, 1, 1, 0, 2 }; // Front, Left, Right, Back, Top, Bottom
+
+                // go through each image and draw it on the final image
+                int xOffset = 0;
+                int yOffset = 0;
+                int tempCount = 0;
+                foreach (Bitmap image in images)
+                {
+                    switch (tempCount)
+                    {
+                        case 0:
+                        case 4:
+                        case 5:
+                            image.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                            break;
+                        case 1:
+                            image.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                            break;
+                        case 2:
+                            image.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                            break;
+                    }
+                    xOffset = crossX[tempCount] * image.Width;
+                    yOffset = crossY[tempCount] * image.Height;
+
+                    g.DrawImage(image, new Rectangle(xOffset, yOffset, image.Width, image.Height));
+                    tempCount++;
+                }
+            }
+
+            return finalImage;
+        }
+
+        public static byte[] DecodeBitmap(byte[] bitmRaw, S3DPICT pict)
+        {
+            #region switch format
+            switch (pict.Format)
+            {
+                case TextureFormat.A8:
+                    bitmRaw = DXTDecoder.DecodeA8(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.Y8:
+                    bitmRaw = DXTDecoder.DecodeY8(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.AY8:
+                    bitmRaw = DXTDecoder.DecodeAY8(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.A8Y8:
+                    bitmRaw = DXTDecoder.DecodeA8Y8(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.R5G6B5:
+                    bitmRaw = DXTDecoder.DecodeR5G6B5(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.A1R5G5B5:
+                    bitmRaw = DXTDecoder.DecodeA1R5G5B5(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.A4R4G4B4:
+                    bitmRaw = DXTDecoder.DecodeA4R4G4B4(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.X8R8G8B8:
+                case TextureFormat.A8R8G8B8:
+                    bitmRaw = DXTDecoder.DecodeA8R8G8B8(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.DXT1:
+                    bitmRaw = DXTDecoder.DecodeDXT1(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.DXT3:
+                    bitmRaw = DXTDecoder.DecodeDXT3(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.DXT5:
+                    bitmRaw = DXTDecoder.DecodeDXT5(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.DXT5a:
+                case TextureFormat.DXT5a_alpha:
+                case TextureFormat.DXT5a_mono:
+                    bitmRaw = DXTDecoder.DecodeDXT5A(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.DXT3a_alpha:
+                case TextureFormat.DXT3a_mono:
+                    bitmRaw = DXTDecoder.DecodeDXT3A(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.DXN_mono_alpha:
+                    bitmRaw = DXTDecoder.DecodeDXNMA(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.DXN:
+                    bitmRaw = DXTDecoder.DecodeDXN(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.CTX1:
+                    bitmRaw = DXTDecoder.DecodeCTX1(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                case TextureFormat.P8:
+                case TextureFormat.P8_bump:
+                    bitmRaw = DXTDecoder.DecodeP8(bitmRaw, pict.VirtualWidth, pict.VirtualHeight);
+                    break;
+
+                default:
+                    throw new NotSupportedException("Unsupported bitmap format.");
+            }
+            #endregion
+
+            return bitmRaw;
+        }
+
+        public static byte[] DecodeBitmap(byte[] bitmRaw, bitmap.BitmapData submap, DefinitionSet Version)
+        {
+            if (Version <= DefinitionSet.Halo2Vista)
+            {
+                if (submap.Flags.Values[3]) bitmRaw = Swizzle(bitmRaw, 0, submap.Width, submap.Height, 1, 8, true);
+
+                for (int i = 0; i < bitmRaw.Length; i += submap.BlockSize)
+                    Array.Reverse(bitmRaw, i, submap.BlockSize);
+            }
+            else
+            {
+                if (submap.Flags.Values[3])
+                    bitmRaw = DXTDecoder.ConvertToLinearTexture(bitmRaw, submap.VirtualWidth, submap.VirtualHeight, submap.Format);
+            }
+
+            #region switch format
             switch (submap.Format)
             {
                 case TextureFormat.A8:
@@ -1029,9 +1223,15 @@ namespace Adjutant.Library.Imaging
                     bitmRaw = DXTDecoder.DecodeCTX1(bitmRaw, submap.VirtualWidth, submap.VirtualHeight);
                     break;
 
+                case TextureFormat.P8:
+                case TextureFormat.P8_bump:
+                    bitmRaw = DXTDecoder.DecodeP8(bitmRaw, submap.VirtualWidth, submap.VirtualHeight);
+                    break;
+
                 default:
                     throw new NotSupportedException("Unsupported bitmap format.");
             }
+            #endregion
 
             return bitmRaw;
         }
@@ -1175,5 +1375,117 @@ namespace Adjutant.Library.Imaging
                 A = Alpha;
             }
         }
+
+        #region Swizzle
+        private class MaskSet
+        {
+            public readonly int x;
+            public readonly int y;
+            public readonly int z;
+
+            public MaskSet(int w, int h, int d)
+            {
+                int bit = 1;
+                int index = 1;
+
+                while (bit < w || bit < h || bit < d)
+                {
+                    // if (bit == 0) { break; }
+                    if (bit < w)
+                    {
+                        x |= index;
+                        index <<= 1;
+                    }
+
+                    if (bit < h)
+                    {
+                        y |= index;
+                        index <<= 1;
+                    }
+
+                    if (bit < d)
+                    {
+                        z |= index;
+                        index <<= 1;
+                    }
+
+                    bit <<= 1;
+                }
+            }
+        }
+
+        public static byte[] Swizzle(byte[] raw, int offset, int width, int height, int depth, int bitCount, bool deswizzle)
+        {
+            if (raw.Length == 0)
+                return new byte[0];
+
+            if (depth < 1) depth = 1;
+
+            bitCount /= 8;
+            int a = 0, b = 0;
+            int tempsize = raw.Length; // width * height * bitCount;
+            byte[] data = new byte[tempsize];
+            MaskSet masks = new MaskSet(width, height, depth);
+
+            offset = 0;
+
+            for (int z = 0; z < depth; z++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        if (deswizzle)
+                        {
+                            a = ((((z * height) + y) * width) + x) * bitCount;
+                            b = Swizzle(x, y, z, masks) * bitCount;
+
+                            // a = ((y * width) + x) * bitCount;
+                            // b = (Swizzle(x, y, -1, masks)) * bitCount;
+                        }
+                        else
+                        {
+                            b = ((((z * height) + y) * width) + x) * bitCount;
+                            a = Swizzle(x, y, z, masks) * bitCount;
+
+                            // b = ((y * width) + x) * bitCount;
+                            // a = (Swizzle(x, y, -1, masks)) * bitCount;
+                        }
+
+                        for (int i = offset; i < bitCount + offset; i++)
+                            data[a + i] = raw[b + i];
+                    }
+                }
+            }
+
+            // for(int u = 0; u < offset; u++)
+            // data[u] = raw[u];
+            // for(int v = offset + (height * width * depth * bitCount); v < data.Length; v++)
+            // 	data[v] = raw[v];
+            return data;
+        }
+
+        private static int Swizzle(int x, int y, int z, MaskSet masks)
+        {
+            return SwizzleAxis(x, masks.x) | SwizzleAxis(y, masks.y) | (z == -1 ? 0 : SwizzleAxis(z, masks.z));
+        }
+
+        private static int SwizzleAxis(int val, int mask)
+        {
+            int bit = 1;
+            int result = 0;
+
+            while (bit <= mask)
+            {
+                int test = mask & bit;
+                if (test != 0) result |= val & bit;
+                else val <<= 1;
+
+                bit <<= 1;
+            }
+
+            return result;
+        }
+        #endregion
     }
 }

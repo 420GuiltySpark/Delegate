@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 
 namespace Adjutant.Library.Controls.MetaViewerControls
 {
@@ -39,7 +40,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             switch (value.Type)
             {
                 case iValue.ValueType.TagRef:
-                    reader.BaseStream.Position += 12; //doesn't always work from here, use the tag class instead
+                    reader.BaseStream.Position += (cache.Version >= DefinitionSet.Halo3Beta) ? 12 : 4; //doesn't always work from here, use the tag class instead
 
                     try
                     {

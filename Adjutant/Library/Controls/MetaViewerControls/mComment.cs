@@ -10,25 +10,30 @@ using Adjutant.Library.Cache;
 
 namespace Adjutant.Library.Controls.MetaViewerControls
 {
-    internal partial class mHeader : MetaViewerControl
+    internal partial class mComment : MetaViewerControl
     {
-        public mHeader()
+        public mComment()
         {
             InitializeComponent();
         }
 
-        public mHeader(iValue Value, CacheFile Cache)
+        public mComment(iValue Value, CacheFile Cache)
         {
             InitializeComponent();
             value = Value;
             cache = Cache;
 
-            SetText(value.Node.Attributes["name"].Value);
+            SetText(value.Node.Attributes["name"].Value, value.Node.InnerText);
         }
 
-        public void SetText(string Text)
+        public void SetText(string Title, string description)
         {
-            lblText.Text = Text;
+            lblTitle.Text = Title;
+            lblDesc.Text = description;
+            if (description != "")
+                this.Height = lblDesc.Height + 40;
+            else
+                this.Height = 37;
         }
 
         public override void Reload(int ParentAddress)

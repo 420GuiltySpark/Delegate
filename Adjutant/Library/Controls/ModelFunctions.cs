@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using Adjutant.Library.S3D;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.DataTypes;
@@ -14,7 +15,7 @@ namespace Adjutant.Library.Controls
 {
     public static class ModelFunctions
     {
-        public static void LoadModelRaw(CacheFile Cache, ref render_model mode)
+        /*public static void LoadModelRaw(CacheFile Cache, ref render_model mode)
         {
             var data = Cache.GetRawFromID(mode.RawID);
             var ms = new MemoryStream(data);
@@ -158,8 +159,9 @@ namespace Adjutant.Library.Controls
 
             mode.RawLoaded = true;
         }
+        */
 
-        public static void LoadBSPRaw(CacheFile Cache, ref scenario_structure_bsp sbsp)
+        /*public static void LoadBSPRaw(CacheFile Cache, ref scenario_structure_bsp sbsp)
         {
             var data = Cache.GetRawFromID(sbsp.geomRawID);
             
@@ -252,6 +254,7 @@ namespace Adjutant.Library.Controls
 
             sbsp.RawLoaded = true;
         }
+        */
 
         public static List<int> GetTriangleList(int[] Indices, int Start, int Length, int FaceFormat)
         {
@@ -288,7 +291,7 @@ namespace Adjutant.Library.Controls
             return list;
         }
 
-        private static void DecompressVertex(ref Vertex v, render_model.BoundingBox bb)
+        public static void DecompressVertex(ref Vertex v, render_model.BoundingBox bb)
         {
             VertexValue vv;
             if (v.TryGetValue("position", 0, out vv))
@@ -302,10 +305,62 @@ namespace Adjutant.Library.Controls
             {
                 if (bb.UBounds.Length != 0) vv.Data.x = (float)(vv.Data.x * bb.UBounds.Length + bb.UBounds.Min);
                 vv.Data.y = 1f - ((bb.VBounds.Length == 0) ? vv.Data.y : (float)(vv.Data.y * bb.VBounds.Length + bb.VBounds.Min));
+                //vv.Data.y = 1f - vv.Data.y;
             }
         }
 
-        private static void LoadModelFixups(CacheFile cache, ref render_model mode)
+        public static void DecompressVertex(ref Vertex[] vArray, render_model.BoundingBox bb)
+        {
+            for (int i = 0; i < vArray.Length; i++)
+            {
+                VertexValue vv;
+                if (vArray[i].TryGetValue("position", 0, out vv))
+                {
+                    if (bb.XBounds.Length != 0) vv.Data.x = (float)(vv.Data.x * bb.XBounds.Length + bb.XBounds.Min);
+                    if (bb.YBounds.Length != 0) vv.Data.y = (float)(vv.Data.y * bb.YBounds.Length + bb.YBounds.Min);
+                    if (bb.ZBounds.Length != 0) vv.Data.z = (float)(vv.Data.z * bb.ZBounds.Length + bb.ZBounds.Min);
+                }
+
+                if (vArray[i].TryGetValue("texcoords", 0, out vv))
+                {
+                    if (bb.UBounds.Length != 0) vv.Data.x = (float)(vv.Data.x * bb.UBounds.Length + bb.UBounds.Min);
+                    vv.Data.y = 1f - ((bb.VBounds.Length == 0) ? vv.Data.y : (float)(vv.Data.y * bb.VBounds.Length + bb.VBounds.Min));
+                    //vv.Data.y = 1f - vv.Data.y;
+                }
+            }
+        }
+
+        public static Matrix MatrixFromBounds(render_model.BoundingBox bb)
+        {
+            Matrix m = Matrix.Identity;
+
+            if (bb.XBounds.Length != 0) m.m11 = bb.XBounds.Length;
+            if (bb.YBounds.Length != 0) m.m22 = bb.YBounds.Length;
+            if (bb.ZBounds.Length != 0) m.m33 = bb.ZBounds.Length;
+
+            m.m41 = bb.XBounds.Min;
+            m.m42 = bb.YBounds.Min;
+            m.m43 = bb.ZBounds.Min;
+
+            return m;
+        }
+
+        public static Matrix MatrixFromBounds(RealQuat Min, RealQuat Max)
+        {
+            Matrix m = Matrix.Identity;
+
+            if (Max.x - Min.x != 0) m.m11 = Max.x - Min.x;
+            if (Max.y - Min.y != 0) m.m22 = Max.y - Min.y;
+            if (Max.z - Min.z != 0) m.m33 = Max.z - Min.z;
+
+            m.m41 = Min.x;
+            m.m42 = Min.y;
+            m.m43 = Min.z;
+
+            return m;
+        }
+
+        /*private static void LoadModelFixups(CacheFile cache, ref render_model mode)
         {
             mode.VertInfoList = new List<render_model.VertexBufferInfo>();
             mode.Unknown1List = new List<render_model.UnknownInfo1>();
@@ -392,8 +447,9 @@ namespace Adjutant.Library.Controls
             reader.Close();
             reader.Dispose();
         }
+        */
 
-        private static void LoadBSPFixups(CacheFile cache, ref scenario_structure_bsp sbsp)
+        /*private static void LoadBSPFixups(CacheFile cache, ref scenario_structure_bsp sbsp)
         {
             sbsp.VertInfoList = new List<render_model.VertexBufferInfo>();
             sbsp.Unknown1List = new List<render_model.UnknownInfo1>();
@@ -481,9 +537,10 @@ namespace Adjutant.Library.Controls
             reader.Close();
             reader.Dispose();
         }
+        */
 
         #region Geometry Recovery
-        private static void LoadModelExtras(ref render_model mode)
+        /*private static void LoadModelExtras(ref render_model mode)
         {
             #region Mesh Merging
             foreach (var reg in mode.Regions)
@@ -661,16 +718,17 @@ namespace Adjutant.Library.Controls
             mode.Regions.Add(newRegion);
             #endregion
         }
+        */
 
         #region Dummy Class Overrides
-        private class NewRegion : render_model.Region
+        /*private class NewRegion : render_model.Region
         {
             public class NewPermutation : render_model.Region.Permutation
             {
             }
-        }
+        }*/
 
-        private class NewModelPart : render_model.ModelSection
+        /*private class NewModelPart : render_model.ModelSection
         {
             public class NewSubmesh : render_model.ModelSection.Submesh
             {
@@ -679,13 +737,12 @@ namespace Adjutant.Library.Controls
             public class NewSubset : render_model.ModelSection.Subset
             {
             }
-        }
+        }*/
 
-        private class NewBoundingBox : render_model.BoundingBox
+        /*private class NewBoundingBox : render_model.BoundingBox
         {
-        }
+        }*/
         #endregion
-
         #endregion
 
         #region Write to file
@@ -694,7 +751,7 @@ namespace Adjutant.Library.Controls
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
             if (!Filename.EndsWith(".emf")) Filename += ".emf";
 
-            if (!Model.RawLoaded) LoadModelRaw(Cache, ref Model);
+            if (!Model.RawLoaded) Model.LoadRaw();
 
             var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
             var bw = new BinaryWriter(fs);
@@ -895,11 +952,11 @@ namespace Adjutant.Library.Controls
                 bool ccOnly = false;
 
                 //Halo4 fucked this up
-                if (Cache.Version <= DefinitionSet.HaloReachRetail)
+                if (Cache.Version >= DefinitionSet.Halo3Beta && Cache.Version <= DefinitionSet.HaloReachRetail)
                 {
                     var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
                     var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
-                    
+
                     for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
                     {
                         var s = rmt2.UsageBlocks[i].Usage;
@@ -988,10 +1045,10 @@ namespace Adjutant.Library.Controls
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
-            if (!Model.RawLoaded) ModelFunctions.LoadModelRaw(Cache, ref Model);
+            if (!Model.RawLoaded) Model.LoadRaw();
 
             StreamWriter sw = new StreamWriter(Filename);
-                    
+
             sw.WriteLine("# -----------------------------------------");
             sw.WriteLine("# Halo x360 Model - Extracted with Adjutant");
             sw.WriteLine("# -----------------------------------------");
@@ -1046,16 +1103,16 @@ namespace Adjutant.Library.Controls
                     {
                         //for (int i = submesh.SubsetIndex; i < (submesh.SubsetIndex + submesh.SubsetCount); i++)
                         //{
-                            var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat);
-                            for (int j = 0; j < indices.Count; j += 3)
-                            {
-                                var line = string.Concat(new object[] {
+                        var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat);
+                        for (int j = 0; j < indices.Count; j += 3)
+                        {
+                            var line = string.Concat(new object[] {
                                     "f ", indices[j + 0] + position, "/", indices[j + 0] + position, "/", indices[j + 0] + position,
                                      " ", indices[j + 1] + position, "/", indices[j + 1] + position, "/", indices[j + 1] + position,
                                      " ", indices[j + 2] + position, "/", indices[j + 2] + position, "/", indices[j + 2] + position
                                 });
-                                sw.WriteLine(line);
-                            }
+                            sw.WriteLine(line);
+                        }
                         //}
                     }
                     position += Model.VertInfoList[part.VertsIndex].VertexCount;
@@ -1074,7 +1131,7 @@ namespace Adjutant.Library.Controls
             Filename = Directory.GetParent(Filename).FullName + "\\models\\";
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
-            if (!Model.RawLoaded) ModelFunctions.LoadModelRaw(Cache, ref Model);
+            if (!Model.RawLoaded) Model.LoadRaw();
 
             var dic = new Dictionary<string, List<render_model.Region>>();
             List<string> permList = new List<string>();
@@ -1086,8 +1143,8 @@ namespace Adjutant.Library.Controls
                     if (!PartIndices.Contains(permutation.PieceIndex)) continue;
 
                     List<render_model.Region> rList;
-                    
-                    if(dic.TryGetValue(permutation.Name, out rList))
+
+                    if (dic.TryGetValue(permutation.Name, out rList))
                         rList.Add(region);
                     else
                     {
@@ -1120,7 +1177,6 @@ namespace Adjutant.Library.Controls
                     sw.WriteLine((node.Position * 100).ToString(3, "\t"));
                 }
                 #endregion
-
                 #region Shaders
                 sw.WriteLine(Model.Shaders.Count);
                 foreach (render_model.Shader shade in Model.Shaders)
@@ -1131,7 +1187,6 @@ namespace Adjutant.Library.Controls
                     sw.WriteLine("<none>"); //unknown
                 }
                 #endregion
-
                 #region Markers
                 int mCount = 0;
                 foreach (var group in Model.MarkerGroups)
@@ -1153,7 +1208,6 @@ namespace Adjutant.Library.Controls
                     }
                 }
                 #endregion
-
                 #region Vertices
                 sw.WriteLine(rList.Count.ToString()); //region count
 
@@ -1161,7 +1215,7 @@ namespace Adjutant.Library.Controls
                 {
                     foreach (var permutation in region.Permutations)
                     {
-                        if (!PartIndices.Contains(permutation.PieceIndex) && permutation.Name == perm ) continue;
+                        if (!PartIndices.Contains(permutation.PieceIndex) && permutation.Name == perm) continue;
                         var part = Model.ModelSections[permutation.PieceIndex];
 
                         sw.WriteLine(region.Name);
@@ -1196,7 +1250,6 @@ namespace Adjutant.Library.Controls
                     }
                 }
                 #endregion
-
                 #region Faces
                 int count = 0;
                 foreach (var region in rList)
@@ -1212,7 +1265,7 @@ namespace Adjutant.Library.Controls
                 }
 
                 sw.WriteLine(count / 3);
-                
+
                 foreach (var region in rList)
                 {
                     foreach (var permutation in region.Permutations)
@@ -1243,7 +1296,7 @@ namespace Adjutant.Library.Controls
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
             if (!Filename.EndsWith(".amf")) Filename += ".amf";
 
-            if (!Model.RawLoaded) LoadModelRaw(Cache, ref Model);
+            if (!Model.RawLoaded) Model.LoadRaw();
 
             var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
             var bw = new BinaryWriter(fs);
@@ -1253,10 +1306,10 @@ namespace Adjutant.Library.Controls
             #region Address Lists
             var headerAddressList = new List<int>();
             var headerValueList = new List<int>();
-            
+
             var markerAddressList = new List<int>();
             var markerValueList = new List<int>();
-            
+
             var permAddressList = new List<int>();
             var permValueList = new List<int>();
 
@@ -1286,7 +1339,7 @@ namespace Adjutant.Library.Controls
 
             #region Header
             bw.Write("AMF!".ToCharArray());
-            bw.Write(1.0f); //format version
+            bw.Write(2.0f); //format version
             bw.Write((Model.Name + "\0").ToCharArray());
 
             bw.Write(Model.Nodes.Count);
@@ -1450,8 +1503,7 @@ namespace Adjutant.Library.Controls
                     bw.Write(v.Data.j);
                     bw.Write(v.Data.k);
 
-                    //if (!vert.TryGetValue("texcoords", 5, out v))
-                        vert.TryGetValue("texcoords", 0, out v);
+                    vert.TryGetValue("texcoords", 0, out v);
                     bw.Write(v.Data.x);
                     bw.Write(v.Data.y);
 
@@ -1575,6 +1627,9 @@ namespace Adjutant.Library.Controls
                     for (int i = 0; i < 8; i++)
                         bw.Write("null\0".ToCharArray());
 
+                    for (int i = 0; i < 4; i++)
+                        bw.Write(0);
+
                     bw.Write(Convert.ToByte(false));
                     bw.Write(Convert.ToByte(false));
 
@@ -1587,11 +1642,12 @@ namespace Adjutant.Library.Controls
                 string[] paths = new string[8] { "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
                 float[] uTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
                 float[] vTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                int[] tints = new int[4] { -1, -1, -1, -1 };
                 bool isTransparent = false;
                 bool ccOnly = false;
 
                 //Halo4 fucked this up
-                if (Cache.Version <= DefinitionSet.HaloReachRetail)
+                if (Cache.Version >= DefinitionSet.Halo3Beta && Cache.Version <= DefinitionSet.HaloReachRetail)
                 {
                     var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
                     var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
@@ -1628,6 +1684,28 @@ namespace Adjutant.Library.Controls
                         }
                     }
 
+                    for (int i = 0; i < rmt2.ArgumentBlocks.Count; i++)
+                    {
+                        var s = rmt2.ArgumentBlocks[i].Argument;
+
+                        switch (s)
+                        {
+                            //case "env_tint_color":
+                            //case "fresnel_color":
+                            case "albedo_color":
+                                tints[0] = i;
+                                break;
+
+                            case "self_illum_color":
+                                tints[1] = i;
+                                break;
+
+                            case "specular_tint":
+                                tints[2] = i;
+                                break;
+                        }
+                    }
+
                     short[] tiles = new short[8] { -1, -1, -1, -1, -1, -1, -1, -1 };
 
                     foreach (var map in rmsh.Properties[0].ShaderMaps)
@@ -1653,7 +1731,12 @@ namespace Adjutant.Library.Controls
                     }
                 }
                 else
-                    try { paths[0] = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[0].BitmapTagID).Filename + "\0"; }
+                    try 
+                    { 
+                        paths[0] = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[0].BitmapTagID).Filename + "\0";
+                        uTiles[0] = rmsh.Properties[0].Tilings[rmsh.Properties[0].ShaderMaps[0].TilingIndex].UTiling;
+                        vTiles[0] = rmsh.Properties[0].Tilings[rmsh.Properties[0].ShaderMaps[0].TilingIndex].VTiling;
+                    }
                     catch { }
 
                 if (rmshTag.ClassCode != "rmsh" && rmshTag.ClassCode != "mat")
@@ -1672,6 +1755,20 @@ namespace Adjutant.Library.Controls
                         bw.Write(uTiles[i]);
                         bw.Write(vTiles[i]);
                     }
+                }
+
+                for (int i = 0; i < 4; i++)
+                {
+                    if (tints[i] == -1)
+                    {
+                        bw.Write(0);
+                        continue;
+                    }
+
+                    bw.Write((byte)(255f * rmsh.Properties[0].Tilings[tints[i]].UTiling));
+                    bw.Write((byte)(255f * rmsh.Properties[0].Tilings[tints[i]].VTiling));
+                    bw.Write((byte)(255f * rmsh.Properties[0].Tilings[tints[i]].Unknown0));
+                    bw.Write((byte)(255f * rmsh.Properties[0].Tilings[tints[i]].Unknown1));
                 }
 
                 bw.Write(Convert.ToByte(isTransparent));
@@ -1725,7 +1822,7 @@ namespace Adjutant.Library.Controls
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
             if (!Filename.EndsWith(".emf")) Filename += ".emf";
 
-            if (!BSP.RawLoaded) LoadBSPRaw(Cache, ref BSP);
+            if (!BSP.RawLoaded) BSP.LoadRaw();
 
             var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
             var bw = new BinaryWriter(fs);
@@ -1910,7 +2007,7 @@ namespace Adjutant.Library.Controls
                 bool ccOnly = false;
 
                 //Halo4 fucked this up
-                if (Cache.Version <= DefinitionSet.HaloReachRetail)
+                if (Cache.Version >= DefinitionSet.Halo3Beta && Cache.Version <= DefinitionSet.HaloReachRetail)
                 {
                     var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
                     var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
@@ -2003,7 +2100,7 @@ namespace Adjutant.Library.Controls
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
-            if (!BSP.RawLoaded) ModelFunctions.LoadBSPRaw(Cache, ref BSP);
+            if (!BSP.RawLoaded) BSP.LoadRaw();
 
             StreamWriter sw = new StreamWriter(Filename);
 
@@ -2017,7 +2114,7 @@ namespace Adjutant.Library.Controls
 
                 var part = BSP.ModelSections[cluster.SectionIndex];
 
-                if(part.Submeshes.Count == 0) continue;
+                if (part.Submeshes.Count == 0) continue;
 
                 VertexValue v;
 
@@ -2139,7 +2236,7 @@ namespace Adjutant.Library.Controls
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
             if (!Filename.EndsWith(".amf")) Filename += ".amf";
 
-            if (!BSP.RawLoaded) LoadBSPRaw(Cache, ref BSP);
+            if (!BSP.RawLoaded) BSP.LoadRaw();
 
             var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
             var bw = new BinaryWriter(fs);
@@ -2187,7 +2284,7 @@ namespace Adjutant.Library.Controls
 
             #region Header
             bw.Write("AMF!".ToCharArray());
-            bw.Write(1.0f); //format version
+            bw.Write(2.0f); //format version
             bw.Write((BSP.BSPName + "\0").ToCharArray());
 
             bw.Write(0); //nodes
@@ -2259,7 +2356,10 @@ namespace Adjutant.Library.Controls
                 var part = BSP.ModelSections[geom.SectionIndex];
 
                 bw.Write((geom.Name + "\0").ToCharArray());
-                bw.Write((byte)0);   //not weighted
+
+                byte vType = 0;      //not weighted
+                //if (part.Vertices[0].FormatName == "s_rigid_vertex") vType += 32;
+                bw.Write(vType);
                 bw.Write((byte)255); //no node index
 
                 bw.Write(part.Vertices.Length);
@@ -2338,22 +2438,64 @@ namespace Adjutant.Library.Controls
 
                 vertValueList.Add((int)bw.BaseStream.Position);
 
+                //part.Vertices[0].FormatName == "s_rigid_vertex"
+                //var bb = new render_model.BoundingBox();
+                //bb.XBounds = bb.YBounds = bb.ZBounds = new RealBounds(0, 1);
+                //bb.UBounds = bb.VBounds = new RealBounds(-1, 1);
+                //if (geom.SectionIndex < BSP.BoundingBoxes.Count) bb = BSP.BoundingBoxes[geom.SectionIndex];
+
+                //bool compress = part.Vertices[0].FormatName == "s_rigid_vertex";
+                //compress = false;
+                //if (compress)
+                //{
+                //    bw.Write(bb.XBounds.Min);
+                //    bw.Write(bb.XBounds.Max);
+                //    bw.Write(bb.YBounds.Min);
+                //    bw.Write(bb.YBounds.Max);
+                //    bw.Write(bb.ZBounds.Min);
+                //    bw.Write(bb.ZBounds.Max);
+                //    bw.Write(bb.UBounds.Min);
+                //    bw.Write(bb.UBounds.Max);
+                //    bw.Write(bb.VBounds.Min);
+                //    bw.Write(bb.VBounds.Max);
+                //}
+
                 VertexValue v;
-                foreach (Vertex vert in DeepClone(part.Vertices))
+                foreach (Vertex vert in part.Vertices)
                 {
-                    vert.TryGetValue("position", 0, out v);
-                    bw.Write(v.Data.x);
-                    bw.Write(v.Data.y);
-                    bw.Write(v.Data.z);
+                    //if (compress)
+                    //{
+                    //    vert.TryGetValue("position", 0, out v);
+                    //    bw.Write((ushort)Math.Round((((v.Data.x - bb.XBounds.Min) / bb.XBounds.Length) * 0xFFFF), 0));
+                    //    bw.Write((ushort)Math.Round((((v.Data.y - bb.YBounds.Min) / bb.YBounds.Length) * 0xFFFF), 0));
+                    //    bw.Write((ushort)Math.Round((((v.Data.z - bb.ZBounds.Min) / bb.ZBounds.Length) * 0xFFFF), 0));
 
-                    vert.TryGetValue("normal", 0, out v);
-                    bw.Write(v.Data.i);
-                    bw.Write(v.Data.j);
-                    bw.Write(v.Data.k);
+                    //    vert.TryGetValue("normal", 0, out v);
+                    //    bw.Write(0);
+                    //    //bw.Write(v.Data.i);
+                    //    //bw.Write(v.Data.k);
+                    //    //bw.Write(v.Data.j);
 
-                    vert.TryGetValue("texcoords", 0, out v);
-                    bw.Write(v.Data.x);
-                    bw.Write(v.Data.y);
+                    //    vert.TryGetValue("texcoords", 0, out v);
+                    //    bw.Write((ushort)Math.Round((((v.Data.x - bb.UBounds.Min) / bb.UBounds.Length) * 0xFFFF), 0));
+                    //    bw.Write((ushort)Math.Round((((v.Data.y - bb.VBounds.Min) / bb.VBounds.Length) * 0xFFFF), 0));
+                    //}
+                    //else
+                    {
+                        vert.TryGetValue("position", 0, out v);
+                        bw.Write(v.Data.x);
+                        bw.Write(v.Data.y);
+                        bw.Write(v.Data.z);
+
+                        vert.TryGetValue("normal", 0, out v);
+                        bw.Write(v.Data.i);
+                        bw.Write(v.Data.j);
+                        bw.Write(v.Data.k);
+
+                        vert.TryGetValue("texcoords", 0, out v);
+                        bw.Write(v.Data.x);
+                        bw.Write(v.Data.y);
+                    }
                 }
             }
             #endregion
@@ -2464,6 +2606,9 @@ namespace Adjutant.Library.Controls
                     for (int i = 0; i < 8; i++)
                         bw.Write("null\0".ToCharArray());
 
+                    for (int i = 0; i < 4; i++)
+                        bw.Write(0);
+
                     bw.Write(Convert.ToByte(false));
                     bw.Write(Convert.ToByte(false));
 
@@ -2476,6 +2621,7 @@ namespace Adjutant.Library.Controls
                 string[] paths = new string[8] { "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
                 float[] uTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
                 float[] vTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                int[] tints = new int[4] { -1, -1, -1, -1 };
                 bool isTransparent = false;
                 bool ccOnly = false;
 
@@ -2485,12 +2631,12 @@ namespace Adjutant.Library.Controls
                 var blendmap = new KeyValuePair<string, RealQuat>();
 
                 //Halo4 fucked this up
-                if (Cache.Version <= DefinitionSet.HaloReachRetail)
+                if (Cache.Version >= DefinitionSet.Halo3Beta && Cache.Version <= DefinitionSet.HaloReachRetail)
                 {
                     var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
                     var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
 
-                    if (rmshTag.ClassCode == "rmtr") 
+                    if (rmshTag.ClassCode == "rmtr")
                     {
                         shaderName = "*" + shaderName;
                         for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
@@ -2504,13 +2650,13 @@ namespace Adjutant.Library.Controls
                                 blendmap = new KeyValuePair<string, RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling));
 
                             if (s.Contains("base_map_m_") && bitmTag != null)
-                               baseMaps.Add(new KeyValuePair<string,RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling)));
+                                baseMaps.Add(new KeyValuePair<string, RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling)));
 
                             if (s.Contains("bump_map_m_") && bitmTag != null)
-                               bumpMaps.Add(new KeyValuePair<string,RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling)));
+                                bumpMaps.Add(new KeyValuePair<string, RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling)));
 
                             if (s.Contains("detail_map_m_") && bitmTag != null)
-                               detailMaps.Add(new KeyValuePair<string,RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling)));
+                                detailMaps.Add(new KeyValuePair<string, RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling)));
                         }
                     }
                     else // default shaders
@@ -2543,6 +2689,28 @@ namespace Adjutant.Library.Controls
                                     break;
                                 case "specular_map":
                                     paths[6] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                    break;
+                            }
+                        }
+
+                        for (int i = 0; i < rmt2.ArgumentBlocks.Count; i++)
+                        {
+                            var s = rmt2.ArgumentBlocks[i].Argument;
+
+                            switch (s)
+                            {
+                                //case "env_tint_color":
+                                //case "fresnel_color":
+                                case "albedo_color":
+                                    tints[0] = i;
+                                    break;
+
+                                case "self_illum_color":
+                                    tints[1] = i;
+                                    break;
+
+                                case "specular_tint":
+                                    tints[2] = i;
                                     break;
                             }
                         }
@@ -2632,9 +2800,634 @@ namespace Adjutant.Library.Controls
                         }
                     }
 
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (tints[i] == -1)
+                        {
+                            bw.Write(0);
+                            continue;
+                        }
+
+                        bw.Write((byte)(255f * rmsh.Properties[0].Tilings[tints[i]].UTiling));
+                        bw.Write((byte)(255f * rmsh.Properties[0].Tilings[tints[i]].VTiling));
+                        bw.Write((byte)(255f * rmsh.Properties[0].Tilings[tints[i]].Unknown0));
+                        bw.Write((byte)(255f * rmsh.Properties[0].Tilings[tints[i]].Unknown1));
+                    }
+
                     bw.Write(Convert.ToByte(isTransparent));
                     bw.Write(Convert.ToByte(ccOnly));
                 }
+            }
+            #endregion
+            #region Write Addresses
+            for (int i = 0; i < headerAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = headerAddressList[i];
+                bw.Write(headerValueList[i]);
+            }
+
+            //for (int i = 0; i < markerAddressList.Count; i++)
+            //{
+            //    bw.BaseStream.Position = markerAddressList[i];
+            //    bw.Write(markerValueList[i]);
+            //}
+
+            for (int i = 0; i < permAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = permAddressList[i];
+                bw.Write(permValueList[i]);
+            }
+
+            for (int i = 0; i < vertAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = vertAddressList[i];
+                bw.Write(vertValueList[i]);
+            }
+
+            for (int i = 0; i < indxAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = indxAddressList[i];
+                bw.Write(indxValueList[i]);
+            }
+
+            for (int i = 0; i < meshAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = meshAddressList[i];
+                bw.Write(meshValueList[i]);
+            }
+            #endregion
+
+            bw.Close();
+            bw.Dispose();
+        }
+
+        public static void WriteAMF(string Filename, S3DPak Pak, S3DModelBase ATPL, List<int> PartIndices)
+        {
+            if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+            if (!Filename.EndsWith(".amf")) Filename += ".amf";
+
+            var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
+            var bw = new BinaryWriter(fs);
+
+            #region Address Lists
+            var headerAddressList = new List<int>();
+            var headerValueList = new List<int>();
+
+            //var markerAddressList = new List<int>();
+            //var markerValueList = new List<int>();
+
+            var permAddressList = new List<int>();
+            var permValueList = new List<int>();
+
+            var vertAddressList = new List<int>();
+            var vertValueList = new List<int>();
+
+            var indxAddressList = new List<int>();
+            var indxValueList = new List<int>();
+
+            var meshAddressList = new List<int>();
+            var meshValueList = new List<int>();
+            #endregion
+
+            var objDic = new Dictionary<string, List<int>>();
+
+            #region Populate Dictionary
+            foreach (var obj in ATPL.Objects)
+            {
+                if (!PartIndices.Contains(ATPL.Objects.IndexOf(obj))) continue;
+                if (obj.Vertices == null || obj.Submeshes == null) continue;
+                if (obj.VertCount == 0 || obj.Submeshes.Count == 0) continue;
+
+                List<int> iList;
+                if (obj.isInheritor)
+                {
+                    var pObj = ATPL.ObjectByID(obj.inheritIndex);
+
+                    if (objDic.TryGetValue(pObj.Name, out iList))
+                        iList.Add(ATPL.Objects.IndexOf(obj));
+                    else
+                    {
+                        iList = new List<int>();
+                        iList.Add(ATPL.Objects.IndexOf(obj));
+                        objDic.Add(pObj.Name, iList);
+                    }
+                }
+                else
+                {
+                    if (objDic.TryGetValue(ATPL.Name, out iList))
+                        iList.Add(ATPL.Objects.IndexOf(obj));
+                    else
+                    {
+                        iList = new List<int>();
+                        iList.Add(ATPL.Objects.IndexOf(obj));
+                        objDic.Add(ATPL.Name, iList);
+                    }
+                }
+            }
+            #endregion
+
+            #region Header
+            bw.Write("AMF!".ToCharArray());
+            bw.Write(2.0f); //format version
+            bw.Write((ATPL.Name + "\0").ToCharArray());
+
+            bw.Write(0);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+
+            bw.Write(0);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+
+            bw.Write(objDic.Count);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+
+            bw.Write(ATPL.Materials.Count);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+            #endregion
+            #region Nodes
+            headerValueList.Add((int)bw.BaseStream.Position);
+            //foreach (var node in Model.Nodes)
+            //{
+            //    bw.Write((node.Name + "\0").ToCharArray());
+            //    bw.Write((short)node.ParentIndex);
+            //    bw.Write((short)node.FirstChildIndex);
+            //    bw.Write((short)node.NextSiblingIndex);
+            //    bw.Write(node.Position.x * 100);
+            //    bw.Write(node.Position.y * 100);
+            //    bw.Write(node.Position.z * 100);
+            //    bw.Write(node.Rotation.i);
+            //    bw.Write(node.Rotation.j);
+            //    bw.Write(node.Rotation.k);
+            //    bw.Write(node.Rotation.w);
+            //    //bw.Write(node.TransformScale);
+            //    //bw.Write(node.SkewX.x);
+            //    //bw.Write(node.SkewX.y);
+            //    //bw.Write(node.SkewX.z);
+            //    //bw.Write(node.SkewY.x);
+            //    //bw.Write(node.SkewY.y);
+            //    //bw.Write(node.SkewY.z);
+            //    //bw.Write(node.SkewZ.x);
+            //    //bw.Write(node.SkewZ.y);
+            //    //bw.Write(node.SkewZ.z);
+            //    //bw.Write(node.Center.x);
+            //    //bw.Write(node.Center.y);
+            //    //bw.Write(node.Center.z);
+            //    //bw.Write(node.DistanceFromParent);
+            //}
+            #endregion
+            #region Marker Groups
+            headerValueList.Add((int)bw.BaseStream.Position);
+            //foreach (var group in Model.MarkerGroups)
+            //{
+            //    bw.Write((group.Name + "\0").ToCharArray());
+            //    bw.Write(group.Markers.Count);
+            //    markerAddressList.Add((int)bw.BaseStream.Position);
+            //    bw.Write(0);
+            //}
+            #endregion
+            #region Markers
+            //foreach (var group in Model.MarkerGroups)
+            //{
+            //    markerValueList.Add((int)bw.BaseStream.Position);
+            //    foreach (var marker in group.Markers)
+            //    {
+            //        bw.Write((byte)marker.RegionIndex);
+            //        bw.Write((byte)marker.PermutationIndex);
+            //        bw.Write((short)marker.NodeIndex);
+            //        bw.Write(marker.Position.x * 100);
+            //        bw.Write(marker.Position.y * 100);
+            //        bw.Write(marker.Position.z * 100);
+            //        bw.Write(marker.Rotation.i);
+            //        bw.Write(marker.Rotation.j);
+            //        bw.Write(marker.Rotation.k);
+            //        bw.Write(marker.Rotation.w);
+            //    }
+            //}
+            #endregion
+
+            #region Regions
+            headerValueList.Add((int)bw.BaseStream.Position);
+            foreach (var pair in objDic)
+            {
+                bw.Write((pair.Key + "\0").ToCharArray());
+
+                //int count = 0;
+                //foreach (var obj in ATPL.Objects)
+                //    if (PartIndices.Contains(ATPL.Objects.IndexOf(obj))) count++;
+
+                bw.Write(pair.Value.Count);
+                permAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+
+                //foreach (var region in regions)
+                //{
+                //    bw.Write((region.Name + "\0").ToCharArray());
+
+                //    int count = 0;
+                //    foreach (var perm in region.Permutations)
+                //        if (PartIndices.Contains(perm.PieceIndex)) count++;
+
+                //    bw.Write(count);
+                //    permAddressList.Add((int)bw.BaseStream.Position);
+                //    bw.Write(0);
+                //}
+            }
+            #endregion
+            #region Permutations
+            foreach (var pair in objDic)
+            {
+                permValueList.Add((int)bw.BaseStream.Position);
+                foreach (int i in pair.Value)
+                {
+                    var obj = ATPL.Objects[i];
+                    //if (!PartIndices.Contains(perm.PieceIndex)) continue;
+
+                    //var part = Model.ModelSections[perm.PieceIndex];
+                    //VertexValue v;
+                    //bool hasNodes = part.Vertices[0].TryGetValue("blendindices", 0, out v) && part.NodeIndex == 255;
+                    //bool isBoned = part.Vertices[0].FormatName.Contains("rigid_boned");
+                    bool hasNodes = false;
+                    bool isBoned = false;
+
+                    bw.Write((obj.Name + "\0").ToCharArray());
+
+                    // 0 - no nodes
+                    // 1 - nodes
+                    // 2 - rigid with single bone (bone ID after or 255 if none)
+                    byte vType;
+                    if (isBoned) vType = (byte)2;
+                    else vType = hasNodes ? (byte)1 : (byte)0;
+                    vType += 16;
+                    bw.Write(vType);
+                    bw.Write((byte)255); //bone ID if applicable
+
+
+                    bw.Write(obj.Vertices.Length);
+                    vertAddressList.Add((int)bw.BaseStream.Position);
+                    bw.Write(0);
+
+                    int count = 0;
+                    foreach (var submesh in obj.Submeshes)
+                        count += GetTriangleList(obj.Indices, submesh.FaceStart * 3, submesh.FaceLength * 3, 3).Count / 3;
+
+                    bw.Write(count);
+                    indxAddressList.Add((int)bw.BaseStream.Position);
+                    bw.Write(0);
+
+                    bw.Write(obj.Submeshes.Count);
+                    meshAddressList.Add((int)bw.BaseStream.Position);
+                    bw.Write(0);
+
+                    //var mat = MatrixFromBounds(obj.BoundingBox);
+                    var mat = new Matrix(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0);
+
+                    //if (obj.Name.Contains("ound_1"))
+                    //{
+                    //    S3DModelBase.S3DObject obj1 = null;
+                    //    foreach (var ob in ATPL.Objects)
+                    //        if (ob.ID == obj.Submeshes[0].MeshInheritID) obj1 = ob;
+                    //    mat = MatrixFromBounds(obj1.BoundingBox);
+                    //}
+
+                    //bw.Write(float.NaN); //no transforms (render_models are pre-transformed)
+                    bw.Write(1f);
+                    bw.Write(mat.m11 * 0.01f);
+                    bw.Write(mat.m12 * 0.01f);
+                    bw.Write(mat.m13 * 0.01f);
+                    bw.Write(mat.m21 * 0.01f);
+                    bw.Write(mat.m22 * 0.01f);
+                    bw.Write(mat.m23 * 0.01f);
+                    bw.Write(mat.m31 * 0.01f);
+                    bw.Write(mat.m32 * 0.01f);
+                    bw.Write(mat.m33 * 0.01f);
+                    bw.Write(mat.m41 * 0.01f);
+                    bw.Write(mat.m42 * 0.01f);
+                    bw.Write(mat.m43 * 0.01f);
+                }
+            }
+            #endregion
+            #region Vertices
+            foreach (var pair in objDic)
+            {
+                foreach (int z in pair.Value)
+                {
+                    var obj = ATPL.Objects[z];
+                    //var part = Model.ModelSections[perm.PieceIndex];
+
+                    //int address;
+                    //if (dupeDic.TryGetValue(part.VertsIndex, out address))
+                    //{
+                    //    vertValueList.Add(address);
+                    //    continue;
+                    //}
+                    //else
+                    //    dupeDic.Add(part.VertsIndex, (int)bw.BaseStream.Position);
+
+                    VertexValue v;
+                    //bool hasNodes = part.Vertices[0].TryGetValue("blendindices", 0, out v) && part.NodeIndex == 255;
+                    //bool isBoned = part.Vertices[0].FormatName.Contains("rigid_boned");
+                    bool hasNodes = false;
+                    bool isBoned = false;
+
+                    vertValueList.Add((int)bw.BaseStream.Position);
+
+                    var bb = new render_model.BoundingBox();
+                    bb.XBounds = bb.YBounds = bb.ZBounds = new RealBounds(0, 1);
+                    bb.UBounds = bb.VBounds = new RealBounds(-1, 1);
+                    if (obj.BoundingBox.Length > 0 && !obj.isInheritor) bb = obj.BoundingBox;
+
+                    bool compress = obj.Vertices[0].FormatName == "S3D";
+                    if (compress)
+                    {
+                        bw.Write(bb.XBounds.Min);
+                        bw.Write(bb.XBounds.Max);
+                        bw.Write(bb.YBounds.Min);
+                        bw.Write(bb.YBounds.Max);
+                        bw.Write(bb.ZBounds.Min);
+                        bw.Write(bb.ZBounds.Max);
+                        bw.Write(bb.UBounds.Min);
+                        bw.Write(bb.UBounds.Max);
+                        bw.Write(bb.VBounds.Min);
+                        bw.Write(bb.VBounds.Max);
+                    }
+
+                    foreach (Vertex vert in obj.Vertices)
+                    {
+                        if (compress)
+                        {
+                            vert.TryGetValue("position", 0, out v);
+                            bw.Write((short)Math.Round(((((v.Data.x - bb.XBounds.Min) / bb.XBounds.Length) * 0xFFFF) - 0x7FFF), 0));
+                            bw.Write((short)Math.Round(((((v.Data.y - bb.YBounds.Min) / bb.YBounds.Length) * 0xFFFF) - 0x7FFF), 0));
+                            bw.Write((short)Math.Round(((((v.Data.z - bb.ZBounds.Min) / bb.ZBounds.Length) * 0xFFFF) - 0x7FFF), 0));
+
+                            vert.TryGetValue("normal", 0, out v);
+                            bw.Write(0);
+                            //bw.Write(v.Data.i);
+                            //bw.Write(v.Data.k);
+                            //bw.Write(v.Data.j);
+
+                            vert.TryGetValue("texcoords", 0, out v);
+                            bw.Write((short)Math.Round(((((v.Data.x - bb.UBounds.Min) / bb.UBounds.Length) * 0xFFFF) - 0x7FFF), 0));
+                            bw.Write((short)Math.Round(((((v.Data.y - bb.VBounds.Min) / bb.VBounds.Length) * 0xFFFF) - 0x7FFF), 0));
+                        }
+                        else
+                        {
+                            vert.TryGetValue("position", 0, out v);
+                            bw.Write(v.Data.x * 1);
+                            bw.Write(v.Data.y * 1);
+                            bw.Write(v.Data.z * 1);
+
+                            vert.TryGetValue("normal", 0, out v);
+                            bw.Write(v.Data.i);
+                            bw.Write(v.Data.k);
+                            bw.Write(v.Data.j);
+
+                            vert.TryGetValue("texcoords", 0, out v);
+                            bw.Write(v.Data.x);
+                            bw.Write(v.Data.y);
+                        }
+
+                        if (isBoned)
+                        {
+                            VertexValue i;
+                            var indices = new List<int>();
+                            vert.TryGetValue("blendindices", 0, out i);
+
+                            if (!indices.Contains((int)i.Data.a) && i.Data.a != 0) indices.Add((int)i.Data.a);
+                            if (!indices.Contains((int)i.Data.b) && i.Data.a != 0) indices.Add((int)i.Data.b);
+                            if (!indices.Contains((int)i.Data.c) && i.Data.a != 0) indices.Add((int)i.Data.c);
+                            if (!indices.Contains((int)i.Data.d) && i.Data.a != 0) indices.Add((int)i.Data.d);
+
+                            if (indices.Count == 0) indices.Add(0);
+
+                            foreach (int index in indices) bw.Write((byte)index);
+
+                            if (indices.Count < 4) bw.Write((byte)255);
+
+                            continue;
+                        }
+
+                        if (hasNodes)
+                        {
+                            VertexValue i, w;
+                            vert.TryGetValue("blendindices", 0, out i);
+                            vert.TryGetValue("blendweight", 0, out w);
+                            int count = 0;
+                            if (w.Data.a > 0)
+                            {
+                                bw.Write((byte)i.Data.a);
+                                count++;
+                            }
+                            if (w.Data.b > 0)
+                            {
+                                bw.Write((byte)i.Data.b);
+                                count++;
+                            }
+                            if (w.Data.c > 0)
+                            {
+                                bw.Write((byte)i.Data.c);
+                                count++;
+                            }
+                            if (w.Data.d > 0)
+                            {
+                                bw.Write((byte)i.Data.d);
+                                count++;
+                            }
+
+                            if (count == 0) throw new Exception("no weights on a weighted node. report this.");
+
+                            if (count != 4) bw.Write((byte)255);
+
+                            if (w.Data.a > 0) bw.Write(w.Data.a);
+                            if (w.Data.b > 0) bw.Write(w.Data.b);
+                            if (w.Data.c > 0) bw.Write(w.Data.c);
+                            if (w.Data.d > 0) bw.Write(w.Data.d);
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            //dupeDic.Clear();
+
+            #region Indices
+            foreach (var pair in objDic)
+            {
+                foreach (int z in pair.Value)
+                {
+                    var obj = ATPL.Objects[z];
+                    //var part = Model.ModelSections[perm.PieceIndex];
+
+                    //int address;
+                    //if (dupeDic.TryGetValue(part.FacesIndex, out address))
+                    //{
+                    //    indxValueList.Add(address);
+                    //    continue;
+                    //}
+                    //else
+                    //    dupeDic.Add(part.FacesIndex, (int)bw.BaseStream.Position);
+
+                    indxValueList.Add((int)bw.BaseStream.Position);
+
+                    foreach (var submesh in obj.Submeshes)
+                    {
+                        var indices = GetTriangleList(obj.Indices, submesh.FaceStart * 3, submesh.FaceLength * 3, 3).ToArray();
+                        //for (int i = 0; i < indices.Length; i += 3)
+                        //    Array.Reverse(indices, i, 3);
+                        foreach (var index in indices)
+                        {
+                            if (obj.Vertices.Length > 0xFFFF) bw.Write(index);
+                            else /*if (obj.Vertices.Length > 0xFF)*/ bw.Write((ushort)index);
+                            //else bw.Write((byte)index);
+                        }
+                    }
+                }
+            }
+            #endregion
+            #region Submeshes
+            foreach (var pair in objDic)
+            {
+                foreach (int z in pair.Value)
+                {
+                    var obj = ATPL.Objects[z];
+                    //var part = Model.ModelSections[perm.PieceIndex];
+                    meshValueList.Add((int)bw.BaseStream.Position);
+                    int tCount = 0;
+                    foreach (var mesh in obj.Submeshes)
+                    {
+
+                        int sCount = GetTriangleList(obj.Indices, mesh.FaceStart * 3, mesh.FaceLength * 3, 3).Count / 3;
+
+                        bw.Write((short)mesh.MaterialIndex);
+                        bw.Write(tCount);
+                        bw.Write(sCount);
+
+                        tCount += sCount;
+                    }
+                }
+            }
+            #endregion
+            #region Shaders
+            headerValueList.Add((int)bw.BaseStream.Position);
+            foreach (var mat in ATPL.Materials)
+            {
+            //    //skip null shaders
+            //    if (shaderBlock.tagID == -1)
+            //    {
+            //        bw.Write("null\0".ToCharArray());
+            //        for (int i = 0; i < 8; i++)
+            //            bw.Write("null\0".ToCharArray());
+
+            //        bw.Write(Convert.ToByte(false));
+            //        bw.Write(Convert.ToByte(false));
+
+            //        continue;
+            //    }
+
+            //    var rmshTag = Cache.IndexItems.GetItemByID(shaderBlock.tagID);
+            //    var rmsh = DefinitionsManager.rmsh(Cache, rmshTag);
+                string shaderName = mat.Name + "\0";
+                string[] paths = new string[8] { "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
+                float[] uTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                float[] vTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                bool isTransparent = false;
+                bool ccOnly = false;
+
+                paths[0] = mat.Name + "\0";
+                if (Pak.GetItemByName(mat.Name + "_nm") != null) paths[3] = mat.Name + "_nm\0";
+                if (Pak.GetItemByName(mat.Name + "_spec") != null) paths[6] = mat.Name + "_spec\0";
+
+                #region OLD
+                //    //Halo4 fucked this up
+                //    if (Cache.Version >= DefinitionSet.Halo3Beta && Cache.Version <= DefinitionSet.HaloReachRetail)
+                //    {
+                //        var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
+                //        var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
+
+                //        for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
+                //        {
+                //            var s = rmt2.UsageBlocks[i].Usage;
+                //            var bitmTag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[i].BitmapTagID);
+
+                //            switch (s)
+                //            {
+                //                case "base_map":
+                //                    paths[0] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                //                    break;
+                //                case "detail_map":
+                //                case "detail_map_overlay":
+                //                    paths[1] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                //                    break;
+                //                case "change_color_map":
+                //                    paths[2] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                //                    break;
+                //                case "bump_map":
+                //                    paths[3] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                //                    break;
+                //                case "bump_detail_map":
+                //                    paths[4] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                //                    break;
+                //                case "self_illum_map":
+                //                    paths[5] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                //                    break;
+                //                case "specular_map":
+                //                    paths[6] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                //                    break;
+                //            }
+                //        }
+
+                //        short[] tiles = new short[8] { -1, -1, -1, -1, -1, -1, -1, -1 };
+
+                //        foreach (var map in rmsh.Properties[0].ShaderMaps)
+                //        {
+                //            var bitmTag = Cache.IndexItems.GetItemByID(map.BitmapTagID);
+
+                //            for (int i = 0; i < 8; i++)
+                //            {
+                //                if (bitmTag.Filename + "\0" != paths[i]) continue;
+
+                //                tiles[i] = (short)map.TilingIndex;
+                //            }
+                //        }
+
+                //        for (int i = 0; i < 8; i++)
+                //        {
+                //            try
+                //            {
+                //                uTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].UTiling;
+                //                vTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].VTiling;
+                //            }
+                //            catch { }
+                //        }
+                //    }
+                //    else
+                //        try { paths[0] = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[0].BitmapTagID).Filename + "\0"; }
+                //        catch { }
+
+                //    if (rmshTag.ClassCode != "rmsh" && rmshTag.ClassCode != "mat")
+                //    {
+                //        isTransparent = true;
+                //        if (paths[0] == "null\0" && paths[2] != "null\0")
+                //            ccOnly = true;
+                //    }
+                #endregion
+
+                bw.Write(shaderName.ToCharArray());
+                for (int i = 0; i < 8; i++)
+                {
+                    bw.Write(paths[i].ToCharArray());
+                    if (paths[i] != "null\0")
+                    {
+                        bw.Write(uTiles[i]);
+                        bw.Write(vTiles[i]);
+                    }
+                }
+
+                bw.Write(Convert.ToByte(isTransparent));
+                bw.Write(Convert.ToByte(ccOnly));
             }
             #endregion
             #region Write Addresses

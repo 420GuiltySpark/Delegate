@@ -14,6 +14,7 @@ namespace Adjutant.Library.Definitions.Halo4Retail
     {
         internal render_model(CacheFile Cache, int Offset)
         {
+            cache = Cache;
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Offset);
 
@@ -83,7 +84,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             #endregion
 
             Reader.BaseStream.Position += 20; //104
-            if (Cache.Version != DefinitionSet.Halo4Retail) Reader.BaseStream.Position += 208;
 
             #region ModelParts Block
             temp = Reader.BaseStream.Position;
@@ -123,7 +123,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             #endregion
 
             Reader.BaseStream.Position += 48; //248
-            if (Cache.Version != DefinitionSet.Halo4Retail) Reader.BaseStream.Position -= 12;
             
             RawID = Reader.ReadInt32();
             

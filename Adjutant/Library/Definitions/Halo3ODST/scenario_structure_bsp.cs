@@ -15,6 +15,7 @@ namespace Adjutant.Library.Definitions.Halo3ODST
     {
         internal scenario_structure_bsp(CacheFile Cache, int Address)
         {
+            cache = Cache;
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
 

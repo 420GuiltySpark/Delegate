@@ -26,6 +26,11 @@ namespace Adjutant.Library.DataTypes
         {
             get { return Max - Min; }
         }
+
+        public override string ToString()
+        {
+            return Min.ToString() + ", " + Max.ToString();
+        }
     }
 
     public struct Bitmask
@@ -107,6 +112,60 @@ namespace Adjutant.Library.DataTypes
                 m42 == M.m42 &&
                 m43 == M.m43);
         }
+
+        public Matrix(float M11, float M12, float M13,
+            float M21, float M22, float M23,
+            float M31, float M32, float M33,
+            float M41, float M42, float M43)
+        {
+            m11 = M11; m12 = M12; m13 = M13;
+            m21 = M21; m22 = M22; m23 = M23;
+            m31 = M31; m32 = M32; m33 = M33;
+            m41 = M41; m42 = M42; m43 = M43;
+        }
+
+        public static implicit operator System.Windows.Media.Media3D.Matrix3D(Matrix m)
+        {
+            return new System.Windows.Media.Media3D.Matrix3D(
+                m.m11, m.m12, m.m13, 0,
+                m.m21, m.m22, m.m23, 0,
+                m.m31, m.m32, m.m33, 0,
+                m.m41, m.m42, m.m43, 1);
+        }
+
+        public static Matrix operator *(Matrix matrix1, Matrix matrix2)
+        {
+            if (matrix1.IsIdentity) return matrix2;
+            if (matrix2.IsIdentity) return matrix1;
+
+            Matrix result = new Matrix(
+                matrix1.m11 * matrix2.m11 + matrix1.m12 * matrix2.m21 +
+                matrix1.m13 * matrix2.m31 + 0 * matrix2.m41,
+                matrix1.m11 * matrix2.m12 + matrix1.m12 * matrix2.m22 +
+                matrix1.m13 * matrix2.m32 + 0 * matrix2.m42,
+                matrix1.m11 * matrix2.m13 + matrix1.m12 * matrix2.m23 +
+                matrix1.m13 * matrix2.m33 + 0 * matrix2.m43,
+                matrix1.m21 * matrix2.m11 + matrix1.m22 * matrix2.m21 +
+                matrix1.m23 * matrix2.m31 + 0 * matrix2.m41,
+                matrix1.m21 * matrix2.m12 + matrix1.m22 * matrix2.m22 +
+                matrix1.m23 * matrix2.m32 + 0 * matrix2.m42,
+                matrix1.m21 * matrix2.m13 + matrix1.m22 * matrix2.m23 +
+                matrix1.m23 * matrix2.m33 + 0 * matrix2.m43,
+                matrix1.m31 * matrix2.m11 + matrix1.m32 * matrix2.m21 +
+                matrix1.m33 * matrix2.m31 + 0 * matrix2.m41,
+                matrix1.m31 * matrix2.m12 + matrix1.m32 * matrix2.m22 +
+                matrix1.m33 * matrix2.m32 + 0 * matrix2.m42,
+                matrix1.m31 * matrix2.m13 + matrix1.m32 * matrix2.m23 +
+                matrix1.m33 * matrix2.m33 + 0 * matrix2.m43,
+                matrix1.m41 * matrix2.m11 + matrix1.m42 * matrix2.m21 +
+                matrix1.m43 * matrix2.m31 + 1 * matrix2.m41,
+                matrix1.m41 * matrix2.m12 + matrix1.m42 * matrix2.m22 +
+                matrix1.m43 * matrix2.m32 + 1 * matrix2.m42,
+                matrix1.m41 * matrix2.m13 + matrix1.m42 * matrix2.m23 +
+                matrix1.m43 * matrix2.m33 + 1 * matrix2.m43);
+
+            return result;
+        } 
     }
 
     /// <summary>
@@ -299,6 +358,7 @@ namespace Adjutant.Library.DataTypes
         #endregion
 
         #region static From...
+        // 10/11/11/00
         public static RealQuat FromDHenN3(uint DHenN3)
         {
             float a, b, c;
@@ -330,6 +390,7 @@ namespace Adjutant.Library.DataTypes
             return new RealQuat(a, b, c);
         }
 
+        // 11/11/10/00
         public static RealQuat FromHenDN3(uint HenDN3)
         {
             float a, b, c;
@@ -361,6 +422,7 @@ namespace Adjutant.Library.DataTypes
             return new RealQuat(a, b, c);
         }
 
+        // 10/10/10/02
         public static RealQuat FromDecN4(uint DecN4)
         {
             float a, b, c, d;
@@ -397,21 +459,44 @@ namespace Adjutant.Library.DataTypes
         public static RealQuat FromUByte4(uint UByte4)
         {
             float a, b, c, d;
-            a = (float)(UByte4 & 0xFF);
-            b = (float)((UByte4 >> 8) & 0xFF);
-            c = (float)((UByte4 >> 16) & 0xFF);
-            d = (float)(UByte4 >> 24);
+            d = (float)(UByte4 & 0xFF);
+            c = (float)((UByte4 >> 8) & 0xFF);
+            b = (float)((UByte4 >> 16) & 0xFF);
+            a = (float)(UByte4 >> 24);
             return new RealQuat(a, b, c, d);
         }
 
         public static RealQuat FromUByteN4(uint UByteN4)
         {
             float a, b, c, d;
-            a = (float)(UByteN4 & 0xFF)         / (float)0xFF;
-            b = (float)((UByteN4 >> 8) & 0xFF)  / (float)0xFF;
-            c = (float)((UByteN4 >> 16) & 0xFF) / (float)0xFF;
-            d = (float)(UByteN4 >> 24)          / (float)0xFF;
+            d = (float)(UByteN4 & 0xFF)         / (float)0xFF;
+            c = (float)((UByteN4 >> 8) & 0xFF)  / (float)0xFF;
+            b = (float)((UByteN4 >> 16) & 0xFF) / (float)0xFF;
+            a = (float)(UByteN4 >> 24)          / (float)0xFF;
             return new RealQuat(a, b, c, d);
+        }
+
+
+        // 11/11/10/00
+        public static RealQuat From11101100(uint HenDN3)
+        {
+            float a, b, c;
+            uint[] SignExtendXZ = { 0x00000000, 0xFFFFF800 };
+            uint[] SignExtendY = { 0x00000000, 0xFFFFFC00 };
+            uint temp;
+
+            temp = HenDN3 & 0x7FF;
+            a = (float)(short)(temp | SignExtendXZ[temp >> 10]) / (float)0x3FF;
+
+            temp = (HenDN3 >> 10) & 0x3FF;
+            b = (float)(short)(temp | SignExtendY[temp >> 9]) / (float)0x1FF;
+
+            temp = (HenDN3 >> 21) & 0x7FF;
+            c = (float)(short)(temp | SignExtendXZ[temp >> 10]) / (float)0x3FF;
+
+            //q.d = 0;
+
+            return new RealQuat(a, b, c);
         }
         #endregion
     }

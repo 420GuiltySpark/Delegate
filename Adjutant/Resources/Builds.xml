@@ -1,9 +1,53 @@
 ﻿<builds>
+  <build string="01.01.14.2342"
+         inherits=""
+         headerSize="2048"
+         tagsKey=""
+         stringsKey=""
+         localesKey=""
+         networkKey=""
+         version="HaloXbox"
+         plugins="Halo1"
+         definitions="Halo1Xbox"
+         vertDef="Halo1"
+         stringMods="0,0"
+         localesStart="488"
+         languageCount="11"
+         languageSize="28" />
+  <build string="02.09.27.09809"
+         inherits=""
+         headerSize="2048"
+         tagsKey=""
+         stringsKey=""
+         localesKey=""
+         networkKey=""
+         version="HaloXbox"
+         plugins="Halo2"
+         definitions="Halo2Xbox"
+         vertDef="Halo2"
+         stringMods="0,0"
+         localesStart="488"
+         languageCount="11"
+         languageSize="28" />
+  <build string="11081.07.04.30.0934.main"
+         inherits=""
+         headerSize="2048"
+         tagsKey=""
+         stringsKey=""
+         localesKey=""
+         networkKey=""
+         version="Halo2Vista"
+         plugins="Halo2"
+         definitions="Halo2Vista"
+         vertDef="Halo2"
+         stringMods="0,0"
+         localesStart="488"
+         languageCount="11"
+         languageSize="28" />
   <build string="09699.07.05.01.1534.delta"
          inherits=""
          headerSize="2048"
 		     tagsKey=""
-		     stringsKey=""
 		     localesKey=""
 		     networkKey=""
          version="Halo3Beta"
@@ -21,7 +65,7 @@
 		     stringsKey=""
 		     localesKey=""
 		     networkKey=""
-         version="General"
+         version="Halo3"
          plugins="Halo3"
 		     definitions="Halo3Retail"
          vertDef="Halo3"
@@ -36,7 +80,7 @@
 		     stringsKey=""
 		     localesKey=""
 		     networkKey=""
-         version="General"
+         version="Halo3"
          plugins="ODST"
 		     definitions="Halo3ODST"
          vertDef="Halo3"
@@ -51,7 +95,7 @@
 		     stringsKey="rs&amp;m*l#/t%_()e;["
 		     localesKey="rs&amp;m*l#/t%_()e;["
 		     networkKey="rs&amp;m*l#/t%_()e;["
-         version="General"
+         version="Halo3"
          plugins="ReachBeta"
 		     definitions="ReachBeta"
          vertDef="HaloReach"
@@ -66,7 +110,7 @@
 		     stringsKey="ILikeSafeStrings"
 		     localesKey="BungieHaloReach!"
 		     networkKey="SneakerNetReigns"
-         version="General"
+         version="Halo3"
          plugins="Reach"
 		     definitions="ReachRetail"
          vertDef="HaloReach"
@@ -74,6 +118,36 @@
 		     localesStart="656"
          languageCount="12"
          languageSize="68" />
+  <!--<build string="14064.12.05.05.1011.beta"
+         inherits=""
+         headerSize="122880"
+		     tagsKey="LetsAllPlayNice!"
+		     stringsKey="ILikeSafeStrings"
+		     localesKey="BungieHaloReach!"
+		     networkKey="SneakerNetReigns"
+         version="Halo4"
+         plugins="Halo4"
+		     definitions="Halo4Beta"
+         vertDef="Halo4"
+		     stringMods="+1488,+5937"
+		     localesStart="696"
+         languageCount="12"
+         languageSize="68" />
+  <build string="16531.12.07.05.0200.main"
+         inherits=""
+         headerSize="122880"
+		     tagsKey="LetsAllPlayNice!"
+		     stringsKey="ILikeSafeStrings"
+		     localesKey="BungieHaloReach!"
+		     networkKey="SneakerNetReigns"
+         version="Halo4"
+         plugins="Halo4"
+		     definitions="Halo4Retail"
+         vertDef="Halo4"
+		     stringMods="+1568,+6520"
+		     localesStart="700"
+         languageCount="12"
+         languageSize="68" />-->
   <build string="20810.12.09.22.1647.main"
          inherits=""
          headerSize="122880"
@@ -89,8 +163,16 @@
 		     localesStart="700"
          languageCount="12"
          languageSize="68" />
+  
   <build string="12065.08.08.26.0819.halo3_ship" inherits="11855.07.08.20.2317.halo3_ship" />
-  <build string="20975.12.10.25.1337.main" name="????" inherits="20810.12.09.22.1647.main" /><!---->
+  <!--<build string="16531.12.07.05.0200.main" name="DLC1" inherits="20810.12.09.22.1647.main" />
+  <build string="17539.12.07.24.0200.main" name="DLC3" inherits="20810.12.09.22.1647.main" />
+  <build string="18223.12.08.06.0200.main" name="????" inherits="20810.12.09.22.1647.main" />
+  <build string="18845.12.08.16.0200.main" name="DLC4" inherits="20810.12.09.22.1647.main" />
+  <build string="20190.12.09.05.0200.main" name="DLC5" inherits="20810.12.09.22.1647.main" />
+  <build string="20703.12.09.16.0400.main" name="DLC6" inherits="20810.12.09.22.1647.main" />
+  <build string="20744.12.09.18.0100.main" name="DLC7" inherits="20810.12.09.22.1647.main" />-->
+  <build string="20975.12.10.25.1337.main" name="????" inherits="20810.12.09.22.1647.main" />
   <build string="21122.12.11.21.0101.main" name="TU02" inherits="20810.12.09.22.1647.main" />
   <build string="21165.12.12.12.0112.main" name="TU03" inherits="20810.12.09.22.1647.main" />
   <build string="21339.13.02.05.0117.main" name="TU04" inherits="20810.12.09.22.1647.main" />
@@ -98,31 +180,4 @@
   <build string="21401.13.04.23.1849.main" name="TU06" inherits="20810.12.09.22.1647.main" />
   <build string="21501.13.08.06.2311.main" name="TU07" inherits="20810.12.09.22.1647.main" />
   <build string="21522.13.10.17.1936.main" name="TU08" inherits="20810.12.09.22.1647.main" />
-
-
-  <!-- ================================================================================== -->
-
-
-  <build string="16531.12.07.05.0200.main" name="DLC1" inherits="20810.12.09.22.1647.main" />
-  <build string="17539.12.07.24.0200.main" name="DLC3" inherits="20810.12.09.22.1647.main" />
-  <build string="18223.12.08.06.0200.main" name="????" inherits="20810.12.09.22.1647.main" />
-  <build string="18845.12.08.16.0200.main" name="DLC4" inherits="20810.12.09.22.1647.main" />
-  <build string="20190.12.09.05.0200.main" name="DLC5" inherits="20810.12.09.22.1647.main" />
-  <build string="20703.12.09.16.0400.main" name="DLC6" inherits="20810.12.09.22.1647.main" />
-  <build string="20744.12.09.18.0100.main" name="DLC7" inherits="20810.12.09.22.1647.main" />
-  <build string="14064.12.05.05.1011.beta"
-         inherits=""
-         headerSize="122880"
-		     tagsKey="LetsAllPlayNice!"
-		     stringsKey="ILikeSafeStrings"
-		     localesKey="BungieHaloReach!"
-		     networkKey="SneakerNetReigns"
-         version="Halo4"
-         plugins="Halo4"
-		     definitions="Halo4Beta"
-         vertDef="Halo4"
-		     stringMods="+1488,+5937"
-		     localesStart="696"
-         languageCount="12"
-         languageSize="68" />
 </builds>

@@ -93,6 +93,12 @@
     <Compile Include="Library\Cache\AES.cs" />
     <Compile Include="Library\Cache\CacheFile.cs" />
     <Compile Include="Library\Cache\xcompress.cs" />
+    <Compile Include="Library\Controls\BinkExtractor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\BinkExtractor.Designer.cs">
+      <DependentUpon>BinkExtractor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Library\Controls\BitmapExtractor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -141,11 +147,11 @@
     <Compile Include="Library\Controls\MetaViewerControls\MetaViewerControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Library\Controls\MetaViewerControls\mHeader.cs">
+    <Compile Include="Library\Controls\MetaViewerControls\mComment.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Library\Controls\MetaViewerControls\mHeader.Designer.cs">
-      <DependentUpon>mHeader.cs</DependentUpon>
+    <Compile Include="Library\Controls\MetaViewerControls\mComment.Designer.cs">
+      <DependentUpon>mComment.cs</DependentUpon>
     </Compile>
     <Compile Include="Library\Controls\MetaViewerControls\mMultiValue.cs">
       <SubType>UserControl</SubType>
@@ -209,6 +215,7 @@
     <Compile Include="Library\DataTypes\Float16\Half.cs" />
     <Compile Include="Library\DataTypes\Float16\HalfHelper.cs" />
     <Compile Include="Library\DataTypes\Vertex.cs" />
+    <Compile Include="Library\Definitions\Base\bink.cs" />
     <Compile Include="Library\Definitions\Base\bitmap.cs" />
     <Compile Include="Library\Definitions\Base\cache_file_resource_gestalt.cs" />
     <Compile Include="Library\Definitions\Base\cache_file_resource_layout_table.cs" />
@@ -223,6 +230,10 @@
     <Compile Include="Library\Definitions\Composer\Wwise\RTPC.cs" />
     <Compile Include="Library\Definitions\DefinitionsManager.cs" />
     <Compile Include="Library\Definitions\Enums.cs" />
+    <Compile Include="Library\Definitions\Halo2Xbox\bitmap.cs" />
+    <Compile Include="Library\Definitions\Halo2Xbox\render_model.cs" />
+    <Compile Include="Library\Definitions\Halo2Xbox\scenario_structure_bsp.cs" />
+    <Compile Include="Library\Definitions\Halo2Xbox\shader.cs" />
     <Compile Include="Library\Definitions\Halo3Beta\cache_file_resource_gestalt.cs" />
     <Compile Include="Library\Definitions\Halo3Beta\scenario_structure_bsp.cs" />
     <Compile Include="Library\Definitions\Halo3ODST\render_model.cs" />
@@ -238,6 +249,8 @@
     <Compile Include="Library\Definitions\Halo3Beta\shader.cs" />
     <Compile Include="Library\Definitions\Halo3Retail\sound.cs" />
     <Compile Include="Library\Definitions\Halo3Retail\sound_cache_file_gestalt.cs" />
+    <Compile Include="Library\Definitions\Halo4Beta\render_model.cs" />
+    <Compile Include="Library\Definitions\Halo4Retail\bink.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\cache_file_resource_gestalt.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\cache_file_resource_layout_table.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\material.cs" />
@@ -358,6 +371,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Adjutant\Program.cs" />
+    <Compile Include="Library\S3D\S3DBSP.cs" />
+    <Compile Include="Library\S3D\Enums.cs" />
+    <Compile Include="Library\S3D\S3DATPL.cs" />
+    <Compile Include="Library\S3D\S3DModelBase.cs" />
+    <Compile Include="Library\S3D\S3DPak.cs" />
+    <Compile Include="Library\S3D\S3DPICT.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Adjutant\Settings.cs" />
     <Compile Include="Adjutant\SettingsForm.cs">
@@ -372,6 +391,9 @@
     <Compile Include="Adjutant\UpdateForm.designer.cs">
       <DependentUpon>UpdateForm.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Library\Controls\BinkExtractor.resx">
+      <DependentUpon>BinkExtractor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Library\Controls\BitmapExtractor.resx">
       <DependentUpon>BitmapExtractor.cs</DependentUpon>
     </EmbeddedResource>
@@ -393,8 +415,8 @@
     <EmbeddedResource Include="Library\Controls\MetaViewerControls\mEnum.resx">
       <DependentUpon>mEnum.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mHeader.resx">
-      <DependentUpon>mHeader.cs</DependentUpon>
+    <EmbeddedResource Include="Library\Controls\MetaViewerControls\mComment.resx">
+      <DependentUpon>mComment.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Library\Controls\MetaViewerControls\mMultiValue.resx">
       <DependentUpon>mMultiValue.cs</DependentUpon>
@@ -501,6 +523,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

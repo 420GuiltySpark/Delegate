@@ -54,10 +54,51 @@ namespace Adjutant.Library.Cache
         public CacheFile(string Filename)
         {
             this.Filename = Filename;
+            Version = DefinitionSet.Unknown;
             FileStream fs = new FileStream(Filename, FileMode.Open, FileAccess.Read);
             Reader = new EndianReader((Stream)fs, EndianFormat.BigEndian);
 
-            Reader.SeekTo(284);
+            var head = Reader.ReadInt32();
+            if (head == 1684104552) Reader.EndianType = EndianFormat.LittleEndian;
+
+            var v = Reader.ReadInt16();
+            switch (v)
+            {
+                case 5:   //H1X
+                    throw new NotSupportedException();
+                    Version = DefinitionSet.Halo1Xbox;
+                    Reader.SeekTo(64);
+                    break;
+                case 7:   //HPC
+                    throw new NotSupportedException();
+                    Version = DefinitionSet.Halo1PC;
+                    Reader.SeekTo(64);
+                    break;
+                case 609: //HCE
+                    throw new NotSupportedException();
+                    Version = DefinitionSet.Halo1CE;
+                    Reader.SeekTo(64);
+                    break;
+                case 8:   //H2?
+                    Reader.SeekTo(36);
+                    switch (Reader.ReadInt32())
+                    {
+                        case 0: //H2X
+                            Version = DefinitionSet.Halo2Xbox;
+                            Reader.SeekTo(288);
+                            break;
+                        case -1: //H2V
+                            throw new NotSupportedException();
+                            Version = DefinitionSet.Halo2Vista;
+                            Reader.SeekTo(300);
+                            break;
+                    }
+                    break;
+                default:  //360
+                    Reader.SeekTo(284);
+                    break;
+            }
+
             Build = Reader.ReadString(32);
 
             VerifyXML();
@@ -66,7 +107,7 @@ namespace Adjutant.Library.Cache
             version = buildNode.Attributes["version"].Value;
             HeaderSize = int.Parse(buildNode.Attributes["headerSize"].Value);
             stringMods = buildNode.Attributes["stringMods"].Value;
-                
+
             tagsKey = buildNode.Attributes["tagsKey"].Value;
             stringsKey = buildNode.Attributes["stringsKey"].Value;
             localesKey = buildNode.Attributes["localesKey"].Value;
@@ -101,10 +142,6 @@ namespace Adjutant.Library.Cache
                 case "Halo4Retail":
                     Version = DefinitionSet.Halo4Retail;
                     break;
-
-                default:
-                    Version = DefinitionSet.Unknown;
-                    break;
             }
             #endregion
 
@@ -134,10 +171,14 @@ namespace Adjutant.Library.Cache
             Strings = new StringTable(this);
 
             LocaleTables = new List<LocaleTable>();
-            for (int i = 0; i < int.Parse(buildNode.Attributes["languageCount"].Value); i++)
-                LocaleTables.Add(new LocaleTable(this, (Language)i));
-           
-            LoadPlayZone();
+            try
+            {
+                for (int i = 0; i < int.Parse(buildNode.Attributes["languageCount"].Value); i++)
+                    LocaleTables.Add(new LocaleTable(this, (Language)i));
+            }
+            catch { LocaleTables.Clear(); }
+
+            if (Version >= DefinitionSet.Halo3Beta) LoadPlayZone();
         }
 
         #region Classes
@@ -148,8 +189,6 @@ namespace Adjutant.Library.Cache
 
             public int fileSize;
             public int indexOffset;
-            public short CacheSizeType;
-            public short CacheType;
 
             public int stringCount;
             public int stringTableSize;
@@ -189,15 +228,10 @@ namespace Adjutant.Library.Cache
                 Reader.SeekTo(offset);
                 indexOffset = Reader.ReadInt32();
 
-                attr = headerNode.Attributes["MapSizeType"];
+                attr = headerNode.Attributes["tagDataAddress"];
                 offset = int.Parse(attr.Value);
                 Reader.SeekTo(offset);
-                CacheSizeType = Reader.ReadInt16();
-
-                attr = headerNode.Attributes["MapType"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                CacheType = Reader.ReadInt16();
+                tagDataAddress = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["stringCount"];
                 offset = int.Parse(attr.Value);
@@ -244,10 +278,13 @@ namespace Adjutant.Library.Cache
                 Reader.SeekTo(offset);
                 fileTableIndexOffset = Reader.ReadInt32();
 
-                attr = headerNode.Attributes["virtualBaseAddress"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                virtualBaseAddress = Reader.ReadInt32();
+                if (cache.Version >= DefinitionSet.Halo3Beta)
+                {
+                    attr = headerNode.Attributes["virtualBaseAddress"];
+                    offset = int.Parse(attr.Value);
+                    Reader.SeekTo(offset);
+                    virtualBaseAddress = Reader.ReadInt32();
+                }
 
                 if (cache.Version >= DefinitionSet.Halo3Retail)
                 {
@@ -266,30 +303,14 @@ namespace Adjutant.Library.Cache
                     Reader.SeekTo(offset);
                     rawTableSize = Reader.ReadInt32();
                 }
-                else
-                {
-                    rawTableOffset = 0;
-                    localeModifier = 0;
-                    rawTableSize = 0;
-                }
-                if (cache.Version > DefinitionSet.HaloReachRetail)
-                {
-                    attr = headerNode.Attributes["tagDataAddress"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset);
-                    tagDataAddress = Reader.ReadInt32();
-                }
+
                 #endregion
 
                 #region Modify Offsets
                 if (cache.Version == DefinitionSet.Halo3Beta)
                 {
-                    Reader.SeekTo(16);
-                    var constant = Reader.ReadInt32();
-                    var metaStart = Reader.ReadInt32();
-
-                    indexOffset = constant - virtualBaseAddress + metaStart;
-                    cache.Magic = constant - indexOffset;
+                    indexOffset = indexOffset - virtualBaseAddress + tagDataAddress;
+                    cache.Magic = virtualBaseAddress - tagDataAddress;
                 }
                 else if (cache.Version >= DefinitionSet.Halo3Retail)
                 {
@@ -311,7 +332,7 @@ namespace Adjutant.Library.Cache
                     }
                     indexOffset -= cache.Magic;
                 }
-                else throw new InvalidDataException("Invalid cache version");
+                //else throw new InvalidDataException("Invalid cache version");
                 #endregion
             }
         }
@@ -346,40 +367,57 @@ namespace Adjutant.Library.Cache
                 Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagClassCount = Reader.ReadInt32();
 
-                attr = indexHeaderNode.Attributes["tagClassIndexOffset"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset + cache.Header.indexOffset);
-                tagClassIndexOffset = Reader.ReadInt32() - cache.Magic;
-
-                attr = indexHeaderNode.Attributes["tagCount"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset + cache.Header.indexOffset);
-                tagCount = Reader.ReadInt32();
-
                 attr = indexHeaderNode.Attributes["tagInfoOffset"];
                 offset = int.Parse(attr.Value);
                 Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagInfoOffset = Reader.ReadInt32() - cache.Magic;
 
-                attr = indexHeaderNode.Attributes["tagInfoHeaderCount"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset + cache.Header.indexOffset);
-                tagInfoHeaderCount = Reader.ReadInt32();
+                if (cache.Version >= DefinitionSet.Halo3Beta)
+                {
+                    attr = indexHeaderNode.Attributes["tagClassIndexOffset"];
+                    offset = int.Parse(attr.Value);
+                    Reader.SeekTo(offset + cache.Header.indexOffset);
+                    tagClassIndexOffset = Reader.ReadInt32() - cache.Magic;
 
-                attr = indexHeaderNode.Attributes["tagInfoHeaderOffset"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset + cache.Header.indexOffset);
-                tagInfoHeaderOffset = Reader.ReadInt32() - cache.Magic;
+                    attr = indexHeaderNode.Attributes["tagCount"];
+                    offset = int.Parse(attr.Value);
+                    Reader.SeekTo(offset + cache.Header.indexOffset);
+                    tagCount = Reader.ReadInt32();
 
-                attr = indexHeaderNode.Attributes["tagInfoHeaderCount2"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset + cache.Header.indexOffset);
-                tagInfoHeaderCount2 = Reader.ReadInt32();
+                    attr = indexHeaderNode.Attributes["tagInfoHeaderCount"];
+                    offset = int.Parse(attr.Value);
+                    Reader.SeekTo(offset + cache.Header.indexOffset);
+                    tagInfoHeaderCount = Reader.ReadInt32();
 
-                attr = indexHeaderNode.Attributes["tagInfoHeaderOffset2"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset + cache.Header.indexOffset);
-                tagInfoHeaderOffset2 = Reader.ReadInt32() - cache.Magic;
+                    attr = indexHeaderNode.Attributes["tagInfoHeaderOffset"];
+                    offset = int.Parse(attr.Value);
+                    Reader.SeekTo(offset + cache.Header.indexOffset);
+                    tagInfoHeaderOffset = Reader.ReadInt32() - cache.Magic;
+
+                    attr = indexHeaderNode.Attributes["tagInfoHeaderCount2"];
+                    offset = int.Parse(attr.Value);
+                    Reader.SeekTo(offset + cache.Header.indexOffset);
+                    tagInfoHeaderCount2 = Reader.ReadInt32();
+
+                    attr = indexHeaderNode.Attributes["tagInfoHeaderOffset2"];
+                    offset = int.Parse(attr.Value);
+                    Reader.SeekTo(offset + cache.Header.indexOffset);
+                    tagInfoHeaderOffset2 = Reader.ReadInt32() - cache.Magic;
+                }
+                else
+                {
+                    Reader.SeekTo(cache.Header.indexOffset);
+                    cache.Header.Magic = Reader.ReadInt32() - (cache.Header.indexOffset + 32);
+
+                    tagClassCount = Reader.ReadInt32();
+                    tagInfoOffset = Reader.ReadInt32() - cache.Header.Magic;
+
+                    Reader.SeekTo(tagInfoOffset + 8);
+                    cache.Magic = Reader.ReadInt32() - (cache.Header.indexOffset + cache.Header.tagDataAddress);
+
+                    Reader.SeekTo(cache.Header.indexOffset + 24);
+                    tagCount = Reader.ReadInt32();
+                }
                 #endregion
             }
         }
@@ -406,7 +444,7 @@ namespace Adjutant.Library.Cache
 
                 #region Read Names
                 Reader.SeekTo(CH.stringTableOffset);
-                EndianReader newReader = (cache.stringsKey == "")
+                EndianReader newReader = (cache.stringsKey == "" || cache.stringsKey == null)
                     ? new EndianReader(new MemoryStream(Reader.ReadBytes(CH.stringTableSize)), EndianFormat.BigEndian)
                     : AES.DecryptSegment(Reader, CH.stringTableOffset, CH.stringTableSize, cache.stringsKey);
 
@@ -525,7 +563,7 @@ namespace Adjutant.Library.Cache
 
                 #region Read Names
                 Reader.SeekTo(tableOffset);
-                EndianReader newReader = (cache.localesKey == "")
+                EndianReader newReader = (cache.localesKey == "" || cache.localesKey == null)
                     ? new EndianReader(new MemoryStream(Reader.ReadBytes(tableSize)), EndianFormat.BigEndian)
                     : AES.DecryptSegment(Reader, tableOffset, tableSize, cache.localesKey);
 
@@ -566,25 +604,41 @@ namespace Adjutant.Library.Cache
             public CacheFile Cache;
             public string ClassCode
             {
-                get { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].ClassCode; }
+                get 
+                { 
+                    return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].ClassCode; 
+                }
             }
             public string ClassName
             {
-                get { return Cache.Strings.GetItemByID(Cache.IndexItems.ClassList[ClassIndex].StringID); }
+                get 
+                {
+                    if(Cache.Version >= DefinitionSet.Halo3Beta) return Cache.Strings.GetItemByID(Cache.IndexItems.ClassList[ClassIndex].StringID);
+                    else return ClassCode;
+                }
             }
             public string ParentClass
             {
-                get { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].Parent; }
+                get 
+                {
+                    try { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].Parent; }
+                    catch { return ClassCode; }
+                }
             }
             public string ParentClass2
             {
-                get { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].Parent2; }
+                get 
+                {
+                    try { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].Parent2; }
+                    catch { return ClassCode; }
+                }
             }
             public string Filename;
             public int ID;
             public int Offset;
-            public short ClassIndex;
+            public int ClassIndex;
             public int metaIndex;
+            public int Magic;
 
             public override string ToString()
             {
@@ -605,33 +659,113 @@ namespace Adjutant.Library.Cache
                 EndianReader Reader = cache.Reader;
 
                 ClassList = new List<TagClass>();
-
-                #region Read Class List
-
-                Reader.SeekTo(IH.tagClassIndexOffset);
-                for (int i = 0; i < IH.tagClassCount; i++)
+                if (Cache.Version <= DefinitionSet.Halo2Vista)
                 {
-                    TagClass tc = new TagClass();
-                    tc.ClassCode = Reader.ReadString(4);
-                    tc.Parent = Reader.ReadString(4);
-                    tc.Parent2 = Reader.ReadString(4);
-                    tc.StringID = Reader.ReadInt32();
-                    ClassList.Add(tc);
-                }
-                #endregion
+                    #region Halo2X
+                    var classDic = new Dictionary<string, int>();
+                    int[] sbspOffset = new int[0];
+                    int[] sbspID = new int[0];
+                    int[] sbspMagic = new int[0];
 
-                #region Read Tags' Info
-                Reader.SeekTo(IH.tagInfoOffset);
-                for (int i = 0; i < IH.tagCount; i++)
-                {
-                    IndexItem item = new IndexItem() { Cache = cache };
-                    item.ClassIndex = Reader.ReadInt16();
-                    item.ID = (Reader.ReadInt16() << 16) | i;
-                    item.Offset = Reader.ReadInt32() - cache.Magic;
-                    item.metaIndex = i;
-                    this.Add(item);
+                    Reader.SeekTo(IH.tagInfoOffset);
+                    for (int i = 0; i < IH.tagCount; i++)
+                    {
+                        var cname = Reader.ReadString(4);
+                        var tname = cname.ToCharArray();
+                        Array.Reverse(tname);
+                        cname = new string(tname);
+
+                        int index;
+                        if (!classDic.TryGetValue(cname, out index))
+                        {
+                            index = classDic.Count;
+                            classDic.Add(cname, classDic.Count);
+                        }
+
+                        IndexItem item = new IndexItem() { Cache = cache };
+                        item.ClassIndex = index;
+                        item.ID = Reader.ReadInt32();
+                        item.Offset = Reader.ReadInt32();
+                        item.Offset = item.Offset - cache.Magic;
+                        Reader.ReadInt32();
+                        this.Add(item);
+
+                        long tempOffset = Reader.Position;
+
+                        if (cname == "scnr")
+                        {
+                            Reader.SeekTo(item.Offset + 528);
+                            int jCount = Reader.ReadInt32();
+                            int jOffset = Reader.ReadInt32() - cache.Magic;
+
+                            sbspOffset = new int[jCount];
+                            sbspID = new int[jCount];
+                            sbspMagic = new int[jCount];
+
+                            for (int j = 0; j < jCount; j++)
+                            {
+                                Reader.SeekTo(jOffset + j * 68);
+                                sbspOffset[j] = Reader.ReadInt32();
+                                Reader.ReadInt32();
+                                sbspMagic[j] = Reader.ReadInt32() - sbspOffset[j];
+                                Reader.SeekTo(jOffset + j * 68 + 20);
+                                sbspID[j] = Reader.ReadInt32();
+                            }
+                        }
+
+                        Reader.SeekTo(tempOffset);
+                    }
+
+                    for (int i = 0; i < sbspID.Length; i++)
+                    {
+                        var id = sbspID[i];
+                        foreach (var item in this)
+                        {
+                            if (item.ID == id)
+                            {
+                                item.Offset = sbspOffset[i];
+                                item.Magic = sbspMagic[i];
+                            }
+                        }
+                    }
+
+                    foreach (var pair in classDic)
+                    {
+                        TagClass tc = new TagClass();
+                        tc.ClassCode = pair.Key;
+                        ClassList.Add(tc);
+                    }
+                    #endregion
                 }
-                #endregion
+                else
+                {
+                    #region Read Class List
+
+                    Reader.SeekTo(IH.tagClassIndexOffset);
+                    for (int i = 0; i < IH.tagClassCount; i++)
+                    {
+                        TagClass tc = new TagClass();
+                        tc.ClassCode = Reader.ReadString(4);
+                        tc.Parent = Reader.ReadString(4);
+                        tc.Parent2 = Reader.ReadString(4);
+                        tc.StringID = Reader.ReadInt32();
+                        ClassList.Add(tc);
+                    }
+                    #endregion
+
+                    #region Read Tags' Info
+                    Reader.SeekTo(IH.tagInfoOffset);
+                    for (int i = 0; i < IH.tagCount; i++)
+                    {
+                        IndexItem item = new IndexItem() { Cache = cache };
+                        item.ClassIndex = Reader.ReadInt16();
+                        item.ID = (Reader.ReadInt16() << 16) | i;
+                        item.Offset = Reader.ReadInt32() - cache.Magic;
+                        item.metaIndex = i;
+                        this.Add(item);
+                    }
+                    #endregion
+                }
 
                 #region Read Indices
                 Reader.SeekTo(CH.fileTableIndexOffset);
@@ -642,7 +776,7 @@ namespace Adjutant.Library.Cache
 
                 #region Read Names
                 Reader.SeekTo(CH.fileTableOffset);
-                EndianReader newReader = (cache.tagsKey == "")
+                EndianReader newReader = (cache.tagsKey == "" || cache.tagsKey == null)
                     ? new EndianReader(new MemoryStream(Reader.ReadBytes(CH.fileTableSize)), EndianFormat.BigEndian)
                     : AES.DecryptSegment(Reader, CH.fileTableOffset, CH.fileTableSize, cache.tagsKey);
 
@@ -716,6 +850,11 @@ namespace Adjutant.Library.Cache
             public string Parent;
             public string Parent2;
             public int StringID;
+
+            public override string ToString()
+            {
+                return ClassCode;
+            }
         }
 
         #endregion
@@ -850,6 +989,9 @@ namespace Adjutant.Library.Cache
 
         public byte[] GetRawFromID(int ID, int DataLength)
         {
+            if (Version <= DefinitionSet.Halo2Vista)
+                return GetH2XRaw(ID, DataLength);
+
             if (Version == DefinitionSet.Halo3Beta)
                 return GetH3BRaw(ID, DataLength);
 
@@ -931,6 +1073,46 @@ namespace Adjutant.Library.Cache
             return data;
         }
 
+        private byte[] GetH2XRaw(int ID, int DataLength)
+        {
+            EndianReader er;
+            string fName = "";
+
+            long cIndex = (ID & 0xC0000000) >> 30;
+            int offset = ID & 0x3FFFFFFF;
+
+            if (cIndex != 0)
+            {
+                switch (cIndex)
+                {
+                    case 1:
+                        fName = FilePath + "\\mainmenu.map";
+                        break;
+                    case 2:
+                        fName = FilePath + "\\shared.map";
+                        break;
+                    case 3:
+                        fName = FilePath + "\\single_player_shared.map";
+                        break;
+                }
+                FileStream fs = new FileStream(fName, FileMode.Open, FileAccess.Read);
+                er = new EndianReader(fs, EndianFormat.LittleEndian);
+            }
+            else er = Reader;
+
+            er.SeekTo(offset);
+
+            var data = er.ReadBytes(DataLength);
+
+            if (er != Reader)
+            {
+                er.Close();
+                er.Dispose();
+            }
+
+            return data;
+        }
+
         private byte[] GetH3BRaw(int ID, int DataLength)
         {
             EndianReader er;
@@ -986,11 +1168,11 @@ namespace Adjutant.Library.Cache
             var optSize = size - reqSize;
 
 #if DEBUG
-            if (reqPage.CompressedSize != reqPage.DecompressedSize || optPage.CompressedSize != optPage.DecompressedSize)
-                throw new Exception("COMPRESSED DATA");
+            //if (reqPage.CompressedSize != reqPage.DecompressedSize || optPage.CompressedSize != optPage.DecompressedSize)
+            //    throw new Exception("COMPRESSED DATA");
 
-            if (sRaw.Sizes.Count > 1)
-                throw new Exception("MULTIPLE SEGMENTS");
+            //if (sRaw.Sizes.Count > 1)
+            //    throw new Exception("MULTIPLE SEGMENTS");
 #endif
 
             byte[] buffer;
@@ -1023,6 +1205,7 @@ namespace Adjutant.Library.Cache
                 buffer = er.ReadBytes(reqPage.CompressedSize);
 
                 Array.Copy(buffer, segment.RequiredPageOffset, data, 0, reqSize);
+                //data = buffer;
 
                 if (er != Reader)
                 {
@@ -1055,7 +1238,8 @@ namespace Adjutant.Library.Cache
                 er.SeekTo(offset);
                 buffer = er.ReadBytes(optPage.CompressedSize);
 
-                Array.Copy(buffer, segment.OptionalPageOffset, data, reqSize, optSize);
+                //Array.Copy(buffer, segment.OptionalPageOffset, data, reqSize, optSize);
+                data = buffer;
 
                 if (er != Reader)
                 {

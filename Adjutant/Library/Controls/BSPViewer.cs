@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Adjutant.Library.S3D;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.DataTypes;
@@ -27,13 +28,19 @@ namespace Adjutant.Library.Controls
         private CacheFile cache;
         private CacheFile.IndexItem tag;
         private scenario_structure_bsp sbsp;
+
         private bool isWorking = false;
         private Dictionary<scenario_structure_bsp.Cluster, Model3DGroup> clusterDic = new Dictionary<scenario_structure_bsp.Cluster, Model3DGroup>();
         private Dictionary<scenario_structure_bsp.InstancedGeometry, Model3DGroup> igDic = new Dictionary<scenario_structure_bsp.InstancedGeometry, Model3DGroup>();
         private List<Model3DGroup> sectList = new List<Model3DGroup>();
         private List<MaterialGroup> shaders = new List<MaterialGroup>();
 
-        public ModelFormat DefaultModeFormat = ModelFormat.EMF;
+        private S3DPak pak;
+        private S3DPak.PakItem item;
+        private S3DBSP atpl;
+        private Dictionary<int, Model3DGroup> atplDic = new Dictionary<int, Model3DGroup>();
+
+        public ModelFormat DefaultModeFormat = ModelFormat.AMF;
 
         public System.Drawing.Color RenderBackColor
         {
@@ -48,6 +55,8 @@ namespace Adjutant.Library.Controls
         #endregion
 
         #region Methods
+
+        #region Map
         public void LoadBSPTag(CacheFile Cache, CacheFile.IndexItem Tag, bool Force)
         {
             try
@@ -77,7 +86,7 @@ namespace Adjutant.Library.Controls
 
             sbsp = DefinitionsManager.sbsp(cache, tag);
             sbsp.BSPName = Path.GetFileNameWithoutExtension(tag.Filename + "." + tag.ClassCode);
-            ModelFunctions.LoadBSPRaw(cache, ref sbsp);
+            sbsp.LoadRaw();
 
             isWorking = true;
 
@@ -157,7 +166,7 @@ namespace Adjutant.Library.Controls
                 Math.Pow(YBounds.Length, 2) +
                 Math.Pow(ZBounds.Length, 2));
 
-            if (double.IsInfinity(pythagoras3d)) //no clusters
+            if (double.IsInfinity(pythagoras3d) || pythagoras3d == 0) //no clusters
             {
                 //pythagoras3d = 1500;
                 XBounds = sbsp.XBounds;
@@ -246,7 +255,7 @@ namespace Adjutant.Library.Controls
                     var rmsh = DefinitionsManager.rmsh(cache, rmshTag);
 
                     int mapIndex = 0;
-                    if (cache.Version < DefinitionSet.Halo4Retail)
+                    if (cache.Version >= DefinitionSet.Halo3Beta && cache.Version <= DefinitionSet.HaloReachRetail)
                     {
                         var rmt2Tag = cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
                         var rmt2 = DefinitionsManager.rmt2(cache, rmt2Tag);
@@ -263,6 +272,7 @@ namespace Adjutant.Library.Controls
 
                     var bitmTag = cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[mapIndex].BitmapTagID);
                     var image = BitmapExtractor.GetBitmapByTag(cache, bitmTag, 0, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                    //image = ResizeImage(image, new Size(image.Width / 4, image.Height / 4));
 
                     if (image == null)
                     {
@@ -383,7 +393,7 @@ namespace Adjutant.Library.Controls
 
                         GeometryModel3D modeld = new GeometryModel3D(geom, shaders[submesh.ShaderIndex])
                         {
-                            BackMaterial = shaders[submesh.ShaderIndex]
+                            //BackMaterial = shaders[submesh.ShaderIndex]
                         };
 
                         group.Children.Add(modeld);
@@ -471,7 +481,376 @@ namespace Adjutant.Library.Controls
                 if (!force) throw ex; 
             }
         }
-        
+        #endregion
+
+        #region Pak
+        public void LoadBSPTag(S3DPak Pak, S3DPak.PakItem Item, bool Force)
+        {
+            try
+            {
+                Clear();
+                loadBspTag(Pak, Item, false, Force);
+            }
+            catch (Exception ex)
+            {
+                renderer1.ClearViewport();
+                Clear();
+                renderer1.Stop("Loading failed: " + ex.Message);
+                tvRegions.Nodes.Clear();
+                this.Enabled = false;
+            }
+        }
+
+        private void loadBspTag(S3DPak Pak, S3DPak.PakItem Item, bool Specular, bool Force)
+        {
+            if (!this.Enabled) this.Enabled = true;
+            tvRegions.Nodes.Clear();
+            if (renderer1.Running) renderer1.Stop("Loading...");
+            Refresh();
+
+            pak = Pak;
+            item = Item;
+
+            atpl = new S3DBSP(pak, item);
+            atpl.ParseBSP();
+            //return;
+
+            var tObj = atpl.Objects[0];
+            foreach (var obj in atpl.Objects)
+                if (obj.VertCount > tObj.VertCount) tObj = obj;
+
+            var idx = atpl.Objects.IndexOf(tObj);
+            var shList = new List<int>();
+
+            isWorking = true;
+
+            #region Build Tree
+
+            TreeNode pNode = new TreeNode(atpl.Name) { Tag = atpl };
+            foreach (var obj in atpl.Objects)
+            {
+                if (obj.Vertices == null || obj.Submeshes == null) continue;
+                if (obj.VertCount == 0 || obj.Submeshes.Count == 0) continue;
+                //if (obj.Submeshes[0].MaterialIndex == -1) continue;
+                if (obj.isInherited) continue;
+                if (obj.isInheritor) continue;
+
+                pNode.Nodes.Add(new TreeNode(obj.Name) { Tag = obj });
+
+                foreach (var sub in obj.Submeshes)
+                    if (!shList.Contains(sub.MaterialIndex)) shList.Add(sub.MaterialIndex);
+            }
+            if (pNode.Nodes.Count > 0) tvRegions.Nodes.Add(pNode);
+
+            foreach (var obj in atpl.Objects)
+            {
+                if (!obj.isInherited) continue;
+
+                TreeNode iNode = new TreeNode(obj.Name) { Tag = obj };
+
+                foreach (var obj1 in atpl.Objects)
+                {
+                    if (!obj1.isInheritor) continue;
+                    if (obj.Vertices == null || obj.Submeshes == null) continue;
+                    if (obj.VertCount == 0 || obj.Submeshes.Count == 0) continue;
+                    //if (obj.Submeshes[0].MaterialIndex == -1) continue;
+                    if (obj1.inheritIndex == atpl.Objects.IndexOf(obj))
+                    {
+                        iNode.Nodes.Add(new TreeNode(obj1.Name) { Tag = obj1 });
+
+                        foreach (var sub in obj1.Submeshes)
+                            if (!shList.Contains(sub.MaterialIndex)) shList.Add(sub.MaterialIndex);
+                    }
+                }
+
+                if (iNode.Nodes.Count > 0) tvRegions.Nodes.Add(iNode);
+            }
+
+            foreach (TreeNode node in tvRegions.Nodes)
+                node.Nodes[0].Checked = node.Checked = true;
+
+            //tvRegions.Sort(); //much easier for looking through IGs
+            #endregion
+
+            isWorking = false;
+
+            #region Load Stuff
+            LoadS3DShaders(false, shList);
+            LoadS3DMeshes(Force);
+            #endregion
+
+            #region BoundingBox Stuff
+            PerspectiveCamera camera = (PerspectiveCamera)renderer1.Viewport.Camera;
+
+            //var XBounds = new RealBounds(float.MaxValue, float.MinValue);
+            //var YBounds = new RealBounds(float.MaxValue, float.MinValue);
+            //var ZBounds = new RealBounds(float.MaxValue, float.MinValue);
+
+            var XBounds = atpl.RenderBounds.XBounds;
+            var YBounds = atpl.RenderBounds.ZBounds;
+            var ZBounds = atpl.RenderBounds.YBounds;
+
+            #region Get Bounds
+            //foreach (var c in sbsp.Clusters)
+            //{
+            //    if (c.SectionIndex >= sbsp.ModelSections.Count) continue;
+            //    if (sbsp.ModelSections[c.SectionIndex].Submeshes.Count == 0) continue;
+
+            //    if (c.XBounds.Min < XBounds.Min) XBounds.Min = c.XBounds.Min;
+            //    if (c.YBounds.Min < YBounds.Min) YBounds.Min = c.YBounds.Min;
+            //    if (c.ZBounds.Min < ZBounds.Min) ZBounds.Min = c.ZBounds.Min;
+
+            //    if (c.XBounds.Max > XBounds.Max) XBounds.Max = c.XBounds.Max;
+            //    if (c.YBounds.Max > YBounds.Max) YBounds.Max = c.YBounds.Max;
+            //    if (c.ZBounds.Max > ZBounds.Max) ZBounds.Max = c.ZBounds.Max;
+            //}
+
+            //foreach (var bb in sbsp.BoundingBoxes)
+            //{
+            //    if (bb.XBounds.Min < XBounds.Min) XBounds.Min = bb.XBounds.Min;
+            //    if (bb.YBounds.Min < YBounds.Min) YBounds.Min = bb.YBounds.Min;
+            //    if (bb.ZBounds.Min < ZBounds.Min) ZBounds.Min = bb.ZBounds.Min;
+
+            //    if (bb.XBounds.Max > XBounds.Max) XBounds.Max = bb.XBounds.Max;
+            //    if (bb.YBounds.Max > YBounds.Max) YBounds.Max = bb.YBounds.Max;
+            //    if (bb.ZBounds.Max > ZBounds.Max) ZBounds.Max = bb.ZBounds.Max;
+            //}
+            #endregion
+
+            double pythagoras3d = Math.Sqrt(
+                Math.Pow(XBounds.Length, 2) +
+                Math.Pow(YBounds.Length, 2) +
+                Math.Pow(ZBounds.Length, 2));
+
+            if (double.IsInfinity(pythagoras3d) || pythagoras3d == 0) //no clusters
+            {
+                //pythagoras3d = 1500;
+                XBounds = sbsp.XBounds;
+                YBounds = sbsp.YBounds;
+                ZBounds = sbsp.ZBounds;
+
+                pythagoras3d = Math.Sqrt(
+                Math.Pow(XBounds.Length, 2) +
+                Math.Pow(YBounds.Length, 2) +
+                Math.Pow(ZBounds.Length, 2));
+            }
+
+            if (XBounds.Length / 2 > (YBounds.Length)) //side view
+            {
+                var p = new Point3D(
+                XBounds.MidPoint,
+                YBounds.Max + pythagoras3d * 0.5,
+                ZBounds.MidPoint);
+                renderer1.MoveCamera(p, new Vector3D(0, 0, -2));
+            }
+            else //normal camera position
+            {
+                var p = new Point3D(
+                XBounds.Max + pythagoras3d * 0.5,
+                YBounds.MidPoint,
+                ZBounds.MidPoint);
+                renderer1.MoveCamera(p, new Vector3D(-1, 0, 0));
+            }
+
+            renderer1.CameraSpeed = Math.Ceiling(pythagoras3d * 3) / 1000;
+            renderer1.MaxCameraSpeed = Math.Ceiling(pythagoras3d * 3) * 5 / 1000;
+            renderer1.MaxPosition = new Point3D(
+                atpl.RenderBounds.XBounds.Max + pythagoras3d * 2,
+                atpl.RenderBounds.YBounds.Max + pythagoras3d * 2,
+                atpl.RenderBounds.ZBounds.Max + pythagoras3d * 2);
+            renderer1.MinPosition = new Point3D(
+                atpl.RenderBounds.XBounds.Min - pythagoras3d * 2,
+                atpl.RenderBounds.YBounds.Min - pythagoras3d * 2,
+                atpl.RenderBounds.ZBounds.Min - pythagoras3d * 2);
+            #endregion
+
+            renderer1.Start();
+            RenderSelected();
+        }
+
+        public static Bitmap ResizeImage(Bitmap imgToResize, Size size)
+        {
+            Bitmap b = new Bitmap(size.Width, size.Height);
+            using (Graphics g = Graphics.FromImage((Image)b))
+            {
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.DrawImage(imgToResize, 0, 0, size.Width, size.Height);
+            }
+            return b;
+        }
+
+        private void LoadS3DShaders(bool spec, List<int> indices)
+        {
+            var errMat = GetErrorMaterial();
+
+            var matGroup = new MaterialGroup();
+            matGroup.Children.Add(errMat);
+            shaders.Add(matGroup);
+            if (atpl.Materials.Count == 0) return;
+
+            //var sPak = new S3DPak(pak.FilePath + "\\" + "pak_stream_decompressed.s3dpak");
+            var sPak = pak;
+            foreach (var mat in atpl.Materials)
+            {
+                if (!indices.Contains(atpl.Materials.IndexOf(mat)))
+                {
+                    shaders.Add(null);
+                    continue;
+                }
+                matGroup = new MaterialGroup();
+
+                try
+                {
+                    var pict = new S3DPICT(sPak, sPak.GetItemByName(mat.Name));
+                    var image = BitmapExtractor.GetBitmapByTag(sPak, pict, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                    image = ResizeImage(image, new Size(image.Width / 8, image.Height / 8));
+
+
+                    if (image == null)
+                    {
+                        matGroup.Children.Add(errMat);
+                        shaders.Add(matGroup);
+                        continue;
+                    }
+
+                    //int tileIndex = rmsh.Properties[0].ShaderMaps[mapIndex].TilingIndex;
+                    //float uTiling;
+                    //try { uTiling = rmsh.Properties[0].Tilings[tileIndex].UTiling; }
+                    //catch { uTiling = 1; }
+
+                    //float vTiling;
+                    //try { vTiling = rmsh.Properties[0].Tilings[tileIndex].VTiling; }
+                    //catch { vTiling = 1; }
+
+                    float uTiling = 1, vTiling = 1;
+
+                    MemoryStream stream = new MemoryStream();
+                    image.Save(stream, ImageFormat.Bmp);
+
+                    var diffuse = new BitmapImage();
+
+                    diffuse.BeginInit();
+                    diffuse.StreamSource = stream; //new MemoryStream(stream.ToArray());
+                    diffuse.EndInit();
+
+                    matGroup.Children.Add(new DiffuseMaterial()
+                    {
+                        Brush = new ImageBrush(diffuse)
+                        {
+                            ViewportUnits = BrushMappingMode.Absolute,
+                            TileMode = TileMode.Tile,
+                            Viewport = new System.Windows.Rect(0, 0, 1f / Math.Abs(uTiling), 1f / Math.Abs(vTiling))
+                        }
+                    });
+
+                    shaders.Add(matGroup);
+                }
+                catch
+                {
+                    matGroup.Children.Add(errMat);
+                    shaders.Add(matGroup);
+                }
+            }
+            if(sPak != pak) sPak.Close();
+        }
+
+        private void LoadS3DMeshes(bool force)
+        {
+            atplDic = new Dictionary<int, Model3DGroup>();
+
+            foreach (var obj in atpl.Objects)
+            {
+                if (obj.Vertices == null || obj.Submeshes == null) continue;
+                if (obj.VertCount == 0 || obj.Submeshes.Count == 0) continue;
+                //if (obj.Submeshes[0].MaterialIndex == -1) continue;
+                if (obj.isInherited) continue;
+
+                var group = new Model3DGroup();
+                foreach (var submesh in obj.Submeshes)
+                    AddS3DMesh(group, obj, submesh, force);
+
+                var mGroup = new Transform3DGroup();
+
+                Matrix3D mat0 = ModelFunctions.MatrixFromBounds(obj.BoundingBox);
+                Matrix3D mat1 = (obj.isInheritor) ? ModelFunctions.MatrixFromBounds(atpl.ObjectByID(obj.inheritIndex).BoundingBox) : Matrix3D.Identity;
+                Matrix3D mat2 = ModelFunctions.MatrixFromBounds(atpl.RenderBounds);
+
+                Matrix3D mat5 = obj.unkMatrix0;
+                Matrix3D mat6 = (obj.isInheritor) ? atpl.ObjectByID(obj.inheritIndex).unkMatrix0 : Matrix3D.Identity;
+
+                //if (!mat5.IsIdentity || !mat6.IsIdentity)
+                //    mat5 = mat5;
+
+                var mat3 = new Matrix3D(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
+                var mat4 = new Matrix3D(500, 0, 0, 0, 0, 500, 0, 0, 0, 0, 500, 0, 0, 0, 0, 1);
+
+                //if (obj.isInheritor)
+                //{
+                //    var bb0 = atpl.ObjectByID(obj.inheritIndex).BoundingBox;
+                //    var bb1 = obj.BoundingBox;
+
+                //    RealQuat min = new RealQuat(bb0.XBounds.Min * bb1.XBounds.Min, bb0.YBounds.Min * bb1.YBounds.Min, bb0.ZBounds.Min * bb1.ZBounds.Min);
+                //    RealQuat max = new RealQuat(bb0.XBounds.Max * bb1.XBounds.Max, bb0.YBounds.Max * bb1.YBounds.Max, bb0.ZBounds.Max * bb1.ZBounds.Max);
+                //    //var matx = ModelFunctions.MatrixFromBounds(min, max);
+                //    var matx = ModelFunctions.MatrixFromBounds(bb1) * ModelFunctions.MatrixFromBounds(bb0);
+                //    mGroup.Children.Add(new MatrixTransform3D(matx * mat3));
+                //    group.Transform = mGroup;
+
+                //    atplDic.Add(atpl.Objects.IndexOf(obj), group);
+                //    continue;
+                //}
+
+                //mGroup.Children.Add(new ScaleTransform3D(100, 100, 100));
+                mGroup.Children.Add(new MatrixTransform3D(mat4 * mat3));
+                group.Transform = mGroup;
+
+                atplDic.Add(atpl.Objects.IndexOf(obj), group);
+            }
+        }
+
+        private void AddS3DMesh(Model3DGroup group, S3DModelBase.S3DObject obj, S3DModelBase.S3DObject.Submesh submesh, bool force)
+        {
+            try
+            {
+                var geom = new MeshGeometry3D();
+                var iList = ModelFunctions.GetTriangleList(obj.Indices, submesh.FaceStart * 3, submesh.FaceLength * 3, 3);
+
+                int min = iList.Min();
+                int max = iList.Max();
+
+                for (int i = 0; i < iList.Count; i++)
+                    iList[i] -= min;
+
+                var vArray = new Vertex[(max - min) + 1];
+                Array.Copy(obj.Vertices.ToArray(), min, vArray, 0, (max - min) + 1);
+
+                foreach (var vertex in vArray)
+                {
+                    if (vertex == null) continue;
+                    VertexValue pos, tex, norm;
+                    vertex.TryGetValue("position", 0, out pos);
+                    vertex.TryGetValue("texcoords", 0, out tex);
+
+                    geom.Positions.Add(new Point3D(pos.Data.x * 1, pos.Data.y * 1, pos.Data.z * 1));
+                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * 2 * obj.uvScale, tex.Data.y * 2 * obj.uvScale));
+                    if (vertex.TryGetValue("normal", 0, out norm)) geom.Normals.Add(new Vector3D(norm.Data.x, norm.Data.y, norm.Data.z));
+                }
+
+                foreach (var index in iList)
+                    geom.TriangleIndices.Add(index);
+
+                GeometryModel3D modeld = new GeometryModel3D(geom, shaders[submesh.MaterialIndex+1])
+                {
+                    BackMaterial = shaders[submesh.MaterialIndex+1]
+                };
+
+                group.Children.Add(modeld);
+            }
+            catch (Exception ex) { if (!force) throw ex; }
+        }
+
+        #endregion
+
         private void RenderSelected()
         {
             renderer1.ClearViewport();
@@ -497,7 +876,13 @@ namespace Adjutant.Library.Controls
                         var ig = cnode.Tag as scenario_structure_bsp.InstancedGeometry;
 
                         if (igDic.TryGetValue(ig, out mesh))
-                            group.Children.Add(mesh);  
+                            group.Children.Add(mesh);
+                    }
+                    else //S3D
+                    {
+                        var obj = cnode.Tag as S3DModelBase.S3DObject;
+                        if (atplDic.TryGetValue(atpl.Objects.IndexOf(obj), out mesh))
+                            group.Children.Add(mesh);
                     }
                 }
             }
@@ -512,19 +897,19 @@ namespace Adjutant.Library.Controls
 
         private DiffuseMaterial GetErrorMaterial()
         {
-            var mat = new DiffuseMaterial(new SolidColorBrush(Colors.Red));
-            var brush = (SolidColorBrush)mat.Brush;
+            var mat = new DiffuseMaterial(new SolidColorBrush(Colors.Gold));
+            //var brush = (SolidColorBrush)mat.Brush;
 
-            var anim0 = new ColorAnimation
-            {
-                From = new System.Windows.Media.Color?(brush.Color),
-                To = new System.Windows.Media.Color?(Colors.Gold)
-            };
+            //var anim0 = new ColorAnimation
+            //{
+            //    From = new System.Windows.Media.Color?(brush.Color),
+            //    To = new System.Windows.Media.Color?(Colors.Red)
+            //};
 
-            anim0.Duration = new System.Windows.Duration(TimeSpan.FromMilliseconds(500.0));
-            anim0.AutoReverse = true;
-            anim0.RepeatBehavior = RepeatBehavior.Forever;
-            brush.BeginAnimation(SolidColorBrush.ColorProperty, anim0);
+            //anim0.Duration = new System.Windows.Duration(TimeSpan.FromMilliseconds(500.0));
+            //anim0.AutoReverse = true;
+            //anim0.RepeatBehavior = RepeatBehavior.Forever;
+            //brush.BeginAnimation(SolidColorBrush.ColorProperty, anim0);
 
             return mat;
         }
@@ -660,6 +1045,11 @@ namespace Adjutant.Library.Controls
                         var ig = cnode.Tag as scenario_structure_bsp.InstancedGeometry;
                         igs.Add(sbsp.GeomInstances.IndexOf(ig));
                     }
+                    else if (cnode.Tag is S3DModelBase.S3DObject)
+                    {
+                        var obj = cnode.Tag as S3DModelBase.S3DObject;
+                        clusts.Add(atpl.Objects.IndexOf(obj));
+                    }
                 }
             }
 
@@ -667,18 +1057,26 @@ namespace Adjutant.Library.Controls
             {
                 Filter = "EMF Files|*.emf|OBJ Files|*.obj|AMF Files|*.amf",
                 FilterIndex = (int)DefaultModeFormat + 1,
-                FileName = tag.Filename.Substring(tag.Filename.LastIndexOf("\\") + 1)
+                FileName = (tag != null) ? tag.Filename.Substring(tag.Filename.LastIndexOf("\\") + 1) : atpl.Name
             };
 
             if (sfd.ShowDialog() != DialogResult.OK) return;
 
-            var format = (ModelFormat)(sfd.FilterIndex - 1);
             try
             {
-                BSPExtractor.SaveBSPParts(sfd.FileName, cache, sbsp, format, clusts, igs);
-                TagExtracted(this, tag);
+                var format = (ModelFormat)(sfd.FilterIndex - 1);
+                if (cache != null)
+                {
+                    BSPExtractor.SaveBSPParts(sfd.FileName, cache, sbsp, format, clusts, igs);
+                    TagExtracted(this, tag);
+                }
+                else
+                {
+                    ModelFunctions.WriteAMF(sfd.FileName, pak, atpl, clusts);
+                    TagExtracted(this, item);
+                }
             }
-            catch (Exception ex) { ErrorExtracting(this, tag, ex); }
+            catch (Exception ex) { ErrorExtracting(this, (tag != null) ? (object)tag : (object)item, ex); }
         }
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
@@ -717,11 +1115,15 @@ namespace Adjutant.Library.Controls
             foreach (var val in clusterDic)
                 val.Value.Children.Clear();
 
+            foreach (var val in atplDic)
+                val.Value.Children.Clear();
+
             foreach (var val in shaders)
                 if (val != null) val.Children.Clear();
 
             igDic.Clear();
             clusterDic.Clear();
+            atplDic.Clear();
             shaders.Clear();
 
             GC.Collect();

@@ -8,13 +8,18 @@ namespace Adjutant.Library.Definitions
     public enum DefinitionSet
     {
         Unknown = -1,
-        Halo3Beta = 0,
-        Halo3Retail = 1,
-        Halo3ODST = 2,
-        HaloReachBeta = 3,
-        HaloReachRetail = 4,
-        Halo4Beta = 5,
-        Halo4Retail = 6
+        Halo1Xbox = 0,
+        Halo1PC = 1,
+        Halo1CE = 2,
+        Halo2Xbox = 3,
+        Halo2Vista = 4,
+        Halo3Beta = 5,
+        Halo3Retail = 6,
+        Halo3ODST = 7,
+        HaloReachBeta = 8,
+        HaloReachRetail = 9,
+        Halo4Beta = 10,
+        Halo4Retail = 11
     }
 
     public enum Language
@@ -32,9 +37,10 @@ namespace Adjutant.Library.Definitions
         Portuguese = 10,
         Unknown1 = 11
     }
-   
+
     public enum TextureFormat
     {
+        None = -1,
         A8 = 0,
         Y8 = 1,
         AY8 = 2,

@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Adjutant")]
-[assembly: AssemblyDescription("A Halo Xbox360 resource extractor")]
+[assembly: AssemblyDescription("A Halo Xbox resource extractor")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Haquez Co.")]
+[assembly: AssemblyCompany("Gravemind2401")]
 [assembly: AssemblyProduct("Adjutant")]
-[assembly: AssemblyCopyright("Copyright © Haquez Co. 2013")]
+[assembly: AssemblyCopyright("Copyright © Gravemind2401 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,4 +33,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("3.5.1.1")]
+[assembly: AssemblyFileVersion("4.1.0.0")]

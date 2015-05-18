@@ -14,6 +14,7 @@ namespace Adjutant.Library.Definitions.Halo3ODST
     {
         internal render_model(CacheFile Cache, int Offset)
         {
+            cache = Cache;
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Offset);
 

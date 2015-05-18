@@ -14,6 +14,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
     {
         internal render_model(CacheFile Cache, int Address)
         {
+            cache = Cache;
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
 

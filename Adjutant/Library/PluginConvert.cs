@@ -29,30 +29,24 @@ namespace Adjutant.Library
                 var xml = new FileStream(s, FileMode.Open, FileAccess.Read);
                 var doc = new XmlDocument();
                 doc.Load(xml);
-                ConvertPlugin(doc, fbd.SelectedPath, Path.GetFileNameWithoutExtension(s));
+                ConvertPlugin(doc, s.Substring(s.LastIndexOf("\\") + 1).Split('.')[0], fbd.SelectedPath);
                 xml.Close();
                 xml.Dispose();
             }
         }
 
-        private void ConvertPlugin(XmlDocument Doc, string saveTo, string cls)
+        private void ConvertPlugin(XmlDocument Doc, string cls, string saveTo)
         {
             var element = Doc.DocumentElement;
 
-            string path;
-            try { path = saveTo + "\\" + element.Attributes["class"].Value.Replace("<", "_").Replace(">", "_") + ".xml"; }
-            catch { path = saveTo + "\\" + cls + ".xml"; }
-
+            string path = saveTo + "\\" + /*element.Attributes["class"].Value.Replace("<", "_").Replace(">", "_")*/ cls + ".xml";
             var fs = new FileStream(path, FileMode.OpenOrCreate);
+
             XmlTextWriter xtw = new XmlTextWriter(fs, Encoding.ASCII) { Formatting = Formatting.Indented };
 
             xtw.WriteStartElement("plugin");
-
-            try { xtw.WriteAttributeString("class", element.Attributes["class"].Value); }
-            catch { xtw.WriteAttributeString("class", cls); }
-
-            try { xtw.WriteAttributeString("headersize", element.Attributes["headersize"].Value); }
-            catch { }
+            //xtw.WriteAttributeString("class", element.Attributes["class"].Value);
+            //xtw.WriteAttributeString("headersize", element.Attributes["headersize"].Value);
 
             #region write revisions
             xtw.WriteStartElement("revisions");
@@ -99,6 +93,14 @@ namespace Adjutant.Library
                     xtw.WriteAttributeString("size", node.Attributes["entrySize"].Value);
                     foreach (XmlNode n in node.ChildNodes)
                         WriteNode(xtw, n);
+                    xtw.WriteEndElement();
+                    break;
+
+                case "comment":
+                    xtw.WriteStartElement("comment");
+                    xtw.WriteAttributeString("name", node.Attributes["title"].Value);
+                    xtw.WriteAttributeString("visible", true.ToString());
+                    xtw.WriteString(node.InnerText);
                     xtw.WriteEndElement();
                     break;
 
@@ -182,6 +184,7 @@ namespace Adjutant.Library
                     xtw.WriteEndElement();
                     break;
 
+                case "bitfield8":
                 case "bitmask8":
                 case "bit8":
                     xtw.WriteStartElement("bitmask8");
@@ -191,16 +194,19 @@ namespace Adjutant.Library
                     xtw.WriteAttributeString("visible", vis.ToString());
                     foreach (XmlNode n in node.ChildNodes)
                     {
-                        if (n.Name.ToLower() != "option") continue;
+                        if (n.Name.ToLower() != "option" && n.Name.ToLower() != "bit") 
+                            continue;
 
                         xtw.WriteStartElement("option");
                         xtw.WriteAttributeString("name", n.Attributes["name"].Value);
-                        xtw.WriteAttributeString("value", n.Attributes["value"].Value);
+                        try { xtw.WriteAttributeString("value", n.Attributes["value"].Value); }
+                        catch { xtw.WriteAttributeString("value", n.Attributes["index"].Value); }
                         xtw.WriteEndElement();
                     }
                     xtw.WriteEndElement();
                     break;
 
+                case "bitfield16":
                 case "bitmask16":
                 case "bit16":
                     xtw.WriteStartElement("bitmask16");
@@ -210,16 +216,18 @@ namespace Adjutant.Library
                     xtw.WriteAttributeString("visible", vis.ToString());
                     foreach (XmlNode n in node.ChildNodes)
                     {
-                        if (n.Name.ToLower() != "option") continue;
+                        if (n.Name.ToLower() != "option" && n.Name.ToLower() != "bit") continue;
 
                         xtw.WriteStartElement("option");
                         xtw.WriteAttributeString("name", n.Attributes["name"].Value);
-                        xtw.WriteAttributeString("value", n.Attributes["value"].Value);
+                        try { xtw.WriteAttributeString("value", n.Attributes["value"].Value); }
+                        catch { xtw.WriteAttributeString("value", n.Attributes["index"].Value); }
                         xtw.WriteEndElement();
                     }
                     xtw.WriteEndElement();
                     break;
 
+                case "bitfield32":
                 case "bitmask32":
                 case "bit32":
                     xtw.WriteStartElement("bitmask32");
@@ -229,11 +237,12 @@ namespace Adjutant.Library
                     xtw.WriteAttributeString("visible", vis.ToString());
                     foreach (XmlNode n in node.ChildNodes)
                     {
-                        if (n.Name.ToLower() != "option") continue;
+                        if (n.Name.ToLower() != "option" && n.Name.ToLower() != "bit") continue;
 
                         xtw.WriteStartElement("option");
                         xtw.WriteAttributeString("name", n.Attributes["name"].Value);
-                        xtw.WriteAttributeString("value", n.Attributes["value"].Value);
+                        try { xtw.WriteAttributeString("value", n.Attributes["value"].Value); }
+                        catch { xtw.WriteAttributeString("value", n.Attributes["index"].Value); }
                         xtw.WriteEndElement();
                     }
                     xtw.WriteEndElement();
@@ -365,7 +374,7 @@ namespace Adjutant.Library
                     break;
 
                 default:
-                    return;
+                    break;
             }
         }
     }

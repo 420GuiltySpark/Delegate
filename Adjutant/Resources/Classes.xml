@@ -189,11 +189,10 @@
 
 	
 	<!-- ======================New Reach Classes====================== -->
-	
-	<!--   code="avat" name="" -->
-	<!--   code="bbcr" name="" -->
+  <class code="avat" name="avatar_rewards" />
+  <class code="bbcr" name="big_battle_creature" />
 	<class code="citr" name="cinematic_transition" />
-	<!--   code="cmoe" name="" -->
+  <class code="cmoe" name="camo" />
 	<class code="fogg" name="atmosphere_fog" />
 	<class code="frms" name="frame_event_list" />
 	<class code="fxtt" name="fx_test" />
@@ -220,7 +219,7 @@
 	<class code="pcec" name="pgcr_enemy_to_category_mapping_definition" />
 	<class code="pecp" name="particle_emitter_custom_points" />
 	<class code="pfpt" name="planar_fog_parameters" />
-	<!--   code="pfmc" name="" -->
+  <class code="pfmc" name="performance_template" />
 	<class code="pggd" name="player_grade_globals_definition" />
 	<class code="pmcg" name="player_model_customization_globals" />
 	<class code="rain" name="rain_definition" />
@@ -233,12 +232,12 @@
 	<class code="rmss" name="shader_screen" />
 	<class code="sadt" name="spring_acceleration" />
 	<class code="scmb" name="sound_combiner" />
-	<!--   code="sdzg" name="" -->
+  <class code="sdzg" name="scenario_required_resource" />
 	<class code="sidt" name="simulated_input" />
 	<class code="siin" name="simulation_interpolation" />
 	<class code="smdt" name="survival_mode_globals" />
 	<class code="sqtm" name="squad_template" />
-	<!--   code="sirp" name="" -->
+  <class code="sirp" name="scenario_interpolator" />
 	<class code="srad" name="sound_radio_settings" />
 	<class code="ssao" name="ssao_definition" />
 	<class code="ttag" name="test_tag" />
@@ -252,4 +251,50 @@
 	<class code="wrdt" name="chud_widget_render_data_template" />
 	<class code="wsdt" name="chud_widget_state_data_template" />
 	<class code="wxcg" name="weather_globals" />
+
+
+  <!-- ======================New Halo4 Classes====================== -->
+  <class code="airs" name="airstrike" />
+  <class code="aulp" name="authored_light_probe" />
+  <class code="capg" name="custom_app_globals" />
+  <class code="cisd" name="cinematic_scene_data" />
+  <class code="cnmp" name="controller_mapping" />
+  <class code="coag" name="commendation_aggregator_list" />
+  <class code="culo" name="cui_logic" />
+  <class code="ffgd" name="firefight_globals" />
+  <class code="ffgt" name="gameenginefirefightvarianttag" />
+  <class code="forg" name="forge_globals" />
+  <class code="gggl" name="game_globals_grenade_list" />
+  <class code="hscn" name="script_container" />
+  <class code="hsdt" name="script" />
+  <class code="kccd" name="killcamcameraparamter" />
+  <class code="ldsc" name="load_screen" />
+  <class code="licn" name="light_cone" />
+  <class code="mat"  name="material" />
+  <class code="mats" name="material_shader" />
+  <class code="mdsv" name="model_dissolve_definition" />
+  <class code="mech" name="medal_challenge_aggregator_list" />
+  <class code="meco" name="medal_commendation_aggregator_list" />
+  <class code="mtsb" name="material_shader_bank" />
+  <class code="narg" name="narrativeglobals" />
+  <class code="paas" name="polyart_asset" />
+  <class code="pcaa" name="pca_animation" />
+  <class code="pegd" name="player_enlistment_globals_definition" />
+  <class code="pfnd" name="pathfinding" />
+  <class code="pman" name="particleman" />
+  <class code="prfb" name="prefab" />
+  <class code="prog" name="progression" />
+  <class code="sbnk" name="soundbank" />
+  <class code="SDzs" name="streamingzoneset" />
+  <class code="sgrp" name="sound_response" />
+  <class code="sict" name="self_illumination" />
+  <class code="sigd" name="supressedincident" />
+  <class code="sirg" name="sound_incident_response" />
+  <class code="slag" name="silent_assist_globals" />
+  <class code="smet" name="structure_meta" />
+  <class code="spnr" name="spawner" />
+  <class code="ssdf" name="spawnsettings" />
+  <class code="trac" name="tracer_system" />
+  <class code="uihg" name="user_interface_hud_globals_definition" />
+  <class code="uiss" name="style_sheet_list" />
 </classes>

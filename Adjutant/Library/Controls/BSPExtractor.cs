@@ -40,6 +40,7 @@ namespace Adjutant.Library.Controls
             sbsp.BSPName = Path.GetFileNameWithoutExtension(tag.Filename + "." + tag.ClassCode);
 
             lblName.Text = sbsp.BSPName;
+            if (cache.Version <= DefinitionSet.Halo2Vista) sbsp.LoadRaw();
 
             isWorking = true;
             tvRegions.Nodes.Clear();
@@ -61,8 +62,6 @@ namespace Adjutant.Library.Controls
             }
             if (IGnode.Nodes.Count > 0)
                 tvRegions.Nodes.Add(IGnode);
-
-            tvRegions.Sort();
 
             isWorking = false;
         }
@@ -86,6 +85,7 @@ namespace Adjutant.Library.Controls
                     foreach (Definitions.shader.ShaderProperties.ShaderMap map in prop.ShaderMaps)
                     {
                         var bitmTag = cache.IndexItems.GetItemByID(map.BitmapTagID);
+                        if (bitmTag == null) continue;
 
                         //dont need to waste time extracting the same ones over and over
                         if (tagsDone.Contains(bitmTag)) continue;
@@ -140,7 +140,7 @@ namespace Adjutant.Library.Controls
         public static void SaveAllBSPParts(string Filename, CacheFile Cache, CacheFile.IndexItem Tag, ModelFormat Format)
         {
             var sbsp = DefinitionsManager.sbsp(Cache, Tag);
-            ModelFunctions.LoadBSPRaw(Cache, ref sbsp);
+            sbsp.LoadRaw();
 
             var clusters = new List<int>();
             var geoms = new List<int>();

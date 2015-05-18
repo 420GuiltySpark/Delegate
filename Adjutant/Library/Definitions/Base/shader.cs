@@ -25,10 +25,10 @@ namespace Adjutant.Library.Definitions
 
             public abstract class Tiling
             {
-                public float UTiling;
-                public float VTiling;
-                public float Unknown0;
-                public float Unknown1;
+                public float UTiling;  // A colour
+                public float VTiling;  // R colour
+                public float Unknown0; // G colour
+                public float Unknown1; // B colour
             }
         }
     }

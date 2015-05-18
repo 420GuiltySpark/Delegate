@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Adjutant.Library.S3D;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Controls;
 using Adjutant.Library.Definitions;
@@ -14,6 +16,7 @@ namespace Adjutant.Controls
 {
     public partial class MapViewer : UserControl
     {
+        private S3DPak pak;
         private CacheFile cache;
         private TagViewer tv;
         private Settings settings;
@@ -21,6 +24,7 @@ namespace Adjutant.Controls
 
         public string Filename;
         public bool HierarchyMode { get; private set; }
+        public bool isCache;
 
         public MapViewer(Settings Settings)
         {
@@ -31,11 +35,15 @@ namespace Adjutant.Controls
         #region Methods
         public void LoadMap(string Filename, bool Hierarchy)
         {
+            if (cache != null) cache.Close();
+            cache = null;
+            if (pak != null) pak.Close();
+            pak = null;
+
             this.Filename = Filename;
             HierarchyMode = Hierarchy;
 
             cache = new CacheFile(Filename);
-
             tv = new TagViewer(settings, extractor1);
 
             tvTags.Nodes.Clear();
@@ -44,10 +52,34 @@ namespace Adjutant.Controls
                 LoadHierarchy();
             else
                 LoadClasses();
+
+            isCache = true;
+        }
+
+        public void LoadPak(string Filename)
+        {
+            if (cache != null) cache.Close();
+            cache = null;
+            if (pak != null) pak.Close();
+            pak = null;
+
+            this.Filename = Filename;
+            HierarchyMode = false;
+ 
+            pak = new S3DPak(Filename);
+            tv = new TagViewer(settings, extractor1);
+
+            tvTags.Nodes.Clear();
+
+            LoadPakItems();
+
+            isCache = false;
         }
 
         public void ReloadMap(bool Hierarchy)
         {
+            if (cache == null) return;
+
             HierarchyMode = Hierarchy;
 
             extractor1.CancelExtraction();
@@ -60,16 +92,18 @@ namespace Adjutant.Controls
                 LoadClasses();
         }
 
-        public void CloseMap()
+        public void CloseFile()
         {
-            if (cache == null) return;
+            if (cache == null && pak == null) return;
 
             extractor1.CancelExtraction();
             splitContainer2.Panel2.Controls.Clear();
             tv.Dispose();
             tvTags.Nodes.Clear();
-            cache.Close();
+            if (cache != null) cache.Close();
+            if (pak != null) pak.Close();
             cache = null;
+            pak = null;
         }
 
         public void ViewStrings()
@@ -98,10 +132,45 @@ namespace Adjutant.Controls
 
         public void SearchTags(string Key)
         {
+            if (pak != null)
+            {
+                SearchPakItems(Key);
+                return;
+            }
+
             if (HierarchyMode)
                 SearchHierarchy(Key);
             else
                 SearchClasses(Key);
+        }
+
+        public void LoadPakItems()
+        {
+            var nList = new List<TreeNode>();
+            var dic = new Dictionary<int, TreeNode>();
+
+            foreach (var item in pak.PakItems)
+            {
+                TreeNode pnode;
+                var node = new TreeNode(item.Name) { Name = item.Name, Tag = item, ImageIndex = 1, SelectedImageIndex = 1 };
+
+                if (dic.TryGetValue(item.unk0, out pnode))
+                    pnode.Nodes.Add(node);
+                else
+                {
+                    pnode = new TreeNode(item.unk0.ToString("D2")+ " [" + item.Type.ToString() + "]") 
+                    { Name = item.unk0.ToString(), ImageIndex = 0, SelectedImageIndex = 0 };
+                    pnode.Nodes.Add(node);
+                    nList.Add(pnode);
+                    dic.Add(item.unk0, pnode);
+                }
+            }
+
+            tvTags.Nodes.Clear();
+            tvTags.Nodes.AddRange(nList.ToArray());
+
+            if (settings.Flags.HasFlag(SettingsFlags.SortTags))
+                tvTags.Sort();
         }
 
         private void LoadClasses()
@@ -142,8 +211,8 @@ namespace Adjutant.Controls
 
         private void LoadHierarchy()
         {
-            List<TreeNode> tree = new List<TreeNode>();
-            Dictionary<string, TreeNode> path_dic = new Dictionary<string, TreeNode>();
+            var nList = new List<TreeNode>();
+            var dic = new Dictionary<string, TreeNode>();
 
             foreach (CacheFile.IndexItem tag in cache.IndexItems)
             {
@@ -164,15 +233,15 @@ namespace Adjutant.Controls
                     node.Text = node.Name = path[0] + "." + tag.ClassCode;
                     node.Tag = tag;
                     node.ImageIndex = node.SelectedImageIndex = 1;
-                    tree.Add(node);
+                    nList.Add(node);
                     continue;
                 }
 
-                if (!path_dic.TryGetValue(path[0], out node))
+                if (!dic.TryGetValue(path[0], out node))
                 {
                     node = new TreeNode(path[0]) { Name = path[0], ImageIndex = 0, SelectedImageIndex = 0 };
-                    path_dic.Add(path[0], node);
-                    tree.Add(node);
+                    dic.Add(path[0], node);
+                    nList.Add(node);
                 }
 
                 var current = path[0];
@@ -195,7 +264,7 @@ namespace Adjutant.Controls
             }
 
             tvTags.Nodes.Clear();
-            tvTags.Nodes.AddRange(tree.ToArray());
+            tvTags.Nodes.AddRange(nList.ToArray());
 
             if (settings.Flags.HasFlag(SettingsFlags.SortTags))
                 tvTags.Sort();
@@ -261,8 +330,8 @@ namespace Adjutant.Controls
                 return;
             }
 
-            List<TreeNode> tree = new List<TreeNode>();
-            Dictionary<string, TreeNode> path_dic = new Dictionary<string, TreeNode>();
+            List<TreeNode> nList = new List<TreeNode>();
+            Dictionary<string, TreeNode> dic = new Dictionary<string, TreeNode>();
 
             foreach (CacheFile.IndexItem tag in cache.IndexItems)
             {
@@ -294,15 +363,15 @@ namespace Adjutant.Controls
                     node.Text = node.Name = path[0] + "." + tag.ClassCode;
                     node.Tag = tag;
                     node.ImageIndex = node.SelectedImageIndex = 1;
-                    tree.Add(node);
+                    nList.Add(node);
                     continue;
                 }
 
-                if (!path_dic.TryGetValue(path[0], out node))
+                if (!dic.TryGetValue(path[0], out node))
                 {
                     node = new TreeNode(path[0]) { Name = path[0], ImageIndex = 0, SelectedImageIndex = 0 };
-                    path_dic.Add(path[0], node);
-                    tree.Add(node);
+                    dic.Add(path[0], node);
+                    nList.Add(node);
                 }
 
                 var current = path[0];
@@ -325,7 +394,53 @@ namespace Adjutant.Controls
             }
 
             tvTags.Nodes.Clear();
-            tvTags.Nodes.AddRange(tree.ToArray());
+            tvTags.Nodes.AddRange(nList.ToArray());
+
+            if (settings.Flags.HasFlag(SettingsFlags.SortTags))
+                tvTags.Sort();
+        }
+
+        private void SearchPakItems(string key)
+        {
+            if (key == "")
+            {
+                LoadPakItems();
+                return;
+            }
+
+            var nList = new List<TreeNode>();
+            var dic = new Dictionary<int, TreeNode>();
+
+            foreach (var item in pak.PakItems)
+            {
+                bool match = false;
+                string[] parts = key.Split(' ');
+                foreach (string part in parts)
+                {
+                    if (part != "")
+                        match = item.Name.ToLower().Contains(part.ToLower());
+                    if (!match) break;
+                }
+
+                if (!match) continue;
+
+                TreeNode pnode;
+                var node = new TreeNode(item.Name) { Name = item.Name, Tag = item, ImageIndex = 1, SelectedImageIndex = 1 };
+
+                if (dic.TryGetValue(item.unk0, out pnode))
+                    pnode.Nodes.Add(node);
+                else
+                {
+                    pnode = new TreeNode(item.unk0.ToString("D2") + " [" + item.Type.ToString() + "]")
+                    { Name = item.unk0.ToString(), ImageIndex = 0, SelectedImageIndex = 0 };
+                    pnode.Nodes.Add(node);
+                    nList.Add(pnode);
+                    dic.Add(item.unk0, pnode);
+                }
+            }
+
+            tvTags.Nodes.Clear();
+            tvTags.Nodes.AddRange(nList.ToArray());
 
             if (settings.Flags.HasFlag(SettingsFlags.SortTags))
                 tvTags.Sort();
@@ -336,10 +451,13 @@ namespace Adjutant.Controls
         private void tvTags_AfterSelect(object sender, TreeViewEventArgs e)
         {
             extractSelectedToolStripMenuItem.Visible = tvTags.SelectedNode.Nodes.Count > 0;
+            dumpFileToolStripMenuItem.Visible = (!isCache && tvTags.SelectedNode.Nodes.Count == 0);
+            dumpFolderToolStripMenuItem.Visible = (!isCache && tvTags.SelectedNode.Nodes.Count > 0);
 
             if (tvTags.SelectedNode.Nodes.Count > 0) return;
 
             var tag = tvTags.SelectedNode.Tag as CacheFile.IndexItem;
+            var item = tvTags.SelectedNode.Tag as S3DPak.PakItem;
 
             if (!splitContainer2.Panel2.Controls.Contains(tv))
             {
@@ -348,7 +466,10 @@ namespace Adjutant.Controls
                 tv.Dock = DockStyle.Fill;
             }
 
-            tv.LoadTag(cache, tag);
+            if (cache != null)
+                tv.LoadTag(cache, tag);
+            else if (item != null)
+                tv.LoadPakItem(pak, item);
         }
 
         private void extractSelectedToolStripMenuItem_Click(object sender, EventArgs e)
@@ -368,7 +489,8 @@ namespace Adjutant.Controls
                 dest = fbd.SelectedPath + "\\";
             }
 
-            extractor1.BeginExtraction(cache, new List<TreeNode>() { tvTags.SelectedNode }, settings, dest, false);
+            if (isCache) extractor1.BeginExtraction(cache, new List<TreeNode>() { tvTags.SelectedNode }, settings, dest);
+            else extractor1.BeginExtraction(pak, new List<TreeNode>() { tvTags.SelectedNode }, settings, dest);
         }
 
         private void extractAllToolStripMenuItem_Click(object sender, EventArgs e)
@@ -393,32 +515,59 @@ namespace Adjutant.Controls
             foreach (TreeNode node in tvTags.Nodes)
                 if (node.Nodes.Count > 0) nodeList.Add(node);
 
-            extractor1.BeginExtraction(cache, nodeList, settings, dest, false);
+            if (isCache) extractor1.BeginExtraction(cache, nodeList, settings, dest);
+            else extractor1.BeginExtraction(pak, nodeList, settings, dest);
         }
 
-        private void extractAll2ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void dumpFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var item = tvTags.SelectedNode.Tag as S3DPak.PakItem;
+
+            var sfd = new SaveFileDialog()
+            {
+                FileName = item.Name,
+                Filter = "Binary Files|*.bin"
+            };
+
+            if (sfd.ShowDialog() != DialogResult.OK) return;
+
+            var reader = pak.Reader;
+
+            reader.SeekTo(item.Offset);
+            var data = reader.ReadBytes(item.Size);
+
+            File.WriteAllBytes(sfd.FileName, data);
+
+            MessageBox.Show("Done!");
+        }
+
+        private void dumpFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var dest = settings.dataFolder;
 
-            if (!settings.Flags.HasFlag(SettingsFlags.QuickExtract))
+            var fbd = new FolderBrowserDialog()
             {
-                var fbd = new FolderBrowserDialog()
-                {
-                    Description = "Select your data folder",
-                    SelectedPath = dest
-                };
+                Description = "Select your data folder",
+                SelectedPath = dest
+            };
 
-                if (fbd.ShowDialog() != DialogResult.OK) return;
+            if (fbd.ShowDialog() != DialogResult.OK) return;
 
-                dest = fbd.SelectedPath + "\\";
+            dest = fbd.SelectedPath + "\\";
+
+            foreach (TreeNode node in tvTags.SelectedNode.Nodes)
+            {
+                var item = node.Tag as S3DPak.PakItem;
+
+                var reader = pak.Reader;
+
+                reader.SeekTo(item.Offset);
+                var data = reader.ReadBytes(item.Size);
+
+                File.WriteAllBytes(dest + item.Name + ".bin", data);
             }
 
-            var nodeList = new List<TreeNode>();
-
-            foreach (TreeNode node in tvTags.Nodes)
-                if (node.Nodes.Count > 0) nodeList.Add(node);
-
-            extractor1.BeginExtraction(cache, nodeList, settings, dest, true);
+            MessageBox.Show("Done!");
         }
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)

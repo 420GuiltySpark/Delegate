@@ -16,6 +16,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
     {
         internal scenario_structure_bsp(CacheFile Cache, int Address)
         {
+            cache = Cache;
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
 

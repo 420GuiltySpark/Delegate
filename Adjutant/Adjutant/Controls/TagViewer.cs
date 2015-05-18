@@ -7,9 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Adjutant.Library;
-using Adjutant.Library.Definitions;
+using Adjutant.Library.S3D;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Controls;
+using Adjutant.Library.Definitions;
 
 namespace Adjutant.Controls
 {
@@ -17,10 +18,12 @@ namespace Adjutant.Controls
     {
         #region Init
         private Settings settings;
+        
         private CacheFile cache;
         private CacheFile.IndexItem tag;
         private Extractor output;
-
+        private S3DPak pak;
+        private S3DPak.PakItem item;
         private MetaViewer vMeta;
         private BitmapExtractor eBitm;
         private ModelExtractor eMode;
@@ -225,7 +228,7 @@ namespace Adjutant.Controls
 
                     tabRaw.Controls.Clear();
 
-                    if (cache.Version == DefinitionSet.Halo3Beta)
+                    if (cache.Version < DefinitionSet.Halo3Retail)
                         tabControl1.TabPages.Remove(tabRaw);
                     else
                     {
@@ -269,21 +272,26 @@ namespace Adjutant.Controls
 
                     tabRaw.Controls.Clear();
 
-                    if (!tabControl1.TabPages.Contains(tabRaw))
-                        tabControl1.TabPages.Add(tabRaw);
-
-                    tabRaw.Controls.Add(vUnic);
-                    vUnic.Dock = DockStyle.Fill;
-
-                    if (tabControl1.SelectedTab == tabMeta)
+                    if (cache.Version < DefinitionSet.Halo3Beta)
+                        tabControl1.TabPages.Remove(tabRaw);
+                    else
                     {
-                        vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
-                        metaLoaded = true;
-                    }
-                    else if (tabControl1.SelectedTab == tabRaw)
-                    {
-                        vUnic.LoadUnicTag(cache, tag);
-                        rawLoaded = true;
+                        if (!tabControl1.TabPages.Contains(tabRaw))
+                            tabControl1.TabPages.Add(tabRaw);
+
+                        tabRaw.Controls.Add(vUnic);
+                        vUnic.Dock = DockStyle.Fill;
+
+                        if (tabControl1.SelectedTab == tabMeta)
+                        {
+                            vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
+                            metaLoaded = true;
+                        }
+                        else if (tabControl1.SelectedTab == tabRaw)
+                        {
+                            vUnic.LoadUnicTag(cache, tag);
+                            rawLoaded = true;
+                        }
                     }
                     break;
                 #endregion
@@ -298,6 +306,158 @@ namespace Adjutant.Controls
                         vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
                         metaLoaded = true;
                     }
+                    break;
+                #endregion
+            }
+        }
+
+        public void LoadPakItem(S3DPak Pak, S3DPak.PakItem Item)
+        {
+            tabMeta.Controls.Clear();
+            tabControl1.TabPages.Remove(tabMeta);
+            if (vMode == null)
+            {
+                vMode = new ModelViewer();      //this cant go in the constructor because the
+                //tabModel.Controls.Clear();    //ElementHost in the ModelViewer requires an
+                tabModel.Controls.Add(vMode);   //STA thread, whereas the map open thread 
+                vMode.Dock = DockStyle.Fill;    //is MTA because it's done via ThreadPool
+                vMode.DefaultModeFormat = settings.ModeFormat;
+
+                vMode.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
+                vMode.ErrorExtracting += new ErrorExtractingEventHandler(extractor_ErrorExtracting);
+            }
+            else vMode.Clear();
+
+            if (vSbsp == null)
+            {
+                vSbsp = new BSPViewer();
+                //tabModel.Controls.Clear();
+                tabModel.Controls.Add(vSbsp);
+                vSbsp.Dock = DockStyle.Fill;
+                vSbsp.DefaultModeFormat = settings.ModeFormat;
+
+                vSbsp.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
+                vSbsp.ErrorExtracting += new ErrorExtractingEventHandler(extractor_ErrorExtracting);
+            }
+            else vSbsp.Clear();
+
+            pak = Pak;
+            item = Item;
+            metaLoaded = rawLoaded = modelLoaded = false;
+
+            switch (item.unk0)
+            {
+                #region bitmaps
+                case 6:
+                case 7:
+                    tabControl1.TabPages.Remove(tabModel);
+
+                    tabRaw.Controls.Clear();
+
+                    if (!tabControl1.TabPages.Contains(tabRaw))
+                        tabControl1.TabPages.Add(tabRaw);
+
+                    tabRaw.Controls.Add(eBitm);
+                    eBitm.Dock = DockStyle.Fill;
+
+                    if (tabControl1.SelectedTab == tabRaw)
+                    {
+                        eBitm.LoadBitmapTag(pak, item);
+                        rawLoaded = true;
+                    }
+                    break;
+                #endregion
+
+                #region models
+                    /*
+                case 12:
+                    tabControl1.TabPages.Remove(tabRaw);
+                    vMode.Visible = true;
+                    vSbsp.Visible = false;
+
+                    //if (!tabControl1.TabPages.Contains(tabRaw))
+                    //    tabControl1.TabPages.Add(tabRaw);
+
+                    if (!tabControl1.TabPages.Contains(tabModel))
+                        tabControl1.TabPages.Add(tabModel);
+
+                    //tabRaw.Controls.Add(eMode);
+                    //eMode.Dock = DockStyle.Fill;
+
+                    //tabModel.Controls.Clear();
+                    //tabModel.Controls.Add(vMode);
+                    //vMode.Dock = DockStyle.Fill;
+
+                    //if (tabControl1.SelectedTab == tabMeta)
+                    //{
+                    //    vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
+                    //    metaLoaded = true;
+                    //}
+                    //else if (tabControl1.SelectedTab == tabRaw)
+                    //{
+                    //    eMode.DataFolder = settings.dataFolder;
+                    //    eMode.PermFilter = settings.permFilter;
+                    //    eMode.LoadModelTag(cache, tag);
+                    //    rawLoaded = true;
+                    //}
+                    if (tabControl1.SelectedTab == tabModel)
+                    {
+                        //vMode.RenderBackColor = settings.ViewerColour;
+                        vMode.PermutationFilter = new List<string>(settings.permFilter.Split(' '));
+                        vMode.LoadModelTag(pak, item,
+                            settings.Flags.HasFlag(SettingsFlags.LoadSpecular),
+                            settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
+                        modelLoaded = true;
+                    }
+                    break;
+                    */
+                #endregion
+
+                #region bsps
+                    /*
+                case 16:
+                    tabControl1.TabPages.Remove(tabRaw);
+                    vMode.Visible = false;
+                    vSbsp.Visible = true;
+
+                    //if (!tabControl1.TabPages.Contains(tabRaw))
+                    //    tabControl1.TabPages.Add(tabRaw);
+
+                    if (!tabControl1.TabPages.Contains(tabModel))
+                        tabControl1.TabPages.Add(tabModel);
+
+                    //tabRaw.Controls.Add(eSbsp);
+                    //eMode.Dock = DockStyle.Fill;
+
+                    //tabModel.Controls.Clear();
+                    //tabModel.Controls.Add(vSbsp);
+                    //vSbsp.Dock = DockStyle.Fill;
+
+                    //if (tabControl1.SelectedTab == tabMeta)
+                    //{
+                    //    vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
+                    //    metaLoaded = true;
+                    //}
+                    //else if (tabControl1.SelectedTab == tabRaw)
+                    //{
+                    //    eMode.DataFolder = settings.dataFolder;
+                    //    eMode.PermFilter = settings.permFilter;
+                    //    eMode.LoadModelTag(cache, tag);
+                    //    rawLoaded = true;
+                    //}
+                    if (tabControl1.SelectedTab == tabModel)
+                    {
+                        vSbsp.LoadBSPTag(pak, item, settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
+                        modelLoaded = true;
+                    }
+                    break;
+                    */
+                #endregion
+
+                #region other
+                default:
+                    tabControl1.TabPages.Remove(tabModel);
+                    tabControl1.TabPages.Remove(tabRaw);
                     break;
                 #endregion
             }
@@ -422,14 +582,32 @@ namespace Adjutant.Controls
             #endregion
         }
 
-        private void extractor_TagExtracted(object sender, CacheFile.IndexItem Tag)
+        private void extractor_TagExtracted(object sender, object Tag)
         {
-            output.AddLine("Extracted " + Tag.Filename + "." + Tag.ClassCode + ".");
+            if (Tag is CacheFile.IndexItem)
+            {
+                var t = (CacheFile.IndexItem)Tag;
+                output.AddLine("Extracted " + t.Filename + "." + t.ClassCode + ".");
+            }
+            else
+            {
+                var t = (S3DPak.PakItem)Tag;
+                output.AddLine("Extracted [" + t.unk0.ToString("D2") + "] " + t.Name + ".");
+            }
         }
 
-        private void extractor_ErrorExtracting(object sender, CacheFile.IndexItem Tag, Exception Error)
+        private void extractor_ErrorExtracting(object sender, object Tag, Exception Error)
         {
-            output.AddLine("Error extracting " + Tag.Filename + "." + Tag.ClassCode + ":");
+            if (Tag is CacheFile.IndexItem)
+            {
+                var t = (CacheFile.IndexItem)Tag;
+                output.AddLine("Error extracting " + t.Filename + "." + t.ClassCode + ":");
+            }
+            else
+            {
+                var t = (S3DPak.PakItem)Tag;
+                output.AddLine("Error extracting [" + t.unk0.ToString("D2") + "] " + t.Name + ":");
+            }
             output.AddLine("--" + Error.Message);
         }
 

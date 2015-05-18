@@ -17,11 +17,21 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
 
-            Reader.SeekTo(Address + 108);
+            Reader.SeekTo(Address + 72);
 
             #region Usage Blocks
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
+            ArgumentBlocks = new List<rmt2.ArgumentBlock>();
+            for (int i = 0; i < iCount; i++)
+                ArgumentBlocks.Add(new ArgumentBlock(Cache, iOffset + 4 * i));
+            #endregion
+
+            Reader.SeekTo(Address + 108);
+
+            #region Usage Blocks
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             UsageBlocks = new List<rmt2.UsageBlock>();
             for (int i = 0; i < iCount; i++)
                 UsageBlocks.Add(new UsageBlock(Cache, iOffset + 4 * i));
@@ -30,6 +40,16 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 132);
         }
 
+        new internal class ArgumentBlock : rmt2.ArgumentBlock
+        {
+            internal ArgumentBlock(CacheFile Cache, int Address)
+            {
+                EndianReader Reader = Cache.Reader;
+                Reader.SeekTo(Address);
+
+                Argument = Cache.Strings.GetItemByID(Reader.ReadInt32());
+            }
+        }
 
         new internal class UsageBlock : rmt2.UsageBlock
         {

@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Adjutant.Library.S3D;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Controls;
 using Adjutant.Library.Definitions;
@@ -46,13 +47,8 @@ namespace Adjutant.Controls
                 rtbOutput.Clear();
             });
         }
-
-        public void CancelExtraction()
-        {
-            backgroundWorker1.CancelAsync();
-        }
         
-        public void BeginExtraction(CacheFile Cache, List<TreeNode> Parents, Settings Settings, string Destination, bool Separate)
+        public void BeginExtraction(CacheFile Cache, List<TreeNode> Parents, Settings Settings, string Destination)
         {
             if (backgroundWorker1.IsBusy)
             {
@@ -62,13 +58,32 @@ namespace Adjutant.Controls
 
             var args = new ExtractionArgs()
             {
-                cache = Cache, parents = Parents, settings = Settings, destination = Destination, separate = Separate
+                cache = Cache, parents = Parents, settings = Settings, destination = Destination
             };
 
             backgroundWorker1.RunWorkerAsync(args);
         }
 
-        private void BatchExtract(CacheFile cache, List<TreeNode> parents, Settings settings, string dest, bool sep, BackgroundWorker worker)
+        public void BeginExtraction(S3DPak Pak, List<TreeNode> Parents, Settings Settings, string Destination)
+        {
+            if (backgroundWorker1.IsBusy)
+            {
+                MessageBox.Show(this, "There is already an extraction running. You must wait for it to finish or cancel it before starting another one.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            var args = new ExtractionArgs()
+            {
+                pak = Pak,
+                parents = Parents,
+                settings = Settings,
+                destination = Destination
+            };
+
+            backgroundWorker1.RunWorkerAsync(args);
+        }
+
+        private void BatchExtract(CacheFile cache, List<TreeNode> parents, Settings settings, string dest, BackgroundWorker worker)
         {
             foreach (TreeNode parent in parents)
             {
@@ -78,17 +93,42 @@ namespace Adjutant.Controls
 
                     if (child.Nodes.Count > 0)
                     {
-                        BatchExtract(cache, new List<TreeNode>() { child }, settings, dest, sep, worker);
+                        BatchExtract(cache, new List<TreeNode>() { child }, settings, dest, worker);
                         continue;
                     }
 
                     var tag = child.Tag as CacheFile.IndexItem;
-                    var sepName = tag.ClassName + "\\";
-                    var fName = dest + "\\" + (sep ? sepName : "" ) + tag.Filename;
+                    var fName = dest + /*"\\" + tag.ClassName +*/ "\\" + tag.Filename;
                     var tName = tag.Filename + "." + tag.ClassCode;
 
                     switch (tag.ClassCode)
                     {
+                        #region bink
+                        case "bink":
+                            try
+                            {
+                                //only supports H4R
+                                if (cache.Version < DefinitionSet.Halo4Retail) continue;
+
+                                fName += ".bik";
+
+                                AddLine("Extracting " + tName + "...");
+                                if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
+                                {
+                                    BinkExtractor.SaveBink(fName, cache, tag);
+                                    AddLine("Extracted " + tName + ".");
+                                    tagsExtracted++;
+                                }
+                            }
+
+                            catch (Exception ex)
+                            {
+                                AddLine("Error extracting " + tName + ":");
+                                AddLine("--" + ex.Message.Replace("\r\n", " "));
+                                tagsMissed++;
+                            }
+                            break;
+                        #endregion
                         #region bitm
                         case "bitm":
                             try
@@ -125,7 +165,6 @@ namespace Adjutant.Controls
                         case "mode":
                             try
                             {
-                                //AddLine("Extracting " + tName + "...");
                                 switch (settings.ModeFormat)
                                 {
                                     case ModelFormat.EMF:
@@ -161,6 +200,7 @@ namespace Adjutant.Controls
                         case "sbsp":
                             try
                             {
+                                AddLine("Extracting " + tName + "...");
                                 switch (settings.ModeFormat)
                                 {
                                     case ModelFormat.EMF:
@@ -194,8 +234,10 @@ namespace Adjutant.Controls
                         case "snd!":
                             try
                             {
-                                if (cache.Version == DefinitionSet.Halo3Beta) continue;
+                                //H2, H3B not supported
+                                if (cache.Version <= DefinitionSet.Halo3Beta) continue;
 
+                                AddLine("Extracting " + tName + "...");
                                 if (cache.Version < DefinitionSet.Halo4Retail)
                                     SoundExtractor.SaveAllAsSeparate(dest + tag.Filename, cache, tag, settings.Snd_Format, settings.Flags.HasFlag(SettingsFlags.OverwriteTags));
                                 else
@@ -218,9 +260,12 @@ namespace Adjutant.Controls
                         case "unic":
                             try
                             {
+                                //H2 not supported
+                                if (cache.Version < DefinitionSet.Halo3Beta) continue;
+
                                 fName += ".txt";
 
-                                //AddLine("Extracting " + tName + "...");
+                                AddLine("Extracting " + tName + "...");
                                 if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
                                 {
                                     StringsViewer.SaveUnicStrings(fName, cache, tag, settings.Language);
@@ -239,6 +284,69 @@ namespace Adjutant.Controls
                     }
                 }
             }
+        }
+
+        private void BatchExtract(S3DPak pak, List<TreeNode> parents, Settings settings, string dest, BackgroundWorker worker)
+        {
+            foreach (TreeNode parent in parents)
+            {
+                foreach (TreeNode child in parent.Nodes)
+                {
+                    if (worker.CancellationPending) return;
+
+                    if (child.Nodes.Count > 0)
+                    {
+                        BatchExtract(pak, new List<TreeNode>() { child }, settings, dest, worker);
+                        continue;
+                    }
+
+                    var item = child.Tag as S3DPak.PakItem;
+                    var fName = dest + "\\" + item.Name;
+                    var tName = "[" + item.unk0.ToString("D2") + "] " + item.Name;
+
+                    switch (item.unk0)
+                    {
+                        #region bitmap
+                        case 6:
+                        case 7:
+                            try
+                            {
+                                switch (settings.BitmFormat)
+                                {
+                                    case BitmapFormat.TIF:
+                                        fName += ".tif";
+                                        break;
+                                    case BitmapFormat.DDS:
+                                        fName += ".dds";
+                                        break;
+                                    case BitmapFormat.RAW:
+                                        fName += ".bin";
+                                        break;
+                                }
+
+                                if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
+                                {
+                                    BitmapExtractor.SaveImage(fName, pak, item, settings.BitmFormat, settings.Flags.HasFlag(SettingsFlags.BitmapAlpha));
+                                    AddLine("Extracted " + tName + ".");
+                                    tagsExtracted++;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                AddLine("Error extracting " + tName + ":");
+                                AddLine("--" + ex.Message.Replace("\r\n", " "));
+                                tagsMissed++;
+                            }
+                            break;
+                        #endregion
+                    }
+                }
+            }
+        }
+
+        public void CancelExtraction()
+        {
+            backgroundWorker1.CancelAsync();
         }
 
         #region Events
@@ -296,7 +404,10 @@ namespace Adjutant.Controls
             var stopwatch = new System.Diagnostics.Stopwatch();
             
             stopwatch.Start();
-            BatchExtract(args.cache, args.parents, args.settings, args.destination, args.separate, backgroundWorker1);
+            if (args.cache != null)
+                BatchExtract(args.cache, args.parents, args.settings, args.destination, backgroundWorker1);
+            else
+                BatchExtract(args.pak, args.parents, args.settings, args.destination, backgroundWorker1);
             stopwatch.Stop();
 
             if (!backgroundWorker1.CancellationPending)
@@ -317,10 +428,10 @@ namespace Adjutant.Controls
         private class ExtractionArgs
         {
             public CacheFile cache;
+            public S3DPak pak;
             public List<TreeNode> parents;
             public Settings settings;
             public string destination;
-            public bool separate;
         }
     }
 }

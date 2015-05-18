@@ -26,11 +26,11 @@ namespace Adjutant
         {
             InitializeComponent();
             LoadSettings();
-            versionToolStripMenuItem.Text = "v" + Application.ProductVersion;
+            versionToolStripMenuItem.Text = Application.ProductVersion;
             Tasks = new List<KeyValuePair<int, string>>();
-
-            if (settings.Flags.HasFlag(SettingsFlags.AutoUpdateCheck))
-                    ThreadPool.QueueUserWorkItem(CheckUpdateThread, false);
+            
+            //if (settings.Flags.HasFlag(SettingsFlags.AutoUpdateCheck))
+            //        ThreadPool.QueueUserWorkItem(CheckUpdateThread, false);
 
             foreach (string fName in args)
                 ThreadPool.QueueUserWorkItem(NewMapThread, fName);
@@ -126,6 +126,12 @@ namespace Adjutant
 
             tssStatus.Text = "Settings saved.";
         }
+
+        //public void Lockdown()
+        //{
+        //    LoginForm lf = new LoginForm(this);
+        //    lf.ShowDialog(this);
+        //}
         #endregion
 
         #region Events
@@ -143,7 +149,7 @@ namespace Adjutant
             var ofd = new System.Windows.Forms.OpenFileDialog()
             {
                 InitialDirectory = settings.mapFolder,
-                Filter = "Halo x360 Map Files|*.map",
+                Filter = "Xbox Halo Files|*.map;*.s3dpak",
                 Multiselect = true
             };
 
@@ -160,22 +166,31 @@ namespace Adjutant
             var ofd = new System.Windows.Forms.OpenFileDialog()
             {
                 InitialDirectory = settings.mapFolder,
-                Filter = "Halo x360 Map Files|*.map"
+                Filter = "Xbox Halo Files|*.map"//;*.s3dpak"
             };
 
             if (ofd.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
 
             settings.mapFolder = Directory.GetParent(ofd.FileName).FullName;
 
-            int taskID = AddTask("Loading " + ofd.SafeFileName + "...");
+            tssStatus.Text = "Loading " + ofd.SafeFileName + "...";
 
             var viewer = (MapViewer)tabControl1.SelectedTab.Controls[0];
             tabControl1.SelectedTab.Text = ofd.SafeFileName;
 
-            viewer.CloseMap();
-            viewer.LoadMap(ofd.FileName, folderHierarchyToolStripMenuItem.Checked);
+            viewer.CloseFile();
 
-            TaskDone(taskID);
+            var fileName = ofd.FileName;
+            var ext = fileName.Substring(fileName.LastIndexOf(".") + 1);
+
+            if (ext.ToLower() == "map")
+                viewer.LoadMap(ofd.FileName, folderHierarchyToolStripMenuItem.Checked);
+            else if (ext.ToLower() == "s3dpak")
+                viewer.LoadPak(fileName);
+            else
+                throw new NotSupportedException();
+
+            tssStatus.Text = "Loaded " + ofd.SafeFileName + ".";
         }
 
         private void reloadToolStripMenuItem_Click(object sender, EventArgs e)
@@ -186,7 +201,7 @@ namespace Adjutant
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ((MapViewer)tabControl1.SelectedTab.Controls[0]).CloseMap();
+            ((MapViewer)tabControl1.SelectedTab.Controls[0]).CloseFile();
             tabControl1.TabPages.Remove(tabControl1.SelectedTab);
         }
 
@@ -275,6 +290,11 @@ namespace Adjutant
             Adjutant.Library.PluginConverter pc = new Adjutant.Library.PluginConverter();
             pc.ConvertPlugins();
         }
+
+        //private void generateKeyToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    new KeyForm().ShowDialog(this);
+        //}
         #endregion
 
         #region Options
@@ -298,6 +318,10 @@ namespace Adjutant
 
             var exeString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/Adjutant.exe";
             var logString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/changelog.txt";
+
+#if REFLEX
+            exeString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/Reflex/Adjutant.exe";
+#endif
 
             System.IO.File.WriteAllBytes(Application.StartupPath + '\\' + "update.exe", Properties.Resources.update);
             var startInfo = new System.Diagnostics.ProcessStartInfo();
@@ -328,13 +352,16 @@ namespace Adjutant
                 return;
             }
 
-            openToolStripMenuItem.Enabled = reloadToolStripMenuItem.Enabled = closeToolStripMenuItem.Enabled = true;
-            viewStringsToolStripMenuItem.Enabled = viewLocalesToolStripMenuItem.Enabled = true;
-
             var viewer = (MapViewer)tabControl1.SelectedTab.Controls[0];
+
+            openToolStripMenuItem.Enabled = reloadToolStripMenuItem.Enabled = closeToolStripMenuItem.Enabled = true;
+            viewStringsToolStripMenuItem.Enabled = viewLocalesToolStripMenuItem.Enabled = viewer.isCache;
+            openToolStripMenuItem.Enabled = reloadToolStripMenuItem.Enabled = viewer.isCache;
 
             folderHierarchyToolStripMenuItem.Checked = viewer.HierarchyMode;
             tagClassToolStripMenuItem.Checked = !viewer.HierarchyMode;
+
+            folderHierarchyToolStripMenuItem.Enabled = tagClassToolStripMenuItem.Enabled = viewer.isCache;
         }
         #endregion
 
@@ -343,6 +370,7 @@ namespace Adjutant
         {
             var fullname = (string)Filename;
             var name = fullname.Substring(fullname.LastIndexOf("\\") + 1);
+            var ext = name.Substring(name.LastIndexOf(".") + 1);
 
             int taskID = AddTask("Loading " + name + "...");
 
@@ -353,7 +381,13 @@ namespace Adjutant
             try
             {
                 mv.ClassFilter = new List<string>(settings.classFilter.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
-                mv.LoadMap(fullname, folderHierarchyToolStripMenuItem.Checked);
+
+                if (ext.ToLower() == "map")
+                    mv.LoadMap(fullname, folderHierarchyToolStripMenuItem.Checked);
+                else if (ext.ToLower() == "s3dpak")
+                    mv.LoadPak(fullname);
+                else
+                    throw new NotSupportedException();
 
                 Invoke((MethodInvoker)delegate
                 {
@@ -447,7 +481,7 @@ namespace Adjutant
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 TaskError(taskID, "Error checking for updates.");
                 if (userReq)

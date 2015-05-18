@@ -248,7 +248,7 @@
             "TIF (*.tif)",
             "DDS (*.dds)",
             "Raw (*.bin)",
-            "64bpp PNG (*.png)"});
+            "PNG (*.png)"});
             this.cmbBitm.Location = new System.Drawing.Point(9, 32);
             this.cmbBitm.Name = "cmbBitm";
             this.cmbBitm.Size = new System.Drawing.Size(121, 21);

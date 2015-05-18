@@ -71,19 +71,19 @@
             this.dumpRawToolStripMenuItem,
             this.dumpZoneToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(138, 48);
             // 
             // dumpRawToolStripMenuItem
             // 
             this.dumpRawToolStripMenuItem.Name = "dumpRawToolStripMenuItem";
-            this.dumpRawToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.dumpRawToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.dumpRawToolStripMenuItem.Text = "Dump Raw";
             this.dumpRawToolStripMenuItem.Click += new System.EventHandler(this.dumpRawToolStripMenuItem_Click);
             // 
             // dumpZoneToolStripMenuItem
             // 
             this.dumpZoneToolStripMenuItem.Name = "dumpZoneToolStripMenuItem";
-            this.dumpZoneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.dumpZoneToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.dumpZoneToolStripMenuItem.Text = "Dump Zone";
             this.dumpZoneToolStripMenuItem.Click += new System.EventHandler(this.dumpZoneToolStripMenuItem_Click);
             // 

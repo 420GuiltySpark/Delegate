@@ -48,10 +48,18 @@ namespace Adjutant.Library.Definitions
             public int PixelsOffset;
             public int PixelsSize;
 
-            public int VirtualWidth
+            public virtual int VirtualWidth
             {
                 get
                 {
+                    //int i = 1;
+                    //int vW = 0;
+                    //while (vW < Width || vW < Height)
+                    //    vW = (int)Math.Pow(2, i++);
+                    //return vW;
+
+                    //return Width;
+
                     int var;
                     switch (Format)
                     {
@@ -64,7 +72,6 @@ namespace Adjutant.Library.Definitions
                         case TextureFormat.R5G6B5:
                             var = 32;
                             break;
-                        //return Width;
 
                         default:
                             var = 128;
@@ -75,10 +82,18 @@ namespace Adjutant.Library.Definitions
                 }
             }
 
-            public int VirtualHeight
+            public virtual int VirtualHeight
             {
                 get
                 {
+                    //int i = 1;
+                    //int vH = 0;
+                    //while (vH < Height || vH < Width)
+                    //    vH = (int)Math.Pow(2, i++);
+                    //return vH;
+
+                    //return Height;
+
                     int var;
                     switch (Format)
                     {
@@ -102,7 +117,7 @@ namespace Adjutant.Library.Definitions
                 }
             }
 
-            public int RawSize
+            public virtual int RawSize
             {
                 get
                 {
@@ -125,11 +140,13 @@ namespace Adjutant.Library.Definitions
                         case TextureFormat.DXT5:
                         case TextureFormat.DXN:
                         case TextureFormat.DXN_mono_alpha:
+                        case TextureFormat.P8_bump:
                             size = VirtualWidth * VirtualHeight;
                             break;
                         case TextureFormat.A4R4G4B4:
                         case TextureFormat.A1R5G5B5:
                         case TextureFormat.A8Y8:
+                        //case TextureFormat.U8V8:
                         case TextureFormat.R5G6B5:
                             size = VirtualWidth * VirtualHeight * 2;
                             break;
@@ -145,6 +162,44 @@ namespace Adjutant.Library.Definitions
                         size *= 6;
 
                     return size;
+                }
+            }
+
+            public virtual int BlockSize
+            {
+                get
+                {
+                    switch (Format)
+                    {
+                        case TextureFormat.CTX1:
+                        case TextureFormat.DXT1:
+                        case TextureFormat.DXT3a_mono:
+                        case TextureFormat.DXT3a_alpha:
+                        case TextureFormat.DXT5a:
+                        case TextureFormat.DXT5a_mono:
+                        case TextureFormat.DXT5a_alpha:
+                            return 2;
+                        case TextureFormat.A8:
+                        case TextureFormat.Y8:
+                        case TextureFormat.AY8:
+                        case TextureFormat.P8_bump:
+                            return 1;
+                        case TextureFormat.DXT3:
+                        case TextureFormat.DXT5:
+                        case TextureFormat.DXN:
+                        case TextureFormat.DXN_mono_alpha:
+                            return 2;
+                        case TextureFormat.A4R4G4B4:
+                        case TextureFormat.A1R5G5B5:
+                        case TextureFormat.A8Y8:
+                        case TextureFormat.R5G6B5:
+                            return 2;
+                        case TextureFormat.A8R8G8B8:
+                        case TextureFormat.X8R8G8B8:
+                            return 4;
+                        default:
+                            return 0;
+                    }
                 }
             }
         }

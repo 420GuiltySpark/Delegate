@@ -56,17 +56,17 @@ namespace Adjutant.Library.Controls
                 catch
                 {
                     pnlContainer.Controls.Clear();
-                    var header = new mHeader() { Location = new Point(5, 5) };
+                    var header = new mComment() { Location = new Point(5, 5) };
                     pnlContainer.Controls.Add(header);
-                    header.SetText("Error loading plugin: " + cache.PluginDir + "\\" + tag.ClassCode.Replace("<", "_").Replace(">", "_").PadRight(4) + ".xml");
+                    header.SetText("Error loading plugin: " + cache.PluginDir + "\\" + tag.ClassCode.Replace("<", "_").Replace(">", "_").PadRight(4) + ".xml", "");
                 }
             }
             else
             {
                 pnlContainer.Controls.Clear();
-                var header = new mHeader() { Location = new Point(5, 5) };
+                var header = new mComment() { Location = new Point(5, 5) };
                 pnlContainer.Controls.Add(header);
-                header.SetText("Plugin not found: " + cache.PluginDir + "\\" + tag.ClassCode.Replace("<", "_").Replace(">", "_").PadRight(4) + ".xml");
+                header.SetText("Plugin not found: " + cache.PluginDir + "\\" + tag.ClassCode.Replace("<", "_").Replace(">", "_").PadRight(4) + ".xml", "");
             }
         }
 
@@ -87,8 +87,12 @@ namespace Adjutant.Library.Controls
 
                 switch (val.Type)
                 {
+                    case iValue.ValueType.Comment:
+                        mvc = new mComment(val, cache);
+                        break;
+
                     case iValue.ValueType.Struct:
-                        mvc = new mStructure(val, cache, showInvis);
+                        mvc = new mStructure(val, cache, tag, showInvis);
                         ((mStructure)mvc).RequestTagLoad += new RequestTagLoadEventHandler(MetaViewer_TagLoadRequested);
                         ((mStructure)mvc).ResizeNeeded += new ResizeNeededEvent(mStructure_ResizeNeeded);
                         break;
@@ -142,10 +146,10 @@ namespace Adjutant.Library.Controls
                 }
 
                 mvc.Reload(tag.Offset);
-                if (mvc is mStructure) yLoc += 5;
+                if (mvc is mStructure || mvc is mComment) yLoc += 5;
                 mvc.Location = new Point(5, yLoc);
                 yLoc += mvc.Height;
-                if (mvc is mStructure) yLoc += 5;
+                if (mvc is mStructure || mvc is mComment) yLoc += 5;
                 pnlContainer.Controls.Add(mvc);
             }
         }

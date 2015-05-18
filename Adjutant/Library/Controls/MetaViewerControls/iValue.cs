@@ -31,6 +31,8 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             Bitmask8,
             Bitmask16,
             Bitmask32,
+
+            Comment,
             
             Float32,
             

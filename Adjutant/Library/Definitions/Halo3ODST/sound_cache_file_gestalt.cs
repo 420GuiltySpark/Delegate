@@ -109,12 +109,12 @@ namespace Adjutant.Library.Definitions.Halo3ODST
             {
                 EndianReader Reader = Cache.Reader;
 
-                NameIndex = Reader.ReadInt16();
+                NameIndex = Reader.ReadUInt16();
                 ParametersIndex = Reader.ReadInt16();
                 Unknown = Reader.ReadInt16();
                 FirstRuntimePermFlagIndex = Reader.ReadInt16();
                 EncodedPermData = Reader.ReadInt16();
-                FirstPermutation = Reader.ReadInt16();
+                FirstPermutation = Reader.ReadUInt16();
             }
         }
 

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 
 namespace Adjutant.Library.Controls.MetaViewerControls
 {
@@ -38,7 +39,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             switch (value.Type)
             {
                 case iValue.ValueType.StringID:
-                    stringID = reader.ReadInt32();
+                    stringID = (cache.Version >= DefinitionSet.Halo3Beta) ? reader.ReadInt32() : reader.ReadInt16();
                     str = cache.Strings.GetItemByID(stringID);
                     txtValue.Text = str;
                     break;

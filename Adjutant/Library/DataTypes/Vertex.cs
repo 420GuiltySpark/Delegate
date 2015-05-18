@@ -11,11 +11,49 @@ namespace Adjutant.Library.DataTypes
 {
     //These need to be marked serializable for deep cloning
 
+    //[Serializable]
+    //public class VertexBuffer : List<Vertex>
+    //{
+    //    private XmlNode formatNode;
+
+    //    public string FormatName;
+
+    //    public string GetTypeByUsage(string Usage, int UsageIndex)
+    //    {
+    //        try
+    //        {
+    //            foreach (XmlNode node in formatNode.ChildNodes)
+    //            {
+    //                if (node.Attributes["usage"].Value == Usage && node.Attributes["usageIndex"].Value == UsageIndex.ToString())
+    //                    return node.Attributes["type"].Value;
+    //            }
+    //        }
+    //        catch { }
+
+    //        return "None";
+    //    }
+
+    //    public VertexBuffer() { }
+
+    //    public VertexBuffer(XmlNode FormatNode)
+    //    {
+    //        if (!FormatNode.HasChildNodes) throw new NotSupportedException(FormatNode.Attributes["type"].Value + ":" + FormatNode.Attributes["name"].Value + " has an empty definition.");
+
+    //        formatNode = FormatNode;
+    //        FormatName = formatNode.Attributes["name"].Value;
+    //    }
+    //}
+
     [Serializable]
     public class Vertex
     {
         public string FormatName;
         public List<VertexValue> Values;
+
+        public Vertex()
+        {
+            Values = new List<VertexValue>();
+        }
 
         public Vertex(EndianReader reader, XmlNode formatNode)
         {
@@ -52,7 +90,7 @@ namespace Adjutant.Library.DataTypes
                 foreach (var v in Values)
                     if (v.Usage.ToLower() == Usage.ToLower()) return v;
 
-                return new VertexValue(new RealQuat(), 0, Usage, 0);
+                return new VertexValue(new RealQuat(), VertexValue.ValueType.None, Usage, 0);
             }
         }
     }
@@ -60,22 +98,23 @@ namespace Adjutant.Library.DataTypes
     [Serializable]
     public class VertexValue
     {
-        public int Stream;
+        //public int Stream;
         public string Usage;
-        //public string Type;
+        public ValueType Type;
         public int UsageIndex;
         public RealQuat Data;
 
         public VertexValue(XmlNode Node, EndianReader reader)
         {
-            Stream = Convert.ToInt32(Node.Attributes["stream"].Value);
-            //Type = Node.Attributes["type"].Value;
+            //Stream = Convert.ToInt32(Node.Attributes["stream"].Value);
+            if (Convert.ToInt32(Node.Attributes["stream"].Value) > 0) throw new NotSupportedException("Multi-streamed vertices not supported");
+            Type = (ValueType)Enum.Parse(typeof(ValueType), Node.Attributes["type"].Value);
             Usage = Node.Attributes["usage"].Value;
             UsageIndex = Convert.ToInt32(Node.Attributes["usageIndex"].Value);
-            if (Stream > 0) throw new NotSupportedException("Multi-streamed vertices not supported");
+            //if (Stream > 0) throw new NotSupportedException("Multi-streamed vertices not supported");
 
             #region read data
-            switch ((ValueType)Enum.Parse(typeof(ValueType), Node.Attributes["type"].Value, true))
+            switch (Type)
             {
                 case ValueType.Float32_2:
                     Data = new RealQuat(reader.ReadSingle(), reader.ReadSingle());
@@ -93,18 +132,38 @@ namespace Adjutant.Library.DataTypes
                     Data = new RealQuat((float)reader.ReadByte() / (float)0x7F, (float)reader.ReadByte() / (float)0x7F, (float)reader.ReadByte() / (float)0x7F, (float)reader.ReadByte() / (float)0x7F);
                     break;
 
+                case ValueType.UInt8_2:
+                    Data = new RealQuat(reader.ReadByte(), reader.ReadByte(), 0, 0);
+                    break;
+
+                case ValueType.UInt8_3:
+                    Data = new RealQuat(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), 0);
+                    break;
+
                 case ValueType.UInt8_4:
-                    Data = new RealQuat(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
-                    //Data = RealQuat.FromUByte4(reader.ReadUInt32());
+                    //Data = new RealQuat(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+                    Data = RealQuat.FromUByte4(reader.ReadUInt32());
+                    break;
+
+                case ValueType.UInt8_N2:
+                    Data = new RealQuat((float)reader.ReadByte() / (float)0xFF, (float)reader.ReadByte() / (float)0xFF, 0, 0);
+                    break;
+
+                case ValueType.UInt8_N3:
+                    Data = new RealQuat((float)reader.ReadByte() / (float)0xFF, (float)reader.ReadByte() / (float)0xFF, (float)reader.ReadByte() / (float)0xFF, 0);
                     break;
 
                 case ValueType.UInt8_N4:
-                    Data = new RealQuat((float)reader.ReadByte() / (float)0xFF, (float)reader.ReadByte() / (float)0xFF, (float)reader.ReadByte() / (float)0xFF, (float)reader.ReadByte() / (float)0xFF);
-                    //Data = RealQuat.FromUByteN4(reader.ReadUInt32());
+                    //Data = new RealQuat((float)reader.ReadByte() / (float)0xFF, (float)reader.ReadByte() / (float)0xFF, (float)reader.ReadByte() / (float)0xFF, (float)reader.ReadByte() / (float)0xFF);
+                    Data = RealQuat.FromUByteN4(reader.ReadUInt32());
+                    break;
+
+                case ValueType.Int16_N3:
+                    Data = new RealQuat(((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 0);
                     break;
 
                 case ValueType.Int16_N4:
-                    Data = new RealQuat((float)reader.ReadInt16() / (float)0x7FFF, (float)reader.ReadInt16() / (float)0x7FFF, (float)reader.ReadInt16() / (float)0x7FFF, (float)reader.ReadInt16() / (float)0x7FFF);
+                    Data = new RealQuat(((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF);
                     break;
 
                 case ValueType.UInt16_2:
@@ -159,19 +218,22 @@ namespace Adjutant.Library.DataTypes
                     reader.ReadUInt32();
                     break;
             }
-#endregion
+            #endregion
         }
 
-        public VertexValue(RealQuat Data, int Stream, string Usage, int UsageIndex)
+        public VertexValue(RealQuat Data, ValueType Type, string Usage, int UsageIndex)
         {
             this.Data = Data;
-            this.Stream = Stream;
+            this.Type = Type;
+            //this.Stream = Stream;
             this.Usage = Usage;
             this.UsageIndex = UsageIndex;
         }
 
-        public enum ValueType
+        public enum ValueType : byte
         {
+            None,
+
             Float16_2,
             Float16_4,
 
@@ -189,9 +251,15 @@ namespace Adjutant.Library.DataTypes
             UDecN4,
 
             Int8_N4,
+            UInt8_2,
+            UInt8_3,
             UInt8_4,
+            UInt8_N2,
+            UInt8_N3,
             UInt8_N4,
 
+            Int16_N2,
+            Int16_N3,
             Int16_N4,
             UInt16_2,
             UInt16_4,

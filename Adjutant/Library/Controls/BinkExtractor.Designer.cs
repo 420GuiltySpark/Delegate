@@ -1,6 +1,6 @@
-﻿namespace Adjutant.Library.Controls.MetaViewerControls
+﻿namespace Adjutant.Library.Controls
 {
-    partial class mHeader
+    partial class BinkExtractor
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,35 +28,32 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblText = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // lblText
+            // button1
             // 
-            this.lblText.AutoSize = true;
-            this.lblText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblText.Location = new System.Drawing.Point(5, 9);
-            this.lblText.Name = "lblText";
-            this.lblText.Size = new System.Drawing.Size(68, 15);
-            this.lblText.TabIndex = 0;
-            this.lblText.Text = "HEADING";
+            this.button1.Location = new System.Drawing.Point(3, 3);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "Save";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // mHeader
+            // BinkExtractor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.Controls.Add(this.lblText);
-            this.Name = "mHeader";
-            this.Size = new System.Drawing.Size(539, 37);
+            this.Controls.Add(this.button1);
+            this.Name = "BinkExtractor";
+            this.Size = new System.Drawing.Size(82, 31);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Label lblText;
+        private System.Windows.Forms.Button button1;
     }
 }

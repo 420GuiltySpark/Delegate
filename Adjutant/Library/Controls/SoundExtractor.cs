@@ -452,7 +452,7 @@ namespace Adjutant.Library.Controls
             return total;
         }
 
-        private static byte[] GetXMA(byte[] buffer, SampleRate sRate, SoundType sType)
+        public static byte[] GetXMA(byte[] buffer, SampleRate sRate, SoundType sType)
         {
             int rate;
             switch (sRate)
@@ -466,7 +466,9 @@ namespace Adjutant.Library.Controls
                     break;
 
                 default:
-                    throw new Exception("Check sample rate.");
+                    rate = 44100;
+                    break;
+                    //throw new Exception("Check sample rate.");
             }
 
             int cCount;

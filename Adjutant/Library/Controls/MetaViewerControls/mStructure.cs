@@ -17,13 +17,15 @@ namespace Adjutant.Library.Controls.MetaViewerControls
     {
         private int chunkOffset, chunkCount, chunkSize;
         private bool showInvis, isLoaded, isLoading;
+        private CacheFile.IndexItem tag;
 
-        public mStructure(iValue Value, CacheFile Cache, bool ShowInvisibles)
+        public mStructure(iValue Value, CacheFile Cache, CacheFile.IndexItem Tag, bool ShowInvisibles)
         {
             InitializeComponent();
             value = Value;
             cache = Cache;
             showInvis = ShowInvisibles;
+            tag = Tag;
 
             lblName.Text = value.Node.Attributes["name"].Value.ToUpper();
 
@@ -51,7 +53,11 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                 return;
             }
 
-            chunkOffset = reader.ReadInt32() - cache.Magic;
+            chunkOffset = reader.ReadInt32();
+            if (tag.Magic != 0)
+                chunkOffset = chunkOffset - tag.Magic;
+            else
+                chunkOffset = chunkOffset - cache.Magic;
             reader.ReadInt32();
 
             LoadLabels();
@@ -73,7 +79,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             int total = 34;
             foreach (Control c in pnlContainer.Controls)
             {
-                c.Width = this.Width - 15;
+                c.Width = (c is mComment) ? this.Width - 30 : this.Width - 15;
                 total += (c is mStructure) ? c.Height + 10 : c.Height;
             }
 
@@ -167,8 +173,12 @@ namespace Adjutant.Library.Controls.MetaViewerControls
 
                 switch (val.Type)
                 {
+                    case iValue.ValueType.Comment:
+                        mvc = new mComment(val, cache);
+                        break;
+
                     case iValue.ValueType.Struct:
-                        mvc = new mStructure(val, cache, showInvis);
+                        mvc = new mStructure(val, cache, tag, showInvis);
                         ((mStructure)mvc).RequestTagLoad += new RequestTagLoadEventHandler(mTagRef_RequestTagLoad);
                         ((mStructure)mvc).ResizeNeeded += new ResizeNeededEvent(mStructure_ResizeNeeded);
                         break;
@@ -225,10 +235,10 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                 }
 
                 mvc.Reload(chunkOffset);
-                if (mvc is mStructure) yLoc += 5;
+                if (mvc is mStructure || mvc is mComment) yLoc += 5;
                 mvc.Location = new Point(5, yLoc);
                 yLoc += mvc.Height;
-                if (mvc is mStructure) yLoc += 5;
+                if (mvc is mStructure || mvc is mComment) yLoc += 5;
                 pnlContainer.Controls.Add(mvc);
             }
 
@@ -254,11 +264,11 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             {
                 var c = pnlContainer.Controls[i];
 
-                if (c is mStructure) yLoc += 5;
+                if (c is mStructure || c is mComment) yLoc += 5;
                 c.Location = new Point(c.Location.X, yLoc);
-                c.Width = this.Width - 15;
+                c.Width = (c is mComment) ? this.Width - 30 : this.Width - 15;
                 yLoc += c.Height;
-                if (c is mStructure) yLoc += 5;
+                if (c is mStructure || c is mComment) yLoc += 5;
             }
 
             Resize();

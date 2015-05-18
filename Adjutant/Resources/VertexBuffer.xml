@@ -1,4 +1,27 @@
 <VertexDefinitions>
+  <vertexTypes Game="Halo2">
+    <vertex type="0x00" name="Halo2_world">
+      <value stream="0" offset="0x0" type="Float32_3" usage="position" usageIndex="0" />
+    </vertex>
+    <vertex type="0x01" name="Halo2_compressed">
+      <value stream="0" offset="0x0" type="Int16_N3" usage="position" usageIndex="0" />
+    </vertex>
+    <vertex type="0x02" name="Halo2_skinned_2bones">
+      <value stream="0" offset="0x0" type="Int16_N4" usage="position" usageIndex="0" />
+      <value stream="0" offset="0x8" type="UInt8_2" usage="blendindices" usageIndex="0" />
+      <value stream="0" offset="0xA" type="UInt8_N2" usage="blendweight" usageIndex="0" />
+    </vertex>
+    <vertex type="0x03" name="Halo2_skinned_3bones">
+      <value stream="0" offset="0x0" type="Int16_N3" usage="position" usageIndex="0" />
+      <value stream="0" offset="0x6" type="UInt8_3" usage="blendindices" usageIndex="0" />
+      <value stream="0" offset="0x9" type="UInt8_N3" usage="blendweight" usageIndex="0" />
+    </vertex>
+    <vertex type="0x04" name="Halo2_skinned_4bones">
+      <value stream="0" offset="0x0" type="Int16_N4" usage="position" usageIndex="0" />
+      <value stream="0" offset="0x8" type="UInt8_4" usage="blendindices" usageIndex="0" />
+      <value stream="0" offset="0xA" type="UInt8_N4" usage="blendweight" usageIndex="0" />
+    </vertex>
+  </vertexTypes>
   <vertexTypes Game="Halo3">
 		<vertex type="0x00" name="s_world_vertex">
 			<value stream="0" offset="0x0" type="Float32_3" usage="position" usageIndex="0" />
