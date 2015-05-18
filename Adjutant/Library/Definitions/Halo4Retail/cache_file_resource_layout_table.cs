@@ -11,9 +11,10 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 {
     internal class cache_file_resource_layout_table : play
     {
-        internal cache_file_resource_layout_table(CacheFile Cache)
+        internal cache_file_resource_layout_table(CacheFile Cache, int Offset)
         {
             EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Offset);
 
             Reader.BaseStream.Position += 12; //12 (codecs block goes here)
 

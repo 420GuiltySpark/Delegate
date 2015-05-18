@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Controls;
+using Adjutant.Library.Definitions;
 using System.IO;
 
 namespace Adjutant.Controls
@@ -46,7 +47,12 @@ namespace Adjutant.Controls
             });
         }
 
-        public void BeginExtraction(CacheFile Cache, TreeNode Parent, Settings Settings, string Destination)
+        public void CancelExtraction()
+        {
+            backgroundWorker1.CancelAsync();
+        }
+        
+        public void BeginExtraction(CacheFile Cache, List<TreeNode> Parents, Settings Settings, string Destination, bool Separate)
         {
             if (backgroundWorker1.IsBusy)
             {
@@ -56,132 +62,181 @@ namespace Adjutant.Controls
 
             var args = new ExtractionArgs()
             {
-                cache = Cache, parent = Parent, settings = Settings, destination = Destination
+                cache = Cache, parents = Parents, settings = Settings, destination = Destination, separate = Separate
             };
 
             backgroundWorker1.RunWorkerAsync(args);
         }
 
-        private void BatchExtract(CacheFile cache, TreeNode parent, Settings settings, string dest, BackgroundWorker worker)
+        private void BatchExtract(CacheFile cache, List<TreeNode> parents, Settings settings, string dest, bool sep, BackgroundWorker worker)
         {
-            foreach (TreeNode child in parent.Nodes)
+            foreach (TreeNode parent in parents)
             {
-                if (worker.CancellationPending) return;
-
-                if (child.Nodes.Count > 0)
+                foreach (TreeNode child in parent.Nodes)
                 {
-                    BatchExtract(cache, child, settings, dest, worker);
-                    continue;
-                }
+                    if (worker.CancellationPending) return;
 
-                var tag = child.Tag as CacheFile.IndexItem;
-                var fName = dest + "\\" + tag.Filename;
-                var tName = tag.Filename + "." + tag.ClassCode;
+                    if (child.Nodes.Count > 0)
+                    {
+                        BatchExtract(cache, new List<TreeNode>() { child }, settings, dest, sep, worker);
+                        continue;
+                    }
 
-                switch (tag.ClassCode)
-                {
-                    #region bitm
-                    case "bitm":
-                        try
-                        {
-                            switch (settings.BitmFormat)
+                    var tag = child.Tag as CacheFile.IndexItem;
+                    var sepName = tag.ClassName + "\\";
+                    var fName = dest + "\\" + (sep ? sepName : "" ) + tag.Filename;
+                    var tName = tag.Filename + "." + tag.ClassCode;
+
+                    switch (tag.ClassCode)
+                    {
+                        #region bitm
+                        case "bitm":
+                            try
                             {
-                                case BitmapFormat.TIF:
-                                    fName += ".tif";
-                                    break;
-                                case BitmapFormat.DDS:
-                                    fName += ".dds";
-                                    break;
-                                case BitmapFormat.RAW:
-                                    fName += ".bin";
-                                    break;
+                                switch (settings.BitmFormat)
+                                {
+                                    case BitmapFormat.TIF:
+                                        fName += ".tif";
+                                        break;
+                                    case BitmapFormat.DDS:
+                                        fName += ".dds";
+                                        break;
+                                    case BitmapFormat.RAW:
+                                        fName += ".bin";
+                                        break;
+                                }
+
+                                if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
+                                {
+                                    BitmapExtractor.SaveAllImages(fName, cache, tag, settings.BitmFormat, settings.Flags.HasFlag(SettingsFlags.BitmapAlpha));
+                                    AddLine("Extracted " + tName + ".");
+                                    tagsExtracted++;
+                                }
                             }
-
-                            if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
+                            catch (Exception ex)
                             {
-                                BitmapExtractor.SaveAllImages(fName, cache, tag, settings.BitmFormat, settings.Flags.HasFlag(SettingsFlags.BitmapAlpha));
-                                AddLine("Extracted " + tName + ".");
+                                AddLine("Error extracting " + tName + ":");
+                                AddLine("--" + ex.Message.Replace("\r\n", " "));
+                                tagsMissed++;
+                            }
+                            break;
+                        #endregion
+                        #region mode
+                        case "mode":
+                            try
+                            {
+                                //AddLine("Extracting " + tName + "...");
+                                switch (settings.ModeFormat)
+                                {
+                                    case ModelFormat.EMF:
+                                        fName += ".emf";
+                                        break;
+                                    case ModelFormat.JMS:
+                                        fName += ".jms";
+                                        break;
+                                    case ModelFormat.OBJ:
+                                        fName += ".obj";
+                                        break;
+                                    case ModelFormat.AMF:
+                                        fName += ".amf";
+                                        break;
+                                }
+
+                                if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
+                                {
+                                    ModelExtractor.SaveAllModelParts(fName, cache, tag, settings.ModeFormat, settings.Flags.HasFlag(SettingsFlags.SplitMeshes));
+                                    AddLine("Extracted " + tName + ".");
+                                    tagsExtracted++;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                AddLine("Error extracting " + tName + ":");
+                                AddLine("--" + ex.Message.Replace("\r\n", " "));
+                                tagsMissed++;
+                            }
+                            break;
+                        #endregion
+                        #region sbsp
+                        case "sbsp":
+                            try
+                            {
+                                switch (settings.ModeFormat)
+                                {
+                                    case ModelFormat.EMF:
+                                        fName += ".emf";
+                                        break;
+                                    case ModelFormat.OBJ:
+                                        fName += ".obj";
+                                        break;
+                                    case ModelFormat.AMF:
+                                    case ModelFormat.JMS:
+                                        fName += ".amf";
+                                        break;
+                                }
+
+                                if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
+                                {
+                                    BSPExtractor.SaveAllBSPParts(fName, cache, tag, settings.ModeFormat);
+                                    AddLine("Extracted " + tName + ".");
+                                    tagsExtracted++;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                AddLine("Error extracting " + tName + ":");
+                                AddLine("--" + ex.Message.Replace("\r\n", " "));
+                                tagsMissed++;
+                            }
+                            break;
+                        #endregion
+                        #region snd!
+                        case "snd!":
+                            try
+                            {
+                                if (cache.Version == DefinitionSet.Halo3Beta) continue;
+
+                                if (cache.Version < DefinitionSet.Halo4Retail)
+                                    SoundExtractor.SaveAllAsSeparate(dest + tag.Filename, cache, tag, settings.Snd_Format, settings.Flags.HasFlag(SettingsFlags.OverwriteTags));
+                                else
+                                    (new SoundExtractorH4()).SaveAllAsSeparate(dest + tag.Filename, cache, tag, settings.Snd_Format, settings.Flags.HasFlag(SettingsFlags.OverwriteTags));
+
+                                //SoundExtractor.SaveAllAsSingle(fName, cache, tag, settings.Snd_Format);
+                                AddLine("Extracted " + tag.Filename + "." + tag.ClassCode + ".");
                                 tagsExtracted++;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            AddLine("Error extracting " + tName + ":");
-                            AddLine("--" + ex.Message.Replace("\r\n", " "));
-                            tagsMissed++;
-                        }
-                        break;
-                    #endregion
-                    #region mode
-                    case "mode":
-                        try
-                        {
-                            switch (settings.ModeFormat)
-                            {
-                                case ModelFormat.EMF:
-                                    fName += ".emf";
-                                    break;
-                                case ModelFormat.JMS:
-                                    fName += ".jms";
-                                    break;
-                                case ModelFormat.OBJ:
-                                    fName += ".obj";
-                                    break;
-                            }
 
-                            if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
-                            {
-                                ModelExtractor.SaveAllModelParts(fName, cache, tag, settings.ModeFormat, settings.Flags.HasFlag(SettingsFlags.SplitMeshes));
-                                AddLine("Extracted " + tName + ".");
-                                tagsExtracted++;
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            AddLine("Error extracting " + tName + ":");
-                            AddLine("--" + ex.Message.Replace("\r\n", " "));
-                            tagsMissed++;
-                        }
-                        break;
-                    #endregion
-                    #region snd!
-                    case "snd!":
-                        try
-                        {
-                            SoundExtractor.SaveAllAsSeparate(dest + tag.Filename, cache, tag, settings.Snd_Format, settings.Flags.HasFlag(SettingsFlags.OverwriteTags));
-                            //SoundExtractor.SaveAllAsSingle(fName, cache, tag, settings.Snd_Format);
-                            AddLine("Extracted " + tag.Filename + "." + tag.ClassCode + ".");
-                            tagsExtracted++;
-                        }
-                        catch (Exception ex)
-                        {
-                            AddLine("Error extracting " + tName + ":");
-                            AddLine("--" + ex.Message.Replace("\r\n", " "));
-                            tagsMissed++;
-                        }
-                        break;
-                    #endregion
-                    #region unic
-                    case "unic":
-                        try
-                        {
-                            fName += ".txt";
+                            catch (Exception ex)
+                            {
+                                AddLine("Error extracting " + tName + ":");
+                                AddLine("--" + ex.Message.Replace("\r\n", " "));
+                                tagsMissed++;
+                            }
+                            break;
+                        #endregion
+                        #region unic
+                        case "unic":
+                            try
+                            {
+                                fName += ".txt";
 
-                            if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
-                            {
-                                StringsViewer.SaveUnicStrings(fName, cache, tag, settings.Language);
-                                AddLine("Extracted " + tName + ".");
-                                tagsExtracted++;
+                                //AddLine("Extracting " + tName + "...");
+                                if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
+                                {
+                                    StringsViewer.SaveUnicStrings(fName, cache, tag, settings.Language);
+                                    AddLine("Extracted " + tName + ".");
+                                    tagsExtracted++;
+                                }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            AddLine("Error extracting " + tName + ":");
-                            AddLine("--" + ex.Message.Replace("\r\n", " "));
-                            tagsMissed++;
-                        }
-                        break;
-                    #endregion
+                            catch (Exception ex)
+                            {
+                                AddLine("Error extracting " + tName + ":");
+                                AddLine("--" + ex.Message.Replace("\r\n", " "));
+                                tagsMissed++;
+                            }
+                            break;
+                        #endregion
+                    }
                 }
             }
         }
@@ -189,7 +244,7 @@ namespace Adjutant.Controls
         #region Events
         private void cancelToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            backgroundWorker1.CancelAsync();
+            CancelExtraction();
         }
 
         private void copyOutputToolStripMenuItem_Click(object sender, EventArgs e)
@@ -232,12 +287,16 @@ namespace Adjutant.Controls
             var args = e.Argument as ExtractionArgs;
 
             Clear();
-            AddLine("Starting batch extract: " + args.parent.Name);
+            string fName = "";
+            foreach (TreeNode node in args.parents)
+                fName += node.Name + ", ";
+            fName = fName.Substring(0, fName.Length - 2);
+            AddLine("Starting batch extract: " + fName);
 
             var stopwatch = new System.Diagnostics.Stopwatch();
             
             stopwatch.Start();
-            BatchExtract(args.cache, args.parent, args.settings, args.destination, backgroundWorker1);
+            BatchExtract(args.cache, args.parents, args.settings, args.destination, args.separate, backgroundWorker1);
             stopwatch.Stop();
 
             if (!backgroundWorker1.CancellationPending)
@@ -258,9 +317,10 @@ namespace Adjutant.Controls
         private class ExtractionArgs
         {
             public CacheFile cache;
-            public TreeNode parent;
+            public List<TreeNode> parents;
             public Settings settings;
             public string destination;
+            public bool separate;
         }
     }
 }

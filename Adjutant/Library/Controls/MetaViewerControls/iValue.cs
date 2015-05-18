@@ -62,7 +62,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             RealVector4D,
 
             Colour32RGB,
-            Colour32ARGB
+            Colour32ARGB,
         }
 
         //private ValueType GetType(string TypeName)

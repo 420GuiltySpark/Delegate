@@ -208,5 +208,15 @@ namespace Adjutant.Library.Endian
             base.Write(bits);
         }
         #endregion
+
+        public void WriteBlock(byte[] data)
+        {
+            BaseStream.Write(data, 0, data.Length);
+        }
+
+        public void WriteBlock(byte[] data, int offset, int length)
+        {
+            BaseStream.Write(data, offset, length);
+        }
     }
 }

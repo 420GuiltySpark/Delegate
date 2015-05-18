@@ -34,10 +34,12 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectNoneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectBDSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectPermutationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deselectPermutationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnExportModel = new System.Windows.Forms.Button();
             this.btnExportBitmaps = new System.Windows.Forms.Button();
             this.chkSplit = new System.Windows.Forms.CheckBox();
-            this.selectBDSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -61,29 +63,54 @@
             this.tvRegions.Size = new System.Drawing.Size(204, 300);
             this.tvRegions.TabIndex = 1;
             this.tvRegions.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvRegions_AfterCheck);
+            this.tvRegions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvRegions_AfterSelect);
             // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.selectAllToolStripMenuItem,
             this.selectNoneToolStripMenuItem,
-            this.selectBDSToolStripMenuItem});
+            this.selectBDSToolStripMenuItem,
+            this.selectPermutationToolStripMenuItem,
+            this.deselectPermutationToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(138, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(188, 114);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.selectAllToolStripMenuItem.Text = "Select All";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
             // 
             // selectNoneToolStripMenuItem
             // 
             this.selectNoneToolStripMenuItem.Name = "selectNoneToolStripMenuItem";
-            this.selectNoneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.selectNoneToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.selectNoneToolStripMenuItem.Text = "Select None";
             this.selectNoneToolStripMenuItem.Click += new System.EventHandler(this.selectNoneToolStripMenuItem_Click);
+            // 
+            // selectBDSToolStripMenuItem
+            // 
+            this.selectBDSToolStripMenuItem.Name = "selectBDSToolStripMenuItem";
+            this.selectBDSToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.selectBDSToolStripMenuItem.Text = "Select BDS";
+            this.selectBDSToolStripMenuItem.Visible = false;
+            this.selectBDSToolStripMenuItem.Click += new System.EventHandler(this.selectBDSToolStripMenuItem_Click);
+            // 
+            // selectPermutationToolStripMenuItem
+            // 
+            this.selectPermutationToolStripMenuItem.Name = "selectPermutationToolStripMenuItem";
+            this.selectPermutationToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.selectPermutationToolStripMenuItem.Text = "Select Permutation";
+            this.selectPermutationToolStripMenuItem.Click += new System.EventHandler(this.selectPermutationToolStripMenuItem_Click);
+            // 
+            // deselectPermutationToolStripMenuItem
+            // 
+            this.deselectPermutationToolStripMenuItem.Name = "deselectPermutationToolStripMenuItem";
+            this.deselectPermutationToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.deselectPermutationToolStripMenuItem.Text = "Deselect Permutation";
+            this.deselectPermutationToolStripMenuItem.Click += new System.EventHandler(this.deselectPermutationToolStripMenuItem_Click);
             // 
             // btnExportModel
             // 
@@ -108,20 +135,12 @@
             // chkSplit
             // 
             this.chkSplit.AutoSize = true;
-            this.chkSplit.Location = new System.Drawing.Point(67, 32);
+            this.chkSplit.Location = new System.Drawing.Point(52, 32);
             this.chkSplit.Name = "chkSplit";
-            this.chkSplit.Size = new System.Drawing.Size(86, 17);
+            this.chkSplit.Size = new System.Drawing.Size(117, 17);
             this.chkSplit.TabIndex = 4;
-            this.chkSplit.Text = "Split Meshes";
+            this.chkSplit.Text = "Split Meshes (EMF)";
             this.chkSplit.UseVisualStyleBackColor = true;
-            // 
-            // selectBDSToolStripMenuItem
-            // 
-            this.selectBDSToolStripMenuItem.Name = "selectBDSToolStripMenuItem";
-            this.selectBDSToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
-            this.selectBDSToolStripMenuItem.Text = "Select BDS";
-            this.selectBDSToolStripMenuItem.Visible = false;
-            this.selectBDSToolStripMenuItem.Click += new System.EventHandler(this.selectBDSToolStripMenuItem_Click);
             // 
             // ModelExtractor
             // 
@@ -151,5 +170,7 @@
         private System.Windows.Forms.ToolStripMenuItem selectNoneToolStripMenuItem;
         private System.Windows.Forms.CheckBox chkSplit;
         private System.Windows.Forms.ToolStripMenuItem selectBDSToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem selectPermutationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deselectPermutationToolStripMenuItem;
     }
 }

@@ -132,6 +132,14 @@ namespace Adjutant.Library.Controls
         #region Events
         private void cmbLang_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!cmbLang.Enabled)
+            {
+                var strings = sList = cache.Strings;
+                lstStrings.Items.Clear();
+                for (int i = 0; i < strings.Count; i++)
+                    lstStrings.Items.Add(new ListViewItem(new string[] { i.ToString("D6"), strings[i] }));
+            }
+            
             if (cmbLang.SelectedIndex == -1) return;
             
             if (cmbLang.SelectedIndex >= cache.LocaleTables.Count)

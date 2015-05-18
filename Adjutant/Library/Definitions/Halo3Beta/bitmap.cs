@@ -6,94 +6,87 @@ using Adjutant.Library;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Endian;
 using Adjutant.Library.DataTypes;
-using Adjutant.Library.DataTypes.Space;
 using bitm = Adjutant.Library.Definitions.bitmap;
 
 namespace Adjutant.Library.Definitions.Halo3Beta
 {
     internal class bitmap : bitm
     {
-        internal bitmap(CacheFile Cache)
+        internal bitmap(CacheFile Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Address);
 
-            Reader.BaseStream.Position += 84; //84
+            Reader.SeekTo(Address + 84);
 
             #region Sequence Chunk
-            long temp = Reader.BaseStream.Position;
-            int sCount = Reader.ReadInt32();
-            int sOffset = Reader.ReadInt32() - Cache.Magic;
+            int iCount = Reader.ReadInt32();
+            int iOffset = Reader.ReadInt32() - Cache.Magic;
             Sequences = new List<bitm.Sequence>();
-            Reader.BaseStream.Position = sOffset;
-            for (int i = 0; i < sCount; i++)
-                Sequences.Add(new Sequence(Cache));
-            Reader.BaseStream.Position = temp + 12;
+            for (int i = 0; i < iCount; i++)
+                Sequences.Add(new Sequence(Cache, iOffset + 64 * i));
+            Reader.SeekTo(Address + 96);
             #endregion
 
             #region BitmapData Chunk
-            temp = Reader.BaseStream.Position;
-            sCount = Reader.ReadInt32();
-            sOffset = Reader.ReadInt32() - Cache.Magic;
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             Bitmaps = new List<bitm.BitmapData>();
-            Reader.BaseStream.Position = sOffset;
-            for (int i = 0; i < sCount; i++)
-                Bitmaps.Add(new BitmapData(Cache));
-            Reader.BaseStream.Position = temp + 12;
+            for (int i = 0; i < iCount; i++)
+                Bitmaps.Add(new BitmapData(Cache, iOffset + 48 * i));
+            Reader.SeekTo(Address + 108);
             #endregion
 
-            Reader.BaseStream.Position += 32; //140
+            Reader.SeekTo(Address + 140);
 
             #region Raw Chunk A
-            temp = Reader.BaseStream.Position;
-            int rCount = Reader.ReadInt32();
-            int rOffset = Reader.ReadInt32() - Cache.Magic;
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             RawChunkAs = new List<bitm.RawChunkA>();
-            Reader.BaseStream.Position = rOffset;
-            for (int i = 0; i < rCount; i++)
-                RawChunkAs.Add(new RawChunkA(Cache));
-            Reader.BaseStream.Position = temp + 12;
+            for (int i = 0; i < iCount; i++)
+                RawChunkAs.Add(new RawChunkA(Cache, iOffset + 8 * i));
+            Reader.SeekTo(Address + 152);
             #endregion
 
             #region Raw Chunk B
-            temp = Reader.BaseStream.Position;
-            rCount = Reader.ReadInt32();
-            rOffset = Reader.ReadInt32() - Cache.Magic;
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             RawChunkBs = new List<bitm.RawChunkB>();
-            Reader.BaseStream.Position = rOffset;
-            for (int i = 0; i < rCount; i++)
-                RawChunkBs.Add(new RawChunkB(Cache));
-            Reader.BaseStream.Position = temp + 12;
+            for (int i = 0; i < iCount; i++)
+                RawChunkBs.Add(new RawChunkB(Cache, iOffset + 8 * i));
+            Reader.SeekTo(Address + 164);
             #endregion
         }
 
         new internal class Sequence : bitm.Sequence
         {
-            internal Sequence(CacheFile Cache)
+            internal Sequence(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
+                Reader.SeekTo(Address);
+
                 Name = Reader.ReadNullTerminatedString(32);
                 FirstSubmapIndex = Reader.ReadInt16();
                 BitmapCount = Reader.ReadInt16();
 
-                Reader.BaseStream.Position += 16; //52
+                Reader.SeekTo(Address + 52);
 
                 #region Sprite Chunk
-                long temp = Reader.BaseStream.Position;
-                int sCount = Reader.ReadInt32();
-                int sOffset = Reader.ReadInt32() - Cache.Magic;
+                int iCount = Reader.ReadInt32();
+                int iOffset = Reader.ReadInt32() - Cache.Magic;
                 Sprites = new List<bitm.Sequence.Sprite>();
-                Reader.BaseStream.Position = sOffset;
-                for (int i = 0; i < sCount; i++)
-                    Sprites.Add(new Sprite(Cache));
-                Reader.BaseStream.Position = temp + 12;
+                for (int i = 0; i < iCount; i++)
+                    Sprites.Add(new Sprite(Cache, iOffset + 32 * i));
+                Reader.SeekTo(Address + 64);
                 #endregion
             }
 
             new internal class Sprite : bitm.Sequence.Sprite
             {
-                internal Sprite(CacheFile Cache)
+                internal Sprite(CacheFile Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
+                    Reader.SeekTo(Address);
 
                     SubmapIndex = Reader.ReadInt32();
                     Reader.ReadInt32();
@@ -101,7 +94,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                     Right = Reader.ReadSingle();
                     Top = Reader.ReadSingle();
                     Bottom = Reader.ReadSingle();
-                    RegPoint = new RealPoint2D(
+                    RegPoint = new RealQuat(
                         Reader.ReadSingle(),
                         Reader.ReadSingle());
                 }
@@ -110,9 +103,10 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new internal class BitmapData : bitm.BitmapData
         {
-            internal BitmapData(CacheFile Cache)
+            internal BitmapData(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
+                Reader.SeekTo(Address);
 
                 Class = Reader.ReadString(4);
                 Width = Reader.ReadInt16();
@@ -131,14 +125,15 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 PixelsOffset = Reader.ReadInt32();
                 PixelsSize = Reader.ReadInt32();
 
-                Reader.BaseStream.Position += 16; //48
+                Reader.SeekTo(Address + 48);
             }
         }
 
         new internal class RawChunkA : bitm.RawChunkA
         {
-            internal RawChunkA(CacheFile Cache)
+            internal RawChunkA(CacheFile Cache, int Address)
             {
+                Cache.Reader.SeekTo(Address);
                 RawID = Cache.Reader.ReadInt32();
                 Cache.Reader.ReadInt32();
             }
@@ -146,8 +141,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new internal class RawChunkB : bitm.RawChunkB
         {
-            internal RawChunkB(CacheFile Cache)
+            internal RawChunkB(CacheFile Cache, int Address)
             {
+                Cache.Reader.SeekTo(Address);
                 RawID = Cache.Reader.ReadInt32();
                 Cache.Reader.ReadInt32();
             }

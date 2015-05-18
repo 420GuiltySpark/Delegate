@@ -1,0 +1,2 @@
+﻿Everything in this folder is a direct port from Composer with permission of the author, AMD of the Assembly team.
+I, the creator of Adjutant, had no part in nor take credit for any work done on Composer.

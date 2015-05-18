@@ -28,7 +28,7 @@
 			tagInfoHeaderCount2="24" 
 			tagInfoHeaderOffset2="28" />
 	</version>
-	<!--<version name="Halo3Beta">
+	<version name="Halo3Beta">
 		<header
 			fileSize="8" 
 			indexOffset="16" 
@@ -56,7 +56,7 @@
 			tagInfoHeaderOffset="20" 
 			tagInfoHeaderCount2="24" 
 			tagInfoHeaderOffset2="28" />
-	</version>-->
+	</version>
 	<version name="Halo4">
 		<header
 			fileSize="8" 
@@ -74,8 +74,9 @@
 			fileTableIndexOffset="704" 
 			virtualBaseAddress="760" 
 			rawTableOffset="1152" 
-			localeModifier="1160" 
-			rawTableSize="1176" />
+			localeModifier="1160"
+			rawTableSize="1176"
+			tagDataAddress="1180" />
 		<indexheader
 			tagClassCount="0" 
 			tagClassIndexOffset="4" 

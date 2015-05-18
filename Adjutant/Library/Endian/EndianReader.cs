@@ -259,5 +259,35 @@ namespace Adjutant.Library.Endian
             return str.Substring(0, str.IndexOf('\0'));
         }
         #endregion
+
+        public int ReadBlock(byte[] buffer, int offset, int size)
+        {
+            return BaseStream.Read(buffer, offset, size);
+        }
+
+        public void SeekTo(long offset)
+        {
+            BaseStream.Seek(offset, SeekOrigin.Begin);
+        }
+
+        public void Skip(long count)
+        {
+            BaseStream.Seek(count, SeekOrigin.Current);
+        }
+
+        public long Position
+        {
+            get { return BaseStream.Position; }
+        }
+
+        public long Length
+        {
+            get { return BaseStream.Length; }
+        }
+
+        public bool EOF
+        {
+            get { return Position >= Length; }
+        }
     }
 }

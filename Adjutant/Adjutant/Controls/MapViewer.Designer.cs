@@ -34,13 +34,15 @@
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tvTags = new System.Windows.Forms.TreeView();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.extractToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.extractAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.extractor1 = new Adjutant.Controls.Extractor();
+            this.extractAll2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -81,7 +83,7 @@
             this.splitContainer2.Panel1.Controls.Add(this.tvTags);
             this.splitContainer2.Panel1.Controls.Add(this.panel1);
             this.splitContainer2.Size = new System.Drawing.Size(1341, 544);
-            this.splitContainer2.SplitterDistance = 450;
+            this.splitContainer2.SplitterDistance = 415;
             this.splitContainer2.TabIndex = 0;
             // 
             // tvTags
@@ -95,30 +97,39 @@
             this.tvTags.Location = new System.Drawing.Point(0, 0);
             this.tvTags.Name = "tvTags";
             this.tvTags.SelectedImageIndex = 0;
-            this.tvTags.Size = new System.Drawing.Size(450, 523);
+            this.tvTags.Size = new System.Drawing.Size(415, 523);
             this.tvTags.TabIndex = 1;
             this.tvTags.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvTags_AfterSelect);
             // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.extractToolStripMenuItem,
+            this.extractSelectedToolStripMenuItem,
+            this.extractAllToolStripMenuItem,
+            this.extractAll2ToolStripMenuItem,
             this.copyToolStripMenuItem,
             this.refreshToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(133, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(157, 136);
             // 
-            // extractToolStripMenuItem
+            // extractSelectedToolStripMenuItem
             // 
-            this.extractToolStripMenuItem.Name = "extractToolStripMenuItem";
-            this.extractToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
-            this.extractToolStripMenuItem.Text = "Extract";
-            this.extractToolStripMenuItem.Click += new System.EventHandler(this.extractToolStripMenuItem_Click);
+            this.extractSelectedToolStripMenuItem.Name = "extractSelectedToolStripMenuItem";
+            this.extractSelectedToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.extractSelectedToolStripMenuItem.Text = "Extract Selected";
+            this.extractSelectedToolStripMenuItem.Click += new System.EventHandler(this.extractSelectedToolStripMenuItem_Click);
+            // 
+            // extractAllToolStripMenuItem
+            // 
+            this.extractAllToolStripMenuItem.Name = "extractAllToolStripMenuItem";
+            this.extractAllToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.extractAllToolStripMenuItem.Text = "Extract All";
+            this.extractAllToolStripMenuItem.Click += new System.EventHandler(this.extractAllToolStripMenuItem_Click);
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
@@ -126,7 +137,7 @@
             // 
             this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
             this.refreshToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
-            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.refreshToolStripMenuItem.Text = "Refresh";
             this.refreshToolStripMenuItem.Visible = false;
             this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
@@ -145,16 +156,15 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 523);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(450, 21);
+            this.panel1.Size = new System.Drawing.Size(415, 21);
             this.panel1.TabIndex = 2;
             // 
             // txtSearch
             // 
-            this.txtSearch.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.txtSearch.ForeColor = System.Drawing.Color.DimGray;
             this.txtSearch.Location = new System.Drawing.Point(0, -1);
             this.txtSearch.Name = "txtSearch";
-            this.txtSearch.Size = new System.Drawing.Size(448, 20);
+            this.txtSearch.Size = new System.Drawing.Size(425, 20);
             this.txtSearch.TabIndex = 0;
             this.txtSearch.Tag = "0";
             this.txtSearch.Text = "Search...";
@@ -170,6 +180,13 @@
             this.extractor1.Name = "extractor1";
             this.extractor1.Size = new System.Drawing.Size(1341, 110);
             this.extractor1.TabIndex = 0;
+            // 
+            // extractAll2ToolStripMenuItem
+            // 
+            this.extractAll2ToolStripMenuItem.Name = "extractAll2ToolStripMenuItem";
+            this.extractAll2ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.extractAll2ToolStripMenuItem.Text = "Extract All 2";
+            this.extractAll2ToolStripMenuItem.Click += new System.EventHandler(this.extractAll2ToolStripMenuItem_Click);
             // 
             // MapViewer
             // 
@@ -200,11 +217,13 @@
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.TreeView tvTags;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem extractToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem extractSelectedToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TextBox txtSearch;
+        private System.Windows.Forms.ToolStripMenuItem extractAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem extractAll2ToolStripMenuItem;
 
 
     }

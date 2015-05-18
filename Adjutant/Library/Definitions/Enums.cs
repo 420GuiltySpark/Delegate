@@ -13,7 +13,8 @@ namespace Adjutant.Library.Definitions
         Halo3ODST = 2,
         HaloReachBeta = 3,
         HaloReachRetail = 4,
-        Halo4Retail = 5
+        Halo4Beta = 5,
+        Halo4Retail = 6
     }
 
     public enum Language
@@ -32,50 +33,6 @@ namespace Adjutant.Library.Definitions
         Unknown1 = 11
     }
    
-    public enum VertexFormat
-    {
-        World = 0,
-        Rigid = 1,
-        Skinned = 2,
-        ParticleModel = 3,
-        FlatWorld = 4,
-        FlatRigid = 5,
-        FlatSkinned = 6,
-        Screen = 7,
-        Debug = 8,
-        Transparent = 9,
-        Particle = 10,
-        Contrail = 11,
-        LightVolume = 12,
-        ChudSimple = 13,
-        ChudFancy = 14,
-        Decorator = 15,
-        TinyPosition = 16,
-        PatchyFog = 17,
-        Water = 18,
-        Ripple = 19,
-        ImplicitType = 20,
-        Beam = 21,
-        WorldTesselated = 22,
-        RigidTesselated = 23,
-        SkinnedTesselated = 24,
-        ShaderCache = 25,
-        StructureInstanceImposter = 26,
-        ObjectImposter = 27,
-        RigidCompressed = 28,
-        SkinnedCompressed = 29,
-
-        H4_World                = 0x0100 + 00,
-        H4_Rigid                = 0x0100 + 01,
-        H4_Skinned              = 0x0100 + 02,
-        H4_Contrail             = 0x0100 + 11,
-        H4_Beam                 = 0x0100 + 21,
-        H4_RigidCompressed      = 0x0100 + 28,
-        H4_SkinnedCompressed    = 0x0100 + 29,
-        H4_RigidBoned           = 0x0100 + 47,
-        H4_RigidBoned2UV        = 0x0100 + 48,
-    }
-
     public enum TextureFormat
     {
         A8 = 0,
@@ -109,7 +66,7 @@ namespace Adjutant.Library.Definitions
         Unknown28 = 28,
         Unknown29 = 29,
         Unknown30 = 30,
-        Unknown31 = 31, //Some form of DXT5a
+        DXT5a = 31,
         Unknown32 = 32,
         DXN = 33, //Reach unused?
         CTX1 = 34, //Reach unused?
@@ -144,7 +101,7 @@ namespace Adjutant.Library.Definitions
     {
         Mono = 0,
         Stereo = 1,
-        Unknown2 = 2,
+        Unknown2 = 2, //2 and 3 probably surround stereo
         Unknown3 = 3
     }
 }

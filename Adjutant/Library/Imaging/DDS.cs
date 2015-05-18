@@ -6,6 +6,11 @@ using Adjutant.Library.Definitions;
 
 namespace Adjutant.Library.Imaging
 {
+    /***************************************************************
+     * The following code is derived from the HaloDeveloper project 
+     * created by Anthony and Xenomega. I take no credit for it.
+     ***************************************************************/
+
     [StructLayout(LayoutKind.Sequential)]
     public struct DDS
     {

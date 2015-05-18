@@ -10,13 +10,15 @@ namespace Adjutant.Library.Controls
         TIF = 0,
         DDS = 1,
         RAW = 2,
+        PNG64 = 3
     }
 
     public enum ModelFormat : byte
     {
         EMF = 0,
         OBJ = 1,
-        JMS = 2
+        AMF = 2,
+        JMS = 3,
     }
 
     public enum SoundFormat : byte

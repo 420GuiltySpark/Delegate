@@ -21,8 +21,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
             Reader.BaseStream.Position += 40; //56 (reach doesn't use predicted bitmaps)
 
-            PredictedBitmaps = new List<PredictedBitmap>();
-
             #region ShaderProperties Chunk
             long temp = Reader.BaseStream.Position;
             int pCount = Reader.ReadInt32();
@@ -82,7 +80,8 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
                     BitmapTagID = Reader.ReadInt32();
                     Type = Reader.ReadInt32();
-                    TilingIndex = Reader.ReadInt32();
+                    TilingIndex = Reader.ReadInt16();
+                    Reader.ReadInt16();
                 }
             }
 

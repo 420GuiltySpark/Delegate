@@ -124,9 +124,6 @@
   <data name="Builds" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Builds.xml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="Classes" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Classes.xml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="EMF3Importer" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EMF3Importer.mse;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -135,5 +132,11 @@
   </data>
   <data name="Versions" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Versions.xml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="VertexBuffer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\vertexbuffer.xml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="AMFImporter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\AMFImporter.mse;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

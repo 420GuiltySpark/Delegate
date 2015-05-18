@@ -8,14 +8,7 @@ namespace Adjutant.Library.Definitions
     public abstract class shader
     {
         public int BaseShaderTagID;
-        public List<PredictedBitmap> PredictedBitmaps;
         public List<ShaderProperties> Properties;
-
-        public abstract class PredictedBitmap
-        {
-            public string Type;
-            public int BitmapTagID;
-        }
 
         public abstract class ShaderProperties
         {

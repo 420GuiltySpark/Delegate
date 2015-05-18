@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.tvRegions = new System.Windows.Forms.TreeView();
@@ -37,6 +38,9 @@
             this.btnBDS = new System.Windows.Forms.Button();
             this.ehRenderer = new System.Windows.Forms.Integration.ElementHost();
             this.renderer1 = new Adjutant.Library.Controls.Renderer();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.selectPermutationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deselectPermutationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -45,6 +49,7 @@
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -63,8 +68,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.ehRenderer);
-            this.splitContainer1.Size = new System.Drawing.Size(674, 500);
-            this.splitContainer1.SplitterDistance = 170;
+            this.splitContainer1.Size = new System.Drawing.Size(750, 500);
+            this.splitContainer1.SplitterDistance = 200;
             this.splitContainer1.TabIndex = 0;
             // 
             // splitContainer2
@@ -87,7 +92,7 @@
             this.splitContainer2.Panel2.Controls.Add(this.btnSelAll);
             this.splitContainer2.Panel2.Controls.Add(this.btnBDS);
             this.splitContainer2.Panel2MinSize = 135;
-            this.splitContainer2.Size = new System.Drawing.Size(170, 500);
+            this.splitContainer2.Size = new System.Drawing.Size(200, 500);
             this.splitContainer2.SplitterDistance = 361;
             this.splitContainer2.TabIndex = 0;
             // 
@@ -97,15 +102,16 @@
             this.tvRegions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tvRegions.Location = new System.Drawing.Point(0, 0);
             this.tvRegions.Name = "tvRegions";
-            this.tvRegions.Size = new System.Drawing.Size(170, 361);
+            this.tvRegions.Size = new System.Drawing.Size(200, 361);
             this.tvRegions.TabIndex = 0;
             this.tvRegions.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvRegions_AfterCheck);
+            this.tvRegions.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvRegions_AfterSelect);
             // 
             // btnExportModel
             // 
-            this.btnExportModel.Location = new System.Drawing.Point(35, 99);
+            this.btnExportModel.Location = new System.Drawing.Point(45, 99);
             this.btnExportModel.Name = "btnExportModel";
-            this.btnExportModel.Size = new System.Drawing.Size(100, 23);
+            this.btnExportModel.Size = new System.Drawing.Size(110, 23);
             this.btnExportModel.TabIndex = 3;
             this.btnExportModel.Text = "Export Model";
             this.btnExportModel.UseVisualStyleBackColor = true;
@@ -113,9 +119,9 @@
             // 
             // btnSelNone
             // 
-            this.btnSelNone.Location = new System.Drawing.Point(35, 70);
+            this.btnSelNone.Location = new System.Drawing.Point(45, 70);
             this.btnSelNone.Name = "btnSelNone";
-            this.btnSelNone.Size = new System.Drawing.Size(100, 23);
+            this.btnSelNone.Size = new System.Drawing.Size(110, 23);
             this.btnSelNone.TabIndex = 2;
             this.btnSelNone.Text = "Select None";
             this.btnSelNone.UseVisualStyleBackColor = true;
@@ -123,9 +129,9 @@
             // 
             // btnSelAll
             // 
-            this.btnSelAll.Location = new System.Drawing.Point(35, 41);
+            this.btnSelAll.Location = new System.Drawing.Point(45, 41);
             this.btnSelAll.Name = "btnSelAll";
-            this.btnSelAll.Size = new System.Drawing.Size(100, 23);
+            this.btnSelAll.Size = new System.Drawing.Size(110, 23);
             this.btnSelAll.TabIndex = 1;
             this.btnSelAll.Text = "Select All";
             this.btnSelAll.UseVisualStyleBackColor = true;
@@ -133,9 +139,9 @@
             // 
             // btnBDS
             // 
-            this.btnBDS.Location = new System.Drawing.Point(35, 12);
+            this.btnBDS.Location = new System.Drawing.Point(45, 12);
             this.btnBDS.Name = "btnBDS";
-            this.btnBDS.Size = new System.Drawing.Size(100, 23);
+            this.btnBDS.Size = new System.Drawing.Size(110, 23);
             this.btnBDS.TabIndex = 0;
             this.btnBDS.Text = "Select B/D/S";
             this.btnBDS.UseVisualStyleBackColor = true;
@@ -148,10 +154,32 @@
             this.ehRenderer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ehRenderer.Location = new System.Drawing.Point(0, 0);
             this.ehRenderer.Name = "ehRenderer";
-            this.ehRenderer.Size = new System.Drawing.Size(500, 500);
+            this.ehRenderer.Size = new System.Drawing.Size(546, 500);
             this.ehRenderer.TabIndex = 0;
             this.ehRenderer.Text = "elementHost1";
             this.ehRenderer.Child = this.renderer1;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.selectPermutationToolStripMenuItem,
+            this.deselectPermutationToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(188, 48);
+            // 
+            // selectPermutationToolStripMenuItem
+            // 
+            this.selectPermutationToolStripMenuItem.Name = "selectPermutationToolStripMenuItem";
+            this.selectPermutationToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.selectPermutationToolStripMenuItem.Text = "Select Permutation";
+            this.selectPermutationToolStripMenuItem.Click += new System.EventHandler(this.selectPermutationToolStripMenuItem_Click);
+            // 
+            // deselectPermutationToolStripMenuItem
+            // 
+            this.deselectPermutationToolStripMenuItem.Name = "deselectPermutationToolStripMenuItem";
+            this.deselectPermutationToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.deselectPermutationToolStripMenuItem.Text = "Deselect Permutation";
+            this.deselectPermutationToolStripMenuItem.Click += new System.EventHandler(this.deselectPermutationToolStripMenuItem_Click);
             // 
             // ModelViewer
             // 
@@ -159,7 +187,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.splitContainer1);
             this.Name = "ModelViewer";
-            this.Size = new System.Drawing.Size(674, 500);
+            this.Size = new System.Drawing.Size(750, 500);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -168,6 +196,7 @@
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -183,5 +212,8 @@
         private System.Windows.Forms.Button btnBDS;
         private System.Windows.Forms.Integration.ElementHost ehRenderer;
         private Renderer renderer1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem selectPermutationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deselectPermutationToolStripMenuItem;
     }
 }

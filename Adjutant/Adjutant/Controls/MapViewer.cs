@@ -36,29 +36,21 @@ namespace Adjutant.Controls
 
             cache = new CacheFile(Filename);
 
-            //if (cache.Version == DefinitionSet.Halo4Retail && !settings.Reflex ||
-            //    cache.Version == DefinitionSet.Halo3Beta   && !settings.Reflex)
-            //{
-            //    cache = null;
-            //    throw new Exception();
-            //}
-            //else
-            //{
-                tv = new TagViewer(settings, extractor1);
+            tv = new TagViewer(settings, extractor1);
 
-                tvTags.Nodes.Clear();
+            tvTags.Nodes.Clear();
 
-                if (HierarchyMode)
-                    LoadHierarchy();
-                else
-                    LoadClasses();
-            //}
+            if (HierarchyMode)
+                LoadHierarchy();
+            else
+                LoadClasses();
         }
 
         public void ReloadMap(bool Hierarchy)
         {
             HierarchyMode = Hierarchy;
 
+            extractor1.CancelExtraction();
             tv = new TagViewer(settings, extractor1);
             tvTags.Nodes.Clear();
 
@@ -72,6 +64,7 @@ namespace Adjutant.Controls
         {
             if (cache == null) return;
 
+            extractor1.CancelExtraction();
             splitContainer2.Panel2.Controls.Clear();
             tv.Dispose();
             tvTags.Nodes.Clear();
@@ -342,7 +335,7 @@ namespace Adjutant.Controls
         #region Events
         private void tvTags_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            extractToolStripMenuItem.Visible = tvTags.SelectedNode.Nodes.Count > 0;
+            extractSelectedToolStripMenuItem.Visible = tvTags.SelectedNode.Nodes.Count > 0;
 
             if (tvTags.SelectedNode.Nodes.Count > 0) return;
 
@@ -358,7 +351,7 @@ namespace Adjutant.Controls
             tv.LoadTag(cache, tag);
         }
 
-        private void extractToolStripMenuItem_Click(object sender, EventArgs e)
+        private void extractSelectedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var dest = settings.dataFolder;
 
@@ -375,7 +368,57 @@ namespace Adjutant.Controls
                 dest = fbd.SelectedPath + "\\";
             }
 
-            extractor1.BeginExtraction(cache, tvTags.SelectedNode, settings, dest);
+            extractor1.BeginExtraction(cache, new List<TreeNode>() { tvTags.SelectedNode }, settings, dest, false);
+        }
+
+        private void extractAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dest = settings.dataFolder;
+
+            if (!settings.Flags.HasFlag(SettingsFlags.QuickExtract))
+            {
+                var fbd = new FolderBrowserDialog()
+                {
+                    Description = "Select your data folder",
+                    SelectedPath = dest
+                };
+
+                if (fbd.ShowDialog() != DialogResult.OK) return;
+
+                dest = fbd.SelectedPath + "\\";
+            }
+
+            var nodeList = new List<TreeNode>();
+
+            foreach (TreeNode node in tvTags.Nodes)
+                if (node.Nodes.Count > 0) nodeList.Add(node);
+
+            extractor1.BeginExtraction(cache, nodeList, settings, dest, false);
+        }
+
+        private void extractAll2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dest = settings.dataFolder;
+
+            if (!settings.Flags.HasFlag(SettingsFlags.QuickExtract))
+            {
+                var fbd = new FolderBrowserDialog()
+                {
+                    Description = "Select your data folder",
+                    SelectedPath = dest
+                };
+
+                if (fbd.ShowDialog() != DialogResult.OK) return;
+
+                dest = fbd.SelectedPath + "\\";
+            }
+
+            var nodeList = new List<TreeNode>();
+
+            foreach (TreeNode node in tvTags.Nodes)
+                if (node.Nodes.Count > 0) nodeList.Add(node);
+
+            extractor1.BeginExtraction(cache, nodeList, settings, dest, true);
         }
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)

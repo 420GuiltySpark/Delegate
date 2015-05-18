@@ -6,80 +6,93 @@ using Adjutant.Library;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Endian;
 using Adjutant.Library.DataTypes;
-using Adjutant.Library.DataTypes.Space;
 using mode = Adjutant.Library.Definitions.render_model;
 
 namespace Adjutant.Library.Definitions.Halo4Retail
 {
     internal class render_model : mode
     {
-        internal render_model(CacheFile Cache)
+        internal render_model(CacheFile Cache, int Offset)
         {
             EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Offset);
 
             Name = Cache.Strings.GetItemByID(Reader.ReadInt32());
+            Flags = new Bitmask(Reader.ReadInt32());
 
-            Reader.BaseStream.Position += 8; //12
+            Reader.BaseStream.Position += 4; //12
 
             #region Regions Block
             long temp = Reader.BaseStream.Position;
-            int rCount = Reader.ReadInt32();
-            int rOffset = Reader.ReadInt32() - Cache.Magic;
+            int iCount = Reader.ReadInt32();
+            int iOffset = Reader.ReadInt32() - Cache.Magic;
             Regions = new List<mode.Region>();
-            Reader.BaseStream.Position = rOffset;
-            for (int i = 0; i < rCount; i++)
+            Reader.BaseStream.Position = iOffset;
+            for (int i = 0; i < iCount; i++)
                 Regions.Add(new Region(Cache));
             Reader.BaseStream.Position = temp + 12;
             #endregion
 
             Reader.ReadInt32();
-            ExtrasIndex = Reader.ReadInt32();
+            InstancedGeometryIndex = Reader.ReadInt32();
+
+            #region Instanced Geometry Block
+            temp = Reader.BaseStream.Position;
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
+            GeomInstances = new List<mode.InstancedGeometry>();
+            Reader.BaseStream.Position = iOffset;
+            for (int i = 0; i < iCount; i++)
+                GeomInstances.Add(new InstancedGeometry(Cache));
+            Reader.BaseStream.Position = temp + 12;
+            #endregion
             
-            Reader.BaseStream.Position += 16; //48
+            Reader.BaseStream.Position += 4; //48
 
             #region Nodes Block
             temp = Reader.BaseStream.Position;
-            int nCount = Reader.ReadInt32();
-            int nOffset = Reader.ReadInt32() - Cache.Magic;
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             Nodes = new List<mode.Node>();
-            Reader.BaseStream.Position = nOffset;
-            for (int i = 0; i < nCount; i++)
+            Reader.BaseStream.Position = iOffset;
+            for (int i = 0; i < iCount; i++)
                 Nodes.Add(new Node(Cache));
             Reader.BaseStream.Position = temp + 12;
             #endregion
 
             #region MarkerGroups Block
             temp = Reader.BaseStream.Position;
-            int mCount = Reader.ReadInt32();
-            int mOffset = Reader.ReadInt32() - Cache.Magic;
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             MarkerGroups = new List<mode.MarkerGroup>();
-            Reader.BaseStream.Position = mOffset;
-            for (int i = 0; i < mCount; i++)
+            Reader.BaseStream.Position = iOffset;
+            for (int i = 0; i < iCount; i++)
                 MarkerGroups.Add(new MarkerGroup(Cache));
             Reader.BaseStream.Position = temp + 12;
             #endregion
 
             #region Shaders Block
             temp = Reader.BaseStream.Position;
-            int sCount = Reader.ReadInt32();
-            int sOffset = Reader.ReadInt32() - Cache.Magic;
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             Shaders = new List<mode.Shader>();
-            Reader.BaseStream.Position = sOffset;
-            for (int i = 0; i < sCount; i++)
+            Reader.BaseStream.Position = iOffset;
+            for (int i = 0; i < iCount; i++)
                 Shaders.Add(new Shader(Cache));
             Reader.BaseStream.Position = temp + 12;
             #endregion
 
             Reader.BaseStream.Position += 20; //104
+            if (Cache.Version != DefinitionSet.Halo4Retail) Reader.BaseStream.Position += 208;
 
             #region ModelParts Block
             temp = Reader.BaseStream.Position;
-            int pCount = Reader.ReadInt32();
-            int pOffset = Reader.ReadInt32() - Cache.Magic;
-            ModelParts = new List<mode.ModelPart>();
-            Reader.BaseStream.Position = pOffset;
-            for (int i = 0; i < pCount; i++)
-                ModelParts.Add(new ModelPart(Cache));
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
+            ModelSections = new List<mode.ModelSection>();
+            Reader.BaseStream.Position = iOffset;
+            for (int i = 0; i < iCount; i++)
+                ModelSections.Add(new ModelSection(Cache, iOffset + 112 * i));
             Reader.BaseStream.Position = temp + 12;
             #endregion
 
@@ -87,16 +100,30 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 
             #region BoundingBox Block
             temp = Reader.BaseStream.Position;
-            int bCount = Reader.ReadInt32();
-            int bOffset = Reader.ReadInt32() - Cache.Magic;
-            BoundingBoxs = new List<mode.BoundingBox>();
-            Reader.BaseStream.Position = bOffset;
-            for (int i = 0; i < bCount; i++)
-                BoundingBoxs.Add(new BoundingBox(Cache));
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
+            BoundingBoxes = new List<mode.BoundingBox>();
+            Reader.BaseStream.Position = iOffset;
+            for (int i = 0; i < iCount; i++)
+                BoundingBoxes.Add(new BoundingBox(Cache, iOffset + 52 * i));
             Reader.BaseStream.Position = temp + 12;
             #endregion
 
-            Reader.BaseStream.Position += 108; //248
+            Reader.BaseStream.Position += 48; //188
+
+            #region NodeMapGroup Block
+            temp = Reader.BaseStream.Position;
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
+            NodeIndexGroups = new List<mode.NodeIndexGroup>();
+            Reader.BaseStream.Position = iOffset;
+            for (int i = 0; i < iCount; i++)
+                NodeIndexGroups.Add(new NodeIndexGroup(Cache));
+            Reader.BaseStream.Position = temp + 12;
+            #endregion
+
+            Reader.BaseStream.Position += 48; //248
+            if (Cache.Version != DefinitionSet.Halo4Retail) Reader.BaseStream.Position -= 12;
             
             RawID = Reader.ReadInt32();
             
@@ -129,9 +156,41 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 
                     Name = Cache.Strings.GetItemByID(Reader.ReadInt32());
                     PieceIndex = Reader.ReadInt16();
+                    PieceCount = Reader.ReadInt16();
                     
-                    Reader.BaseStream.Position += 22; //28
+                    Reader.BaseStream.Position += 20; //28
                 }
+            }
+        }
+
+        new internal class InstancedGeometry : mode.InstancedGeometry
+        {
+            internal InstancedGeometry(CacheFile Cache)
+            {
+                EndianReader Reader = Cache.Reader;
+
+                Name = Cache.Strings.GetItemByID(Reader.ReadInt32());
+                NodeIndex = Reader.ReadInt32();
+
+                TransformScale = Reader.ReadSingle();
+
+                TransformMatrix = new Matrix();
+
+                TransformMatrix.m11 = Reader.ReadSingle();
+                TransformMatrix.m12 = Reader.ReadSingle();
+                TransformMatrix.m13 = Reader.ReadSingle();
+
+                TransformMatrix.m21 = Reader.ReadSingle();
+                TransformMatrix.m22 = Reader.ReadSingle();
+                TransformMatrix.m23 = Reader.ReadSingle();
+
+                TransformMatrix.m31 = Reader.ReadSingle();
+                TransformMatrix.m32 = Reader.ReadSingle();
+                TransformMatrix.m33 = Reader.ReadSingle();
+
+                TransformMatrix.m41 = Reader.ReadSingle();
+                TransformMatrix.m42 = Reader.ReadSingle();
+                TransformMatrix.m43 = Reader.ReadSingle();
             }
         }
 
@@ -146,32 +205,36 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 FirstChildIndex = Reader.ReadInt16();
                 NextSiblingIndex = Reader.ReadInt16();
                 Reader.ReadInt16();
-                Position = new RealPoint3D(
+                Position = new RealQuat(
                     Reader.ReadSingle(), 
                     Reader.ReadSingle(),
                     Reader.ReadSingle());
-                Rotation = new RealVector4D(
+                Rotation = new RealQuat(
                     Reader.ReadSingle(),
                     Reader.ReadSingle(),
                     Reader.ReadSingle(),
                     Reader.ReadSingle());
-                Scale = Reader.ReadSingle();
-                SkewX = new RealVector3D(
-                    Reader.ReadSingle(),
-                    Reader.ReadSingle(),
-                    Reader.ReadSingle());
-                SkewY = new RealVector3D(
-                    Reader.ReadSingle(),
-                    Reader.ReadSingle(),
-                    Reader.ReadSingle());
-                SkewZ = new RealVector3D(
-                    Reader.ReadSingle(),
-                    Reader.ReadSingle(),
-                    Reader.ReadSingle());
-                Center = new RealPoint3D(
-                    Reader.ReadSingle(),
-                    Reader.ReadSingle(),
-                    Reader.ReadSingle());
+
+                TransformScale = Reader.ReadSingle();
+
+                TransformMatrix = new Matrix();
+
+                TransformMatrix.m11 = Reader.ReadSingle();
+                TransformMatrix.m12 = Reader.ReadSingle();
+                TransformMatrix.m13 = Reader.ReadSingle();
+
+                TransformMatrix.m21 = Reader.ReadSingle();
+                TransformMatrix.m22 = Reader.ReadSingle();
+                TransformMatrix.m23 = Reader.ReadSingle();
+
+                TransformMatrix.m31 = Reader.ReadSingle();
+                TransformMatrix.m32 = Reader.ReadSingle();
+                TransformMatrix.m33 = Reader.ReadSingle();
+
+                TransformMatrix.m41 = Reader.ReadSingle();
+                TransformMatrix.m42 = Reader.ReadSingle();
+                TransformMatrix.m43 = Reader.ReadSingle();
+
                 DistanceFromParent = Reader.ReadSingle();
 
                 Reader.BaseStream.Position += 16; //112
@@ -206,11 +269,11 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                     PermutationIndex = Reader.ReadByte();
                     NodeIndex = Reader.ReadByte();
                     Reader.ReadByte();
-                    Position = new RealPoint3D(
+                    Position = new RealQuat(
                         Reader.ReadSingle(),
                         Reader.ReadSingle(),
                         Reader.ReadSingle());
-                    Rotation = new RealVector4D(
+                    Rotation = new RealQuat(
                         Reader.ReadSingle(),
                         Reader.ReadSingle(),
                         Reader.ReadSingle(),
@@ -236,18 +299,19 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             }
         }
 
-        new internal class ModelPart : mode.ModelPart
+        new internal class ModelSection : mode.ModelSection
         {
-            internal ModelPart(CacheFile Cache)
+            internal ModelSection(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
+                Reader.SeekTo(Address);
 
                 #region Submesh Block
                 long temp = Reader.BaseStream.Position;
                 int sCount = Reader.ReadInt32();
                 int sOffset = Reader.ReadInt32() - Cache.Magic;
                 Reader.BaseStream.Position = sOffset;
-                Submeshes = new List<mode.ModelPart.Submesh>();
+                Submeshes = new List<mode.ModelSection.Submesh>();
                 for (int i = 0; i < sCount; i++)
                     Submeshes.Add(new Submesh(Cache));
                 Reader.BaseStream.Position = temp + 12;
@@ -258,33 +322,34 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 sCount = Reader.ReadInt32();
                 sOffset = Reader.ReadInt32() - Cache.Magic;
                 Reader.BaseStream.Position = sOffset;
-                Subsets = new List<mode.ModelPart.Subset>();
+                Subsets = new List<mode.ModelSection.Subset>();
                 for (int i = 0; i < sCount; i++)
                     Subsets.Add(new Subset(Cache));
                 Reader.BaseStream.Position = temp + 12;
                 #endregion
 
                 #region Other
-                Reader.BaseStream.Position += 8; //32
+                VertsIndex = Reader.ReadInt16();
+                Reader.BaseStream.Position += 6; //32
 
-                RawID = Reader.ReadInt32();
+                Reader.ReadInt32();
 
-                Reader.BaseStream.Position += 7; //43
+                Reader.BaseStream.Position += 6; //42
 
-                ValidPartIndex = Reader.ReadByte();
+                FacesIndex = Reader.ReadInt16();
 
                 Reader.BaseStream.Position += 3; //47
 
                 TransparentNodesPerVertex = Reader.ReadByte();
                 NodeIndex = Reader.ReadByte();
-                VertexFormat = (VertexFormat)(0x0100 + Reader.ReadByte());
+                VertexFormat = Reader.ReadByte();
                 OpaqueNodesPerVertex = Reader.ReadByte();
 
                 Reader.BaseStream.Position += 61; //112
                 #endregion
             }
 
-            new internal class Submesh : mode.ModelPart.Submesh
+            new internal class Submesh : mode.ModelSection.Submesh
             {
                 internal Submesh(CacheFile Cache)
                 {
@@ -303,10 +368,8 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 }
             }
 
-            new internal class Subset : mode.ModelPart.Subset
+            new internal class Subset : mode.ModelSection.Subset
             {
-                public float FaceType;
-
                 internal Subset(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
@@ -315,16 +378,17 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                     FaceCount = Reader.ReadInt32();
                     SubmeshIndex = Reader.ReadUInt16();
                     VertexCount = Reader.ReadUInt16();
-                    FaceType = Reader.ReadSingle();
+                    Reader.ReadSingle();
                 }
             }
         }
 
         new internal class BoundingBox : mode.BoundingBox
         {
-            internal BoundingBox(CacheFile Cache)
+            internal BoundingBox(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
+                Reader.SeekTo(Address);
 
                 Reader.ReadInt32();
                 XBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
@@ -336,5 +400,33 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 Reader.BaseStream.Position += 8; //54
             }
         }
+
+        new internal class NodeIndexGroup : mode.NodeIndexGroup
+        {
+            internal NodeIndexGroup(CacheFile Cache)
+            {
+                EndianReader Reader = Cache.Reader;
+
+                long temp = Reader.BaseStream.Position;
+                int nmCount = Reader.ReadInt32();
+                int nmOffset = Reader.ReadInt32() - Cache.Magic;
+                Reader.BaseStream.Position = nmOffset;
+                NodeIndices = new List<mode.NodeIndexGroup.NodeIndex>();
+                for (int i = 0; i < nmCount; i++)
+                    NodeIndices.Add(new NodeIndex(Cache));
+                Reader.BaseStream.Position = temp + 12;
+            }
+
+            new internal class NodeIndex : mode.NodeIndexGroup.NodeIndex
+            {
+                internal NodeIndex(CacheFile Cache)
+                {
+                    EndianReader Reader = Cache.Reader;
+
+                    Index = Reader.ReadByte();
+                }
+            }
+        }
+
     }
 }

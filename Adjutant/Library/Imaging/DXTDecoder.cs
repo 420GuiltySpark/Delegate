@@ -9,8 +9,22 @@ using Adjutant.Library.Definitions;
 
 namespace Adjutant.Library.Imaging
 {
+    /***************************************************************
+     * The following code is derived from the HaloDeveloper project
+     * created by Anthony and Xenomega. I take no credit for it.
+     * 
+     * The following are exceptions:
+     *     -DecodeDXNMA
+     *     -DecodeDXT3A
+     *     -DecodeDXT5A
+     *     -DecodeCubeMap
+     *     
+     * Many edits and additons have been made to the derived code.
+     ***************************************************************/
+    
     public static class DXTDecoder
     {
+
         public static byte[] ConvertFromLinearTexture(byte[] data, int width, int height, TextureFormat texture)
         {
             return ModifyLinearTexture(data, width, height, texture, false);
@@ -166,83 +180,83 @@ namespace Adjutant.Library.Imaging
 
             for (int i = 0; i < (width * height); i += 16)
             {
-                byte xMin = data[i + 1];
-                byte xMax = data[i];
-                byte[] xIndices = new byte[16];
+                byte rMin = data[i + 1];
+                byte rMax = data[i];
+                byte[] rIndices = new byte[16];
                 int temp = ((data[i + 5] << 16) | (data[i + 2] << 8)) | data[i + 3];
                 int indices = 0;
                 while (indices < 8)
                 {
-                    xIndices[indices] = (byte)(temp & 7);
+                    rIndices[indices] = (byte)(temp & 7);
                     temp = temp >> 3;
                     indices++;
                 }
                 temp = ((data[i + 6] << 16) | (data[i + 7] << 8)) | data[i + 4];
                 while (indices < 16)
                 {
-                    xIndices[indices] = (byte)(temp & 7);
+                    rIndices[indices] = (byte)(temp & 7);
                     temp = temp >> 3;
                     indices++;
                 }
-                byte yMin = data[i + 9];
-                byte yMax = data[i + 8];
-                byte[] yIndices = new byte[16];
+                byte gMin = data[i + 9];
+                byte gMax = data[i + 8];
+                byte[] gIndices = new byte[16];
                 temp = ((data[i + 13] << 16) | (data[i + 10] << 8)) | data[i + 11];
                 indices = 0;
                 while (indices < 8)
                 {
-                    yIndices[indices] = (byte)(temp & 7);
+                    gIndices[indices] = (byte)(temp & 7);
                     temp = temp >> 3;
                     indices++;
                 }
                 temp = ((data[i + 14] << 16) | (data[i + 15] << 8)) | data[i + 12];
                 while (indices < 16)
                 {
-                    yIndices[indices] = (byte)(temp & 7);
+                    gIndices[indices] = (byte)(temp & 7);
                     temp = temp >> 3;
                     indices++;
                 }
-                byte[] xTable = new byte[8];
-                xTable[0] = xMin;
-                xTable[1] = xMax;
-                if (xTable[0] > xTable[1])
+                byte[] redTable = new byte[8];
+                redTable[0] = rMin;
+                redTable[1] = rMax;
+                if (redTable[0] > redTable[1])
                 {
-                    xTable[2] = (byte)(((xMax - xMin) * 0.1428571f) + xMin);
-                    xTable[3] = (byte)(((xMax - xMin) * 0.2857143f) + xMin);
-                    xTable[4] = (byte)(((xMax - xMin) * 0.4285714f) + xMin);
-                    xTable[5] = (byte)(((xMax - xMin) * 0.5714286f) + xMin);
-                    xTable[6] = (byte)(((xMax - xMin) * 0.7142857f) + xMin);
-                    xTable[7] = (byte)(((xMax - xMin) * 0.8571429f) + xMin);
+                    redTable[2] = (byte)((6 * redTable[0] + 1 * redTable[1]) / 7.0f);
+                    redTable[3] = (byte)((5 * redTable[0] + 2 * redTable[1]) / 7.0f);
+                    redTable[4] = (byte)((4 * redTable[0] + 3 * redTable[1]) / 7.0f);
+                    redTable[5] = (byte)((3 * redTable[0] + 4 * redTable[1]) / 7.0f);
+                    redTable[6] = (byte)((2 * redTable[0] + 5 * redTable[1]) / 7.0f);
+                    redTable[7] = (byte)((1 * redTable[0] + 6 * redTable[1]) / 7.0f);
                 }
                 else
                 {
-                    xTable[2] = (byte)(((xMax - xMin) * 0.2f) + xMin);
-                    xTable[3] = (byte)(((xMax - xMin) * 0.4f) + xMin);
-                    xTable[4] = (byte)(((xMax - xMin) * 0.6f) + xMin);
-                    xTable[5] = (byte)(((xMax - xMin) * 0.8f) + xMin);
-                    xTable[6] = xMin;
-                    xTable[7] = xMax;
+                    redTable[2] = (byte)((4 * redTable[0] + 1 * redTable[1]) / 5.0f);
+                    redTable[3] = (byte)((3 * redTable[0] + 2 * redTable[1]) / 5.0f);
+                    redTable[4] = (byte)((2 * redTable[0] + 3 * redTable[1]) / 5.0f);
+                    redTable[5] = (byte)((1 * redTable[0] + 4 * redTable[1]) / 5.0f);
+                    redTable[6] = (byte)0;
+                    redTable[7] = (byte)255;
                 }
-                byte[] yTable = new byte[8];
-                yTable[0] = yMin;
-                yTable[1] = yMax;
-                if (yTable[0] > yTable[1])
+                byte[] grnTable = new byte[8];
+                grnTable[0] = gMin;
+                grnTable[1] = gMax;
+                if (grnTable[0] > grnTable[1])
                 {
-                    yTable[2] = (byte)(((yMax - yMin) * 0.1428571f) + yMin);
-                    yTable[3] = (byte)(((yMax - yMin) * 0.2857143f) + yMin);
-                    yTable[4] = (byte)(((yMax - yMin) * 0.4285714f) + yMin);
-                    yTable[5] = (byte)(((yMax - yMin) * 0.5714286f) + yMin);
-                    yTable[6] = (byte)(((yMax - yMin) * 0.7142857f) + yMin);
-                    yTable[7] = (byte)(((yMax - yMin) * 0.8571429f) + yMin);
+                    grnTable[2] = (byte)((6 * grnTable[0] + 1 * grnTable[1]) / 7.0f);
+                    grnTable[3] = (byte)((5 * grnTable[0] + 2 * grnTable[1]) / 7.0f);
+                    grnTable[4] = (byte)((4 * grnTable[0] + 3 * grnTable[1]) / 7.0f);
+                    grnTable[5] = (byte)((3 * grnTable[0] + 4 * grnTable[1]) / 7.0f);
+                    grnTable[6] = (byte)((2 * grnTable[0] + 5 * grnTable[1]) / 7.0f);
+                    grnTable[7] = (byte)((1 * grnTable[0] + 6 * grnTable[1]) / 7.0f);
                 }
                 else
                 {
-                    yTable[2] = (byte)(((yMax - yMin) * 0.2f) + yMin);
-                    yTable[3] = (byte)(((yMax - yMin) * 0.4f) + yMin);
-                    yTable[4] = (byte)(((yMax - yMin) * 0.6f) + yMin);
-                    yTable[5] = (byte)(((yMax - yMin) * 0.8f) + yMin);
-                    yTable[6] = yMin;
-                    yTable[7] = yMax;
+                    grnTable[2] = (byte)((4 * grnTable[0] + 1 * grnTable[1]) / 5.0f);
+                    grnTable[3] = (byte)((3 * grnTable[0] + 2 * grnTable[1]) / 5.0f);
+                    grnTable[4] = (byte)((2 * grnTable[0] + 3 * grnTable[1]) / 5.0f);
+                    grnTable[5] = (byte)((1 * grnTable[0] + 4 * grnTable[1]) / 5.0f);
+                    grnTable[6] = (byte)0;
+                    grnTable[7] = (byte)255;
                 }
                 int chunkNum = i / 16;
                 int xPos = chunkNum % chunks;
@@ -254,147 +268,17 @@ namespace Adjutant.Library.Imaging
                     for (int k = 0; k < sizew; k++)
                     {
                         RGBAColor color;
-                        color.R = xTable[xIndices[(j * sizeh) + k]];
-                        color.G = yTable[yIndices[(j * sizeh) + k]];
+                        color.R = redTable[rIndices[(j * sizeh) + k]];
+                        color.G = grnTable[gIndices[(j * sizeh) + k]];
                         float x = ((((float)color.R) / 255f) * 2f) - 1f;
                         float y = ((((float)color.G) / 255f) * 2f) - 1f;
-                        float z = (float)Math.Sqrt((double)Math.Max(0f, Math.Min((float)1f, (float)((1f - (x * x)) - (y * y)))));
+                        float z = (float)Math.Sqrt((double)Math.Max(0f, Math.Min(1f, (1f - (x * x)) - (y * y))));
                         color.B = (byte)(((z + 1f) / 2f) * 255f);
                         color.A = 0xFF;
                         temp = (((((yPos * 4) + j) * width) + (xPos * 4)) + k) * 4;
                         buffer[temp] = (byte)color.B;
                         buffer[temp + 1] = (byte)color.G;
                         buffer[temp + 2] = (byte)color.R;
-                        buffer[temp + 3] = (byte)color.A;
-                    }
-                }
-            }
-            return buffer;
-        }
-
-        private static byte[] DecodeDXT3A(byte[] data, int width, int height)
-        {
-            byte[] buffer = new byte[(width * height) * 4];
-            int xBlocks = width / 4;
-            int yBlocks = height / 4;
-            for (int y = 0; y < yBlocks; y++)
-            {
-                for (int x = 0; x < xBlocks; x++)
-                {
-                    int i;
-                    int blockDataStart = ((y * xBlocks) + x) * 8;
-                    ushort[] alphaData = new ushort[] { 
-                        (ushort)((data[blockDataStart + 0] << 8) + data[blockDataStart + 1]), 
-                        (ushort)((data[blockDataStart + 2] << 8) + data[blockDataStart + 3]), 
-                        (ushort)((data[blockDataStart + 4] << 8) + data[blockDataStart + 5]), 
-                        (ushort)((data[blockDataStart + 6] << 8) + data[blockDataStart + 7]) };
-                    byte[,] alpha = new byte[4, 4];
-                    int j = 0;
-                    while (j < 4)
-                    {
-                        i = 0;
-                        while (i < 4)
-                        {
-                            alpha[i, j] = (byte)((alphaData[j] & 15) * 16);
-                            alphaData[j] = (ushort)(alphaData[j] >> 4);
-                            i++;
-                        }
-                        j++;
-                    }
-                    uint code = BitConverter.ToUInt32(data, blockDataStart);
-                    for (int k = 0; k < 4; k++)
-                    {
-                        j = k ^ 1;
-                        for (i = 0; i < 4; i++)
-                        {
-                            int pixDataStart = ((width * ((y * 4) + j)) * 4) + (((x * 4) + i) * 4);
-
-                            buffer[pixDataStart] = alpha[i, j];
-                            buffer[pixDataStart + 1] = alpha[i, j];
-                            buffer[pixDataStart + 2] = alpha[i, j];
-
-                            //buffer[pixDataStart + 3] = (type == AType.alpha) ? alpha[i, j] : 0xFF
-                            buffer[pixDataStart + 3] = alpha[i, j];
-
-                            code = code >> 2;
-                        }
-                    }
-                }
-            }
-            return buffer;
-        }
-
-        private static byte[] DecodeDXT5A(byte[] data, int width, int height)
-        {
-            byte[] buffer = new byte[height * width * 4];
-
-            int chunks = width / 4;
-            if (chunks == 0)
-                chunks = 1;
-
-            for (int i = 0; i < (width * height / 2); i += 8)
-            {
-                byte zMin = data[i + 1];
-                byte zMax = data[i];
-                byte[] zIndices = new byte[16];
-                int temp = ((data[i + 5] << 16) | (data[i + 2] << 8)) | data[i + 3];
-
-                int indices = 0;
-                while (indices < 8)
-                {
-                    zIndices[indices] = (byte)(temp & 7);
-                    temp = temp >> 3;
-                    indices++;
-                }
-
-                temp = ((data[i + 6] << 16) | (data[i + 7] << 8)) | data[i + 4];
-                while (indices < 16)
-                {
-                    zIndices[indices] = (byte)(temp & 7);
-                    temp = temp >> 3;
-                    indices++;
-                }
-
-                byte[] zTable = new byte[8];
-                zTable[0] = zMin;
-                zTable[1] = zMax;
-                if (zTable[0] > zTable[1])
-                {
-                    zTable[2] = (byte)(((zMax - zMin) * 0.1428571f) + zMin);
-                    zTable[3] = (byte)(((zMax - zMin) * 0.2857143f) + zMin);
-                    zTable[4] = (byte)(((zMax - zMin) * 0.4285714f) + zMin);
-                    zTable[5] = (byte)(((zMax - zMin) * 0.5714286f) + zMin);
-                    zTable[6] = (byte)(((zMax - zMin) * 0.7142857f) + zMin);
-                    zTable[7] = (byte)(((zMax - zMin) * 0.8571429f) + zMin);
-                }
-                else
-                {
-                    zTable[2] = (byte)(((zMax - zMin) * 0.2f) + zMin);
-                    zTable[3] = (byte)(((zMax - zMin) * 0.4f) + zMin);
-                    zTable[4] = (byte)(((zMax - zMin) * 0.6f) + zMin);
-                    zTable[5] = (byte)(((zMax - zMin) * 0.8f) + zMin);
-                    zTable[6] = 0;
-                    zTable[7] = 255;
-                }
-
-                int chunkNum = i / 8;
-                int xPos = chunkNum % chunks;
-                int yPos = (chunkNum - xPos) / chunks;
-                int sizeh = (height < 4) ? height : 4;
-                int sizew = (width < 4) ? width : 4;
-
-                for (int j = 0; j < sizeh; j++)
-                {
-                    for (int k = 0; k < sizew; k++)
-                    {
-                        RGBAColor color;
-                        color.R = color.G = color.B = color.A = zTable[zIndices[(j * sizeh) + k]];
-                        temp = (((((yPos * 4) + j) * width) + (xPos * 4)) + k) * 4;
-                        buffer[temp] = (byte)color.B;
-                        buffer[temp + 1] = (byte)color.G;
-                        buffer[temp + 2] = (byte)color.R;
-
-                        //buffer[temp + 3] = (type == AType.alpha) ? (byte)color.A : 0xFF;
                         buffer[temp + 3] = (byte)color.A;
                     }
                 }
@@ -412,83 +296,83 @@ namespace Adjutant.Library.Imaging
 
             for (int i = 0; i < (width * height); i += 16)
             {
-                byte xMin = data[i + 1];
-                byte xMax = data[i];
-                byte[] xIndices = new byte[16];
+                byte mMin = data[i + 1];
+                byte mMax = data[i];
+                byte[] mIndices = new byte[16];
                 int temp = ((data[i + 5] << 0x10) | (data[i + 2] << 8)) | data[i + 3];
                 int indices = 0;
                 while (indices < 8)
                 {
-                    xIndices[indices] = (byte)(temp & 7);
+                    mIndices[indices] = (byte)(temp & 7);
                     temp = temp >> 3;
                     indices++;
                 }
                 temp = ((data[i + 6] << 0x10) | (data[i + 7] << 8)) | data[i + 4];
                 while (indices < 16)
                 {
-                    xIndices[indices] = (byte)(temp & 7);
+                    mIndices[indices] = (byte)(temp & 7);
                     temp = temp >> 3;
                     indices++;
                 }
-                byte yMin = data[i + 9];
-                byte yMax = data[i + 8];
-                byte[] yIndices = new byte[16];
+                byte aMin = data[i + 9];
+                byte aMax = data[i + 8];
+                byte[] aIndices = new byte[16];
                 temp = ((data[i + 13] << 0x10) | (data[i + 10] << 8)) | data[i + 11];
                 indices = 0;
                 while (indices < 8)
                 {
-                    yIndices[indices] = (byte)(temp & 7);
+                    aIndices[indices] = (byte)(temp & 7);
                     temp = temp >> 3;
                     indices++;
                 }
                 temp = ((data[i + 14] << 0x10) | (data[i + 15] << 8)) | data[i + 12];
                 while (indices < 16)
                 {
-                    yIndices[indices] = (byte)(temp & 7);
+                    aIndices[indices] = (byte)(temp & 7);
                     temp = temp >> 3;
                     indices++;
                 }
-                byte[] xTable = new byte[8];
-                xTable[0] = xMin;
-                xTable[1] = xMax;
-                if (xTable[0] > xTable[1])
+                byte[] monoTable = new byte[8];
+                monoTable[0] = mMin;
+                monoTable[1] = mMax;
+                if (monoTable[0] > monoTable[1])
                 {
-                    xTable[2] = (byte)(((xMax - xMin) * 0.1428571f) + xMin);
-                    xTable[3] = (byte)(((xMax - xMin) * 0.2857143f) + xMin);
-                    xTable[4] = (byte)(((xMax - xMin) * 0.4285714f) + xMin);
-                    xTable[5] = (byte)(((xMax - xMin) * 0.5714286f) + xMin);
-                    xTable[6] = (byte)(((xMax - xMin) * 0.7142857f) + xMin);
-                    xTable[7] = (byte)(((xMax - xMin) * 0.8571429f) + xMin);
+                    monoTable[2] = (byte)((6 * monoTable[0] + 1 * monoTable[1]) / 7.0f);
+                    monoTable[3] = (byte)((5 * monoTable[0] + 2 * monoTable[1]) / 7.0f);
+                    monoTable[4] = (byte)((4 * monoTable[0] + 3 * monoTable[1]) / 7.0f);
+                    monoTable[5] = (byte)((3 * monoTable[0] + 4 * monoTable[1]) / 7.0f);
+                    monoTable[6] = (byte)((2 * monoTable[0] + 5 * monoTable[1]) / 7.0f);
+                    monoTable[7] = (byte)((1 * monoTable[0] + 6 * monoTable[1]) / 7.0f);
                 }
                 else
                 {
-                    xTable[2] = (byte)(((xMax - xMin) * 0.2f) + xMin);
-                    xTable[3] = (byte)(((xMax - xMin) * 0.4f) + xMin);
-                    xTable[4] = (byte)(((xMax - xMin) * 0.6f) + xMin);
-                    xTable[5] = (byte)(((xMax - xMin) * 0.8f) + xMin);
-                    xTable[6] = xMin;
-                    xTable[7] = xMax;
+                    monoTable[2] = (byte)((4 * monoTable[0] + 1 * monoTable[1]) / 5.0f);
+                    monoTable[3] = (byte)((3 * monoTable[0] + 2 * monoTable[1]) / 5.0f);
+                    monoTable[4] = (byte)((2 * monoTable[0] + 3 * monoTable[1]) / 5.0f);
+                    monoTable[5] = (byte)((1 * monoTable[0] + 4 * monoTable[1]) / 5.0f);
+                    monoTable[6] = (byte)0;
+                    monoTable[7] = (byte)255;
                 }
-                byte[] yTable = new byte[8];
-                yTable[0] = yMin;
-                yTable[1] = yMax;
-                if (yTable[0] > yTable[1])
+                byte[] alphaTable = new byte[8];
+                alphaTable[0] = aMin;
+                alphaTable[1] = aMax;
+                if (alphaTable[0] > alphaTable[1])
                 {
-                    yTable[2] = (byte)(((yMax - yMin) * 0.1428571f) + yMin);
-                    yTable[3] = (byte)(((yMax - yMin) * 0.2857143f) + yMin);
-                    yTable[4] = (byte)(((yMax - yMin) * 0.4285714f) + yMin);
-                    yTable[5] = (byte)(((yMax - yMin) * 0.5714286f) + yMin);
-                    yTable[6] = (byte)(((yMax - yMin) * 0.7142857f) + yMin);
-                    yTable[7] = (byte)(((yMax - yMin) * 0.8571429f) + yMin);
+                    alphaTable[2] = (byte)((6 * alphaTable[0] + 1 * alphaTable[1]) / 7.0f);
+                    alphaTable[3] = (byte)((5 * alphaTable[0] + 2 * alphaTable[1]) / 7.0f);
+                    alphaTable[4] = (byte)((4 * alphaTable[0] + 3 * alphaTable[1]) / 7.0f);
+                    alphaTable[5] = (byte)((3 * alphaTable[0] + 4 * alphaTable[1]) / 7.0f);
+                    alphaTable[6] = (byte)((2 * alphaTable[0] + 5 * alphaTable[1]) / 7.0f);
+                    alphaTable[7] = (byte)((1 * alphaTable[0] + 6 * alphaTable[1]) / 7.0f);
                 }
                 else
                 {
-                    yTable[2] = (byte)(((yMax - yMin) * 0.2f) + yMin);
-                    yTable[3] = (byte)(((yMax - yMin) * 0.4f) + yMin);
-                    yTable[4] = (byte)(((yMax - yMin) * 0.6f) + yMin);
-                    yTable[5] = (byte)(((yMax - yMin) * 0.8f) + yMin);
-                    yTable[6] = yMin;
-                    yTable[7] = yMax;
+                    alphaTable[2] = (byte)((4 * alphaTable[0] + 1 * alphaTable[1]) / 5.0f);
+                    alphaTable[3] = (byte)((3 * alphaTable[0] + 2 * alphaTable[1]) / 5.0f);
+                    alphaTable[4] = (byte)((2 * alphaTable[0] + 3 * alphaTable[1]) / 5.0f);
+                    alphaTable[5] = (byte)((1 * alphaTable[0] + 4 * alphaTable[1]) / 5.0f);
+                    alphaTable[6] = (byte)0;
+                    alphaTable[7] = (byte)255;
                 }
                 int chunkNum = i / 16;
                 int xPos = chunkNum % chunks;
@@ -500,8 +384,8 @@ namespace Adjutant.Library.Imaging
                     for (int k = 0; k < sizew; k++)
                     {
                         RGBAColor color;
-                        color.B = color.G = color.R = xTable[xIndices[(j * sizeh) + k]];
-                        color.A = yTable[yIndices[(j * sizeh) + k]];
+                        color.B = color.G = color.R = monoTable[mIndices[(j * sizeh) + k]];
+                        color.A = alphaTable[aIndices[(j * sizeh) + k]];
                         temp = (((((yPos * 4) + j) * width) + (xPos * 4)) + k) * 4;
                         buffer[temp] = (byte)color.B;
                         buffer[temp + 1] = (byte)color.G;
@@ -698,6 +582,58 @@ namespace Adjutant.Library.Imaging
             return buffer;
         }
 
+        private static byte[] DecodeDXT3A(byte[] data, int width, int height)
+        {
+            byte[] buffer = new byte[(width * height) * 4];
+            int xBlocks = width / 4;
+            int yBlocks = height / 4;
+            for (int y = 0; y < yBlocks; y++)
+            {
+                for (int x = 0; x < xBlocks; x++)
+                {
+                    int i;
+                    int blockDataStart = ((y * xBlocks) + x) * 8;
+                    ushort[] alphaData = new ushort[] { 
+                        (ushort)((data[blockDataStart + 0] << 8) + data[blockDataStart + 1]), 
+                        (ushort)((data[blockDataStart + 2] << 8) + data[blockDataStart + 3]), 
+                        (ushort)((data[blockDataStart + 4] << 8) + data[blockDataStart + 5]), 
+                        (ushort)((data[blockDataStart + 6] << 8) + data[blockDataStart + 7]) };
+                    byte[,] alpha = new byte[4, 4];
+                    int j = 0;
+                    while (j < 4)
+                    {
+                        i = 0;
+                        while (i < 4)
+                        {
+                            alpha[i, j] = (byte)((alphaData[j] & 15) * 16);
+                            alphaData[j] = (ushort)(alphaData[j] >> 4);
+                            i++;
+                        }
+                        j++;
+                    }
+                    uint code = BitConverter.ToUInt32(data, blockDataStart);
+                    for (int k = 0; k < 4; k++)
+                    {
+                        j = k ^ 1;
+                        for (i = 0; i < 4; i++)
+                        {
+                            int pixDataStart = ((width * ((y * 4) + j)) * 4) + (((x * 4) + i) * 4);
+
+                            buffer[pixDataStart] = alpha[i, j];
+                            buffer[pixDataStart + 1] = alpha[i, j];
+                            buffer[pixDataStart + 2] = alpha[i, j];
+
+                            //buffer[pixDataStart + 3] = (type == AType.alpha) ? alpha[i, j] : 0xFF
+                            buffer[pixDataStart + 3] = alpha[i, j];
+
+                            code = code >> 2;
+                        }
+                    }
+                }
+            }
+            return buffer;
+        }
+
         private static byte[] DecodeDXT5(byte[] data, int width, int height)
         {
             byte[] buffer = new byte[width * height * 4];
@@ -830,6 +766,84 @@ namespace Adjutant.Library.Imaging
             return buffer;
         }
 
+        private static byte[] DecodeDXT5A(byte[] data, int width, int height)
+        {
+            byte[] buffer = new byte[height * width * 4];
+
+            int chunks = width / 4;
+            if (chunks == 0)
+                chunks = 1;
+
+            for (int i = 0; i < (width * height / 2); i += 8)
+            {
+                byte mMin = data[i + 1];
+                byte mMax = data[i];
+                byte[] rIndices = new byte[16];
+                int temp = ((data[i + 5] << 16) | (data[i + 2] << 8)) | data[i + 3];
+
+                int indices = 0;
+                while (indices < 8)
+                {
+                    rIndices[indices] = (byte)(temp & 7);
+                    temp = temp >> 3;
+                    indices++;
+                }
+
+                temp = ((data[i + 6] << 16) | (data[i + 7] << 8)) | data[i + 4];
+                while (indices < 16)
+                {
+                    rIndices[indices] = (byte)(temp & 7);
+                    temp = temp >> 3;
+                    indices++;
+                }
+
+                byte[] monoTable = new byte[8];
+                monoTable[0] = mMin;
+                monoTable[1] = mMax;
+                if (monoTable[0] > monoTable[1])
+                {
+                    monoTable[2] = (byte)((6 * monoTable[0] + 1 * monoTable[1]) / 7.0f);
+                    monoTable[3] = (byte)((5 * monoTable[0] + 2 * monoTable[1]) / 7.0f);
+                    monoTable[4] = (byte)((4 * monoTable[0] + 3 * monoTable[1]) / 7.0f);
+                    monoTable[5] = (byte)((3 * monoTable[0] + 4 * monoTable[1]) / 7.0f);
+                    monoTable[6] = (byte)((2 * monoTable[0] + 5 * monoTable[1]) / 7.0f);
+                    monoTable[7] = (byte)((1 * monoTable[0] + 6 * monoTable[1]) / 7.0f);
+                }
+                else
+                {
+                    monoTable[2] = (byte)((4 * monoTable[0] + 1 * monoTable[1]) / 5.0f);
+                    monoTable[3] = (byte)((3 * monoTable[0] + 2 * monoTable[1]) / 5.0f);
+                    monoTable[4] = (byte)((2 * monoTable[0] + 3 * monoTable[1]) / 5.0f);
+                    monoTable[5] = (byte)((1 * monoTable[0] + 4 * monoTable[1]) / 5.0f);
+                    monoTable[6] = (byte)0;
+                    monoTable[7] = (byte)255;
+                }
+
+                int chunkNum = i / 8;
+                int xPos = chunkNum % chunks;
+                int yPos = (chunkNum - xPos) / chunks;
+                int sizeh = (height < 4) ? height : 4;
+                int sizew = (width < 4) ? width : 4;
+
+                for (int j = 0; j < sizeh; j++)
+                {
+                    for (int k = 0; k < sizew; k++)
+                    {
+                        RGBAColor color;
+                        color.R = color.G = color.B = color.A = monoTable[rIndices[(j * sizeh) + k]];
+                        temp = (((((yPos * 4) + j) * width) + (xPos * 4)) + k) * 4;
+                        buffer[temp] = (byte)color.B;
+                        buffer[temp + 1] = (byte)color.G;
+                        buffer[temp + 2] = (byte)color.R;
+
+                        //buffer[temp + 3] = (type == AType.alpha) ? (byte)color.A : 0xFF;
+                        buffer[temp + 3] = (byte)color.A;
+                    }
+                }
+            }
+            return buffer;
+        }
+
         private static byte[] DecodeR5G6B5(byte[] data, int width, int height)
         {
             byte[] buffer = new byte[width * height * 4];
@@ -859,7 +873,7 @@ namespace Adjutant.Library.Imaging
         }
         #endregion
 
-        public static Bitmap DecodeCubeMap(byte[] data, bitmap.BitmapData submap, bool alpha)
+        public static Bitmap DecodeCubeMap(byte[] data, bitmap.BitmapData submap, PixelFormat PF)
         {
             List<Bitmap> images = new List<Bitmap>();
             int imageSize = submap.VirtualWidth * submap.VirtualHeight * 4;
@@ -885,7 +899,7 @@ namespace Adjutant.Library.Imaging
                 Array.Copy(data, i * tImageSize, buffer, 0, imageSize);
                 buffer = DecodeBitmap(buffer, submap);
 
-                PixelFormat PF = (alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
+                //PixelFormat PF = (alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
                 Bitmap bitmap = new Bitmap(submap.Width, submap.Height, PF);
                 Rectangle rect = new Rectangle(0, 0, submap.Width, submap.Height);
                 BitmapData bitmapdata = bitmap.LockBits(rect, ImageLockMode.WriteOnly, PF);
@@ -908,6 +922,7 @@ namespace Adjutant.Library.Imaging
 
                 int[] crossX = new int[6] { 0, 2, 1, 3, 0, 0 }; // Front, Left, Right, Back, Top, Bottom
                 int[] crossY = new int[6] { 1, 1, 1, 1, 0, 2 }; // Front, Left, Right, Back, Top, Bottom
+                
                 // go through each image and draw it on the final image
                 int xOffset = 0;
                 int yOffset = 0;
@@ -991,19 +1006,19 @@ namespace Adjutant.Library.Imaging
                     bitmRaw =  DXTDecoder.DecodeDXT5(bitmRaw, submap.VirtualWidth, submap.VirtualHeight);
                     break;
 
+                case TextureFormat.DXT5a:
                 case TextureFormat.DXT5a_alpha:
                 case TextureFormat.DXT5a_mono:
-                //case TextureFormat.Unknown31:
-                    bitmRaw =  DXTDecoder.DecodeDXT5A(bitmRaw, submap.VirtualWidth, submap.VirtualHeight);
+                    bitmRaw = DXTDecoder.DecodeDXT5A(bitmRaw, submap.VirtualWidth, submap.VirtualHeight);
                     break;
 
                 case TextureFormat.DXT3a_alpha:
                 case TextureFormat.DXT3a_mono:
-                    bitmRaw =  DXTDecoder.DecodeDXT3A(bitmRaw, submap.VirtualWidth, submap.VirtualHeight);
+                    bitmRaw = DXTDecoder.DecodeDXT3A(bitmRaw, submap.VirtualWidth, submap.VirtualHeight);
                     break;
 
                 case TextureFormat.DXN_mono_alpha:
-                    bitmRaw =  DXTDecoder.DecodeDXNMA(bitmRaw, submap.VirtualWidth, submap.VirtualHeight);
+                    bitmRaw = DXTDecoder.DecodeDXNMA(bitmRaw, submap.VirtualWidth, submap.VirtualHeight);
                     break;
 
                 case TextureFormat.DXN:
@@ -1045,7 +1060,7 @@ namespace Adjutant.Library.Imaging
         {
             byte[] destinationArray = new byte[data.Length];
 
-            int num1, num2, num3;
+            int blockSizeX, blockSizeY, texPitch;
 
             switch (texture)
             {
@@ -1053,45 +1068,45 @@ namespace Adjutant.Library.Imaging
                 case TextureFormat.DXT5a_alpha:
                 case TextureFormat.DXT1:
                 case TextureFormat.CTX1:
-                case TextureFormat.Unknown31:
+                case TextureFormat.DXT5a:
                 case TextureFormat.DXT3a_alpha:
                 case TextureFormat.DXT3a_mono:
-                    num1 = 4;
-                    num2 = 4;
-                    num3 = 8;
+                    blockSizeX = 4;
+                    blockSizeY = 4;
+                    texPitch = 8;
                     break;
 
                 case TextureFormat.DXT3:
                 case TextureFormat.DXT5:
                 case TextureFormat.DXN:
                 case TextureFormat.DXN_mono_alpha:
-                    num1 = 4;
-                    num2 = 4;
-                    num3 = 16;
+                    blockSizeX = 4;
+                    blockSizeY = 4;
+                    texPitch = 16;
                     break;
 
                 case TextureFormat.AY8:
                 case TextureFormat.Y8:
-                    num1 = 1;
-                    num2 = 1;
-                    num3 = 1;
+                    blockSizeX = 1;
+                    blockSizeY = 1;
+                    texPitch = 1;
                     break;
 
                 case TextureFormat.A8R8G8B8:
-                    num1 = 1;
-                    num2 = 1;
-                    num3 = 4;
+                    blockSizeX = 1;
+                    blockSizeY = 1;
+                    texPitch = 4;
                     break;
 
                 default:
-                    num1 = 1;
-                    num2 = 1;
-                    num3 = 2;
+                    blockSizeX = 1;
+                    blockSizeY = 1;
+                    texPitch = 2;
                     break;
             }
 
-            int xChunks = width / num1;
-            int yChunks = height / num2;
+            int xChunks = width / blockSizeX;
+            int yChunks = height / blockSizeY;
             try
             {
                 for (int i = 0; i < yChunks; i++)
@@ -1099,14 +1114,14 @@ namespace Adjutant.Library.Imaging
                     for (int j = 0; j < xChunks; j++)
                     {
                         int offset = (i * xChunks) + j;
-                        int num9 = XGAddress2DTiledX(offset, xChunks, num3);
-                        int num10 = XGAddress2DTiledY(offset, xChunks, num3);
-                        int sourceIndex = ((i * xChunks) * num3) + (j * num3);
-                        int destinationIndex = ((num10 * xChunks) * num3) + (num9 * num3);
+                        int x = XGAddress2DTiledX(offset, xChunks, texPitch);
+                        int y = XGAddress2DTiledY(offset, xChunks, texPitch);
+                        int sourceIndex = ((i * xChunks) * texPitch) + (j * texPitch);
+                        int destinationIndex = ((y * xChunks) * texPitch) + (x * texPitch);
                         if (toLinear)
-                            Array.Copy(data, sourceIndex, destinationArray, destinationIndex, num3);
+                            Array.Copy(data, sourceIndex, destinationArray, destinationIndex, texPitch);
                         else
-                            Array.Copy(data, destinationIndex, destinationArray, sourceIndex, num3);
+                            Array.Copy(data, destinationIndex, destinationArray, sourceIndex, texPitch);
                     }
                 }
             }
@@ -1146,6 +1161,19 @@ namespace Adjutant.Library.Imaging
             int Micro = (((offsetT & (((TexelPitch << 6) - 1) & ~31)) + ((offsetT & 15) << 1)) >> (3 + logBPP)) & ~1;
 
             return ((Macro + Micro) + ((offsetT & 16) >> 4));
+        }
+
+        public struct RGBAColor
+        {
+            public int R, G, B, A;
+
+            public RGBAColor(int Red, int Green, int Blue, int Alpha)
+            {
+                R = Red;
+                G = Green;
+                B = Blue;
+                A = Alpha;
+            }
         }
     }
 }

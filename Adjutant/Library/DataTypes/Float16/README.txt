@@ -1,0 +1,2 @@
+﻿The classes and code for System.Half were obtained from the following URL: http://sourceforge.net/projects/csharp-half/
+This code is a direct import and none of it was written or edited by the creator of Adjutant.

@@ -1,0 +1,733 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
+using Adjutant.Library.DataTypes;
+using Adjutant.Library.Controls;
+using System.IO;
+
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
+using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
+
+namespace Adjutant.Library.Controls
+{
+    public partial class BSPViewer : UserControl
+    {
+        #region Init
+        private CacheFile cache;
+        private CacheFile.IndexItem tag;
+        private scenario_structure_bsp sbsp;
+        private bool isWorking = false;
+        private Dictionary<scenario_structure_bsp.Cluster, Model3DGroup> clusterDic = new Dictionary<scenario_structure_bsp.Cluster, Model3DGroup>();
+        private Dictionary<scenario_structure_bsp.InstancedGeometry, Model3DGroup> igDic = new Dictionary<scenario_structure_bsp.InstancedGeometry, Model3DGroup>();
+        private List<Model3DGroup> sectList = new List<Model3DGroup>();
+        private List<MaterialGroup> shaders = new List<MaterialGroup>();
+
+        public ModelFormat DefaultModeFormat = ModelFormat.EMF;
+
+        public System.Drawing.Color RenderBackColor
+        {
+            get { return ehRenderer.BackColor; }
+            set { ehRenderer.BackColor = value; }
+        }
+
+        public BSPViewer()
+        {
+            InitializeComponent();
+        }
+        #endregion
+
+        #region Methods
+        public void LoadBSPTag(CacheFile Cache, CacheFile.IndexItem Tag, bool Force)
+        {
+            try
+            {
+                Clear();
+                loadBspTag(Cache, Tag, false, Force);
+            }
+            catch (Exception ex)
+            {
+                renderer1.ClearViewport();
+                Clear();
+                renderer1.Stop("Loading failed: " + ex.Message);
+                tvRegions.Nodes.Clear();
+                this.Enabled = false;
+            }
+        }
+
+        private void loadBspTag(CacheFile Cache, CacheFile.IndexItem Tag, bool Specular, bool Force)
+        {
+            if (!this.Enabled) this.Enabled = true;
+            tvRegions.Nodes.Clear();
+            if (renderer1.Running) renderer1.Stop("Loading...");
+            Refresh();
+
+            cache = Cache;
+            tag = Tag;
+
+            sbsp = DefinitionsManager.sbsp(cache, tag);
+            sbsp.BSPName = Path.GetFileNameWithoutExtension(tag.Filename + "." + tag.ClassCode);
+            ModelFunctions.LoadBSPRaw(cache, ref sbsp);
+
+            isWorking = true;
+
+            #region Build Tree
+            TreeNode ClusterNode = new TreeNode("Clusters") { Checked = true };
+            foreach(var clust in sbsp.Clusters)
+            {
+                if (clust.SectionIndex >= sbsp.ModelSections.Count) continue;
+                if (sbsp.ModelSections[clust.SectionIndex].Submeshes.Count > 0)
+                    ClusterNode.Nodes.Add(new TreeNode(sbsp.Clusters.IndexOf(clust).ToString("D3")) { Tag = clust, Checked = true });
+            }
+            if (ClusterNode.Nodes.Count > 0)
+                tvRegions.Nodes.Add(ClusterNode);
+
+            TreeNode IGnode = new TreeNode("Instances") { Checked = true };
+            foreach (var IG in sbsp.GeomInstances)
+            {
+                if (IG.SectionIndex >= sbsp.ModelSections.Count) continue;
+                if (sbsp.ModelSections[IG.SectionIndex].Submeshes.Count > 0)
+                    IGnode.Nodes.Add(new TreeNode(IG.Name) { Tag = IG, Checked = true });
+            }
+            if (IGnode.Nodes.Count > 0)
+                tvRegions.Nodes.Add(IGnode);
+
+            tvRegions.Sort(); //much easier for looking through IGs
+            #endregion
+
+            isWorking = false;
+
+            #region Load Stuff
+            LoadShaders(false);
+            LoadSections();
+
+            foreach (var clust in sbsp.Clusters)
+                AddCluster(clust, Force);
+
+            foreach (var ig in sbsp.GeomInstances)
+                AddGeomInstance(ig, Force);
+            #endregion
+
+            #region BoundingBox Stuff
+            PerspectiveCamera camera = (PerspectiveCamera)renderer1.Viewport.Camera;
+
+            var XBounds = new RealBounds(float.MaxValue, float.MinValue); 
+            var YBounds = new RealBounds(float.MaxValue, float.MinValue);
+            var ZBounds = new RealBounds(float.MaxValue, float.MinValue);
+
+            #region Get Bounds
+            foreach (var c in sbsp.Clusters)
+            {
+                if (c.SectionIndex >= sbsp.ModelSections.Count) continue;
+                if (sbsp.ModelSections[c.SectionIndex].Submeshes.Count == 0) continue;
+
+                if (c.XBounds.Min < XBounds.Min) XBounds.Min = c.XBounds.Min;
+                if (c.YBounds.Min < YBounds.Min) YBounds.Min = c.YBounds.Min;
+                if (c.ZBounds.Min < ZBounds.Min) ZBounds.Min = c.ZBounds.Min;
+
+                if (c.XBounds.Max > XBounds.Max) XBounds.Max = c.XBounds.Max;
+                if (c.YBounds.Max > YBounds.Max) YBounds.Max = c.YBounds.Max;
+                if (c.ZBounds.Max > ZBounds.Max) ZBounds.Max = c.ZBounds.Max;
+            }
+
+            //foreach (var bb in sbsp.BoundingBoxes)
+            //{
+            //    if (bb.XBounds.Min < XBounds.Min) XBounds.Min = bb.XBounds.Min;
+            //    if (bb.YBounds.Min < YBounds.Min) YBounds.Min = bb.YBounds.Min;
+            //    if (bb.ZBounds.Min < ZBounds.Min) ZBounds.Min = bb.ZBounds.Min;
+
+            //    if (bb.XBounds.Max > XBounds.Max) XBounds.Max = bb.XBounds.Max;
+            //    if (bb.YBounds.Max > YBounds.Max) YBounds.Max = bb.YBounds.Max;
+            //    if (bb.ZBounds.Max > ZBounds.Max) ZBounds.Max = bb.ZBounds.Max;
+            //}
+            #endregion
+
+            double pythagoras3d = Math.Sqrt(
+                Math.Pow(XBounds.Length, 2) +
+                Math.Pow(YBounds.Length, 2) +
+                Math.Pow(ZBounds.Length, 2));
+
+            if (double.IsInfinity(pythagoras3d)) //no clusters
+            {
+                //pythagoras3d = 1500;
+                XBounds = sbsp.XBounds;
+                YBounds = sbsp.YBounds;
+                ZBounds = sbsp.ZBounds;
+
+                pythagoras3d = Math.Sqrt(
+                Math.Pow(XBounds.Length, 2) +
+                Math.Pow(YBounds.Length, 2) +
+                Math.Pow(ZBounds.Length, 2));
+            }
+
+            if (XBounds.Length / 2 > (YBounds.Length)) //side view
+            {
+                var p = new Point3D(
+                XBounds.MidPoint,
+                YBounds.Max + pythagoras3d * 0.5,
+                ZBounds.MidPoint);
+                renderer1.MoveCamera(p, new Vector3D(0, 0, -2));
+            }
+            else //normal camera position
+            {
+                var p = new Point3D(
+                XBounds.Max + pythagoras3d * 0.5,
+                YBounds.MidPoint,
+                ZBounds.MidPoint);
+                renderer1.MoveCamera(p, new Vector3D(-1, 0, 0));
+            }
+
+            renderer1.CameraSpeed = Math.Ceiling(pythagoras3d * 3) / 1000;
+            renderer1.MaxCameraSpeed = Math.Ceiling(pythagoras3d * 3) * 5 / 1000;
+            renderer1.MaxPosition = new Point3D(
+                sbsp.XBounds.Max + pythagoras3d * 2,
+                sbsp.YBounds.Max + pythagoras3d * 2,
+                sbsp.ZBounds.Max + pythagoras3d * 2);
+            renderer1.MinPosition = new Point3D(
+                sbsp.XBounds.Min - pythagoras3d * 2,
+                sbsp.YBounds.Min - pythagoras3d * 2,
+                sbsp.ZBounds.Min - pythagoras3d * 2);
+            #endregion
+
+            renderer1.Start();
+            RenderSelected();
+        }
+
+        private void LoadShaders(bool spec)
+        {
+            var errMat = GetErrorMaterial();
+            
+            if (sbsp.Shaders.Count == 0)
+            {
+                var matGroup = new MaterialGroup();
+                matGroup.Children.Add(errMat);
+                shaders.Add(matGroup);
+                return;
+            }
+
+            foreach (scenario_structure_bsp.Shader s in sbsp.Shaders)
+            {
+                #region Skip Unused
+                bool found = false;
+                foreach (var sec in sbsp.ModelSections)
+                {
+                    foreach (var sub in sec.Submeshes)
+                    {
+                        if (sub.ShaderIndex == sbsp.Shaders.IndexOf(s))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) break;
+                }
+
+                if (!found)
+                {
+                    shaders.Add(null);
+                    continue;
+                }
+                #endregion
+
+                var matGroup = new MaterialGroup();
+                try
+                {
+                    var rmshTag = cache.IndexItems.GetItemByID(s.tagID);
+                    var rmsh = DefinitionsManager.rmsh(cache, rmshTag);
+
+                    int mapIndex = 0;
+                    if (cache.Version < DefinitionSet.Halo4Retail)
+                    {
+                        var rmt2Tag = cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
+                        var rmt2 = DefinitionsManager.rmt2(cache, rmt2Tag);
+
+                        for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
+                        {
+                            if (rmt2.UsageBlocks[i].Usage.Contains("base_map") || rmt2.UsageBlocks[i].Usage == "foam_texture")
+                            {
+                                mapIndex = i;
+                                //break;
+                            }
+                        }
+                    }
+
+                    var bitmTag = cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[mapIndex].BitmapTagID);
+                    var image = BitmapExtractor.GetBitmapByTag(cache, bitmTag, 0, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+
+                    if (image == null)
+                    {
+                        matGroup.Children.Add(errMat);
+                        shaders.Add(matGroup);
+                        continue;
+                    }
+
+                    int tileIndex = rmsh.Properties[0].ShaderMaps[mapIndex].TilingIndex;
+                    float uTiling;
+                    try { uTiling = rmsh.Properties[0].Tilings[tileIndex].UTiling; }
+                    catch { uTiling = 1; }
+
+                    float vTiling;
+                    try { vTiling = rmsh.Properties[0].Tilings[tileIndex].VTiling; }
+                    catch { vTiling = 1; }
+
+                    MemoryStream stream = new MemoryStream();                                                        //PNG for transparency
+                    //image.Save(stream, (rmshTag.ClassCode == "rmsh" || rmshTag.ClassCode == "rmtr" || rmshTag.ClassCode == "rmt" || rmshTag.ClassCode == "mat") ? ImageFormat.Bmp : ImageFormat.Bmp);
+                    image.Save(stream, ImageFormat.Bmp);
+                    image.Dispose();
+
+                    var diffuse = new BitmapImage();
+
+                    diffuse.BeginInit();
+                    diffuse.StreamSource = stream; //new MemoryStream(stream.ToArray());
+                    diffuse.EndInit();
+
+                    matGroup.Children.Add(new DiffuseMaterial()
+                    {
+                        Brush = new ImageBrush(diffuse)
+                        {
+                            ViewportUnits = BrushMappingMode.Absolute,
+                            TileMode = TileMode.Tile,
+                            Viewport = new System.Windows.Rect(0, 0, 1f / Math.Abs(uTiling), 1f / Math.Abs(vTiling))
+                        }
+                    });
+
+                    //if (spec && rmshTag.ClassCode == "rmsh")
+                    //{
+                    //    stream = new MemoryStream();
+                    //    image.Save(stream, ImageFormat.Png);
+
+                    //    var specular = new BitmapImage();
+
+                    //    specular.BeginInit();
+                    //    specular.StreamSource = new MemoryStream(stream.ToArray());
+                    //    specular.EndInit();
+
+                    //    matGroup.Children.Add(new SpecularMaterial()
+                    //    {
+                    //        SpecularPower = 10,
+                    //        Brush = new ImageBrush(specular)
+                    //        {
+                    //            ViewportUnits = BrushMappingMode.Absolute,
+                    //            TileMode = TileMode.Tile,
+                    //            Viewport = new System.Windows.Rect(0, 0, 1f / Math.Abs(uTiling), 1f / Math.Abs(vTiling))
+                    //        }
+                    //    });
+                    //}
+
+                    shaders.Add(matGroup);
+                }
+                catch
+                {
+                    matGroup.Children.Add(errMat);
+                    shaders.Add(matGroup);
+                }
+            }
+        }
+
+        private void LoadSections()
+        {
+            for (int x = 0; x < sbsp.ModelSections.Count; x++)
+            {
+                try
+                {
+                    var part = sbsp.ModelSections[x];
+
+                    if (part.Submeshes.Count == 0)
+                    {
+                        sectList.Add(null);
+                        continue;
+                    }
+
+                    var group = new Model3DGroup();
+                    var verts = part.Vertices;
+
+                    for (int i = 0; i < part.Submeshes.Count; i++)
+                    {
+                        var submesh = part.Submeshes[i];
+                        var geom = new MeshGeometry3D();
+
+                        var iList = ModelFunctions.GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, sbsp.IndexInfoList[part.FacesIndex].FaceFormat);
+
+                        int min = iList.Min();
+                        int max = iList.Max();
+
+                        for (int j = 0; j < iList.Count; j++)
+                            iList[j] -= min;
+
+                        var vArray = new Vertex[(max - min) + 1];
+                        Array.Copy(verts, min, vArray, 0, (max - min) + 1);
+
+                        foreach (var vertex in vArray)
+                        {
+                            VertexValue pos, tex, norm;
+                            vertex.TryGetValue("position", 0, out pos);
+                            vertex.TryGetValue("texcoords", 0, out tex);
+
+                            geom.Positions.Add(new Point3D(pos.Data.x, pos.Data.y, pos.Data.z));
+                            geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x, 1f - tex.Data.y));
+                            if (vertex.TryGetValue("normal", 0, out norm)) geom.Normals.Add(new Vector3D(norm.Data.x, norm.Data.y, norm.Data.z));
+                        }
+
+                        foreach (var index in iList)
+                            geom.TriangleIndices.Add(index);
+
+                        GeometryModel3D modeld = new GeometryModel3D(geom, shaders[submesh.ShaderIndex])
+                        {
+                            BackMaterial = shaders[submesh.ShaderIndex]
+                        };
+
+                        group.Children.Add(modeld);
+                    }
+                    sectList.Add(group);
+                }
+                catch { 
+                    sectList.Add(null); 
+                }
+            }
+        }
+
+        private void AddCluster(scenario_structure_bsp.Cluster cluster, bool force)
+        {
+            try
+            {
+                if (sectList[cluster.SectionIndex] == null)
+                    return;
+
+                var group = new Model3DGroup();
+                group.Children.Add(sectList[cluster.SectionIndex]);
+
+                clusterDic.Add(cluster, group);
+            }
+            catch (Exception ex) { if (!force) throw ex; }
+        }
+
+        private void AddGeomInstance(scenario_structure_bsp.InstancedGeometry IG, bool force)
+        {
+            try
+            {
+                if (sectList[IG.SectionIndex] == null) 
+                    return;
+
+                //if (sbsp.Prefabs != null)
+                //{
+                //    foreach (var fab in sbsp.Prefabs)
+                //    {
+                //        int index = sbsp.GeomInstances.IndexOf(IG);
+                //        if (index >= fab.InstanceIndex && index < (fab.InstanceIndex + fab.InstanceCount))
+                //        {
+                //            //if (!IG.TransformMatrix.Equals(fab.TransformMatrix) || IG.TransformScale != fab.TransformScale)
+                //            //    IG = IG;
+
+                //            IG.TransformMatrix = fab.TransformMatrix;
+                //            IG.TransformScale = fab.TransformScale;
+
+                //            //IG.TransformMatrix = DataTypes.Matrix.Identity;
+                //            //IG.TransformScale = 1f;
+
+                //            break;
+                //        }
+                //    }
+                //}
+
+                var mat = Matrix3D.Identity;
+                mat.M11 = IG.TransformMatrix.m11;
+                mat.M12 = IG.TransformMatrix.m12;
+                mat.M13 = IG.TransformMatrix.m13;
+
+                mat.M21 = IG.TransformMatrix.m21;
+                mat.M22 = IG.TransformMatrix.m22;
+                mat.M23 = IG.TransformMatrix.m23;
+
+                mat.M31 = IG.TransformMatrix.m31;
+                mat.M32 = IG.TransformMatrix.m32;
+                mat.M33 = IG.TransformMatrix.m33;
+
+                mat.OffsetX = IG.TransformMatrix.m41;
+                mat.OffsetY = IG.TransformMatrix.m42;
+                mat.OffsetZ = IG.TransformMatrix.m43;
+
+                var mGroup = new Transform3DGroup();
+                mGroup.Children.Add(new ScaleTransform3D(IG.TransformScale, IG.TransformScale, IG.TransformScale));
+                mGroup.Children.Add(new MatrixTransform3D(mat));
+
+                var group = new Model3DGroup();
+
+                group.Children.Add(sectList[IG.SectionIndex]);
+                group.Transform = mGroup;
+                
+                igDic.Add(IG, group);
+            }
+            catch (Exception ex) { 
+                if (!force) throw ex; 
+            }
+        }
+        
+        private void RenderSelected()
+        {
+            renderer1.ClearViewport();
+            Model3DGroup group = new Model3DGroup();
+
+            foreach (TreeNode pnode in tvRegions.Nodes)
+            {
+                if (!pnode.Checked) continue;
+                foreach (TreeNode cnode in pnode.Nodes)
+                {
+                    if (!cnode.Checked) continue;
+                    Model3DGroup mesh;
+
+                    if (cnode.Tag is scenario_structure_bsp.Cluster)
+                    {
+                        var cluster = cnode.Tag as scenario_structure_bsp.Cluster;
+
+                        if (clusterDic.TryGetValue(cluster, out mesh))
+                            group.Children.Add(mesh);
+                    }
+                    else if (cnode.Tag is scenario_structure_bsp.InstancedGeometry)
+                    {
+                        var ig = cnode.Tag as scenario_structure_bsp.InstancedGeometry;
+
+                        if (igDic.TryGetValue(ig, out mesh))
+                            group.Children.Add(mesh);  
+                    }
+                }
+            }
+
+            ModelVisual3D visuald = new ModelVisual3D
+            {
+                Content = group
+            };
+
+            renderer1.Viewport.Children.Add(visuald);
+        }
+
+        private DiffuseMaterial GetErrorMaterial()
+        {
+            var mat = new DiffuseMaterial(new SolidColorBrush(Colors.Red));
+            var brush = (SolidColorBrush)mat.Brush;
+
+            var anim0 = new ColorAnimation
+            {
+                From = new System.Windows.Media.Color?(brush.Color),
+                To = new System.Windows.Media.Color?(Colors.Gold)
+            };
+
+            anim0.Duration = new System.Windows.Duration(TimeSpan.FromMilliseconds(500.0));
+            anim0.AutoReverse = true;
+            anim0.RepeatBehavior = RepeatBehavior.Forever;
+            brush.BeginAnimation(SolidColorBrush.ColorProperty, anim0);
+
+            return mat;
+        }
+        #endregion
+
+        #region Events
+        private void tvRegions_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            if (isWorking) return;
+
+            int num;
+            isWorking = true;
+            TreeNode node = e.Node;
+            if (node.Parent == null)
+            {
+                if (!node.Checked)
+                    for (num = 0; num < node.Nodes.Count; num++)
+                        node.Nodes[num].Checked = false;
+                else if (node.Nodes.Count > 0)
+                    node.Nodes[0].Checked = true;
+            }
+            else if (node.Checked)
+                node.Parent.Checked = true;
+            else
+            {
+                bool flag = false;
+                for (num = 0; num < node.Parent.Nodes.Count; num++)
+                {
+                    if (node.Parent.Nodes[num].Checked)
+                    {
+                        flag = true;
+                        break;
+                    }
+                }
+                node.Parent.Checked = flag;
+            }
+            isWorking = false;
+
+            RenderSelected();
+        }
+
+        private void tvRegions_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            selectAllChildrenToolStripMenuItem.Visible = (tvRegions.SelectedNode != null && tvRegions.SelectedNode.Parent == null);
+        }
+
+        private void selectAllChildrenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            isWorking = true;
+
+            foreach (TreeNode cnode in tvRegions.SelectedNode.Nodes)
+                cnode.Checked = true;
+
+            tvRegions.SelectedNode.Checked = true;
+
+            isWorking = false;
+            RenderSelected();
+        }
+
+        private void selectResultsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            isWorking = true;
+
+            foreach (TreeNode pnode in tvRegions.Nodes)
+                foreach (TreeNode cnode in pnode.Nodes)
+                    if (cnode.Text.Contains(txtSearch.Text) && txtSearch.Text != "")
+                        cnode.Checked = pnode.Checked = true;
+
+            isWorking = false;
+            RenderSelected();
+        }
+
+        private void deselectResultsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            isWorking = true;
+
+            foreach (TreeNode pnode in tvRegions.Nodes)
+                foreach (TreeNode cnode in pnode.Nodes)
+                    if (cnode.Text.Contains(txtSearch.Text) && txtSearch.Text != "")
+                        cnode.Checked = false;
+
+            isWorking = false;
+            RenderSelected();
+        }
+
+        private void btnSelAll_Click(object sender, EventArgs e)
+        {
+            isWorking = true;
+            foreach (TreeNode parent in tvRegions.Nodes)
+            {
+                foreach (TreeNode child in parent.Nodes)
+                    child.Checked = true;
+
+                parent.Checked = true;
+            }
+            isWorking = false;
+            RenderSelected();
+        }
+
+        private void btnSelNone_Click(object sender, EventArgs e)
+        {
+            isWorking = true;
+            foreach (TreeNode parent in tvRegions.Nodes)
+            {
+                foreach (TreeNode child in parent.Nodes)
+                    child.Checked = false;
+
+                parent.Checked = false;
+            }
+            isWorking = false;
+            RenderSelected();
+        }
+
+        private void btnExportBSP_Click(object sender, EventArgs e)
+        {
+            var clusts = new List<int>();
+            var igs = new List<int>();
+
+            foreach (TreeNode pnode in tvRegions.Nodes)
+            {
+                if (!pnode.Checked) continue;
+
+                foreach (TreeNode cnode in pnode.Nodes)
+                {
+                    if (!cnode.Checked) continue;
+                    if (cnode.Tag is scenario_structure_bsp.Cluster)
+                    {
+                        var cluster = cnode.Tag as scenario_structure_bsp.Cluster;
+                        clusts.Add(sbsp.Clusters.IndexOf(cluster));
+                    }
+                    else if (cnode.Tag is scenario_structure_bsp.InstancedGeometry)
+                    {
+                        var ig = cnode.Tag as scenario_structure_bsp.InstancedGeometry;
+                        igs.Add(sbsp.GeomInstances.IndexOf(ig));
+                    }
+                }
+            }
+
+            var sfd = new SaveFileDialog()
+            {
+                Filter = "EMF Files|*.emf|OBJ Files|*.obj|AMF Files|*.amf",
+                FilterIndex = (int)DefaultModeFormat + 1,
+                FileName = tag.Filename.Substring(tag.Filename.LastIndexOf("\\") + 1)
+            };
+
+            if (sfd.ShowDialog() != DialogResult.OK) return;
+
+            var format = (ModelFormat)(sfd.FilterIndex - 1);
+            try
+            {
+                BSPExtractor.SaveBSPParts(sfd.FileName, cache, sbsp, format, clusts, igs);
+                TagExtracted(this, tag);
+            }
+            catch (Exception ex) { ErrorExtracting(this, tag, ex); }
+        }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+        {
+            selectResultsToolStripMenuItem.Visible =
+            deselectResultsToolStripMenuItem.Visible
+               = (txtSearch.Text != "");
+
+            foreach (TreeNode pnode in tvRegions.Nodes)
+            {
+                foreach (TreeNode cnode in pnode.Nodes)
+                {
+                    if (cnode.Text.Contains(txtSearch.Text) && txtSearch.Text != "")
+                    {
+                        cnode.ForeColor = System.Drawing.Color.Green;
+                        cnode.NodeFont = new Font(tvRegions.Font, FontStyle.Underline);
+                    }
+                    else
+                    {
+                        cnode.ForeColor = System.Drawing.Color.Black;
+                        cnode.NodeFont = new Font(tvRegions.Font, FontStyle.Regular);
+                    }
+                }
+            }
+        }
+        #endregion
+
+        public void Clear()
+        {
+            renderer1.ClearViewport();
+            sectList.Clear();
+
+            foreach (var val in igDic)
+                val.Value.Children.Clear();
+
+            foreach (var val in clusterDic)
+                val.Value.Children.Clear();
+
+            foreach (var val in shaders)
+                if (val != null) val.Children.Clear();
+
+            igDic.Clear();
+            clusterDic.Clear();
+            shaders.Clear();
+
+            GC.Collect();
+        }
+
+        public event TagExtractedEventHandler TagExtracted;
+        public event ErrorExtractingEventHandler ErrorExtracting;
+    }
+}

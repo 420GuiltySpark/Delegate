@@ -13,6 +13,21 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -30,13 +45,31 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Adjutant\Tourist.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Reflex|x86'">
+    <OutputPath>bin\Reflex\</OutputPath>
+    <DefineConstants>TRACE;REFLEX</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\Adjutant.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;D:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;D:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -65,6 +98,24 @@
     </Compile>
     <Compile Include="Library\Controls\BitmapExtractor.Designer.cs">
       <DependentUpon>BitmapExtractor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\BSPViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\BSPViewer.Designer.cs">
+      <DependentUpon>BSPViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\BSPExtractor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\BSPExtractor.Designer.cs">
+      <DependentUpon>BSPExtractor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\Controls\SoundExtractorH4.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\SoundExtractorH4.Designer.cs">
+      <DependentUpon>SoundExtractorH4.cs</DependentUpon>
     </Compile>
     <Compile Include="Library\Controls\Enums.cs" />
     <Compile Include="Library\Controls\Events.cs" />
@@ -157,47 +208,130 @@
     <Compile Include="Library\DataTypes\DataTypes.cs" />
     <Compile Include="Library\DataTypes\Float16\Half.cs" />
     <Compile Include="Library\DataTypes\Float16\HalfHelper.cs" />
-    <Compile Include="Library\DataTypes\Space.cs" />
+    <Compile Include="Library\DataTypes\Vertex.cs" />
     <Compile Include="Library\Definitions\Base\bitmap.cs" />
     <Compile Include="Library\Definitions\Base\cache_file_resource_gestalt.cs" />
     <Compile Include="Library\Definitions\Base\cache_file_resource_layout_table.cs" />
     <Compile Include="Library\Definitions\Base\multilingual_unicode_string_list.cs" />
+    <Compile Include="Library\Definitions\Base\render_method_template.cs" />
     <Compile Include="Library\Definitions\Base\render_model.cs" />
+    <Compile Include="Library\Definitions\Base\scenario_structure_bsp.cs" />
     <Compile Include="Library\Definitions\Base\shader.cs" />
     <Compile Include="Library\Definitions\Base\sound.cs" />
+    <Compile Include="Library\Definitions\Base\soundbank.cs" />
     <Compile Include="Library\Definitions\Base\sound_cache_file_gestalt.cs" />
+    <Compile Include="Library\Definitions\Composer\Wwise\RTPC.cs" />
     <Compile Include="Library\Definitions\DefinitionsManager.cs" />
     <Compile Include="Library\Definitions\Enums.cs" />
     <Compile Include="Library\Definitions\Halo3Beta\cache_file_resource_gestalt.cs" />
+    <Compile Include="Library\Definitions\Halo3Beta\scenario_structure_bsp.cs" />
     <Compile Include="Library\Definitions\Halo3ODST\render_model.cs" />
+    <Compile Include="Library\Definitions\Halo3ODST\scenario_structure_bsp.cs" />
     <Compile Include="Library\Definitions\Halo3ODST\sound_cache_file_gestalt.cs" />
     <Compile Include="Library\Definitions\Halo3Beta\bitmap.cs" />
     <Compile Include="Library\Definitions\Halo3Retail\cache_file_resource_gestalt.cs" />
     <Compile Include="Library\Definitions\Halo3Retail\cache_file_resource_layout_table.cs" />
-    <Compile Include="Library\Definitions\Halo3Retail\multilingual_unicode_string_list.cs" />
-    <Compile Include="Library\Definitions\Halo3Retail\render_model.cs" />
-    <Compile Include="Library\Definitions\Halo3Retail\shader.cs" />
+    <Compile Include="Library\Definitions\Halo3Beta\multilingual_unicode_string_list.cs" />
+    <Compile Include="Library\Definitions\Halo3Beta\render_method_template.cs" />
+    <Compile Include="Library\Definitions\Halo3Beta\render_model.cs" />
+    <Compile Include="Library\Definitions\Halo3Retail\scenario_structure_bsp.cs" />
+    <Compile Include="Library\Definitions\Halo3Beta\shader.cs" />
     <Compile Include="Library\Definitions\Halo3Retail\sound.cs" />
     <Compile Include="Library\Definitions\Halo3Retail\sound_cache_file_gestalt.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\cache_file_resource_gestalt.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\cache_file_resource_layout_table.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\material.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\render_model.cs" />
+    <Compile Include="Library\Definitions\Halo4Retail\scenario_structure_bsp.cs" />
+    <Compile Include="Library\Definitions\Halo4Retail\sound.cs" />
+    <Compile Include="Library\Definitions\Halo4Retail\soundbank.cs" />
     <Compile Include="Library\Definitions\ReachBeta\bitmap.cs" />
     <Compile Include="Library\Definitions\ReachBeta\multilingual_unicode_string_list.cs" />
     <Compile Include="Library\Definitions\ReachBeta\render_model.cs" />
+    <Compile Include="Library\Definitions\ReachBeta\scenario_structure_bsp.cs" />
     <Compile Include="Library\Definitions\ReachBeta\shader.cs" />
     <Compile Include="Library\Definitions\ReachBeta\sound.cs" />
     <Compile Include="Library\Definitions\ReachBeta\sound_cache_file_gestalt.cs" />
     <Compile Include="Library\Definitions\ReachRetail\bitmap.cs" />
     <Compile Include="Library\Definitions\ReachRetail\render_model.cs" />
+    <Compile Include="Library\Definitions\ReachRetail\scenario_structure_bsp.cs" />
     <Compile Include="Library\Definitions\ReachRetail\sound_cache_file_gestalt.cs" />
+    <Compile Include="Library\Definitions\Composer\FormatIdentification.cs" />
+    <Compile Include="Library\Definitions\Composer\Info.cs" />
+    <Compile Include="Library\Definitions\Composer\Wwise\IWwiseObject.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\IWwiseObjectVisitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\RIFX.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBank.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankAction.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankActorMixer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankEvent.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankMusicPlaylist.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankMusicSegment.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankMusicSwitchContainer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankMusicTrack.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankSequenceContainer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankSwitchContainer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankVoice.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\SoundExtraction.cs" />
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundPack.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundPackFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundPackFolder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\Wwise\SoundPath.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\SoundScanner.cs" />
+    <Compile Include="Library\Definitions\Composer\Wwise\StateGroup.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Definitions\Composer\StreamUtil.cs" />
+    <Compile Include="Library\Definitions\Composer\Wwise\WwiseObjectCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Library\Endian\EndianReader.cs" />
     <Compile Include="Library\Endian\EndianWriter.cs" />
     <Compile Include="Library\Endian\Enums.cs" />
     <Compile Include="Library\Imaging\DDS.cs" />
     <Compile Include="Library\Imaging\DXTDecoder.cs" />
-    <Compile Include="Library\Imaging\RGBAColor.cs" />
     <Compile Include="Library\PluginConvert.cs" />
     <Compile Include="Adjutant\Controls\Extractor.cs">
       <SubType>UserControl</SubType>
@@ -240,6 +374,15 @@
     </Compile>
     <EmbeddedResource Include="Library\Controls\BitmapExtractor.resx">
       <DependentUpon>BitmapExtractor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\BSPViewer.resx">
+      <DependentUpon>BSPViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\BSPExtractor.resx">
+      <DependentUpon>BSPExtractor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\SoundExtractorH4.resx">
+      <DependentUpon>SoundExtractorH4.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Library\Controls\MetaViewer.resx">
       <DependentUpon>MetaViewer.cs</DependentUpon>
@@ -319,9 +462,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Library\DataTypes\Float16\README.txt" />
+    <Content Include="Library\Definitions\Composer\README.txt" />
+    <Content Include="Resources\VertexBuffer.xml" />
     <None Include="Resources\Adjutant Help.chm" />
+    <None Include="Resources\AMFImporter.mse" />
     <None Include="Resources\Versions.xml" />
-    <None Include="Resources\Classes.xml" />
     <None Include="Resources\Builds.xml" />
     <None Include="Resources\EMF3Importer.mse" />
     <None Include="Resources\update.exe" />
@@ -332,6 +478,28 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

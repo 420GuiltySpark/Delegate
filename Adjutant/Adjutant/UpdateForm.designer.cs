@@ -53,7 +53,7 @@
             this.groupBox1.Controls.Add(this.pictureBox1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(349, 86);
+            this.groupBox1.Size = new System.Drawing.Size(365, 86);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Version";
@@ -62,7 +62,7 @@
             // 
             this.lblNew.AutoSize = true;
             this.lblNew.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblNew.Location = new System.Drawing.Point(215, 54);
+            this.lblNew.Location = new System.Drawing.Point(218, 54);
             this.lblNew.Name = "lblNew";
             this.lblNew.Size = new System.Drawing.Size(45, 16);
             this.lblNew.TabIndex = 4;
@@ -72,7 +72,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(84, 54);
+            this.label3.Location = new System.Drawing.Point(91, 54);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(105, 16);
             this.label3.TabIndex = 3;
@@ -82,7 +82,7 @@
             // 
             this.lblCurrent.AutoSize = true;
             this.lblCurrent.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCurrent.Location = new System.Drawing.Point(215, 26);
+            this.lblCurrent.Location = new System.Drawing.Point(218, 26);
             this.lblCurrent.Name = "lblCurrent";
             this.lblCurrent.Size = new System.Drawing.Size(45, 16);
             this.lblCurrent.TabIndex = 2;
@@ -92,7 +92,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(84, 26);
+            this.label1.Location = new System.Drawing.Point(91, 26);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(102, 16);
             this.label1.TabIndex = 1;
@@ -101,10 +101,10 @@
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(6, 16);
+            this.pictureBox1.Location = new System.Drawing.Point(6, 14);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(61, 61);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictureBox1.Size = new System.Drawing.Size(64, 64);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
@@ -113,7 +113,7 @@
             this.groupBox2.Controls.Add(this.rtbChangelog);
             this.groupBox2.Location = new System.Drawing.Point(12, 118);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(349, 236);
+            this.groupBox2.Size = new System.Drawing.Size(365, 236);
             this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Changelog";
@@ -123,7 +123,7 @@
             this.rtbChangelog.Location = new System.Drawing.Point(6, 19);
             this.rtbChangelog.Name = "rtbChangelog";
             this.rtbChangelog.ReadOnly = true;
-            this.rtbChangelog.Size = new System.Drawing.Size(337, 211);
+            this.rtbChangelog.Size = new System.Drawing.Size(353, 211);
             this.rtbChangelog.TabIndex = 0;
             this.rtbChangelog.Text = "";
             // 
@@ -151,7 +151,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(373, 392);
+            this.ClientSize = new System.Drawing.Size(389, 392);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnUpdate);
             this.Controls.Add(this.groupBox2);

@@ -44,7 +44,9 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                     break;
 
                 case iValue.ValueType.String:
-                    int length = int.Parse(value.Node.Attributes["length"].Value);
+                    int length;
+                    try { length = int.Parse(value.Node.Attributes["length"].Value); }
+                    catch { length = Convert.ToInt32(value.Node.Attributes["length"].Value, 16); }
                     txtValue.Text = reader.ReadNullTerminatedString(length);
                     break;
 

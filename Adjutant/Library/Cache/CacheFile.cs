@@ -8,6 +8,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Xml;
 using System.Runtime.InteropServices;
+using Composer;
+using Composer.Wwise;
 
 namespace Adjutant.Library.Cache
 {
@@ -37,12 +39,16 @@ namespace Adjutant.Library.Cache
         public cache_file_resource_layout_table play;
         public sound_cache_file_gestalt ugh_;
 
+        public List<SoundPackInfo> H4SoundPacks;
+        public Dictionary<uint, List<SoundFileInfo>> H4SoundFiles;
+
         private string localesKey, stringsKey, tagsKey, networkKey;
         private string stringMods;
 
         internal string version;
         internal XmlNode buildNode;
         internal XmlNode versionNode;
+        internal XmlNode vertexNode;
         #endregion
 
         public CacheFile(string Filename)
@@ -51,7 +57,7 @@ namespace Adjutant.Library.Cache
             FileStream fs = new FileStream(Filename, FileMode.Open, FileAccess.Read);
             Reader = new EndianReader((Stream)fs, EndianFormat.BigEndian);
 
-            Reader.BaseStream.Position = 284;
+            Reader.SeekTo(284);
             Build = Reader.ReadString(32);
 
             VerifyXML();
@@ -88,6 +94,10 @@ namespace Adjutant.Library.Cache
                     Version = DefinitionSet.HaloReachRetail;
                     break;
 
+                case "Halo4Beta":
+                    Version = DefinitionSet.Halo4Beta;
+                    break;
+
                 case "Halo4Retail":
                     Version = DefinitionSet.Halo4Retail;
                     break;
@@ -98,12 +108,35 @@ namespace Adjutant.Library.Cache
             }
             #endregion
 
+            #region Find Vertex Definitions
+            var xml = new MemoryStream(Adjutant.Properties.Resources.VertexBuffer);
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(xml);
+            XmlElement element = xmlDoc.DocumentElement;
+
+
+            foreach (XmlNode node in element.ChildNodes)
+            {
+                if (node.Attributes["Game"].Value == buildNode.Attributes["vertDef"].Value)
+                {
+                    vertexNode = node;
+                    break;
+                }
+            }
+
+            xml.Close();
+            xml.Dispose();
+            #endregion
+
             Header = new CacheHeader(this);
             IndexHeader = new CacheIndexHeader(this);
             IndexItems = new IndexTable(this);
             Strings = new StringTable(this);
-            LoadLocaleTables();
-            //load scripts
+
+            LocaleTables = new List<LocaleTable>();
+            for (int i = 0; i < int.Parse(buildNode.Attributes["languageCount"].Value); i++)
+                LocaleTables.Add(new LocaleTable(this, (Language)i));
+           
             LoadPlayZone();
         }
 
@@ -134,6 +167,7 @@ namespace Adjutant.Library.Cache
             public int rawTableOffset;
             public int localeModifier;
             public int rawTableSize;
+            public int tagDataAddress;
 
             private CacheFile cache;
             #endregion
@@ -147,89 +181,89 @@ namespace Adjutant.Library.Cache
                 XmlNode headerNode = cache.versionNode.ChildNodes[0];
                 XmlAttribute attr = headerNode.Attributes["fileSize"];
                 int offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 fileSize = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["indexOffset"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 indexOffset = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["MapSizeType"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 CacheSizeType = Reader.ReadInt16();
 
                 attr = headerNode.Attributes["MapType"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 CacheType = Reader.ReadInt16();
 
                 attr = headerNode.Attributes["stringCount"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 stringCount = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["stringTableSize"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 stringTableSize = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["stringTableIndexOffset"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 stringTableIndexOffset = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["stringTableOffset"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 stringTableOffset = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["scenarioName"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 scenarioName = Reader.ReadString(256);
 
                 attr = headerNode.Attributes["fileCount"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 fileCount = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["fileTableOffset"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 fileTableOffset = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["fileTableSize"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 fileTableSize = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["fileTableIndexOffset"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 fileTableIndexOffset = Reader.ReadInt32();
 
                 attr = headerNode.Attributes["virtualBaseAddress"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset;
+                Reader.SeekTo(offset);
                 virtualBaseAddress = Reader.ReadInt32();
 
                 if (cache.Version >= DefinitionSet.Halo3Retail)
                 {
                     attr = headerNode.Attributes["rawTableOffset"];
                     offset = int.Parse(attr.Value);
-                    Reader.BaseStream.Position = offset;
+                    Reader.SeekTo(offset);
                     rawTableOffset = Reader.ReadInt32();
 
                     attr = headerNode.Attributes["localeModifier"];
                     offset = int.Parse(attr.Value);
-                    Reader.BaseStream.Position = offset;
+                    Reader.SeekTo(offset);
                     localeModifier = Reader.ReadInt32();
 
                     attr = headerNode.Attributes["rawTableSize"];
                     offset = int.Parse(attr.Value);
-                    Reader.BaseStream.Position = offset;
+                    Reader.SeekTo(offset);
                     rawTableSize = Reader.ReadInt32();
                 }
                 else
@@ -238,12 +272,19 @@ namespace Adjutant.Library.Cache
                     localeModifier = 0;
                     rawTableSize = 0;
                 }
+                if (cache.Version > DefinitionSet.HaloReachRetail)
+                {
+                    attr = headerNode.Attributes["tagDataAddress"];
+                    offset = int.Parse(attr.Value);
+                    Reader.SeekTo(offset);
+                    tagDataAddress = Reader.ReadInt32();
+                }
                 #endregion
 
                 #region Modify Offsets
                 if (cache.Version == DefinitionSet.Halo3Beta)
                 {
-                    Reader.BaseStream.Position = 16;
+                    Reader.SeekTo(16);
                     var constant = Reader.ReadInt32();
                     var metaStart = Reader.ReadInt32();
 
@@ -252,16 +293,22 @@ namespace Adjutant.Library.Cache
                 }
                 else if (cache.Version >= DefinitionSet.Halo3Retail)
                 {
-                    this.Magic = stringTableIndexOffset - cache.HeaderSize;
+                    if (rawTableOffset == 0)
+                    {
+                        cache.Magic = virtualBaseAddress - tagDataAddress;
+                    }
+                    else
+                    {
 
-                    fileTableOffset -= this.Magic;
-                    fileTableIndexOffset -= this.Magic;
-                    stringTableIndexOffset -= this.Magic;
-                    stringTableOffset -= this.Magic;
+                        this.Magic = stringTableIndexOffset - cache.HeaderSize;
 
-                    if (rawTableOffset == 0) throw new InvalidDataException();
+                        fileTableOffset -= this.Magic;
+                        fileTableIndexOffset -= this.Magic;
+                        stringTableIndexOffset -= this.Magic;
+                        stringTableOffset -= this.Magic;
 
-                    cache.Magic = virtualBaseAddress - (rawTableOffset + rawTableSize);
+                        cache.Magic = virtualBaseAddress - (rawTableOffset + rawTableSize);
+                    }
                     indexOffset -= cache.Magic;
                 }
                 else throw new InvalidDataException("Invalid cache version");
@@ -296,42 +343,42 @@ namespace Adjutant.Library.Cache
 
                 XmlAttribute attr = indexHeaderNode.Attributes["tagClassCount"];
                 int offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset + cache.Header.indexOffset;
+                Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagClassCount = Reader.ReadInt32();
 
                 attr = indexHeaderNode.Attributes["tagClassIndexOffset"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset + cache.Header.indexOffset;
+                Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagClassIndexOffset = Reader.ReadInt32() - cache.Magic;
 
                 attr = indexHeaderNode.Attributes["tagCount"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset + cache.Header.indexOffset;
+                Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagCount = Reader.ReadInt32();
 
                 attr = indexHeaderNode.Attributes["tagInfoOffset"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset + cache.Header.indexOffset;
+                Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagInfoOffset = Reader.ReadInt32() - cache.Magic;
 
                 attr = indexHeaderNode.Attributes["tagInfoHeaderCount"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset + cache.Header.indexOffset;
+                Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagInfoHeaderCount = Reader.ReadInt32();
 
                 attr = indexHeaderNode.Attributes["tagInfoHeaderOffset"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset + cache.Header.indexOffset;
+                Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagInfoHeaderOffset = Reader.ReadInt32() - cache.Magic;
 
                 attr = indexHeaderNode.Attributes["tagInfoHeaderCount2"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset + cache.Header.indexOffset;
+                Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagInfoHeaderCount2 = Reader.ReadInt32();
 
                 attr = indexHeaderNode.Attributes["tagInfoHeaderOffset2"];
                 offset = int.Parse(attr.Value);
-                Reader.BaseStream.Position = offset + cache.Header.indexOffset;
+                Reader.SeekTo(offset + cache.Header.indexOffset);
                 tagInfoHeaderOffset2 = Reader.ReadInt32() - cache.Magic;
                 #endregion
             }
@@ -348,7 +395,7 @@ namespace Adjutant.Library.Cache
                 CacheHeader CH = cache.Header;
 
                 #region Read Indices
-                Reader.BaseStream.Position = CH.stringTableIndexOffset;
+                Reader.SeekTo(CH.stringTableIndexOffset);
                 int[] indices = new int[CH.stringCount];
                 for (int i = 0; i < CH.stringCount; i++)
                 {
@@ -358,7 +405,7 @@ namespace Adjutant.Library.Cache
                 #endregion
 
                 #region Read Names
-                Reader.BaseStream.Position = CH.stringTableOffset;
+                Reader.SeekTo(CH.stringTableOffset);
                 EndianReader newReader = (cache.stringsKey == "")
                     ? new EndianReader(new MemoryStream(Reader.ReadBytes(CH.stringTableSize)), EndianFormat.BigEndian)
                     : AES.DecryptSegment(Reader, CH.stringTableOffset, CH.stringTableSize, cache.stringsKey);
@@ -371,7 +418,7 @@ namespace Adjutant.Library.Cache
                         continue;
                     }
 
-                    newReader.BaseStream.Position = indices[i];
+                    newReader.SeekTo(indices[i]);
 
                     int length;
                     if (i == indices.Length - 1)
@@ -402,11 +449,11 @@ namespace Adjutant.Library.Cache
                 {
                     foreach (string mod in mods)
                     {
-                        string[] Params = mod.Split(','); //[0] - sign, [1] - check, [2] - change
-                        int check = int.Parse(Params[1]);
-                        int change = int.Parse(Params[2]);
+                        string[] Params = mod.Split(','); //[0] - check, [1] - change
+                        int check = int.Parse(Params[0]);
+                        int change = int.Parse(Params[1]);
 
-                        if (Params[0] == "<")
+                        if (check < 0)
                         {
                             if (ID < check)
                             {
@@ -457,7 +504,7 @@ namespace Adjutant.Library.Cache
                 if (matgOffset == -1) return;
 
                 int localeStart = int.Parse(cache.buildNode.Attributes["localesStart"].Value);
-                Reader.BaseStream.Position = matgOffset + localeStart + (int)Lang * int.Parse(cache.buildNode.Attributes["languageSize"].Value);
+                Reader.SeekTo(matgOffset + localeStart + (int)Lang * int.Parse(cache.buildNode.Attributes["languageSize"].Value));
 
                 int localeCount = Reader.ReadInt32();
                 int tableSize = Reader.ReadInt32();
@@ -466,7 +513,7 @@ namespace Adjutant.Library.Cache
                 #endregion
 
                 #region Read Indices
-                Reader.BaseStream.Position = indexOffset;
+                Reader.SeekTo(indexOffset);
                 int[] indices = new int[localeCount];
                 for (int i = 0; i < localeCount; i++)
                 {
@@ -477,7 +524,7 @@ namespace Adjutant.Library.Cache
                 #endregion
 
                 #region Read Names
-                Reader.BaseStream.Position = tableOffset;
+                Reader.SeekTo(tableOffset);
                 EndianReader newReader = (cache.localesKey == "")
                     ? new EndianReader(new MemoryStream(Reader.ReadBytes(tableSize)), EndianFormat.BigEndian)
                     : AES.DecryptSegment(Reader, tableOffset, tableSize, cache.localesKey);
@@ -490,7 +537,7 @@ namespace Adjutant.Library.Cache
                         continue;
                     }
 
-                    newReader.BaseStream.Position = indices[i];
+                    newReader.SeekTo(indices[i]);
 
                     int length;
                     if (i == indices.Length - 1)
@@ -517,31 +564,22 @@ namespace Adjutant.Library.Cache
         public class IndexItem
         {
             public CacheFile Cache;
-            public string ClassCode;
+            public string ClassCode
+            {
+                get { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].ClassCode; }
+            }
             public string ClassName
             {
-                get
-                {
-                    var xml = new MemoryStream(Adjutant.Properties.Resources.Classes);
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.Load(xml);
-                    XmlElement element = xmlDoc.DocumentElement;
-
-                    foreach (XmlNode node in element.ChildNodes)
-                    {
-                        try
-                        {
-                            if (node.Attributes["code"].Value == ClassCode)
-                                return node.Attributes["name"].Value;
-                        }
-                        catch { }
-                    }
-
-                    return ClassCode;
-                }
+                get { return Cache.Strings.GetItemByID(Cache.IndexItems.ClassList[ClassIndex].StringID); }
             }
-            public string ParentClass;
-            public string ParentClass2;
+            public string ParentClass
+            {
+                get { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].Parent; }
+            }
+            public string ParentClass2
+            {
+                get { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].Parent2; }
+            }
             public string Filename;
             public int ID;
             public int Offset;
@@ -557,6 +595,7 @@ namespace Adjutant.Library.Cache
         public class IndexTable : List<IndexItem>
         {
             private CacheFile cache;
+            public List<TagClass> ClassList;
 
             public IndexTable(CacheFile Cache)
             {
@@ -565,30 +604,28 @@ namespace Adjutant.Library.Cache
                 CacheHeader CH = cache.Header;
                 EndianReader Reader = cache.Reader;
 
-                #region Read Class List
-                List<string> classes = new List<string>();
-                List<string> inherits = new List<string>();
-                List<string> inherits2 = new List<string>();
+                ClassList = new List<TagClass>();
 
-                Reader.BaseStream.Position = IH.tagClassIndexOffset;
+                #region Read Class List
+
+                Reader.SeekTo(IH.tagClassIndexOffset);
                 for (int i = 0; i < IH.tagClassCount; i++)
                 {
-                    classes.Add(Reader.ReadString(4));
-                    inherits.Add(Reader.ReadString(4));
-                    inherits2.Add(Reader.ReadString(4));
-                    Reader.BaseStream.Position += 4;
+                    TagClass tc = new TagClass();
+                    tc.ClassCode = Reader.ReadString(4);
+                    tc.Parent = Reader.ReadString(4);
+                    tc.Parent2 = Reader.ReadString(4);
+                    tc.StringID = Reader.ReadInt32();
+                    ClassList.Add(tc);
                 }
                 #endregion
 
                 #region Read Tags' Info
-                Reader.BaseStream.Position = IH.tagInfoOffset;
+                Reader.SeekTo(IH.tagInfoOffset);
                 for (int i = 0; i < IH.tagCount; i++)
                 {
                     IndexItem item = new IndexItem() { Cache = cache };
                     item.ClassIndex = Reader.ReadInt16();
-                    item.ClassCode = (item.ClassIndex == -1) ? "____" : classes[item.ClassIndex];
-                    item.ParentClass = (item.ClassIndex == -1) ? "____" : inherits[item.ClassIndex];
-                    item.ParentClass2 = (item.ClassIndex == -1) ? "____" : inherits2[item.ClassIndex];
                     item.ID = (Reader.ReadInt16() << 16) | i;
                     item.Offset = Reader.ReadInt32() - cache.Magic;
                     item.metaIndex = i;
@@ -597,14 +634,14 @@ namespace Adjutant.Library.Cache
                 #endregion
 
                 #region Read Indices
-                Reader.BaseStream.Position = CH.fileTableIndexOffset;
+                Reader.SeekTo(CH.fileTableIndexOffset);
                 int[] indices = new int[IH.tagCount];
                 for (int i = 0; i < IH.tagCount; i++)
                     indices[i] = Reader.ReadInt32();
                 #endregion
 
                 #region Read Names
-                Reader.BaseStream.Position = CH.fileTableOffset;
+                Reader.SeekTo(CH.fileTableOffset);
                 EndianReader newReader = (cache.tagsKey == "")
                     ? new EndianReader(new MemoryStream(Reader.ReadBytes(CH.fileTableSize)), EndianFormat.BigEndian)
                     : AES.DecryptSegment(Reader, CH.fileTableOffset, CH.fileTableSize, cache.tagsKey);
@@ -617,7 +654,7 @@ namespace Adjutant.Library.Cache
                         continue;
                     }
 
-                    newReader.BaseStream.Position = indices[i];
+                    newReader.SeekTo(indices[i]);
 
                     int length;
                     if (i == indices.Length - 1)
@@ -672,6 +709,15 @@ namespace Adjutant.Library.Cache
                 return this[ID & 0xFFFF];
             }
         }
+
+        public class TagClass
+        {
+            public string ClassCode;
+            public string Parent;
+            public string Parent2;
+            public int StringID;
+        }
+
         #endregion
 
         #region Methods
@@ -687,12 +733,18 @@ namespace Adjutant.Library.Cache
             ugh_ = null;
             buildNode = null;
             versionNode = null;
+            vertexNode = null;
             Header = null;
             IndexHeader = null;
         }
 
         private void VerifyXML()
         {
+            /* Originally meant to be used to verify that external
+             * XML files had no errors and contained all needed data.
+             * But XMLs ended up internal only, and now this just
+             * loads the required build node and version node. */
+             
             #region Find Build
             var xml = new MemoryStream(Adjutant.Properties.Resources.Builds);
             XmlDocument xmlDoc = new XmlDocument();
@@ -704,7 +756,7 @@ namespace Adjutant.Library.Cache
                 if (element.ChildNodes[i].Name.ToLower() != "build")
                     continue;
 
-                if (element.ChildNodes[i].Attributes["name"].Value == Build)
+                if (element.ChildNodes[i].Attributes["string"].Value == Build)
                 {
                     if (element.ChildNodes[i].Attributes["inherits"].Value != "")
                     {
@@ -751,13 +803,7 @@ namespace Adjutant.Library.Cache
             xml.Close();
             xml.Dispose();
             #endregion
-        }
 
-        private void LoadLocaleTables()
-        {
-            LocaleTables = new List<LocaleTable>();
-            for (int i = 0; i < int.Parse(buildNode.Attributes["languageCount"].Value); i++)
-                LocaleTables.Add(new LocaleTable(this, (Language)i));
         }
 
         private void LoadPlayZone()
@@ -765,6 +811,19 @@ namespace Adjutant.Library.Cache
             foreach(IndexItem item in IndexItems)
                 if (item.ClassCode == "play")
                 {
+                    if (item.Offset > Reader.Length)
+                    {
+                        foreach (IndexItem item2 in IndexItems)
+                            if (item2.ClassCode == "zone")
+                            {
+                                //fix for H4 prologue, play address is out of 
+                                //bounds and data is held inside the zone tag 
+                                //instead so make a fake play tag using zone data
+                                item.Offset = item2.Offset + 28;
+                                break;
+                            }
+                    }
+
                     play = DefinitionsManager.play(this, item);
                     break;
                 }
@@ -791,54 +850,13 @@ namespace Adjutant.Library.Cache
 
         public byte[] GetRawFromID(int ID, int DataLength)
         {
+            if (Version == DefinitionSet.Halo3Beta)
+                return GetH3BRaw(ID, DataLength);
+
             EndianReader er;
             string fName = "";
 
             var Entry = zone.RawEntries[ID & ushort.MaxValue];
-
-            #region H3B
-            if (Version == DefinitionSet.Halo3Beta)
-            {
-                if (Entry.MapIndex != -1)
-                {
-                    switch (Entry.MapIndex)
-                    {
-                        case 0:
-                            fName = FilePath + "\\mainmenu.map";
-                            break;
-                        case 1:
-                            fName = FilePath + "\\campaign.map";
-                            break;
-                        case 2:
-                            fName = FilePath + "\\shared.map";
-                            break;
-                    }
-
-                    if (fName == Filename)
-                        er = Reader;
-                    else
-                    {
-                        FileStream fs = new FileStream(fName, FileMode.Open, FileAccess.Read);
-                        er = new EndianReader(fs, EndianFormat.BigEndian);
-                    }
-                }
-                else
-                    er = Reader;
-
-                er.BaseStream.Position = HeaderSize + ((Entry.Offset2 != -1) ? Entry.Offset2 : Entry.Offset);
-                BinaryReader BR = new BinaryReader(new DeflateStream(er.BaseStream, CompressionMode.Decompress));
-                byte[] dataB = Reader.ReadBytes((DataLength != -1) ? DataLength : ((Entry.Size2 != -1) ? Entry.Size2 : Entry.Size));
-
-
-                if (er != Reader)
-                {
-                    BR.Close();
-                    BR.Dispose();
-                }
-
-                return dataB;
-            }
-            #endregion
 
             if (Entry.SegmentIndex == -1) throw new InvalidDataException("Raw data not found.");
 
@@ -849,6 +867,14 @@ namespace Adjutant.Library.Cache
 
             int index = (Loc.OptionalPageIndex2 != -1) ? Loc.OptionalPageIndex2 : (Loc.OptionalPageIndex != -1) ? Loc.OptionalPageIndex : Loc.RequiredPageIndex;
             int locOffset = (Loc.OptionalPageOffset2 != -1) ? Loc.OptionalPageOffset2 : (Loc.OptionalPageOffset != -1) ? Loc.OptionalPageOffset : Loc.RequiredPageOffset;
+
+            if (index == -1 || locOffset == -1) throw new InvalidDataException("Raw data not found.");
+            
+            if (play.Pages[index].RawOffset == -1)
+            {
+                index = Loc.RequiredPageIndex;
+                locOffset = Loc.RequiredPageOffset;
+            }
 
             var Pool = play.Pages[index];
 
@@ -869,13 +895,13 @@ namespace Adjutant.Library.Cache
             else
                 er = Reader;
 
-            er.BaseStream.Position = int.Parse(versionNode.ChildNodes[0].Attributes["rawTableOffset"].Value);
+            er.SeekTo(int.Parse(versionNode.ChildNodes[0].Attributes["rawTableOffset"].Value));
             int offset = Pool.RawOffset + er.ReadInt32();
-            er.BaseStream.Position = offset;
+            er.SeekTo(offset);
             byte[] compressed = er.ReadBytes(Pool.CompressedSize);
             byte[] decompressed = new byte[Pool.DecompressedSize];
 
-            if (Version == DefinitionSet.Halo4Retail)
+            if (Version >= DefinitionSet.Halo4Retail)
             {
                 int decompressionContext = 0;
                 XMemCreateDecompressionContext(XMemCodecType.LZX, 0, 0, ref decompressionContext);
@@ -905,6 +931,40 @@ namespace Adjutant.Library.Cache
             return data;
         }
 
+        private byte[] GetH3BRaw(int ID, int DataLength)
+        {
+            EndianReader er;
+            string fName = "";
+
+            var Entry = zone.RawEntries[ID & ushort.MaxValue];
+
+            var offset = (Entry.OptionalOffset > 0) ? Entry.OptionalOffset : Entry.RequiredOffset;
+            var size = (Entry.OptionalSize > 0) ? Entry.OptionalSize : Entry.RequiredSize;
+
+            if (DataLength > size)
+                size = DataLength;
+
+            if (Entry.CacheIndex != -1)
+            {
+                fName = FilePath + "\\shared.map";
+                FileStream fs = new FileStream(fName, FileMode.Open, FileAccess.Read);
+                er = new EndianReader(fs, EndianFormat.BigEndian);
+            }
+            else
+                er = Reader;
+
+            er.SeekTo(offset);
+            var data = er.ReadBytes(size);
+
+            if (er != Reader)
+            {
+                er.Close();
+                er.Dispose();
+            }
+
+            return data;
+        }
+
         public byte[] GetSoundRaw(int ID, int size)
         {
             var Entry = zone.RawEntries[ID & ushort.MaxValue];
@@ -915,6 +975,13 @@ namespace Adjutant.Library.Cache
             var sRaw = play.SoundRawChunks[segment.SoundRawIndex];
             var reqPage = play.Pages[segment.RequiredPageIndex];
             var optPage = play.Pages[segment.OptionalPageIndex];
+
+            if (size == 0)
+            {
+                //System.Windows.Forms.MessageBox.Show("0 size");
+                size = (reqPage.CompressedSize != 0) ? reqPage.CompressedSize : optPage.CompressedSize;
+            }
+
             var reqSize = size - sRaw.RawSize;
             var optSize = size - reqSize;
 
@@ -949,10 +1016,10 @@ namespace Adjutant.Library.Cache
                 else
                     er = Reader;
 
-                er.BaseStream.Position = 1136;
+                er.SeekTo(1136);
                 offset = reqPage.RawOffset + er.ReadInt32();
 
-                er.BaseStream.Position = offset;
+                er.SeekTo(offset);
                 buffer = er.ReadBytes(reqPage.CompressedSize);
 
                 Array.Copy(buffer, segment.RequiredPageOffset, data, 0, reqSize);
@@ -982,10 +1049,10 @@ namespace Adjutant.Library.Cache
                 else
                     er = Reader;
 
-                er.BaseStream.Position = 1136;
+                er.SeekTo(1136);
                 offset = optPage.RawOffset + er.ReadInt32();
 
-                er.BaseStream.Position = offset;
+                er.SeekTo(offset);
                 buffer = er.ReadBytes(optPage.CompressedSize);
 
                 Array.Copy(buffer, segment.OptionalPageOffset, data, reqSize, optSize);

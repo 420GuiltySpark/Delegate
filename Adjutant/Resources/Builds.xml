@@ -1,5 +1,5 @@
 ﻿<builds>
-  <!--<build name="09699.07.05.01.1534.delta"
+  <build string="09699.07.05.01.1534.delta"
          inherits=""
          headerSize="2048"
 		     tagsKey=""
@@ -9,11 +9,12 @@
          version="Halo3Beta"
          plugins="Halo3Beta"
 		     definitions="Halo3Beta"
-		     stringMods=""
+         vertDef="Halo3"
+		     stringMods="+64307,-64307;+1229,+1173"
 		     localesStart="488"
          languageCount="11"
-         languageSize="28" />-->
-  <build name="11855.07.08.20.2317.halo3_ship"
+         languageSize="28" />
+  <build string="11855.07.08.20.2317.halo3_ship"
          inherits=""
          headerSize="12288"
 		     tagsKey=""
@@ -23,11 +24,12 @@
          version="General"
          plugins="Halo3"
 		     definitions="Halo3Retail"
-		     stringMods=">,262143,-259153;>,64329,-64329;>,1208,+1882"
+         vertDef="Halo3"
+		     stringMods="+262143,-259153;+64329,-64329;+1208,+1882"
 		     localesStart="452"
          languageCount="12"
          languageSize="68" />
-  <build name="13895.09.04.27.2201.atlas_relea"
+  <build string="13895.09.04.27.2201.atlas_relea"
          inherits=""
          headerSize="12288"
 		     tagsKey=""
@@ -37,11 +39,12 @@
          version="General"
          plugins="ODST"
 		     definitions="Halo3ODST"
-		     stringMods=">,258846,-258846;>,64231,-64231;>,1304,+2098"
+         vertDef="Halo3"
+		     stringMods="+258846,-258846;+64231,-64231;+1304,+2098"
 		     localesStart="508"
          languageCount="12"
          languageSize="68" />
-  <build name="09730.10.04.09.1309.omaha_delta"
+  <build string="09730.10.04.09.1309.omaha_delta"
          inherits=""
          headerSize="16384"
 		     tagsKey="rs&amp;m*l#/t%_()e;["
@@ -51,11 +54,12 @@
          version="General"
          plugins="ReachBeta"
 		     definitions="ReachBeta"
-		     stringMods=">,584958,-584958;>,64412,-64412;>,1123,+3983"
+         vertDef="HaloReach"
+		     stringMods="+584958,-584958;+64412,-64412;+1123,+3983"
 		     localesStart="576"
          languageCount="12"
          languageSize="68" />
-  <build name="11860.10.07.24.0147.omaha_relea"
+  <build string="11860.10.07.24.0147.omaha_relea"
          inherits=""
          headerSize="40960"
 		     tagsKey="LetsAllPlayNice!"
@@ -65,11 +69,12 @@
          version="General"
          plugins="Reach"
 		     definitions="ReachRetail"
-		     stringMods=">,1174139,-1174139;>,129874,-129874;>,1123,+4604"
+         vertDef="HaloReach"
+		     stringMods="+1174139,-1174139;+129874,-129874;+1123,+4604"
 		     localesStart="656"
          languageCount="12"
          languageSize="68" />
-  <build name="20810.12.09.22.1647.main"
+  <build string="20810.12.09.22.1647.main"
          inherits=""
          headerSize="122880"
 		     tagsKey="LetsAllPlayNice!"
@@ -79,21 +84,45 @@
          version="Halo4"
          plugins="Halo4"
 		     definitions="Halo4Retail"
-		     stringMods=">,1584,+6796"
+         vertDef="Halo4"
+		     stringMods="+522703,-522703;+1584,+6796"
 		     localesStart="700"
          languageCount="12"
          languageSize="68" />
-  
-  <build name="12065.08.08.26.0819.halo3_ship" inherits="11855.07.08.20.2317.halo3_ship" />
-  <build name="16531.12.07.05.0200.main" inherits="20810.12.09.22.1647.main" />
-  <build name="17539.12.07.24.0200.main" inherits="20810.12.09.22.1647.main" />
-  <build name="18223.12.08.06.0200.main" inherits="20810.12.09.22.1647.main" />
-  <build name="18845.12.08.16.0200.main" inherits="20810.12.09.22.1647.main" />
-  <build name="20190.12.09.05.0200.main" inherits="20810.12.09.22.1647.main" />
-  <build name="20703.12.09.16.0400.main" inherits="20810.12.09.22.1647.main" />
-  <build name="20744.12.09.18.0100.main" inherits="20810.12.09.22.1647.main" />
-  <build name="21122.12.11.21.0101.main" inherits="20810.12.09.22.1647.main" />
-  <build name="21165.12.12.12.0112.main" inherits="20810.12.09.22.1647.main" />
-  <build name="21339.13.02.05.0117.main" inherits="20810.12.09.22.1647.main" />
-  <build name="21391.13.03.13.1711.main" inherits="20810.12.09.22.1647.main" />
+  <build string="12065.08.08.26.0819.halo3_ship" inherits="11855.07.08.20.2317.halo3_ship" />
+  <build string="20975.12.10.25.1337.main" name="????" inherits="20810.12.09.22.1647.main" /><!---->
+  <build string="21122.12.11.21.0101.main" name="TU02" inherits="20810.12.09.22.1647.main" />
+  <build string="21165.12.12.12.0112.main" name="TU03" inherits="20810.12.09.22.1647.main" />
+  <build string="21339.13.02.05.0117.main" name="TU04" inherits="20810.12.09.22.1647.main" />
+  <build string="21391.13.03.13.1711.main" name="TU05" inherits="20810.12.09.22.1647.main" />
+  <build string="21401.13.04.23.1849.main" name="TU06" inherits="20810.12.09.22.1647.main" />
+  <build string="21501.13.08.06.2311.main" name="TU07" inherits="20810.12.09.22.1647.main" />
+  <build string="21522.13.10.17.1936.main" name="TU08" inherits="20810.12.09.22.1647.main" />
+
+
+  <!-- ================================================================================== -->
+
+
+  <build string="16531.12.07.05.0200.main" name="DLC1" inherits="20810.12.09.22.1647.main" />
+  <build string="17539.12.07.24.0200.main" name="DLC3" inherits="20810.12.09.22.1647.main" />
+  <build string="18223.12.08.06.0200.main" name="????" inherits="20810.12.09.22.1647.main" />
+  <build string="18845.12.08.16.0200.main" name="DLC4" inherits="20810.12.09.22.1647.main" />
+  <build string="20190.12.09.05.0200.main" name="DLC5" inherits="20810.12.09.22.1647.main" />
+  <build string="20703.12.09.16.0400.main" name="DLC6" inherits="20810.12.09.22.1647.main" />
+  <build string="20744.12.09.18.0100.main" name="DLC7" inherits="20810.12.09.22.1647.main" />
+  <build string="14064.12.05.05.1011.beta"
+         inherits=""
+         headerSize="122880"
+		     tagsKey="LetsAllPlayNice!"
+		     stringsKey="ILikeSafeStrings"
+		     localesKey="BungieHaloReach!"
+		     networkKey="SneakerNetReigns"
+         version="Halo4"
+         plugins="Halo4"
+		     definitions="Halo4Beta"
+         vertDef="Halo4"
+		     stringMods="+1488,+5937"
+		     localesStart="696"
+         languageCount="12"
+         languageSize="68" />
 </builds>

@@ -22,6 +22,8 @@ namespace Adjutant.Library.Controls
         private bitmap bitm;
         private bool isWorking;
 
+        public BitmapFormat DefaultBitmFormat = BitmapFormat.TIF;
+
         public BitmapExtractor()
         {
             InitializeComponent();
@@ -37,7 +39,7 @@ namespace Adjutant.Library.Controls
             bitm = DefinitionsManager.bitm(cache, tag);
 
             lstBitmaps.Items.Clear();
-            var list = GetBitmapsByTag(cache, tag, true);
+            var list = GetBitmapsByTag(cache, tag, PixelFormat.Format32bppArgb);
             for (int i = 0; i < list.Count; i++)
             {
                 var submap = bitm.Bitmaps[i];
@@ -94,10 +96,10 @@ namespace Adjutant.Library.Controls
         /// <param name="Index">The index of the BitmapData chunk to use.</param>
         /// <param name="Alpha">Whether to include the alpha channel in the image.</param>
         /// <returns>The image from the bitmap tag as a Bitmap.</returns>
-        public static Bitmap GetBitmapByTag(CacheFile Cache, CacheFile.IndexItem Tag, int Index, bool Alpha)
+        public static Bitmap GetBitmapByTag(CacheFile Cache, CacheFile.IndexItem Tag, int Index, PixelFormat PF)
         {
             var bitm = DefinitionsManager.bitm(Cache, Tag);
-            return GetBitmapByTag(Cache, bitm, Index, Alpha);
+            return GetBitmapByTag(Cache, bitm, Index, PF);
         }
 
 
@@ -109,7 +111,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Index">The index of the BitmapData chunk to use.</param>
         /// <param name="Alpha">Whether to include the alpha channel in the image.</param>
         /// <returns>The image from the bitmap tag as a Bitmap.</returns>
-        public static Bitmap GetBitmapByTag(CacheFile Cache, bitmap bitm, int Index, bool Alpha)
+        public static Bitmap GetBitmapByTag(CacheFile Cache, bitmap bitm, int Index, PixelFormat PF)
         {
             try
             {
@@ -133,11 +135,11 @@ namespace Adjutant.Library.Controls
                 int vWidth = submap.VirtualWidth;
 
                 if (submap.Type == TextureType.CubeMap)
-                    return DXTDecoder.DecodeCubeMap(raw, submap, Alpha);
+                    return DXTDecoder.DecodeCubeMap(raw, submap, PF);
 
                 raw = DXTDecoder.DecodeBitmap(raw, submap);
 
-                PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
+                //PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
                 Bitmap bitmap2 = new Bitmap(submap.Width, submap.Height, PF);
                 Rectangle rect = new Rectangle(0, 0, submap.Width, submap.Height);
                 BitmapData bitmapdata = bitmap2.LockBits(rect, ImageLockMode.WriteOnly, PF);
@@ -166,10 +168,10 @@ namespace Adjutant.Library.Controls
         /// <param name="Tag">The bitmap tag.</param>
         /// <param name="Alpha">Whether to include the alpha channels in the images.</param>
         /// <returns>A List containing each image as a Bitmap.</returns>
-        public static List<Bitmap> GetBitmapsByTag(CacheFile Cache, CacheFile.IndexItem Tag, bool Alpha)
+        public static List<Bitmap> GetBitmapsByTag(CacheFile Cache, CacheFile.IndexItem Tag, PixelFormat PF)
         {
             var bitm = DefinitionsManager.bitm(Cache, Tag);
-            return GetBitmapsByTag(Cache, bitm, Alpha);
+            return GetBitmapsByTag(Cache, bitm, PF);
         }
 
         /// <summary>
@@ -179,12 +181,12 @@ namespace Adjutant.Library.Controls
         /// <param name="bitm">The bitmap tag.</param>
         /// <param name="Alpha">Whether to include the alpha channels in the images.</param>
         /// <returns>A List containing each image as a Bitmap.</returns>
-        public static List<Bitmap> GetBitmapsByTag(CacheFile Cache, bitmap bitm, bool Alpha)
+        public static List<Bitmap> GetBitmapsByTag(CacheFile Cache, bitmap bitm, PixelFormat PF)
         {
             List<Bitmap> list = new List<Bitmap>();
 
             for (int i = 0; i < bitm.Bitmaps.Count; i++)
-                list.Add(GetBitmapByTag(Cache, bitm, i, Alpha));
+                list.Add(GetBitmapByTag(Cache, bitm, i, PF));
 
             return list;
         }
@@ -236,13 +238,19 @@ namespace Adjutant.Library.Controls
             int vHeight = submap.VirtualHeight;
             int vWidth = submap.VirtualWidth;
 
-            if (Format == BitmapFormat.TIF)
+            if (Format == BitmapFormat.TIF || Format == BitmapFormat.PNG64)
             {
-                if (!Filename.EndsWith(".tif")) Filename += ".tif";
+                string ext = (Format == BitmapFormat.TIF) ? ".tif" : ".png";
+                int pLength = (Format == BitmapFormat.TIF) ? 4 : 8;
+                ImageFormat IF = (Format == BitmapFormat.TIF) ? ImageFormat.Tiff : ImageFormat.Png;
+
+                if (!Filename.EndsWith(ext)) Filename += ext;
 
                 if (submap.Type == TextureType.CubeMap)
                 {
-                    var img = DXTDecoder.DecodeCubeMap(raw, submap, Alpha);
+                    if (Format == BitmapFormat.PNG64) throw new Exception("Cubemaps not supported in 64bpp.");
+
+                    var img = DXTDecoder.DecodeCubeMap(raw, submap, Alpha ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb);
                     if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
                     img.Save(Filename, ImageFormat.Tiff);
                     return;
@@ -250,21 +258,39 @@ namespace Adjutant.Library.Controls
 
                 raw = DXTDecoder.DecodeBitmap(raw, submap);
 
+                if (Format == BitmapFormat.PNG64)
+                {
+                    var br = new BinaryWriter(new MemoryStream());
+
+                    for (int i = 0; i < raw.Length; i++)
+                    {
+                        if (!Alpha && i % 4 == 3)
+                            br.Write((ushort)0xFFFF);
+                        else
+                            br.Write((ushort)(raw[i] * 257));
+                    }
+
+                    br.BaseStream.Position = 0;
+                    raw = (new BinaryReader(br.BaseStream)).ReadBytes((int)br.BaseStream.Length);
+                }
+
                 PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
+                if (Format == BitmapFormat.PNG64) PF = PixelFormat.Format64bppArgb;
+
                 Bitmap bitmap2 = new Bitmap(submap.Width, submap.Height, PF);
                 Rectangle rect = new Rectangle(0, 0, submap.Width, submap.Height);
                 BitmapData bitmapdata = bitmap2.LockBits(rect, ImageLockMode.WriteOnly, PF);
-                byte[] destinationArray = new byte[(submap.Width * submap.Height) * 4];
+                byte[] destinationArray = new byte[(submap.Width * submap.Height) * pLength];
 
                 for (int j = 0; j < submap.Height; j++)
-                    Array.Copy(raw, j * vWidth * 4, destinationArray, j * submap.Width * 4, submap.Width * 4);
+                    Array.Copy(raw, j * vWidth * pLength, destinationArray, j * submap.Width * pLength, submap.Width * pLength);
 
                 Marshal.Copy(destinationArray, 0, bitmapdata.Scan0, destinationArray.Length);
                 bitmap2.UnlockBits(bitmapdata);
 
                 if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
-                bitmap2.Save(Filename, ImageFormat.Tiff);
+                bitmap2.Save(Filename, IF);
             }
             else if (Format == BitmapFormat.DDS)
             {
@@ -299,7 +325,8 @@ namespace Adjutant.Library.Controls
 
                 File.WriteAllBytes(Filename, raw);
             }
-            else throw new InvalidOperationException("Invalid BitmapFormat received.");
+            else 
+                throw new InvalidOperationException("Invalid BitmapFormat received.");
         }
         #endregion
 
@@ -343,6 +370,10 @@ namespace Adjutant.Library.Controls
                     ext = ".bin";
                     break;
 
+                case BitmapFormat.PNG64:
+                    ext = ".png";
+                    break;
+
                 default:
                     throw new InvalidOperationException("Invalid BitmapFormat received.");
             }
@@ -383,7 +414,7 @@ namespace Adjutant.Library.Controls
             try
             {
                 bitm.Bitmaps[lstBitmaps.FocusedItem.Index].Format = (TextureFormat)cmbFormat.SelectedIndex;
-                lstBitmaps.FocusedItem.Tag = GetBitmapByTag(cache, bitm, lstBitmaps.FocusedItem.Index, true);
+                lstBitmaps.FocusedItem.Tag = GetBitmapByTag(cache, bitm, lstBitmaps.FocusedItem.Index, PixelFormat.Format32bppArgb);
                 lstBitmaps_SelectedIndexChanged(null, null);
             }
             catch
@@ -402,7 +433,8 @@ namespace Adjutant.Library.Controls
             var sfd = new SaveFileDialog()
             {
                 FileName = fName,
-                Filter = "TIF Files|*.tif|DDS Files|*.dds|Raw Data|*.bin"
+                Filter = "TIF Files|*.tif|DDS Files|*.dds|Raw Data|*.bin|64bpp PNG Files|*.png",
+                FilterIndex = (int)DefaultBitmFormat + 1
             };
 
             if (sfd.ShowDialog() != DialogResult.OK) return;
@@ -420,7 +452,8 @@ namespace Adjutant.Library.Controls
             var sfd = new SaveFileDialog()
             {
                 FileName = tag.Filename.Substring(tag.Filename.LastIndexOf('\\') + 1),
-                Filter = "TIF Files|*.tif|DDS Files|*.dds|Raw Data|*.bin"
+                Filter = "TIF Files|*.tif|DDS Files|*.dds|Raw Data|*.bin|64bpp PNG Files|*.png",
+                FilterIndex = (int)DefaultBitmFormat + 1
             };
 
             if (sfd.ShowDialog() != DialogResult.OK) return;

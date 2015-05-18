@@ -29,6 +29,10 @@ namespace Adjutant.Library.Controls
         private render_model mode;
         private bool isWorking = false;
         private Dictionary<render_model.Region.Permutation, Model3DGroup> meshDic = new Dictionary<render_model.Region.Permutation, Model3DGroup>();
+        private Dictionary<int, Model3DGroup> geomDic = new Dictionary<int, Model3DGroup>();
+        private List<MaterialGroup> shaders = new List<MaterialGroup>();
+
+        public ModelFormat DefaultModeFormat = ModelFormat.EMF;
 
         public System.Drawing.Color RenderBackColor
         {
@@ -46,11 +50,15 @@ namespace Adjutant.Library.Controls
         #region Methods
         public void LoadModelTag(CacheFile Cache, CacheFile.IndexItem Tag, bool Specular, bool UserPermFilter, bool Force)
         {
-            try { loadModelTag(Cache, Tag, Specular, UserPermFilter, Force); }
+            try
+            {
+                Clear();
+                loadModelTag(Cache, Tag, Specular, UserPermFilter, Force);
+            }
             catch (Exception ex)
             {
                 renderer1.ClearViewport();
-                meshDic.Clear();
+                Clear();
                 renderer1.Stop("Loading failed: " + ex.Message);
                 tvRegions.Nodes.Clear();
                 this.Enabled = false;
@@ -69,17 +77,17 @@ namespace Adjutant.Library.Controls
 
             mode = DefinitionsManager.mode(cache, tag);
             ModelFunctions.LoadModelRaw(cache, ref mode);
-            ModelFunctions.LoadModelExtras(ref mode);
 
             isWorking = true;
 
+            #region Build Tree
             foreach (var region in mode.Regions)
             {
                 TreeNode node = new TreeNode(region.Name) { Tag = region };
                 foreach (var perm in region.Permutations)
                 {
                     if (perm.PieceIndex != -1)
-                        if (mode.ModelParts[perm.PieceIndex].ValidPartIndex != 255 && mode.ModelParts[perm.PieceIndex].TotalVertexCount > 0)
+                        if (mode.ModelSections[perm.PieceIndex].Submeshes.Count > 0)
                             node.Nodes.Add(new TreeNode(perm.Name) { Tag = perm });
                 }
                 if (node.Nodes.Count > 0)
@@ -103,14 +111,18 @@ namespace Adjutant.Library.Controls
                     node.Nodes[0].Checked = node.Checked = true;
             }
 
+            tvRegions.Sort();
+            #endregion
+
             isWorking = false;
 
-            LoadMeshes(GetShaders(Specular), Force);
+            LoadShaders(Specular);
+            LoadMeshes(Force);
 
             #region BoundingBox Stuff
             PerspectiveCamera camera = (PerspectiveCamera)renderer1.Viewport.Camera;
 
-            var bb = mode.BoundingBoxs[0];
+            var bb = mode.BoundingBoxes[0];
 
             double pythagoras3d = Math.Sqrt(
                 Math.Pow(bb.XBounds.Length, 2) +
@@ -151,20 +163,41 @@ namespace Adjutant.Library.Controls
             renderer1.Start();
         }
 
-        private List<MaterialGroup> GetShaders(bool spec)
+        private void LoadShaders(bool spec)
         {
-            var shaders = new List<MaterialGroup>();
+            var errMat = GetErrorMaterial();
 
             if (mode.Shaders.Count == 0)
             {
                 var matGroup = new MaterialGroup();
-                matGroup.Children.Add(GetErrorMaterial());
+                matGroup.Children.Add(errMat);
                 shaders.Add(matGroup);
-                return shaders;
             }
 
             foreach (render_model.Shader s in mode.Shaders)
             {
+                #region Skip Unused
+                bool found = false;
+                foreach (var sec in mode.ModelSections)
+                {
+                    foreach (var sub in sec.Submeshes)
+                    {
+                        if (sub.ShaderIndex == mode.Shaders.IndexOf(s))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) break;
+                }
+
+                if (!found)
+                {
+                    shaders.Add(null);
+                    continue;
+                }
+                #endregion
+
                 var matGroup = new MaterialGroup();
 
                 try
@@ -173,17 +206,33 @@ namespace Adjutant.Library.Controls
                     var rmshTag = cache.IndexItems.GetItemByID(s.tagID);
                     var rmsh = DefinitionsManager.rmsh(cache, rmshTag);
 
-                    var bitmTag = cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[0].BitmapTagID);
-                    var image = BitmapExtractor.GetBitmapByTag(cache, bitmTag, 0, true);
+                    int mapIndex = 0;
+                    if (cache.Version <= DefinitionSet.HaloReachRetail)
+                    {
+                        var rmt2Tag = cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
+                        var rmt2 = DefinitionsManager.rmt2(cache, rmt2Tag);
+
+                        for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
+                        {
+                            if (rmt2.UsageBlocks[i].Usage == "base_map")
+                            {
+                                mapIndex = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    var bitmTag = cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[mapIndex].BitmapTagID);
+                    var image = BitmapExtractor.GetBitmapByTag(cache, bitmTag, 0, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
                     if (image == null)
                     {
-                        matGroup.Children.Add(GetErrorMaterial());
+                        matGroup.Children.Add(errMat);
                         shaders.Add(matGroup);
                         continue;
                     }
 
-                    int tileIndex = rmsh.Properties[0].ShaderMaps[0].TilingIndex;
+                    int tileIndex = rmsh.Properties[0].ShaderMaps[mapIndex].TilingIndex;
                     float uTiling;
                     try { uTiling = rmsh.Properties[0].Tilings[tileIndex].UTiling; }
                     catch { uTiling = 1; }
@@ -192,8 +241,8 @@ namespace Adjutant.Library.Controls
                     try { vTiling = rmsh.Properties[0].Tilings[tileIndex].VTiling; }
                     catch { vTiling = 1; }
 
-                    MemoryStream stream = new MemoryStream();
-                    image.Save(stream, (rmshTag.ClassCode == "rmsh" || rmshTag.ClassCode == "mat") ? ImageFormat.Bmp : ImageFormat.Png);
+                    MemoryStream stream = new MemoryStream();                                                        //PNG for transparency
+                    image.Save(stream, (rmshTag.ClassCode == "rmsh" || rmshTag.ClassCode == "mat") ? ImageFormat.Bmp : ImageFormat.Bmp);
 
                     var diffuse = new BitmapImage();
 
@@ -238,18 +287,16 @@ namespace Adjutant.Library.Controls
                 }
                 catch
                 {
-                    matGroup.Children.Add(GetErrorMaterial());
+                    matGroup.Children.Add(errMat);
                     shaders.Add(matGroup);
                 }
             }
-
-            return shaders;
-            
         }
 
-        private void LoadMeshes(List<MaterialGroup> shaders, bool force)
+        private void LoadMeshes(bool force)
         {
             meshDic = new Dictionary<render_model.Region.Permutation, Model3DGroup>();
+            geomDic = new Dictionary<int, Model3DGroup>();
 
             foreach (var region in mode.Regions)
             {
@@ -257,23 +304,43 @@ namespace Adjutant.Library.Controls
                 {
                     if (perm.PieceIndex != -1)
                     {
+                        var ModelPart = mode.ModelSections[perm.PieceIndex];
+
+                        if (ModelPart.Submeshes.Count == 0) continue;
+
                         var group = new Model3DGroup();
-                        var ModelPart = mode.ModelParts[perm.PieceIndex];
-                        foreach (var Submesh in ModelPart.Submeshes)
-                            AddMesh(group, ModelPart, Submesh, shaders, force);
+                        var oldGroup = new Model3DGroup();
+
+                        if (perm.PieceIndex >= mode.InstancedGeometryIndex && mode.InstancedGeometryIndex != -1)
+                        {
+                            foreach (var Submesh in ModelPart.Submeshes)
+                                AddMesh(group, ModelPart, Submesh, force);
+                        }
+                        else if (geomDic.TryGetValue(ModelPart.FacesIndex, out oldGroup))
+                        {
+                            for (int i = 0; i < ModelPart.Submeshes.Count; i++)
+                                AddCopy(group, oldGroup, ModelPart, i, force);
+                        }
+                        else
+                        {
+                            foreach (var Submesh in ModelPart.Submeshes)
+                                AddMesh(group, ModelPart, Submesh, force);
+                            geomDic.Add(ModelPart.FacesIndex, group);
+                        }
+
                         meshDic.Add(perm, group);
                     }
                 }
             }
         }
 
-        private void AddMesh(Model3DGroup group, render_model.ModelPart part, render_model.ModelPart.Submesh submesh, List<MaterialGroup> shaders, bool force)
+        private void AddMesh(Model3DGroup group, render_model.ModelSection part, render_model.ModelSection.Submesh submesh, bool force)
         {
             try
             {
                 var geom = new MeshGeometry3D();
 
-                var iList = ModelFunctions.GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, part);
+                var iList = ModelFunctions.GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, mode.IndexInfoList[part.FacesIndex].FaceFormat);
 
                 int min = iList.Min();
                 int max = iList.Max();
@@ -287,8 +354,14 @@ namespace Adjutant.Library.Controls
                 foreach (var vertex in vArray)
                 {
                     if (vertex == null) continue;
-                    geom.Positions.Add(new Point3D(vertex.Positions[0].x, vertex.Positions[0].y, vertex.Positions[0].z));
-                    geom.TextureCoordinates.Add(new System.Windows.Point(vertex.TexPos[0].x, 1f - vertex.TexPos[0].y));
+                    VertexValue pos, tex, norm;
+                    vertex.TryGetValue("position", 0, out pos);
+                    //if (!vertex.TryGetValue("texcoords", 5, out tex))
+                        vertex.TryGetValue("texcoords", 0, out tex);
+                    
+                    geom.Positions.Add(new Point3D(pos.Data.x, pos.Data.y, pos.Data.z));
+                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x, 1f - tex.Data.y));
+                    if (vertex.TryGetValue("normal", 0, out norm)) geom.Normals.Add(new Vector3D(norm.Data.x, norm.Data.y, norm.Data.z));
                 }
 
                 foreach (var index in iList)
@@ -304,11 +377,23 @@ namespace Adjutant.Library.Controls
             catch (Exception ex) { if (!force) throw ex; }
         }
 
+        private void AddCopy(Model3DGroup newGroup, Model3DGroup oldGroup, render_model.ModelSection part, int submeshIndex, bool force)
+        {
+            try
+            {
+                GeometryModel3D modeld = new GeometryModel3D();
+                modeld.Geometry = ((GeometryModel3D)oldGroup.Children[submeshIndex]).Geometry;
+                modeld.Material = modeld.BackMaterial = shaders[part.Submeshes[submeshIndex].ShaderIndex];
+
+                newGroup.Children.Add(modeld);
+            }
+            catch (Exception ex) { if (!force) throw ex; }
+        }
+
         private void RenderSelected()
         {
             renderer1.ClearViewport();
             Model3DGroup group = new Model3DGroup();
-            List<Model3DGroup> decals = new List<Model3DGroup>();
 
             foreach(TreeNode parent in tvRegions.Nodes)
             {
@@ -388,6 +473,38 @@ namespace Adjutant.Library.Controls
             RenderSelected();
         }
 
+        private void tvRegions_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (tvRegions.SelectedNode != null && tvRegions.SelectedNode.Parent != null)
+                tvRegions.ContextMenuStrip = contextMenuStrip1;
+            else
+                tvRegions.ContextMenuStrip = null;
+        }
+
+        private void selectPermutationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (TreeNode pNode in tvRegions.Nodes)
+            {
+                foreach (TreeNode cNode in pNode.Nodes)
+                {
+                    if (cNode.Text == tvRegions.SelectedNode.Text)
+                        cNode.Checked = true;
+                }
+            }
+        }
+
+        private void deselectPermutationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (TreeNode pNode in tvRegions.Nodes)
+            {
+                foreach (TreeNode cNode in pNode.Nodes)
+                {
+                    if (cNode.Text == tvRegions.SelectedNode.Text)
+                        cNode.Checked = false;
+                }
+            }
+        }
+
         private void btnBDS_Click(object sender, EventArgs e)
         {
             isWorking = true;
@@ -451,7 +568,8 @@ namespace Adjutant.Library.Controls
 
             var sfd = new SaveFileDialog()
             {
-                Filter = "EMF Files|*.emf|OBJ Files|*.obj|JMS Files|*.jms",
+                Filter = "EMF Files|*.emf|OBJ Files|*.obj|AMF Files|*.amf|JMS Files|*.jms",
+                FilterIndex = (int)DefaultModeFormat + 1,
                 FileName = tag.Filename.Substring(tag.Filename.LastIndexOf("\\") + 1)
             };
 
@@ -467,13 +585,22 @@ namespace Adjutant.Library.Controls
         }
         #endregion
 
-        new public void Dispose()
+        public void Clear()
         {
-            renderer1.viewport.Children.Clear();
-            renderer1.Stop("");
-            meshDic.Clear();
+            foreach (var val in meshDic)
+                val.Value.Children.Clear();
 
-            base.Dispose();
+            foreach (var val in geomDic)
+                val.Value.Children.Clear();
+
+            foreach (var val in shaders)
+                if (val != null) val.Children.Clear();
+
+            meshDic.Clear();
+            geomDic.Clear();
+            shaders.Clear();
+
+            GC.Collect();
         }
 
         public event TagExtractedEventHandler TagExtracted;

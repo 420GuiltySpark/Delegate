@@ -18,21 +18,18 @@ namespace Adjutant
         public BitmapFormat BitmFormat;
         public ModelFormat ModeFormat;
         public SoundFormat Snd_Format;
-        //public bool Reflex;
 
         public Settings()
         {
             mapFolder = dataFolder = classFilter = "";
             permFilter = "base default standard";
-            pluginFolder = "Plugins\\";
+            pluginFolder = ".\\Plugins\\";
             Flags = SettingsFlags.AutoUpdateCheck | SettingsFlags.BitmapAlpha | SettingsFlags.LoadSpecular | SettingsFlags.SortTags | SettingsFlags.UsePermFilter | SettingsFlags.UseClassFilter;
             ViewerColour = Color.CornflowerBlue;
             Language = Language.English;
             BitmFormat = 0;
             ModeFormat = 0;
             Snd_Format = 0;
-
-            //Reflex = false;
         }
 
         public Settings(MemoryStream Stream)
@@ -51,8 +48,6 @@ namespace Adjutant
             BitmFormat = (BitmapFormat)br.ReadByte();
             ModeFormat = (ModelFormat)br.ReadByte();
             Snd_Format = (SoundFormat)br.ReadByte();
-
-            //Reflex = false;
         }
 
         public MemoryStream ToStream()
@@ -96,6 +91,6 @@ namespace Adjutant
         bit13            = 4096,    //0001000000000000
         bit14            = 8192,    //0010000000000000
         bit15            = 16384,   //0100000000000000
-        HierarchyView    = 32768    //1000000000000000
+        HierarchyView    = 32768,   //1000000000000000
     }
 }

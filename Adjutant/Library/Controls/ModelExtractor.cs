@@ -17,8 +17,12 @@ namespace Adjutant.Library.Controls
     {
         private CacheFile cache;
         private CacheFile.IndexItem tag;
+        private render_model mode;
         private bool isWorking = false;
         private string filter = "";
+
+        public ModelFormat DefaultModeFormat = ModelFormat.EMF;
+        public BitmapFormat DefaultBitmFormat = BitmapFormat.TIF;
 
         public string DataFolder = "";
         public string PermFilter
@@ -42,10 +46,13 @@ namespace Adjutant.Library.Controls
             cache = Cache;
             tag = Tag;
 
-            var mode = DefinitionsManager.mode(cache, tag);
+            mode = DefinitionsManager.mode(cache, tag);
+
+            if (mode.InstancedGeometryIndex != -1) ModelFunctions.LoadModelRaw(cache, ref mode);
 
             lblName.Text = mode.Name;
 
+            isWorking = true;
             tvRegions.Nodes.Clear();
             foreach (var region in mode.Regions)
             {
@@ -53,17 +60,21 @@ namespace Adjutant.Library.Controls
                 foreach (var perm in region.Permutations)
                 {
                     if (perm.PieceIndex != -1)
-                        if (mode.ModelParts[perm.PieceIndex].ValidPartIndex != 255 && mode.ModelParts[perm.PieceIndex].TotalVertexCount > 0)
+                        if (mode.ModelSections[perm.PieceIndex].Submeshes.Count > 0)
                             node.Nodes.Add(new TreeNode(perm.Name) { Checked = true, Tag = perm });
                 }
                 if(node.Nodes.Count > 0)
                     tvRegions.Nodes.Add(node);
             }
+
+            tvRegions.Sort();
+
+            isWorking = false;
         }
 
         private void RecursiveExtract(object SaveFolder)
         {
-            var mode = DefinitionsManager.mode(cache, tag);
+            //var mode = DefinitionsManager.mode(cache, tag);
 
             List<CacheFile.IndexItem> tagsDone = new List<CacheFile.IndexItem>();
 
@@ -83,7 +94,7 @@ namespace Adjutant.Library.Controls
 
                         try
                         {
-                            BitmapExtractor.SaveAllImages((string)SaveFolder + "\\" + bitmTag.Filename, cache, bitmTag, BitmapFormat.TIF, true);
+                            BitmapExtractor.SaveAllImages((string)SaveFolder + "\\" + bitmTag.Filename, cache, bitmTag, DefaultBitmFormat, true);
                             TagExtracted(this, bitmTag);
                         }
                         catch (Exception ex) { ErrorExtracting(this, bitmTag, ex); }
@@ -119,6 +130,9 @@ namespace Adjutant.Library.Controls
                 case ModelFormat.OBJ:
                     ModelFunctions.WriteOBJ(Filename, Cache, Model, PartIndices);
                     break;
+                case ModelFormat.AMF:
+                    ModelFunctions.WriteAMF(Filename, Cache, Model, PartIndices);
+                    break;
             }
         }
 
@@ -133,11 +147,12 @@ namespace Adjutant.Library.Controls
         public static void SaveAllModelParts(string Filename, CacheFile Cache, CacheFile.IndexItem Tag, ModelFormat Format, bool SplitMeshes)
         {
             var mode = DefinitionsManager.mode(Cache, Tag);
-            List<int> Parts = new List<int>();
+            ModelFunctions.LoadModelRaw(Cache, ref mode);
 
-            for (int i = 0; i < mode.ModelParts.Count; i++)
+            List<int> Parts = new List<int>();
+            for (int i = 0; i < mode.ModelSections.Count; i++)
             {
-                if (mode.ModelParts[i].ValidPartIndex != 255 && mode.ModelParts[i].TotalVertexCount > 0)
+                if (mode.ModelSections[i].Submeshes.Count > 0 /*&& mode.ModelParts[i].TotalVertexCount > 0*/)
                     Parts.Add(i);
             }
 
@@ -180,6 +195,14 @@ namespace Adjutant.Library.Controls
             isWorking = false;
         }
 
+        private void tvRegions_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (tvRegions.SelectedNode != null && tvRegions.SelectedNode.Parent != null)
+                selectPermutationToolStripMenuItem.Visible = deselectPermutationToolStripMenuItem.Visible = true;
+            else
+                selectPermutationToolStripMenuItem.Visible = deselectPermutationToolStripMenuItem.Visible = false;
+        }
+
         private void btnExportModel_Click(object sender, EventArgs e)
         {
             List<int> parts = new List<int>();
@@ -197,7 +220,8 @@ namespace Adjutant.Library.Controls
 
             var sfd = new SaveFileDialog()
             {
-                Filter = "EMF Files|*.emf|OBJ Files|*.obj|JMS Files|*.jms",
+                Filter = "EMF Files|*.emf|OBJ Files|*.obj|AMF Files|*.amf|JMS Files|*.jms",
+                FilterIndex = (int)DefaultModeFormat + 1,
                 FileName = tag.Filename.Substring(tag.Filename.LastIndexOf("\\") + 1)
             };
 
@@ -206,7 +230,7 @@ namespace Adjutant.Library.Controls
             var format = (ModelFormat)(sfd.FilterIndex - 1);
             try
             {
-                SaveModelParts(sfd.FileName, cache, DefinitionsManager.mode(cache, tag), format, parts, chkSplit.Checked);
+                SaveModelParts(sfd.FileName, cache, mode, format, parts, chkSplit.Checked);
                 TagExtracted(this, tag);
             }
             catch (Exception ex) { ErrorExtracting(this, tag, ex); }
@@ -214,6 +238,7 @@ namespace Adjutant.Library.Controls
 
         private void btnExportBitmaps_Click(object sender, EventArgs e)
         {
+            
             FolderBrowserDialog dialog = new FolderBrowserDialog
             {
                 ShowNewFolderButton = true,
@@ -268,6 +293,30 @@ namespace Adjutant.Library.Controls
                 }
             }
             isWorking = false;
+        }
+
+        private void selectPermutationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (TreeNode pNode in tvRegions.Nodes)
+            {
+                foreach (TreeNode cNode in pNode.Nodes)
+                {
+                    if (cNode.Text == tvRegions.SelectedNode.Text)
+                        cNode.Checked = true;
+                }
+            }
+        }
+
+        private void deselectPermutationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (TreeNode pNode in tvRegions.Nodes)
+            {
+                foreach (TreeNode cNode in pNode.Nodes)
+                {
+                    if (cNode.Text == tvRegions.SelectedNode.Text)
+                        cNode.Checked = false;
+                }
+            }
         }
         #endregion
 

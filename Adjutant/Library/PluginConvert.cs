@@ -29,24 +29,30 @@ namespace Adjutant.Library
                 var xml = new FileStream(s, FileMode.Open, FileAccess.Read);
                 var doc = new XmlDocument();
                 doc.Load(xml);
-                ConvertPlugin(doc, fbd.SelectedPath);
+                ConvertPlugin(doc, fbd.SelectedPath, Path.GetFileNameWithoutExtension(s));
                 xml.Close();
                 xml.Dispose();
             }
         }
 
-        private void ConvertPlugin(XmlDocument Doc, string saveTo)
+        private void ConvertPlugin(XmlDocument Doc, string saveTo, string cls)
         {
             var element = Doc.DocumentElement;
 
-            string path = saveTo + "\\" + element.Attributes["class"].Value.Replace("<", "_").Replace(">", "_") + ".xml";
-            var fs = new FileStream(path, FileMode.OpenOrCreate);
+            string path;
+            try { path = saveTo + "\\" + element.Attributes["class"].Value.Replace("<", "_").Replace(">", "_") + ".xml"; }
+            catch { path = saveTo + "\\" + cls + ".xml"; }
 
+            var fs = new FileStream(path, FileMode.OpenOrCreate);
             XmlTextWriter xtw = new XmlTextWriter(fs, Encoding.ASCII) { Formatting = Formatting.Indented };
 
             xtw.WriteStartElement("plugin");
-            xtw.WriteAttributeString("class", element.Attributes["class"].Value);
-            xtw.WriteAttributeString("headersize", element.Attributes["headersize"].Value);
+
+            try { xtw.WriteAttributeString("class", element.Attributes["class"].Value); }
+            catch { xtw.WriteAttributeString("class", cls); }
+
+            try { xtw.WriteAttributeString("headersize", element.Attributes["headersize"].Value); }
+            catch { }
 
             #region write revisions
             xtw.WriteStartElement("revisions");
@@ -90,7 +96,7 @@ namespace Adjutant.Library
                     xtw.WriteAttributeString("offset", node.Attributes["offset"].Value);
                     vis = Convert.ToBoolean(node.Attributes["visible"].Value);
                     xtw.WriteAttributeString("visible", vis.ToString());
-                    xtw.WriteAttributeString("size", node.Attributes["size"].Value);
+                    xtw.WriteAttributeString("size", node.Attributes["entrySize"].Value);
                     foreach (XmlNode n in node.ChildNodes)
                         WriteNode(xtw, n);
                     xtw.WriteEndElement();

@@ -25,5 +25,10 @@ namespace Adjutant.Library.Definitions
         public int Unknown1;
         public int RawID;
         public int MaxPlaytime;
+
+        //Halo4Retail
+        public uint SoundAddress1;
+        public uint SoundAddress2;
+        public int SoundBankTagID;
     }
 }

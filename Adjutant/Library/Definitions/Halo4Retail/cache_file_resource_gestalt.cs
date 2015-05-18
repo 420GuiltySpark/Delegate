@@ -11,18 +11,40 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 {
     internal class cache_file_resource_gestalt : zone
     {
-        internal cache_file_resource_gestalt(CacheFile Cache)
+        internal cache_file_resource_gestalt(CacheFile Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Address);
 
-            Reader.BaseStream.Position += 88; //88
+            Reader.SeekTo(Address + 88);
 
+            #region Raw Entries
+            long temp = Reader.BaseStream.Position;
+            int iCount = Reader.ReadInt32();
+            int iOffset = Reader.ReadInt32() - Cache.Magic;
+            Reader.BaseStream.Position = iOffset;
             RawEntries = new List<zone.RawEntry>();
-            int rCount = Reader.ReadInt32();
-            int rOffset = Reader.ReadInt32() - Cache.Magic;
-            Reader.BaseStream.Position = rOffset;
-            for (int i = 0; i < rCount; i++)
+            for (int i = 0; i < iCount; i++)
                 RawEntries.Add(new RawEntry(Cache));
+            Reader.SeekTo(Address + 100);
+            #endregion
+
+            Reader.SeekTo(Address + 316);
+
+            if (Cache.Version == DefinitionSet.Halo4Retail)
+                Reader.SeekTo(Address + 340);
+
+
+            #region Fixup Data
+            temp = Reader.BaseStream.Position;
+            iCount = Reader.ReadInt32();
+            int a = Reader.ReadInt32();
+            int b = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
+            Reader.BaseStream.Position = iOffset;
+            FixupData = Reader.ReadBytes(iCount);
+            Reader.BaseStream.Position = temp + 24;
+            #endregion
         }
 
         new internal class RawEntry : zone.RawEntry
@@ -33,9 +55,73 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 
                 Reader.BaseStream.Position += 12; //12
                 TagID = Reader.ReadInt32();
-                Reader.BaseStream.Position += 10; //26
+                Reader.ReadInt16();
+                Reader.ReadByte();
+                Reader.ReadByte();
+                FixupSize = Reader.ReadInt32();
+                Reader.ReadInt16();
                 SegmentIndex = Reader.ReadInt16();
-                Reader.BaseStream.Position += 40; //68
+                Reader.ReadInt32();
+
+                #region Resources
+                long temp = Reader.BaseStream.Position;
+                int iCount = Reader.ReadInt32();
+                int iOffset = Reader.ReadInt32() - Cache.Magic;
+                Reader.BaseStream.Position = iOffset;
+                Fixups = new List<zone.RawEntry.ResourceFixup>();
+                for (int i = 0; i < iCount; i++)
+                    Fixups.Add(new ResourceFixup(Cache));
+                Reader.BaseStream.Position = temp + 12;
+                #endregion
+
+                #region Resource Definitions
+                temp = Reader.BaseStream.Position;
+                iCount = Reader.ReadInt32();
+                iOffset = Reader.ReadInt32() - Cache.Magic;
+                Reader.BaseStream.Position = iOffset;
+                DefinitionFixups = new List<zone.RawEntry.ResourceDefinitionFixup>();
+                for (int i = 0; i < iCount; i++)
+                    DefinitionFixups.Add(new ResourceDefinitionFixup(Cache));
+                Reader.BaseStream.Position = temp + 12;
+                #endregion
+
+                #region Fixup Location
+                temp = Reader.BaseStream.Position;
+                iCount = Reader.ReadInt32();
+                iOffset = Reader.ReadInt32() - Cache.Magic;
+                Reader.BaseStream.Position = iOffset;
+                if (iCount > 0)
+                    FixupOffset = Reader.ReadInt32();
+                //for (int i = 1; i < iCount; i++)
+                //    if (Reader.ReadInt32() > 0) throw new Exception("check this");
+                Reader.BaseStream.Position = temp + 12;
+                #endregion
+
+                //Reader.BaseStream.Position += 12; // 68
+            }
+
+            new internal class ResourceFixup : zone.RawEntry.ResourceFixup
+            {
+                internal ResourceFixup(CacheFile Cache)
+                {
+                    EndianReader Reader = Cache.Reader;
+
+                    Reader.ReadInt32();
+                    int val = Reader.ReadInt32();
+                    Unknown = val >> 28;
+                    Offset = val & 0x0FFFFFFF;
+                }
+            }
+
+            new internal class ResourceDefinitionFixup : zone.RawEntry.ResourceDefinitionFixup
+            {
+                internal ResourceDefinitionFixup(CacheFile Cache)
+                {
+                    EndianReader Reader = Cache.Reader;
+
+                    Offset = Reader.ReadInt32();
+                    Type = Reader.ReadInt32();
+                }
             }
         }
     }

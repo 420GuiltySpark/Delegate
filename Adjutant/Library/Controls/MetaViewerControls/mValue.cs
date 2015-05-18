@@ -25,6 +25,9 @@ namespace Adjutant.Library.Controls.MetaViewerControls
 
             try { lblDesc.Text = value.Node.Attributes["desc"].Value; }
             catch { lblDesc.Text = ""; }
+#if DEBUG
+            lblDesc.Text += " " + value.Node.Attributes["offset"].Value;
+#endif
         }
 
         public override void Reload(int ParentAddress)
@@ -74,6 +77,12 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                 default:
                     throw new InvalidOperationException("Cannot load " + value.Type.ToString() + " values using mValue.");
             }
+
+            try
+            {
+                txtValue.Text = (int.Parse(txtValue.Text) & Convert.ToInt32(value.Node.Attributes["mask"].Value, 16)).ToString();
+            }
+            catch { }
         }
 
         private void mValue_DoubleClick(object sender, EventArgs e)
@@ -92,6 +101,23 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             if (sfd.ShowDialog() != DialogResult.OK) return;
 
             var data = cache.GetRawFromID(val);
+            File.WriteAllBytes(sfd.FileName, data);
+
+            MessageBox.Show("Done!");
+        }
+
+        private void dumpZoneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var sfd = new SaveFileDialog()
+            {
+                Filter = "Binary Files|*.bin"
+            };
+
+            if (sfd.ShowDialog() != DialogResult.OK) return;
+
+            var entry = cache.zone.RawEntries[val & ushort.MaxValue];
+            var data = new byte[entry.FixupSize];
+            Array.Copy(cache.zone.FixupData, entry.FixupOffset, data, 0, entry.FixupSize);
             File.WriteAllBytes(sfd.FileName, data);
 
             MessageBox.Show("Done!");

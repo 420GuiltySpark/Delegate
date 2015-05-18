@@ -45,6 +45,7 @@
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateMaxScriptsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.eMF3ImporterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aMFImporterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.downloadPluginsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.convertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,7 +55,6 @@
             this.forceUpdateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewAdjutantHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.forumPostToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.versionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -95,7 +95,7 @@
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.newToolStripMenuItem.Text = "New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
@@ -104,7 +104,7 @@
             this.openToolStripMenuItem.Enabled = false;
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -113,7 +113,7 @@
             this.reloadToolStripMenuItem.Enabled = false;
             this.reloadToolStripMenuItem.Name = "reloadToolStripMenuItem";
             this.reloadToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
-            this.reloadToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.reloadToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.reloadToolStripMenuItem.Text = "Reload";
             this.reloadToolStripMenuItem.Click += new System.EventHandler(this.reloadToolStripMenuItem_Click);
             // 
@@ -122,14 +122,14 @@
             this.closeToolStripMenuItem.Enabled = false;
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
             this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -195,7 +195,8 @@
             // generateMaxScriptsToolStripMenuItem
             // 
             this.generateMaxScriptsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.eMF3ImporterToolStripMenuItem});
+            this.eMF3ImporterToolStripMenuItem,
+            this.aMFImporterToolStripMenuItem});
             this.generateMaxScriptsToolStripMenuItem.Name = "generateMaxScriptsToolStripMenuItem";
             this.generateMaxScriptsToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.generateMaxScriptsToolStripMenuItem.Text = "Generate MaxScripts";
@@ -206,6 +207,13 @@
             this.eMF3ImporterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.eMF3ImporterToolStripMenuItem.Text = "EMF3 Importer";
             this.eMF3ImporterToolStripMenuItem.Click += new System.EventHandler(this.eMF3ImporterToolStripMenuItem_Click);
+            // 
+            // aMFImporterToolStripMenuItem
+            // 
+            this.aMFImporterToolStripMenuItem.Name = "aMFImporterToolStripMenuItem";
+            this.aMFImporterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aMFImporterToolStripMenuItem.Text = "AMF Importer";
+            this.aMFImporterToolStripMenuItem.Click += new System.EventHandler(this.aMFImporterToolStripMenuItem_Click);
             // 
             // downloadPluginsToolStripMenuItem
             // 
@@ -262,8 +270,7 @@
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.viewAdjutantHelpToolStripMenuItem,
-            this.forumPostToolStripMenuItem});
+            this.viewAdjutantHelpToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
@@ -272,16 +279,9 @@
             // 
             this.viewAdjutantHelpToolStripMenuItem.Name = "viewAdjutantHelpToolStripMenuItem";
             this.viewAdjutantHelpToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.viewAdjutantHelpToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.viewAdjutantHelpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.viewAdjutantHelpToolStripMenuItem.Text = "View Help";
             this.viewAdjutantHelpToolStripMenuItem.Click += new System.EventHandler(this.viewAdjutantHelpToolStripMenuItem_Click);
-            // 
-            // forumPostToolStripMenuItem
-            // 
-            this.forumPostToolStripMenuItem.Name = "forumPostToolStripMenuItem";
-            this.forumPostToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
-            this.forumPostToolStripMenuItem.Text = "View Forum Post";
-            this.forumPostToolStripMenuItem.Click += new System.EventHandler(this.forumPostToolStripMenuItem_Click);
             // 
             // versionToolStripMenuItem
             // 
@@ -377,12 +377,12 @@
         private System.Windows.Forms.ToolStripMenuItem generateMaxScriptsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem eMF3ImporterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem forumPostToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem downloadPluginsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem convertToolStripMenuItem;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
         private System.Windows.Forms.ToolStripMenuItem viewAdjutantHelpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem versionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aMFImporterToolStripMenuItem;
     }
 }
 

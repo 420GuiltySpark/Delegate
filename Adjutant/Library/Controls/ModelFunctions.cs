@@ -6,8 +6,9 @@ using System.IO;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.DataTypes;
-using Adjutant.Library.DataTypes.Space;
 using Adjutant.Library.Endian;
+using System.Xml;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Adjutant.Library.Controls
 {
@@ -19,534 +20,595 @@ namespace Adjutant.Library.Controls
             var ms = new MemoryStream(data);
             var reader = new EndianReader(ms, Endian.EndianFormat.BigEndian);
 
-            var validParts = new Dictionary<int, render_model.ModelPart>();
+            var validParts = new Dictionary<int, render_model.ModelSection>();
 
-            int totalVerts = 0;
-            for (int i = 0; i < mode.ModelParts.Count; i++)
+            //int totalVerts = 0;
+            //for (int i = 0; i < mode.ModelParts.Count; i++)
+            //{
+            //    totalVerts += mode.ModelParts[i].TotalVertexCount;
+            //}
+
+            LoadModelFixups(Cache, ref mode);
+
+            if (mode.IndexInfoList.Count == 0) throw new Exception("Geometry contains no faces");
+
+            #region Read Vertices
+            for (int i = 0; i < mode.ModelSections.Count; i++)
             {
-                totalVerts += mode.ModelParts[i].TotalVertexCount;
-            }
+                var section = mode.ModelSections[i];
+                if (section.Submeshes.Count == 0) continue;
 
-            for(int i = 0; i < mode.ModelParts.Count; i++)
-            {
-                var ModelPart = mode.ModelParts[i];
+                if (section.VertsIndex >= 0 && section.VertsIndex < mode.VertInfoList.Count) reader.BaseStream.Position = mode.VertInfoList[section.VertsIndex].Offset;
 
-                if (ModelPart.ValidPartIndex == 255) continue;
-
-                render_model.ModelPart validPart;
-                if (validParts.TryGetValue(ModelPart.ValidPartIndex, out validPart))
+                if (Cache.vertexNode == null) throw new NotSupportedException("No vertex definitions found for " + Cache.Version.ToString());
+               
+                #region Get Vertex Definition
+                XmlNode formatNode = null;
+                foreach (XmlNode node in Cache.vertexNode.ChildNodes)
                 {
-                    ModelPart.Vertices = validPart.Vertices;
+                    if (Convert.ToInt32(node.Attributes["type"].Value, 16) == section.VertexFormat)
+                    {
+                        formatNode = node;
+                        break;
+                    }
+                }
+
+                if (formatNode == null) throw new NotSupportedException("Format " + section.VertexFormat.ToString() + " not found in definition for " + Cache.Version.ToString());
+                #endregion
+
+
+                render_model.ModelSection validPart;
+                if (validParts.TryGetValue(section.VertsIndex, out validPart))
+                {
+                    section.Vertices = validPart.Vertices;
                     continue;
                 }
                 else
-                    validParts.Add(ModelPart.ValidPartIndex, ModelPart);
+                    validParts.Add(section.VertsIndex, section);
 
-                ModelPart.Vertices = new Vertex[ModelPart.TotalVertexCount];
-                #region Get Padding Size
-                int totalPad = 0;
-                switch (Cache.Version)
+                section.Vertices = new Vertex[mode.VertInfoList[section.VertsIndex].VertexCount];
+                
+                #region Get Vertices
+                for (int j = 0; j < mode.VertInfoList[section.VertsIndex].VertexCount; j++)
                 {
-                    case DefinitionSet.Halo3Retail:
-                    case DefinitionSet.Halo3ODST:
-                        switch (ModelPart.TransparentNodesPerVertex)
-                        {
-                            case 3:
-                                totalPad += 8 * ModelPart.TotalVertexCount;
-                                break;
-                        }
-                        switch (ModelPart.OpaqueNodesPerVertex)
-                        {
-                            case 0:
-                            case 2:
-                                totalPad += 4 * ModelPart.TotalVertexCount;
-                                break;
-                            case 1:
-                                totalPad += ModelPart.TotalVertexCount;
-                                break;
-                            case 3:
-                                totalPad += 12 * ModelPart.TotalVertexCount;
-                                break;
-                        }
-                        break;
+                    section.Vertices[j] = new Vertex(reader, formatNode);
+                    DecompressVertex(ref section.Vertices[j], mode.BoundingBoxes[0]);
 
-                    case DefinitionSet.HaloReachBeta:
-                    case DefinitionSet.HaloReachRetail:
-                    case DefinitionSet.Halo4Retail:
-                        switch (ModelPart.TransparentNodesPerVertex)
-                        {
-                            case 3:
-                                totalPad += 11 * ModelPart.TotalVertexCount;
-                                break;
-                        }
-                        switch (ModelPart.OpaqueNodesPerVertex)
-                        {
-                            case 0:
-                            case 1:
-                                totalPad += ModelPart.OpaqueNodesPerVertex * ModelPart.TotalVertexCount;
-                                break;
-                            default:
-                                throw new Exception("CHECK THIS");
-                        }
-                        break;
+                    #region fixups
+                    var vert = section.Vertices[j];
+                    VertexValue v;
 
-                    default:
-                        throw new NotSupportedException("Supplied definition set does not support vertex formats.");
+                    #region rigid fix
+                    if (section.NodeIndex != 255 && !mode.Flags.Values[18])
+                    {
+                        vert.Values.Add(new VertexValue(new RealQuat(section.NodeIndex, 0, 0, 0), 0, "blendindices", 0));
+                        vert.Values.Add(new VertexValue(new RealQuat(1, 0, 0, 0), 0, "blendweight", 0));
+                    }
+                    #endregion
+
+                    #region flag 18 fix
+                    if (mode.Flags.Values[18])
+                    {
+                        VertexValue w;
+                        var hasWeights = vert.TryGetValue("blendweight", 0, out w);
+
+                        if(!hasWeights) w = new VertexValue(new RealQuat(1, 0, 0, 0), 0, "blendweight", 0);
+
+                        if (vert.TryGetValue("blendindices", 0, out v))
+                        {
+                            v.Data.a = w.Data.a == 0 ? 0 : mode.NodeIndexGroups[i].NodeIndices[(int)v.Data.a].Index;
+                            v.Data.b = w.Data.b == 0 ? 0 : mode.NodeIndexGroups[i].NodeIndices[(int)v.Data.b].Index;
+                            v.Data.c = w.Data.c == 0 ? 0 : mode.NodeIndexGroups[i].NodeIndices[(int)v.Data.c].Index;
+                            v.Data.d = w.Data.d == 0 ? 0 : mode.NodeIndexGroups[i].NodeIndices[(int)v.Data.d].Index;
+                        }
+                        else
+                        {
+                            v = new VertexValue(new RealQuat(0, 0, 0, 0), 0, "blendindices", 0);
+                            v.Data.a = mode.NodeIndexGroups[i].NodeIndices[0].Index;
+                            vert.Values.Add(v);
+                            vert.Values.Add(w);
+                        }
+                    }
+                    #endregion
+
+                    #region rigid_boned fix
+                    if (!vert.TryGetValue("blendweight", 0, out v) && vert.TryGetValue("blendindices", 0, out v))
+                    {
+                        var q = new RealQuat(
+                            v.Data.a == 0 ? 0 : 1, 
+                            v.Data.b == 0 ? 0 : 1, 
+                            v.Data.c == 0 ? 0 : 1, 
+                            v.Data.d == 0 ? 0 : 1);
+                        vert.Values.Add(new VertexValue(q, 0, "blendweight", 0));
+                    }
+                    #endregion
+
+                    #endregion
                 }
                 #endregion
-
-                #region Get Vertices
-                for (int j = 0; j < ModelPart.TotalVertexCount; j++)
-                    ModelPart.Vertices[j] = DecompressVertex(GetVertex(reader, ModelPart, Cache.Version), mode.BoundingBoxs[0]);
-
-                reader.ReadBytes(totalPad);
-                reader.BaseStream.Position += (reader.BaseStream.Position % 4 != 0) ? 4 - reader.BaseStream.Position % 4 : 0;
-                #endregion
             }
+            #endregion
 
             validParts.Clear();
 
-            for (int i = 0; i < mode.ModelParts.Count; i++)
+            #region Read Indices
+            for (int i = 0; i < mode.ModelSections.Count; i++)
             {
-                var ModelPart = mode.ModelParts[i];
+                var section = mode.ModelSections[i];
+                if (section.Submeshes.Count == 0) continue;
 
-                if (ModelPart.ValidPartIndex == 255) continue;
+                if (section.FacesIndex >= 0 && section.FacesIndex < mode.IndexInfoList.Count) reader.BaseStream.Position = mode.IndexInfoList[section.FacesIndex].Offset;
 
-                render_model.ModelPart validPart;
-                if (validParts.TryGetValue(ModelPart.ValidPartIndex, out validPart))
+                render_model.ModelSection validPart;
+                if (validParts.TryGetValue(section.FacesIndex, out validPart))
                 {
-                    ModelPart.Indices = validPart.Indices;
+                    section.Indices = validPart.Indices;
                     continue;
                 }
                 else
-                    validParts.Add(ModelPart.ValidPartIndex, ModelPart);
+                    validParts.Add(section.FacesIndex, section);
 
-                ModelPart.Indices = new int[ModelPart.TotalFaceCount];
-                for (int j = 0; j < ModelPart.TotalFaceCount; j++)
-                    ModelPart.Indices[j] = (ModelPart.TotalVertexCount > 0xFFFF) ? reader.ReadInt32() : reader.ReadUInt16();
-
-                reader.BaseStream.Position += (reader.BaseStream.Position % 4 != 0) ? 4 - reader.BaseStream.Position % 4 : 0;
+                section.Indices = new int[section.TotalFaceCount];
+                for (int j = 0; j < section.TotalFaceCount; j++)
+                    section.Indices[j] = (mode.VertInfoList[section.VertsIndex].VertexCount > 0xFFFF) ? reader.ReadInt32() : reader.ReadUInt16();
             }
+            #endregion
+
+            LoadModelExtras(ref mode);
 
             mode.RawLoaded = true;
         }
 
-        public static List<int> GetTriangleList(int[] Indices, int Start, int Length, render_model.ModelPart Part)
+        public static void LoadBSPRaw(CacheFile Cache, ref scenario_structure_bsp sbsp)
         {
-            if (Part.Subsets[0] is Definitions.Halo4Retail.render_model.ModelPart.Subset)
+            var data = Cache.GetRawFromID(sbsp.geomRawID);
+            
+            var ms = new MemoryStream(data);
+            var reader = new EndianReader(ms, EndianFormat.BigEndian);
+
+            var validParts = new Dictionary<int, render_model.ModelSection>();
+
+            LoadBSPFixups(Cache, ref sbsp);
+
+            #region Read Vertices
+            for (int i = 0; i < sbsp.ModelSections.Count; i++)
             {
-                if (((Definitions.Halo4Retail.render_model.ModelPart.Subset)Part.Subsets[0]).FaceType == 0)
+                var section = sbsp.ModelSections[i];
+                if (section.Submeshes.Count == 0) continue;
+
+                if (section.VertsIndex >= 0 && section.VertsIndex < sbsp.VertInfoList.Count) reader.SeekTo(sbsp.VertInfoList[section.VertsIndex].Offset);
+
+                if (Cache.vertexNode == null) throw new NotSupportedException("No vertex definitions found for " + Cache.Version.ToString());
+
+                #region Get Vertex Definition
+                XmlNode formatNode = null;
+                foreach (XmlNode node in Cache.vertexNode.ChildNodes)
                 {
-                    var arr = new int[Length];
-                    Array.Copy(Indices, Start, arr, 0, Length);
-                    return new List<int>(arr);
+                    if (Convert.ToInt32(node.Attributes["type"].Value, 16) == section.VertexFormat)
+                    {
+                        formatNode = node;
+                        break;
+                    }
                 }
+
+                if (formatNode == null) throw new NotSupportedException("Format " + section.VertexFormat.ToString() + " not found in definition for " + Cache.Version.ToString());
+                #endregion
+
+                render_model.ModelSection validPart;
+                if (validParts.TryGetValue(section.VertsIndex, out validPart))
+                {
+                    section.Vertices = validPart.Vertices;
+                    continue;
+                }
+                else
+                    validParts.Add(section.VertsIndex, section);
+
+                section.Vertices = new Vertex[sbsp.VertInfoList[section.VertsIndex].VertexCount];
+
+                #region Get Vertices
+                for (int j = 0; j < sbsp.VertInfoList[section.VertsIndex].VertexCount; j++)
+                {
+                    render_model.BoundingBox bb;
+                    section.Vertices[j] = new Vertex(reader, formatNode);
+                    if (i >= sbsp.BoundingBoxes.Count)
+                    {
+                        bb = new NewBoundingBox();
+                        bb.XBounds = bb.YBounds = bb.ZBounds = 
+                        bb.UBounds = bb.VBounds = new RealBounds(0, 0);
+                    }
+                    else
+                        bb = sbsp.BoundingBoxes[i];
+
+                    DecompressVertex(ref section.Vertices[j], bb);
+                }
+                #endregion
+            }
+            #endregion
+
+            validParts.Clear();
+
+            #region Read Indices
+            for (int i = 0; i < sbsp.ModelSections.Count; i++)
+            {
+                var section = sbsp.ModelSections[i];
+                if (section.Submeshes.Count == 0) continue;
+
+                if (section.FacesIndex >= 0 && section.FacesIndex < sbsp.IndexInfoList.Count) reader.SeekTo(sbsp.IndexInfoList[section.FacesIndex].Offset);
+
+                render_model.ModelSection validPart;
+                if (validParts.TryGetValue(section.FacesIndex, out validPart))
+                {
+                    section.Indices = validPart.Indices;
+                    continue;
+                }
+                else
+                    validParts.Add(section.FacesIndex, section);
+
+                section.Indices = new int[section.TotalFaceCount];
+                for (int j = 0; j < section.TotalFaceCount; j++)
+                    section.Indices[j] = (sbsp.VertInfoList[section.VertsIndex].VertexCount > 0xFFFF) ? reader.ReadInt32() : reader.ReadUInt16();
+            }
+            #endregion
+
+            sbsp.RawLoaded = true;
+        }
+
+        public static List<int> GetTriangleList(int[] Indices, int Start, int Length, int FaceFormat)
+        {
+            if (FaceFormat == 3)
+            {
+                var arr = new int[Length];
+                Array.Copy(Indices, Start, arr, 0, Length);
+                return new List<int>(arr);
             }
 
             var list = new List<int>();
-            bool flag = false;
 
             for (int n = 0; n < (Length - 2); n++)
             {
-                int val1 = Indices[Start + n + 0];
-                int val2 = Indices[Start + n + 1];
-                int val3 = Indices[Start + n + 2];
+                int indx1 = Indices[Start + n + 0];
+                int indx2 = Indices[Start + n + 1];
+                int indx3 = Indices[Start + n + 2];
 
-                if ((val1 != val2) && (val1 != val3) && (val2 != val3))
+                if ((indx1 != indx2) && (indx1 != indx3) && (indx2 != indx3))
                 {
-                    list.Add(val1);
-                    if (flag)
+                    list.Add(indx1);
+                    if (n % 2 == 0)
                     {
-                        list.Add(val3);
-                        list.Add(val2);
+                        list.Add(indx2);
+                        list.Add(indx3);
                     }
                     else
                     {
-                        list.Add(val2);
-                        list.Add(val3);
+                        list.Add(indx3);
+                        list.Add(indx2);
                     }
                 }
-                flag = !flag;
             }
             return list;
         }
 
-        private static Vertex GetVertex(EndianReader reader, render_model.ModelPart Part, DefinitionSet version)
+        private static void DecompressVertex(ref Vertex v, render_model.BoundingBox bb)
         {
-            Vertex v = new Vertex() { Format = Part.VertexFormat, Positions = new List<RealPoint4D>(), TexPos = new List<RealPoint2D>(), Nodes = new List<int>(), Weights = new List<float>() };
-
-            switch (v.Format)
+            VertexValue vv;
+            if (v.TryGetValue("position", 0, out vv))
             {
-                #region Rigid
-                case VertexFormat.Rigid:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-
-                    if (version <= DefinitionSet.Halo3ODST)
-                        v.Binormal = new RealVector3D(reader.ReadUInt32());
-                    break;
-                #endregion
-
-                #region Skinned
-                case VertexFormat.Skinned:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-
-                    if (version <= DefinitionSet.Halo3ODST)
-                        v.Binormal = new RealVector3D(reader.ReadUInt32());
-
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    break;
-                #endregion
-
-                #region Decorator
-#if DEBUG
-                case VertexFormat.Decorator:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    break;
-#endif
-                #endregion
-
-                #region TinyPosition
-                case VertexFormat.TinyPosition:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D());
-                    break;
-                #endregion
-
-                #region RigidCompressed
-                case VertexFormat.RigidCompressed:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt32()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-                    break;
-                #endregion
-
-                #region SkinnedCompressed
-                case VertexFormat.SkinnedCompressed:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt32()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    break;
-                #endregion
-
-                #region Halo4
-                #region World
-                case VertexFormat.H4_World:
-                    v.Positions.Add(new RealPoint4D(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
-                    v.TexPos.Add(new RealPoint2D(Half.ToHalf(reader.ReadUInt16()), Half.ToHalf(reader.ReadUInt16())));
-                    
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-                    break;
-                #endregion
-
-                #region Rigid
-                case VertexFormat.H4_Rigid:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-                    break;
-                #endregion
-
-                #region Skinned
-                case VertexFormat.H4_Skinned:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    break;
-                #endregion
-
-                #region H4_Contrail
-                case VertexFormat.H4_Contrail:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-                    
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    break;
-                #endregion
-
-                #region H4_Beam
-                case VertexFormat.H4_Beam:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    break;
-                #endregion
-
-                #region H4_RigidCompressed
-                case VertexFormat.H4_RigidCompressed:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt32()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-                    break;
-                #endregion
-
-                #region H4_SkinnedCompressed
-                case VertexFormat.H4_SkinnedCompressed:
-                    v.Positions.Add(new RealPoint4D(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), 0));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    v.Weights.Add((float)reader.ReadByte() / 255);
-                    break;
-                #endregion
-
-                #region H4_RigidBoned
-                case VertexFormat.H4_RigidBoned:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-                    
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-
-                    v.Weights.Add(v.Nodes[0] == 0 ? 0 : 1);
-                    v.Weights.Add(v.Nodes[1] == 0 ? 0 : 1);
-                    v.Weights.Add(v.Nodes[2] == 0 ? 0 : 1);
-                    v.Weights.Add(v.Nodes[3] == 0 ? 0 : 1);
-                    break;
-                #endregion
-
-                #region H4_RigidBoned2UV
-                case VertexFormat.H4_RigidBoned2UV:
-                    v.Positions.Add(new RealPoint4D(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16()));
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    
-                    v.Normal = new RealVector3D(reader.ReadUInt32());
-                    v.Tangent = new RealVector3D(reader.ReadUInt32());
-                    
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-                    v.Nodes.Add(reader.ReadByte());
-
-                    v.Weights.Add(v.Nodes[0] == 0 ? 0 : 1);
-                    v.Weights.Add(v.Nodes[1] == 0 ? 0 : 1);
-                    v.Weights.Add(v.Nodes[2] == 0 ? 0 : 1);
-                    v.Weights.Add(v.Nodes[3] == 0 ? 0 : 1);
-
-                    v.TexPos.Add(new RealPoint2D(reader.ReadUInt16(), reader.ReadUInt16()));
-                    break;
-                #endregion
-                #endregion
-
-                default:
-                    throw new NotSupportedException("Unsupported vertex format.");
+                if (bb.XBounds.Length != 0) vv.Data.x = (float)(vv.Data.x * bb.XBounds.Length + bb.XBounds.Min);
+                if (bb.YBounds.Length != 0) vv.Data.y = (float)(vv.Data.y * bb.YBounds.Length + bb.YBounds.Min);
+                if (bb.ZBounds.Length != 0) vv.Data.z = (float)(vv.Data.z * bb.ZBounds.Length + bb.ZBounds.Min);
             }
 
-            if (Part.NodeIndex != 255)
+            if (v.TryGetValue("texcoords", 0, out vv))
             {
-                v.Nodes.Add(0);
-                v.Nodes.Add(0);
-                v.Nodes.Add(0);
-                v.Nodes.Add(Part.NodeIndex);
-
-                v.Weights.Add(0);
-                v.Weights.Add(0);
-                v.Weights.Add(0);
-                v.Weights.Add(1);
+                if (bb.UBounds.Length != 0) vv.Data.x = (float)(vv.Data.x * bb.UBounds.Length + bb.UBounds.Min);
+                vv.Data.y = 1f - ((bb.VBounds.Length == 0) ? vv.Data.y : (float)(vv.Data.y * bb.VBounds.Length + bb.VBounds.Min));
             }
-
-            return v;
         }
 
-        private static Vertex DecompressVertex(Vertex v, render_model.BoundingBox bb)
+        private static void LoadModelFixups(CacheFile cache, ref render_model mode)
         {
-            float posScalar = 1;
-            float texScalar = 1;
+            mode.VertInfoList = new List<render_model.VertexBufferInfo>();
+            mode.Unknown1List = new List<render_model.UnknownInfo1>();
+            mode.IndexInfoList = new List<render_model.IndexBufferInfo>();
+            mode.Unknown2List = new List<render_model.UnknownInfo2>();
+            mode.Unknown3List = new List<render_model.UnknownInfo3>();
+            
+            var Entry = cache.zone.RawEntries[mode.RawID & ushort.MaxValue];
+            var reader = new EndianReader(new MemoryStream(cache.zone.FixupData), EndianFormat.BigEndian);
 
-            switch (v.Format)
+            reader.SeekTo(Entry.FixupOffset + (Entry.FixupSize - 24));
+            int vCount = reader.ReadInt32();
+            reader.Skip(8);
+            int iCount = reader.ReadInt32();
+
+            reader.SeekTo(Entry.FixupOffset);
+
+            for (int i = 0; i < vCount; i++)
             {
-                case VertexFormat.H4_World:
-                    texScalar = 0.5f;
-                    break;
-
-                case VertexFormat.Rigid:
-                case VertexFormat.Skinned:
-                case VertexFormat.TinyPosition:
-                case VertexFormat.H4_Rigid:
-                case VertexFormat.H4_Skinned:
-                case VertexFormat.H4_Contrail:
-                case VertexFormat.H4_Beam:
-                case VertexFormat.H4_RigidBoned:
-                case VertexFormat.H4_RigidBoned2UV:
-                    posScalar = texScalar = 0xFFFF;
-                    break;
-
-                case VertexFormat.RigidCompressed:
-                case VertexFormat.SkinnedCompressed:
-                case VertexFormat.H4_RigidCompressed:
-                    posScalar = 0x03FF;
-                    texScalar = 0xFFFF;
-                    break;
-
-                case VertexFormat.H4_SkinnedCompressed:
-                    texScalar = 0xFFFF;
-                    break;
+                mode.VertInfoList.Add(new render_model.VertexBufferInfo()
+                {
+                    Offset = Entry.Fixups[i].Offset,
+                    VertexCount = reader.ReadInt32(),
+                    Unknown1 = reader.ReadInt32(),
+                    DataLength = reader.ReadInt32(),
+                    Unknown2 = reader.ReadInt32(), //blank from here so far
+                    Unknown3 = reader.ReadInt32(),
+                    Unknown4 = reader.ReadInt32(),
+                    Unknown5 = reader.ReadInt32(),
+                });
             }
 
-            var pos = v.Positions[0];
-            var tex = v.TexPos[0];
+            for (int i = 0; i < vCount; i++)
+            {
+                //assumed to be vertex related
+                mode.Unknown1List.Add(new render_model.UnknownInfo1()
+                {
+                    Unknown1 = reader.ReadInt32(), //always 0 so far
+                    Unknown2 = reader.ReadInt32(), //always 0 so far
+                    Unknown3 = reader.ReadInt32(), //1350707457
+                });
+            }
 
-            pos.x = (float)(pos.x / posScalar * bb.XBounds.Length + bb.XBounds.Min);
-            pos.y = (float)(pos.y / posScalar * bb.YBounds.Length + bb.YBounds.Min);
-            pos.z = (float)(pos.z / posScalar * bb.ZBounds.Length + bb.ZBounds.Min);
+            for (int i = 0; i < iCount; i++)
+            {
+                var data = new render_model.IndexBufferInfo();
+                data.Offset = Entry.Fixups[vCount * 2 + i].Offset;
+                data.FaceFormat = reader.ReadInt32();
 
-            tex.x =      (float)(tex.x / texScalar * bb.UBounds.Length + bb.UBounds.Min);
-            tex.y = 1f - (float)(tex.y / texScalar * bb.VBounds.Length + bb.VBounds.Min);
+                //value exists only in reach beta and newer
+                if (cache.Version >= DefinitionSet.HaloReachBeta) data.UnknownX = reader.ReadInt32();
+                else data.UnknownX = -1;
 
-            v.Positions[0] = pos;
-            v.TexPos[0] = tex;
+                data.DataLength = reader.ReadInt32();
+                data.Unknown0 = reader.ReadInt32(); //blank from here so far
+                data.Unknown1 = reader.ReadInt32();
+                data.Unknown2 = reader.ReadInt32();
+                data.Unknown3 = reader.ReadInt32();
 
-            return v;
+                mode.IndexInfoList.Add(data);
+            }
+
+            for (int i = 0; i < iCount; i++)
+            {
+                //assumed to be index related
+                mode.Unknown2List.Add(new render_model.UnknownInfo2()
+                {
+                    Unknown1 = reader.ReadInt32(), //always 0 so far
+                    Unknown2 = reader.ReadInt32(), //always 0 so far
+                    Unknown3 = reader.ReadInt32(), //1753688321
+                });
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                mode.Unknown3List.Add(new render_model.UnknownInfo3()
+                {
+                    Unknown1 = reader.ReadInt32(), //vCount in 3rd, iCount in 4th
+                    Unknown2 = reader.ReadInt32(), //always 0 so far
+                    Unknown3 = reader.ReadInt32(),
+                });
+            }
+
+            reader.Close();
+            reader.Dispose();
+        }
+
+        private static void LoadBSPFixups(CacheFile cache, ref scenario_structure_bsp sbsp)
+        {
+            sbsp.VertInfoList = new List<render_model.VertexBufferInfo>();
+            sbsp.Unknown1List = new List<render_model.UnknownInfo1>();
+            sbsp.IndexInfoList = new List<render_model.IndexBufferInfo>();
+            sbsp.Unknown2List = new List<render_model.UnknownInfo2>();
+            sbsp.Unknown3List = new List<render_model.UnknownInfo3>();
+
+            var Entry = cache.zone.RawEntries[sbsp.geomRawID & ushort.MaxValue];
+            
+            var reader = new EndianReader(new MemoryStream(cache.zone.FixupData), EndianFormat.BigEndian);
+
+            reader.SeekTo(Entry.FixupOffset + (Entry.FixupSize - 24));
+            int vCount = reader.ReadInt32();
+            reader.Skip(8);
+            int iCount = reader.ReadInt32();
+
+            reader.SeekTo(Entry.FixupOffset);
+
+            for (int i = 0; i < vCount; i++)
+            {
+                sbsp.VertInfoList.Add(new render_model.VertexBufferInfo()
+                {
+                    Offset = Entry.Fixups[i].Offset,
+                    VertexCount = reader.ReadInt32(),
+                    Unknown1 = reader.ReadInt32(),
+                    DataLength = reader.ReadInt32(),
+                    Unknown2 = reader.ReadInt32(), //blank from here so far
+                    Unknown3 = reader.ReadInt32(),
+                    Unknown4 = reader.ReadInt32(),
+                    Unknown5 = reader.ReadInt32(),
+                });
+            }
+
+            for (int i = 0; i < vCount; i++)
+            {
+                //assumed to be vertex related
+                sbsp.Unknown1List.Add(new render_model.UnknownInfo1()
+                {
+                    Unknown1 = reader.ReadInt32(), //always 0 so far
+                    Unknown2 = reader.ReadInt32(), //always 0 so far
+                    Unknown3 = reader.ReadInt32(), //1350707457
+                });
+            }
+
+            for (int i = 0; i < iCount; i++)
+            {
+                var data = new render_model.IndexBufferInfo();
+                data.Offset = Entry.Fixups[vCount * 2 + i].Offset;
+                data.FaceFormat = reader.ReadInt32();
+
+                //value exists only in reach beta and newer
+                if (cache.Version >= DefinitionSet.HaloReachBeta) data.UnknownX = reader.ReadInt32();
+                else data.UnknownX = -1;
+
+                data.DataLength = reader.ReadInt32();
+                data.Unknown0 = reader.ReadInt32(); //blank from here so far
+                data.Unknown1 = reader.ReadInt32();
+                data.Unknown2 = reader.ReadInt32();
+                data.Unknown3 = reader.ReadInt32();
+
+                sbsp.IndexInfoList.Add(data);
+            }
+
+            for (int i = 0; i < iCount; i++)
+            {
+                //assumed to be index related
+                sbsp.Unknown2List.Add(new render_model.UnknownInfo2()
+                {
+                    Unknown1 = reader.ReadInt32(), //always 0 so far
+                    Unknown2 = reader.ReadInt32(), //always 0 so far
+                    Unknown3 = reader.ReadInt32(), //1753688321
+                });
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                sbsp.Unknown3List.Add(new render_model.UnknownInfo3()
+                {
+                    Unknown1 = reader.ReadInt32(), //vCount in 3rd, iCount in 4th
+                    Unknown2 = reader.ReadInt32(), //always 0 so far
+                    Unknown3 = reader.ReadInt32(),
+                });
+            }
+
+            reader.Close();
+            reader.Dispose();
         }
 
         #region Geometry Recovery
-        internal static void LoadModelExtras(ref render_model mode)
+        private static void LoadModelExtras(ref render_model mode)
         {
-            if (mode.ExtrasIndex == -1) return;
+            #region Mesh Merging
+            foreach (var reg in mode.Regions)
+            {
+                foreach (var perm in reg.Permutations)
+                {
+                    if(perm.PieceCount < 2) continue;
 
-            var part = mode.ModelParts[mode.ExtrasIndex];
+                    var firstPart = mode.ModelSections[perm.PieceIndex];
+
+                    if (firstPart.Submeshes.Count == 0) continue;
+
+                    var verts = firstPart.Vertices.ToList();
+                    var indices = firstPart.Indices.ToList();
+
+                    for (int i = 1; i < perm.PieceCount; i++)
+                    {
+                        var nextPart = mode.ModelSections[perm.PieceIndex + i];
+
+                        foreach (var mesh in nextPart.Submeshes)
+                        {
+                            firstPart.Submeshes.Add(mesh);
+                            mesh.FaceIndex += indices.Count;
+                        }
+
+                        for (int j = 0; j < nextPart.Indices.Length; j++) nextPart.Indices[j] += verts.Count;
+
+                        verts.AddRange(nextPart.Vertices);
+                        indices.AddRange(nextPart.Indices);
+                        nextPart.UnloadRaw(); //save memory seeing as it wont be used now
+                    }
+
+                    firstPart.Vertices = verts.ToArray();
+                    firstPart.Indices = indices.ToArray();
+                }
+            }
+            #endregion
+
+            #region Mesh Splitting
+            if (mode.InstancedGeometryIndex == -1) return;
+
+            var part = mode.ModelSections[mode.InstancedGeometryIndex];
             var list = new List<NewModelPart>();
 
             for (int i = 0; i < part.Submeshes.Count; i++)
             {
-                var mesh = part.Submeshes[i];
+                var submesh = part.Submeshes[i];
 
-                //for (int j = submesh.SubsetIndex; j < (submesh.SubsetIndex + submesh.SubsetCount); j++)
-                //{
-                //    var set = part.Subsets[j];
-                var array = GetTriangleList(part.Indices, mesh.FaceIndex, mesh.FaceCount, part);
-
-                var newStrip = new int[mesh.FaceCount];
-                Array.Copy(part.Indices, mesh.FaceIndex, newStrip, 0, mesh.FaceCount);
-
-                var min = array.Min();
-                var max = array.Max();
-
-                for (int k = 0; k < newStrip.Length; k++)
-                    newStrip[k] -= min;
-
-                var verts = new Vertex[(max - min) + 1];
-                Array.Copy(part.Vertices, min, verts, 0, (max - min) + 1);
-
-                #region Make new instances
-                var newPart = new NewModelPart()
+                for (int j = submesh.SubsetIndex; j < (submesh.SubsetIndex + submesh.SubsetCount); j++)
                 {
-                    Indices = newStrip,
-                    Submeshes = new List<render_model.ModelPart.Submesh>(),
-                    Subsets = new List<render_model.ModelPart.Subset>(),
-                    VertexFormat = part.VertexFormat,
-                    OpaqueNodesPerVertex = part.OpaqueNodesPerVertex,
-                    RawID = -1,
-                    Vertices = verts
-                };
+                    var set = part.Subsets[j];
+                    var vList = GetTriangleList(part.Indices, set.FaceIndex, set.FaceCount, mode.IndexInfoList[part.FacesIndex].FaceFormat);
 
-                var newMesh = new NewModelPart.NewSubmesh()
-                {
-                    SubsetCount = 1,
-                    SubsetIndex = 0,
-                    FaceIndex = 0,
-                    FaceCount = mesh.FaceCount,
-                    ShaderIndex = mesh.ShaderIndex,
-                    VertexCount = verts.Length
-                };
+                    var newStrip = vList.ToArray();
 
-                var newSet = new NewModelPart.NewSubset()
-                {
-                    SubmeshIndex = 0,
-                    FaceIndex = 0,
-                    FaceCount = mesh.FaceCount,
-                    VertexCount = 0
-                };
-                #endregion
+                    var min = vList.Min();
+                    var max = vList.Max();
 
-                newPart.Submeshes.Add(newMesh);
-                newPart.Subsets.Add(newSet);
+                    //adjust faces to start at 0, seeing as
+                    //we're going to use a new set of vertices
+                    for (int k = 0; k < newStrip.Length; k++)
+                        newStrip[k] -= min;
 
-                list.Add(newPart);
-                //}
+                    var verts = new Vertex[(max - min) + 1];
+                    for (int k = 0; k < verts.Length; k++)                    //need to deep clone in case the vertices need to be
+                        verts[k] = (Vertex)DeepClone(part.Vertices[k + min]); //transformed, so it doesnt transform all instances
+
+                    #region Make new instances
+                    var newPart = new NewModelPart()
+                    {
+                        Vertices = verts,
+                        Indices = newStrip,
+                        Submeshes = new List<render_model.ModelSection.Submesh>(),
+                        Subsets = new List<render_model.ModelSection.Subset>(),
+                        VertexFormat = 1,
+                        OpaqueNodesPerVertex = part.OpaqueNodesPerVertex,
+                        NodeIndex = mode.GeomInstances[j].NodeIndex,
+                        VertsIndex = mode.VertInfoList.Count,
+                        FacesIndex = mode.IndexInfoList.Count
+                    };
+
+                    mode.VertInfoList.Add(new render_model.VertexBufferInfo()
+                    {
+                        VertexCount = verts.Length //dont need the rest
+                    });
+
+                    mode.IndexInfoList.Add(new render_model.IndexBufferInfo()
+                    {
+                        FaceFormat = 3 //dont need the rest
+                    });
+
+                    var newMesh = new NewModelPart.NewSubmesh()
+                    {
+                        SubsetCount = 1,
+                        SubsetIndex = 0,
+                        FaceIndex = 0,
+                        FaceCount = newStrip.Length,
+                        ShaderIndex = submesh.ShaderIndex,
+                        VertexCount = verts.Length
+                    };
+
+                    var newSet = new NewModelPart.NewSubset()
+                    {
+                        SubmeshIndex = 0,
+                        FaceIndex = 0,
+                        FaceCount = newStrip.Length,
+                        VertexCount = verts.Length
+                    };
+                    #endregion
+
+                    newPart.Submeshes.Add(newMesh);
+                    newPart.Subsets.Add(newSet);
+
+                    list.Add(newPart);
+                }
             }
 
-            mode.ModelParts.AddRange(list.ToArray());
+            //clear raw to save memory seeing as it wont be used anymore
+            mode.ModelSections[mode.InstancedGeometryIndex].UnloadRaw();
+
+            mode.ModelSections.AddRange(list.ToArray());
             
             var newRegion = new NewRegion()
             {
-                Name = "Unknown",
+                Name = "Instances",
                 Permutations = new List<render_model.Region.Permutation>()
             };
 
@@ -554,15 +616,53 @@ namespace Adjutant.Library.Controls
             {
                 var newPerm = new NewRegion.NewPermutation()
                 {
-                    Name = "Unknown" + i.ToString(),
-                    PieceIndex = mode.ExtrasIndex + i + 1
+                    Name = mode.GeomInstances[i].Name,
+                    PieceIndex = mode.InstancedGeometryIndex + i + 1,
+                    PieceCount = 1
                 };
+
                 newRegion.Permutations.Add(newPerm);
+            }
+
+            for (int i = 0; i < newRegion.Permutations.Count; i++)
+            {
+                var modelPart = mode.ModelSections[newRegion.Permutations[i].PieceIndex];
+                var instance = mode.GeomInstances[i];
+                
+                //negative scale flips the faces after transform, fix it
+                if (instance.TransformScale < 0) Array.Reverse(modelPart.Indices);
+                
+                for (int j = 0; j < modelPart.Vertices.Length; j++)
+                {
+                    var vert = modelPart.Vertices[j];
+                    VertexValue p, n, v, w;
+
+                    vert.TryGetValue("position", 0, out p);
+                    vert.TryGetValue("normal", 0, out n);
+
+                    p.Data *= instance.TransformScale;
+                    p.Data.Point3DTransform(instance.TransformMatrix);
+
+                    n.Data *= instance.TransformScale;
+                    n.Data.Vector3DTransform(instance.TransformMatrix);
+
+                    if (vert.TryGetValue("blendindices", 0, out v))
+                        v.Data = new RealQuat(instance.NodeIndex, 0, 0, 0);
+                    else
+                        vert.Values.Add(new VertexValue(new RealQuat(instance.NodeIndex, 0, 0, 0), 0, "blendindices", 0));
+
+                    if (vert.TryGetValue("blendweight", 0, out w))
+                        w.Data = new RealQuat(instance.NodeIndex, 0, 0, 0);
+                    else
+                        vert.Values.Add(new VertexValue(new RealQuat(1, 0, 0, 0), 0, "blendweight", 0));
+                }
             }
             
             mode.Regions.Add(newRegion);
+            #endregion
         }
 
+        #region Dummy Class Overrides
         private class NewRegion : render_model.Region
         {
             public class NewPermutation : render_model.Region.Permutation
@@ -570,16 +670,22 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        private class NewModelPart : render_model.ModelPart
+        private class NewModelPart : render_model.ModelSection
         {
-            public class NewSubmesh : render_model.ModelPart.Submesh
+            public class NewSubmesh : render_model.ModelSection.Submesh
             {
             }
 
-            public class NewSubset : render_model.ModelPart.Subset
+            public class NewSubset : render_model.ModelSection.Subset
             {
             }
         }
+
+        private class NewBoundingBox : render_model.BoundingBox
+        {
+        }
+        #endregion
+
         #endregion
 
         #region Write to file
@@ -660,49 +766,60 @@ namespace Adjutant.Library.Controls
                 bw.Write(perms.Count);
                 foreach (render_model.Region.Permutation perm in perms)
                 {
-                    var part = Model.ModelParts[perm.PieceIndex];
+                    var part = Model.ModelSections[perm.PieceIndex];
 
                     bw.Write((perm.Name + "\0").ToCharArray());
 
-                    if (part.Vertices[0].Nodes.Count > 0)
+                    VertexValue v;
+                    bool hasNodes = part.Vertices[0].TryGetValue("blendindices", 0, out v);
+                    if (hasNodes)
                         bw.Write((byte)2);
                     else
                         bw.Write((byte)1);
 
-                    bw.Write(part.TotalVertexCount);
+                    bw.Write(part.Vertices.Length);
                     foreach (Vertex vert in part.Vertices)
                     {
-                        bw.Write(vert.Positions[0].x);
-                        bw.Write(vert.Positions[0].y);
-                        bw.Write(vert.Positions[0].z);
-                        bw.Write(vert.Normal.i);
-                        bw.Write(vert.Normal.j);
-                        bw.Write(vert.Normal.k);
-                        bw.Write(vert.TexPos[0].x);
-                        bw.Write(vert.TexPos[0].y);
-                        if (vert.Nodes.Count > 0)
+                        vert.TryGetValue("position", 0, out v);
+                        bw.Write(v.Data.x);
+                        bw.Write(v.Data.y);
+                        bw.Write(v.Data.z);
+
+                        vert.TryGetValue("normal", 0, out v);
+                        bw.Write(v.Data.i);
+                        bw.Write(v.Data.j);
+                        bw.Write(v.Data.k);
+
+                        vert.TryGetValue("texcoords", 0, out v);
+                        bw.Write(v.Data.x);
+                        bw.Write(v.Data.y);
+
+                        if (hasNodes)
                         {
-                            bw.Write((byte)vert.Nodes[0]);
-                            bw.Write((byte)vert.Nodes[1]);
-                            bw.Write((byte)vert.Nodes[2]);
-                            bw.Write((byte)vert.Nodes[3]);
-                            bw.Write(vert.Weights[0]);
-                            bw.Write(vert.Weights[1]);
-                            bw.Write(vert.Weights[2]);
-                            bw.Write(vert.Weights[3]);
+                            vert.TryGetValue("blendindices", 0, out v);
+                            bw.Write((byte)v.Data.a);
+                            bw.Write((byte)v.Data.b);
+                            bw.Write((byte)v.Data.c);
+                            bw.Write((byte)v.Data.d);
+
+                            vert.TryGetValue("blendweight", 0, out v);
+                            bw.Write(v.Data.a);
+                            bw.Write(v.Data.b);
+                            bw.Write(v.Data.c);
+                            bw.Write(v.Data.d);
                         }
                     }
 
                     if (SplitMeshes)
                     {
                         bw.Write(part.Submeshes.Count);
-                        foreach (render_model.ModelPart.Submesh submesh in part.Submeshes)
+                        foreach (render_model.ModelSection.Submesh submesh in part.Submeshes)
                         {
-                            var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, part);
+                            var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat);
                             bw.Write(indices.Count / 3);
                             for (int i = 0; i < indices.Count; i += 3)
                             {
-                                if (part.TotalVertexCount > 0xFFFF)
+                                if (part.Vertices.Length > 0xFFFF)
                                 {
                                     bw.Write(indices[i + 0]);
                                     bw.Write(indices[i + 1]);
@@ -723,16 +840,16 @@ namespace Adjutant.Library.Controls
                         bw.Write(1);
 
                         int count = 0;
-                        foreach (render_model.ModelPart.Submesh submesh in part.Submeshes)
-                            count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, part).Count;
+                        foreach (render_model.ModelSection.Submesh submesh in part.Submeshes)
+                            count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat).Count;
 
                         bw.Write(count / 3);
-                        foreach (render_model.ModelPart.Submesh submesh in part.Submeshes)
+                        foreach (render_model.ModelSection.Submesh submesh in part.Submeshes)
                         {
-                            var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, part);
+                            var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat);
                             for (int i = 0; i < indices.Count; i += 3)
                             {
-                                if (part.TotalVertexCount > 0xFFFF)
+                                if (part.Vertices.Length > 0xFFFF)
                                 {
                                     bw.Write(indices[i + 0]);
                                     bw.Write(indices[i + 1]);
@@ -753,9 +870,22 @@ namespace Adjutant.Library.Controls
             #endregion
             #region Shaders
             bw.Write(Model.Shaders.Count);
-            foreach (render_model.Shader shad3r in Model.Shaders)
+            foreach (render_model.Shader shaderBlock in Model.Shaders)
             {
-                var rmshTag = Cache.IndexItems.GetItemByID(shad3r.tagID);
+                //skip null shaders
+                if (shaderBlock.tagID == -1)
+                {
+                    bw.Write("null\0".ToCharArray());
+                    for (int i = 0; i < 8; i++)
+                        bw.Write("null\0".ToCharArray());
+
+                    bw.Write(Convert.ToByte(false));
+                    bw.Write(Convert.ToByte(false));
+
+                    continue;
+                }
+
+                var rmshTag = Cache.IndexItems.GetItemByID(shaderBlock.tagID);
                 var rmsh = DefinitionsManager.rmsh(Cache, rmshTag);
                 string shaderName = rmshTag.Filename.Substring(rmshTag.Filename.LastIndexOf("\\") + 1) + "\0";
                 string[] paths = new string[8] { "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
@@ -764,13 +894,16 @@ namespace Adjutant.Library.Controls
                 bool isTransparent = false;
                 bool ccOnly = false;
 
-                //ODST and Reach don't use predicted bitmaps, so this only applies to Halo3Retail
-                if (Cache.Version == DefinitionSet.Halo3Retail)
+                //Halo4 fucked this up
+                if (Cache.Version <= DefinitionSet.HaloReachRetail)
                 {
-                    foreach (shader.PredictedBitmap bitmap in rmsh.PredictedBitmaps)
+                    var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
+                    var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
+                    
+                    for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
                     {
-                        var s = bitmap.Type;
-                        var bitmTag = Cache.IndexItems.GetItemByID(bitmap.BitmapTagID);
+                        var s = rmt2.UsageBlocks[i].Usage;
+                        var bitmTag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[i].BitmapTagID);
 
                         switch (s)
                         {
@@ -801,7 +934,7 @@ namespace Adjutant.Library.Controls
 
                     short[] tiles = new short[8] { -1, -1, -1, -1, -1, -1, -1, -1 };
 
-                    foreach (shader.ShaderProperties.ShaderMap map in rmsh.Properties[0].ShaderMaps)
+                    foreach (var map in rmsh.Properties[0].ShaderMaps)
                     {
                         var bitmTag = Cache.IndexItems.GetItemByID(map.BitmapTagID);
 
@@ -827,7 +960,7 @@ namespace Adjutant.Library.Controls
                     try { paths[0] = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[0].BitmapTagID).Filename + "\0"; }
                     catch { }
 
-                if (rmshTag.ClassCode != "rmsh")
+                if (rmshTag.ClassCode != "rmsh" && rmshTag.ClassCode != "mat")
                 {
                     isTransparent = true;
                     if (paths[0] == "null\0" && paths[2] != "null\0")
@@ -851,122 +984,6 @@ namespace Adjutant.Library.Controls
             bw.Dispose();
         }
 
-        public static void WriteJMSX(string Filename, CacheFile Cache, render_model Model, List<int> PartIndices)
-        {
-            var safeName = Filename.Substring(Filename.LastIndexOf("\\") + 1);
-            if (safeName.EndsWith(".jms")) safeName = safeName.Remove(safeName.Length - 4);
-
-            Filename = Directory.GetParent(Filename).FullName + "\\models\\" + safeName;
-            if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
-
-            if (!Model.RawLoaded) ModelFunctions.LoadModelRaw(Cache, ref Model);
-
-            foreach (var region in Model.Regions)
-            {
-                foreach (var permutation in region.Permutations)
-                {
-                    if (!PartIndices.Contains(permutation.PieceIndex)) continue;
-
-                    var part = Model.ModelParts[permutation.PieceIndex];
-                    StreamWriter sw = new StreamWriter(Filename + "-" + region.Name + "_" + permutation.Name + ".jms");
-
-                    sw.WriteLine("8200");
-                    sw.WriteLine("14689795");
-
-                    #region Nodes
-                    sw.WriteLine(Model.Nodes.Count);
-                    foreach (var node in Model.Nodes)
-                    {
-                        sw.WriteLine(node.Name);
-                        sw.WriteLine(node.FirstChildIndex);
-                        sw.WriteLine(node.NextSiblingIndex);
-                        sw.WriteLine(node.Rotation.ToString());
-                        sw.WriteLine((node.Position * 100).ToString());
-                    }
-                    #endregion
-
-                    #region Shaders
-                    sw.WriteLine(Model.Shaders.Count);
-                    foreach (render_model.Shader shade in Model.Shaders)
-                    {
-                        var tag = Cache.IndexItems.GetItemByID(shade.tagID);
-                        var path = tag.Filename.Substring(tag.Filename.LastIndexOf('\\') + 1);
-                        sw.WriteLine(path);
-                        sw.WriteLine("<none>"); //unknown
-                    }
-                    #endregion
-
-                    #region Markers
-                    int mCount = 0;
-                    foreach (var group in Model.MarkerGroups)
-                        foreach (var marker in group.Markers)
-                            mCount++;
-
-                    sw.WriteLine(mCount);
-                    foreach (var group in Model.MarkerGroups)
-                    {
-                        foreach (var marker in group.Markers)
-                        {
-                            sw.WriteLine(group.Name);
-                            sw.WriteLine("-1"); //unknown
-                            sw.WriteLine((int)marker.NodeIndex);
-                            sw.WriteLine(marker.Rotation.ToString());
-                            sw.WriteLine((marker.Position * 100).ToString());
-                            sw.WriteLine("1"); //radius
-                        }
-                    }
-                    #endregion
-
-                    #region Vertices
-                    sw.WriteLine("1"); //region count
-                    sw.WriteLine(region.Name);
-
-                    sw.WriteLine(part.TotalVertexCount);
-                    foreach (Vertex vertex in part.Vertices)
-                    {
-                        if (vertex.Nodes.Count > 0) sw.WriteLine((vertex.Nodes[0]).ToString());
-                        else sw.WriteLine("0");
-
-                        sw.WriteLine((((RealPoint3D)vertex.Positions[0]) * 100).ToString());
-                        sw.WriteLine(vertex.Normal.ToString());
-
-                        if (vertex.Nodes.Count > 1) sw.WriteLine((vertex.Nodes[1]).ToString());
-                        else sw.WriteLine("0");
-
-                        if (vertex.Weights.Count > 1) sw.WriteLine(vertex.Weights[1].ToString("F6"));
-                        else sw.WriteLine("0.000000");
-
-                        sw.WriteLine(vertex.TexPos[0].x.ToString("F6"));
-                        sw.WriteLine(vertex.TexPos[0].y.ToString("F6"));
-                        sw.WriteLine("0.000000"); //unknown
-                    }
-                    #endregion
-
-                    #region Faces
-                    int count = 0;
-                    foreach (var submesh in part.Submeshes)
-                        count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, part).Count;
-
-                    sw.WriteLine(count / 3);
-                    foreach (var submesh in part.Submeshes)
-                    {
-                        var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, part);
-
-                        for (int i = 0; i < indices.Count; i += 3)
-                        {
-                            sw.WriteLine("0"); //region index
-                            sw.WriteLine(submesh.ShaderIndex.ToString());
-                            sw.WriteLine(indices[i + 0].ToString() + "\t" + indices[i + 1].ToString() + "\t" + indices[i + 2].ToString());
-                        }
-                    }
-                    #endregion
-
-                    sw.Close();
-                    sw.Dispose();
-                }
-            }
-        }
-
         public static void WriteOBJ(string Filename, CacheFile Cache, render_model Model, List<int> PartIndices)
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
@@ -985,16 +1002,29 @@ namespace Adjutant.Library.Controls
                 {
                     if (!PartIndices.Contains(permutation.PieceIndex)) continue;
 
-                    var part = Model.ModelParts[permutation.PieceIndex];
+                    var part = Model.ModelSections[permutation.PieceIndex];
 
-                    foreach (var v in part.Vertices)
-                        sw.WriteLine("v  {0} {1} {2}", v.Positions[0].x, v.Positions[0].y, v.Positions[0].z);
+                    if (part.Submeshes.Count == 0) continue;
 
-                    foreach (var v in part.Vertices)
-                        sw.WriteLine("vt {0} {1}", v.TexPos[0].x, v.TexPos[0].y);
+                    VertexValue v;
 
-                    foreach (var v in part.Vertices)
-                        sw.WriteLine("vn {0} {1} {2}", v.Normal.i, v.Normal.j, v.Normal.k);
+                    foreach (var vert in part.Vertices)
+                    {
+                        vert.TryGetValue("position", 0, out v);
+                        sw.WriteLine("v  {0} {1} {2}", v.Data.x * 100, v.Data.y * 100, v.Data.z * 100);
+                    }
+
+                    foreach (var vert in part.Vertices)
+                    {
+                        vert.TryGetValue("texcoords", 0, out v);
+                        sw.WriteLine("vt {0} {1}", v.Data.x, v.Data.y);
+                    }
+
+                    foreach (var vert in part.Vertices)
+                    {
+                        vert.TryGetValue("normal", 0, out v);
+                        sw.WriteLine("vn {0} {1} {2}", v.Data.i, v.Data.j, v.Data.k);
+                    }
                 }
             }
 
@@ -1006,15 +1036,17 @@ namespace Adjutant.Library.Controls
                 {
                     if (!PartIndices.Contains(permutation.PieceIndex)) continue;
 
-                    var part = Model.ModelParts[permutation.PieceIndex];
+                    var part = Model.ModelSections[permutation.PieceIndex];
+
+                    if (part.Submeshes.Count == 0) continue;
 
                     sw.WriteLine("g " + region.Name + "-" + permutation.Name);
 
                     foreach (var submesh in part.Submeshes)
                     {
-                        for (int i = submesh.SubsetIndex; i < (submesh.SubsetIndex + submesh.SubsetCount); i++)
-                        {
-                            var indices = GetTriangleList(part.Indices, part.Subsets[i].FaceIndex, part.Subsets[i].FaceCount, part);
+                        //for (int i = submesh.SubsetIndex; i < (submesh.SubsetIndex + submesh.SubsetCount); i++)
+                        //{
+                            var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat);
                             for (int j = 0; j < indices.Count; j += 3)
                             {
                                 var line = string.Concat(new object[] {
@@ -1024,9 +1056,9 @@ namespace Adjutant.Library.Controls
                                 });
                                 sw.WriteLine(line);
                             }
-                        }
+                        //}
                     }
-                    position += part.TotalVertexCount;
+                    position += Model.VertInfoList[part.VertsIndex].VertexCount;
                 }
             }
 
@@ -1084,8 +1116,8 @@ namespace Adjutant.Library.Controls
                     sw.WriteLine(node.Name);
                     sw.WriteLine(node.FirstChildIndex);
                     sw.WriteLine(node.NextSiblingIndex);
-                    sw.WriteLine(node.Rotation.ToString());
-                    sw.WriteLine((node.Position * 100).ToString());
+                    sw.WriteLine(node.Rotation.ToString(4, "\t"));
+                    sw.WriteLine((node.Position * 100).ToString(3, "\t"));
                 }
                 #endregion
 
@@ -1104,6 +1136,7 @@ namespace Adjutant.Library.Controls
                 int mCount = 0;
                 foreach (var group in Model.MarkerGroups)
                     foreach (var marker in group.Markers)
+                        //if (Model.Regions[marker.RegionIndex].Permutations[marker.PermutationIndex].Name == perm)
                         mCount++;
 
                 sw.WriteLine(mCount);
@@ -1113,9 +1146,9 @@ namespace Adjutant.Library.Controls
                     {
                         sw.WriteLine(group.Name);
                         sw.WriteLine("-1"); //unknown
-                        sw.WriteLine((int)marker.NodeIndex);
-                        sw.WriteLine(marker.Rotation.ToString());
-                        sw.WriteLine((marker.Position * 100).ToString());
+                        sw.WriteLine(marker.NodeIndex);
+                        sw.WriteLine(marker.Rotation.ToString(4, "\t"));
+                        sw.WriteLine((marker.Position * 100).ToString(3, "\t"));
                         sw.WriteLine("1"); //radius
                     }
                 }
@@ -1129,27 +1162,36 @@ namespace Adjutant.Library.Controls
                     foreach (var permutation in region.Permutations)
                     {
                         if (!PartIndices.Contains(permutation.PieceIndex) && permutation.Name == perm ) continue;
-                        var part = Model.ModelParts[permutation.PieceIndex];
+                        var part = Model.ModelSections[permutation.PieceIndex];
 
                         sw.WriteLine(region.Name);
-                        sw.WriteLine(part.TotalVertexCount);
-                        foreach (Vertex vertex in part.Vertices)
+                        sw.WriteLine(Model.VertInfoList[part.VertsIndex].VertexCount);
+                        foreach (Vertex vert in part.Vertices)
                         {
-                            if (vertex.Nodes.Count > 0) sw.WriteLine((vertex.Nodes[0]).ToString());
+                            VertexValue vNodes, vWeights, vPos, vNorm, vTex;
+
+                            bool hasNodes = vert.TryGetValue("blendindices", 0, out vNodes);
+                            bool hasWeights = vert.TryGetValue("blendweight", 0, out vWeights);
+
+                            vert.TryGetValue("position", 0, out vPos);
+                            vert.TryGetValue("normal", 0, out vNorm);
+                            vert.TryGetValue("texcoords", 0, out vTex);
+
+                            if (hasNodes) sw.WriteLine(vNodes.Data.a.ToString());
                             else sw.WriteLine("0");
 
-                            sw.WriteLine((((RealPoint3D)vertex.Positions[0]) * 100).ToString());
-                            sw.WriteLine(vertex.Normal.ToString());
+                            sw.WriteLine((vPos.Data * 100).ToString(3, "\t"));
+                            sw.WriteLine(vNorm.Data.ToString(3, "\t"));
 
-                            if (vertex.Nodes.Count > 1) sw.WriteLine((vertex.Nodes[1]).ToString());
+                            if (hasNodes) sw.WriteLine(vNodes.Data.b.ToString());
                             else sw.WriteLine("0");
 
-                            if (vertex.Weights.Count > 1) sw.WriteLine(vertex.Weights[1].ToString("F6"));
+                            if (hasWeights) sw.WriteLine(vWeights.Data.b.ToString("F6"));
                             else sw.WriteLine("0.000000");
 
-                            sw.WriteLine(vertex.TexPos[0].x.ToString("F6"));
-                            sw.WriteLine(vertex.TexPos[0].y.ToString("F6"));
-                            sw.WriteLine("0.000000"); //unknown
+                            sw.WriteLine(vTex.Data.x.ToString("F6"));
+                            sw.WriteLine(vTex.Data.y.ToString("F6"));
+                            sw.WriteLine("0.000000"); //unknown, W coord?
                         }
                     }
                 }
@@ -1162,10 +1204,10 @@ namespace Adjutant.Library.Controls
                     foreach (var permutation in region.Permutations)
                     {
                         if (!PartIndices.Contains(permutation.PieceIndex) && permutation.Name == perm) continue;
-                        var part = Model.ModelParts[permutation.PieceIndex];
+                        var part = Model.ModelSections[permutation.PieceIndex];
 
                         foreach (var submesh in part.Submeshes)
-                            count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, part).Count;
+                            count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat).Count;
                     }
                 }
 
@@ -1176,10 +1218,10 @@ namespace Adjutant.Library.Controls
                     foreach (var permutation in region.Permutations)
                     {
                         if (!PartIndices.Contains(permutation.PieceIndex) && permutation.Name == perm) continue;
-                        var part = Model.ModelParts[permutation.PieceIndex];
+                        var part = Model.ModelSections[permutation.PieceIndex];
                         foreach (var submesh in part.Submeshes)
                         {
-                            var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, part);
+                            var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat);
                             for (int i = 0; i < indices.Count; i += 3)
                             {
                                 sw.WriteLine(rList.IndexOf(region).ToString()); //region index
@@ -1195,6 +1237,1459 @@ namespace Adjutant.Library.Controls
                 sw.Dispose();
             }
         }
+
+        public static void WriteAMF(string Filename, CacheFile Cache, render_model Model, List<int> PartIndices)
+        {
+            if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+            if (!Filename.EndsWith(".amf")) Filename += ".amf";
+
+            if (!Model.RawLoaded) LoadModelRaw(Cache, ref Model);
+
+            var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
+            var bw = new BinaryWriter(fs);
+
+            Dictionary<int, int> dupeDic = new Dictionary<int, int>();
+
+            #region Address Lists
+            var headerAddressList = new List<int>();
+            var headerValueList = new List<int>();
+            
+            var markerAddressList = new List<int>();
+            var markerValueList = new List<int>();
+            
+            var permAddressList = new List<int>();
+            var permValueList = new List<int>();
+
+            var vertAddressList = new List<int>();
+            var vertValueList = new List<int>();
+
+            var indxAddressList = new List<int>();
+            var indxValueList = new List<int>();
+
+            var meshAddressList = new List<int>();
+            var meshValueList = new List<int>();
+            #endregion
+
+            var regions = new List<render_model.Region>();
+            var perms = new List<render_model.Region.Permutation>();
+            foreach (var region in Model.Regions)
+            {
+                foreach (render_model.Region.Permutation perm in region.Permutations)
+                {
+                    if (PartIndices.Contains(perm.PieceIndex))
+                    {
+                        if (!regions.Contains(region)) regions.Add(region);
+                        perms.Add(perm);
+                    }
+                }
+            }
+
+            #region Header
+            bw.Write("AMF!".ToCharArray());
+            bw.Write(1.0f); //format version
+            bw.Write((Model.Name + "\0").ToCharArray());
+
+            bw.Write(Model.Nodes.Count);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+
+            bw.Write(Model.MarkerGroups.Count);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+
+            bw.Write(regions.Count);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+
+            bw.Write(Model.Shaders.Count);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+            #endregion
+            #region Nodes
+            headerValueList.Add((int)bw.BaseStream.Position);
+            foreach (var node in Model.Nodes)
+            {
+                bw.Write((node.Name + "\0").ToCharArray());
+                bw.Write((short)node.ParentIndex);
+                bw.Write((short)node.FirstChildIndex);
+                bw.Write((short)node.NextSiblingIndex);
+                bw.Write(node.Position.x * 100);
+                bw.Write(node.Position.y * 100);
+                bw.Write(node.Position.z * 100);
+                bw.Write(node.Rotation.i);
+                bw.Write(node.Rotation.j);
+                bw.Write(node.Rotation.k);
+                bw.Write(node.Rotation.w);
+                //bw.Write(node.TransformScale);
+                //bw.Write(node.SkewX.x);
+                //bw.Write(node.SkewX.y);
+                //bw.Write(node.SkewX.z);
+                //bw.Write(node.SkewY.x);
+                //bw.Write(node.SkewY.y);
+                //bw.Write(node.SkewY.z);
+                //bw.Write(node.SkewZ.x);
+                //bw.Write(node.SkewZ.y);
+                //bw.Write(node.SkewZ.z);
+                //bw.Write(node.Center.x);
+                //bw.Write(node.Center.y);
+                //bw.Write(node.Center.z);
+                //bw.Write(node.DistanceFromParent);
+            }
+            #endregion
+            #region Marker Groups
+            headerValueList.Add((int)bw.BaseStream.Position);
+            foreach (var group in Model.MarkerGroups)
+            {
+                bw.Write((group.Name + "\0").ToCharArray());
+                bw.Write(group.Markers.Count);
+                markerAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+            }
+            #endregion
+            #region Markers
+            foreach (var group in Model.MarkerGroups)
+            {
+                markerValueList.Add((int)bw.BaseStream.Position);
+                foreach (var marker in group.Markers)
+                {
+                    bw.Write((byte)marker.RegionIndex);
+                    bw.Write((byte)marker.PermutationIndex);
+                    bw.Write((short)marker.NodeIndex);
+                    bw.Write(marker.Position.x * 100);
+                    bw.Write(marker.Position.y * 100);
+                    bw.Write(marker.Position.z * 100);
+                    bw.Write(marker.Rotation.i);
+                    bw.Write(marker.Rotation.j);
+                    bw.Write(marker.Rotation.k);
+                    bw.Write(marker.Rotation.w);
+                }
+            }
+            #endregion
+            #region Regions
+            headerValueList.Add((int)bw.BaseStream.Position);
+            foreach (var region in regions)
+            {
+                bw.Write((region.Name + "\0").ToCharArray());
+
+                int count = 0;
+                foreach (var perm in region.Permutations)
+                    if (PartIndices.Contains(perm.PieceIndex)) count++;
+
+                bw.Write(count);
+                permAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+            }
+            #endregion
+            #region Permutations
+            foreach (var region in regions)
+            {
+                permValueList.Add((int)bw.BaseStream.Position);
+                foreach (var perm in region.Permutations)
+                {
+                    if (!PartIndices.Contains(perm.PieceIndex)) continue;
+
+                    var part = Model.ModelSections[perm.PieceIndex];
+                    VertexValue v;
+                    bool hasNodes = part.Vertices[0].TryGetValue("blendindices", 0, out v) && part.NodeIndex == 255;
+                    bool isBoned = part.Vertices[0].FormatName.Contains("rigid_boned");
+
+                    bw.Write((perm.Name + "\0").ToCharArray());
+                    if (isBoned) bw.Write((byte)2);
+                    else bw.Write(hasNodes ? (byte)1 : (byte)0);
+                    bw.Write((byte)part.NodeIndex);
+
+                    bw.Write(part.Vertices.Length);
+                    vertAddressList.Add((int)bw.BaseStream.Position);
+                    bw.Write(0);
+
+                    int count = 0;
+                    foreach (var submesh in part.Submeshes)
+                        count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat).Count / 3;
+
+                    bw.Write(count);
+                    indxAddressList.Add((int)bw.BaseStream.Position);
+                    bw.Write(0);
+
+                    bw.Write(part.Submeshes.Count);
+                    meshAddressList.Add((int)bw.BaseStream.Position);
+                    bw.Write(0);
+
+                    bw.Write(float.NaN); //no transforms (render_models are pre-transformed)
+                }
+            }
+            #endregion
+            #region Vertices
+            foreach (var perm in perms)
+            {
+                var part = Model.ModelSections[perm.PieceIndex];
+
+                int address;
+                if (dupeDic.TryGetValue(part.VertsIndex, out address))
+                {
+                    vertValueList.Add(address);
+                    continue;
+                }
+                else
+                    dupeDic.Add(part.VertsIndex, (int)bw.BaseStream.Position);
+
+                VertexValue v;
+                bool hasNodes = part.Vertices[0].TryGetValue("blendindices", 0, out v) && part.NodeIndex == 255;
+                bool isBoned = part.Vertices[0].FormatName.Contains("rigid_boned");
+
+                vertValueList.Add((int)bw.BaseStream.Position);
+
+                foreach (Vertex vert in part.Vertices)
+                {
+                    vert.TryGetValue("position", 0, out v);
+                    bw.Write(v.Data.x * 100);
+                    bw.Write(v.Data.y * 100);
+                    bw.Write(v.Data.z * 100);
+
+                    vert.TryGetValue("normal", 0, out v);
+                    bw.Write(v.Data.i);
+                    bw.Write(v.Data.j);
+                    bw.Write(v.Data.k);
+
+                    //if (!vert.TryGetValue("texcoords", 5, out v))
+                        vert.TryGetValue("texcoords", 0, out v);
+                    bw.Write(v.Data.x);
+                    bw.Write(v.Data.y);
+
+                    if (isBoned)
+                    {
+                        VertexValue i;
+                        var indices = new List<int>();
+                        vert.TryGetValue("blendindices", 0, out i);
+
+                        if (!indices.Contains((int)i.Data.a) && i.Data.a != 0) indices.Add((int)i.Data.a);
+                        if (!indices.Contains((int)i.Data.b) && i.Data.a != 0) indices.Add((int)i.Data.b);
+                        if (!indices.Contains((int)i.Data.c) && i.Data.a != 0) indices.Add((int)i.Data.c);
+                        if (!indices.Contains((int)i.Data.d) && i.Data.a != 0) indices.Add((int)i.Data.d);
+
+                        if (indices.Count == 0) indices.Add(0);
+
+                        foreach (int index in indices) bw.Write((byte)index);
+
+                        if (indices.Count < 4) bw.Write((byte)255);
+
+                        continue;
+                    }
+
+                    if (hasNodes)
+                    {
+                        VertexValue i, w;
+                        vert.TryGetValue("blendindices", 0, out i);
+                        vert.TryGetValue("blendweight", 0, out w);
+                        int count = 0;
+                        if (w.Data.a > 0)
+                        {
+                            bw.Write((byte)i.Data.a);
+                            count++;
+                        }
+                        if (w.Data.b > 0)
+                        {
+                            bw.Write((byte)i.Data.b);
+                            count++;
+                        }
+                        if (w.Data.c > 0)
+                        {
+                            bw.Write((byte)i.Data.c);
+                            count++;
+                        }
+                        if (w.Data.d > 0)
+                        {
+                            bw.Write((byte)i.Data.d);
+                            count++;
+                        }
+
+                        if (count == 0) throw new Exception("no weights on a weighted node. report this.");
+
+                        if (count != 4) bw.Write((byte)255);
+
+                        if (w.Data.a > 0) bw.Write(w.Data.a);
+                        if (w.Data.b > 0) bw.Write(w.Data.b);
+                        if (w.Data.c > 0) bw.Write(w.Data.c);
+                        if (w.Data.d > 0) bw.Write(w.Data.d);
+                    }
+                }
+            }
+            #endregion
+
+            dupeDic.Clear();
+
+            #region Indices
+            foreach (var perm in perms)
+            {
+                var part = Model.ModelSections[perm.PieceIndex];
+
+                int address;
+                if (dupeDic.TryGetValue(part.FacesIndex, out address))
+                {
+                    indxValueList.Add(address);
+                    continue;
+                }
+                else
+                    dupeDic.Add(part.FacesIndex, (int)bw.BaseStream.Position);
+
+                indxValueList.Add((int)bw.BaseStream.Position);
+
+                foreach (var submesh in part.Submeshes)
+                {
+                    var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat);
+                    foreach (var index in indices)
+                    {
+                        if (part.Vertices.Length > 0xFFFF) bw.Write(index);
+                        else bw.Write((ushort)index);
+                    }
+                }
+
+            }
+            #endregion
+            #region Submeshes
+            foreach (var perm in perms)
+            {
+                var part = Model.ModelSections[perm.PieceIndex];
+                meshValueList.Add((int)bw.BaseStream.Position);
+                int tCount = 0;
+                foreach (var mesh in part.Submeshes)
+                {
+
+                    int sCount = GetTriangleList(part.Indices, mesh.FaceIndex, mesh.FaceCount, Model.IndexInfoList[part.FacesIndex].FaceFormat).Count / 3;
+
+                    bw.Write((short)mesh.ShaderIndex);
+                    bw.Write(tCount);
+                    bw.Write(sCount);
+
+                    tCount += sCount;
+                }
+            }
+            #endregion
+            #region Shaders
+            headerValueList.Add((int)bw.BaseStream.Position);
+            foreach (var shaderBlock in Model.Shaders)
+            {
+                //skip null shaders
+                if (shaderBlock.tagID == -1)
+                {
+                    bw.Write("null\0".ToCharArray());
+                    for (int i = 0; i < 8; i++)
+                        bw.Write("null\0".ToCharArray());
+
+                    bw.Write(Convert.ToByte(false));
+                    bw.Write(Convert.ToByte(false));
+
+                    continue;
+                }
+
+                var rmshTag = Cache.IndexItems.GetItemByID(shaderBlock.tagID);
+                var rmsh = DefinitionsManager.rmsh(Cache, rmshTag);
+                string shaderName = rmshTag.Filename.Substring(rmshTag.Filename.LastIndexOf("\\") + 1) + "\0";
+                string[] paths = new string[8] { "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
+                float[] uTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                float[] vTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                bool isTransparent = false;
+                bool ccOnly = false;
+
+                //Halo4 fucked this up
+                if (Cache.Version <= DefinitionSet.HaloReachRetail)
+                {
+                    var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
+                    var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
+
+                    for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
+                    {
+                        var s = rmt2.UsageBlocks[i].Usage;
+                        var bitmTag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[i].BitmapTagID);
+
+                        switch (s)
+                        {
+                            case "base_map":
+                                paths[0] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "detail_map":
+                            case "detail_map_overlay":
+                                paths[1] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "change_color_map":
+                                paths[2] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "bump_map":
+                                paths[3] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "bump_detail_map":
+                                paths[4] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "self_illum_map":
+                                paths[5] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "specular_map":
+                                paths[6] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                        }
+                    }
+
+                    short[] tiles = new short[8] { -1, -1, -1, -1, -1, -1, -1, -1 };
+
+                    foreach (var map in rmsh.Properties[0].ShaderMaps)
+                    {
+                        var bitmTag = Cache.IndexItems.GetItemByID(map.BitmapTagID);
+
+                        for (int i = 0; i < 8; i++)
+                        {
+                            if (bitmTag.Filename + "\0" != paths[i]) continue;
+
+                            tiles[i] = (short)map.TilingIndex;
+                        }
+                    }
+
+                    for (int i = 0; i < 8; i++)
+                    {
+                        try
+                        {
+                            uTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].UTiling;
+                            vTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].VTiling;
+                        }
+                        catch { }
+                    }
+                }
+                else
+                    try { paths[0] = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[0].BitmapTagID).Filename + "\0"; }
+                    catch { }
+
+                if (rmshTag.ClassCode != "rmsh" && rmshTag.ClassCode != "mat")
+                {
+                    isTransparent = true;
+                    if (paths[0] == "null\0" && paths[2] != "null\0")
+                        ccOnly = true;
+                }
+
+                bw.Write(shaderName.ToCharArray());
+                for (int i = 0; i < 8; i++)
+                {
+                    bw.Write(paths[i].ToCharArray());
+                    if (paths[i] != "null\0")
+                    {
+                        bw.Write(uTiles[i]);
+                        bw.Write(vTiles[i]);
+                    }
+                }
+
+                bw.Write(Convert.ToByte(isTransparent));
+                bw.Write(Convert.ToByte(ccOnly));
+            }
+            #endregion
+            #region Write Addresses
+            for (int i = 0; i < headerAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = headerAddressList[i];
+                bw.Write(headerValueList[i]);
+            }
+
+            for (int i = 0; i < markerAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = markerAddressList[i];
+                bw.Write(markerValueList[i]);
+            }
+
+            for (int i = 0; i < permAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = permAddressList[i];
+                bw.Write(permValueList[i]);
+            }
+
+            for (int i = 0; i < vertAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = vertAddressList[i];
+                bw.Write(vertValueList[i]);
+            }
+
+            for (int i = 0; i < indxAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = indxAddressList[i];
+                bw.Write(indxValueList[i]);
+            }
+
+            for (int i = 0; i < meshAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = meshAddressList[i];
+                bw.Write(meshValueList[i]);
+            }
+            #endregion
+
+            bw.Close();
+            bw.Dispose();
+        }
+
+        public static void WriteEMF3(string Filename, CacheFile Cache, scenario_structure_bsp BSP, List<int> ClusterIndices, List<int> InstanceIndices)
+        {
+            if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+            if (!Filename.EndsWith(".emf")) Filename += ".emf";
+
+            if (!BSP.RawLoaded) LoadBSPRaw(Cache, ref BSP);
+
+            var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
+            var bw = new BinaryWriter(fs);
+
+            bw.Write(560360805);
+            bw.Write(3);
+            bw.Write((BSP.BSPName + "\0").ToCharArray());
+
+            #region Nodes
+            bw.Write(0);
+            #endregion
+            #region Markers
+            bw.Write(0);
+            #endregion
+            #region Lists
+            var clusters = new List<scenario_structure_bsp.Cluster>();
+            var igs = new List<scenario_structure_bsp.InstancedGeometry>();
+
+            foreach (var cluster in BSP.Clusters)
+            {
+                if (ClusterIndices.Contains(BSP.Clusters.IndexOf(cluster)) && BSP.ModelSections[cluster.SectionIndex].Submeshes.Count > 0)
+                    clusters.Add(cluster);
+            }
+
+            foreach (var geom in BSP.GeomInstances)
+            {
+                if (InstanceIndices.Contains(BSP.GeomInstances.IndexOf(geom)) && BSP.ModelSections[geom.SectionIndex].Submeshes.Count > 0)
+                    igs.Add(geom);
+            }
+
+            int rCount = 0;
+            if (clusters.Count > 0) rCount++;
+            if (igs.Count > 0) rCount++;
+            #endregion
+            #region Regions
+            bw.Write(rCount);
+
+            bw.Write("Clusters\0".ToCharArray());
+            bw.Write(clusters.Count);
+            foreach (scenario_structure_bsp.Cluster cluster in clusters)
+            {
+                var part = BSP.ModelSections[cluster.SectionIndex];
+
+                bw.Write((BSP.Clusters.IndexOf(cluster).ToString("D3") + "\0").ToCharArray());
+
+                VertexValue v;
+                bw.Write((byte)1); //no nodes
+
+                bw.Write(part.Vertices.Length);
+                foreach (Vertex vert in part.Vertices)
+                {
+                    vert.TryGetValue("position", 0, out v);
+                    bw.Write(v.Data.x);
+                    bw.Write(v.Data.y);
+                    bw.Write(v.Data.z);
+
+                    vert.TryGetValue("normal", 0, out v);
+                    bw.Write(v.Data.i);
+                    bw.Write(v.Data.j);
+                    bw.Write(v.Data.k);
+
+                    vert.TryGetValue("texcoords", 0, out v);
+                    bw.Write(v.Data.x);
+                    bw.Write(v.Data.y);
+                }
+
+                bw.Write(1);
+
+                int count = 0;
+                foreach (var submesh in part.Submeshes)
+                    count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat).Count;
+
+                bw.Write(count / 3);
+                foreach (var submesh in part.Submeshes)
+                {
+                    var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat);
+                    for (int i = 0; i < indices.Count; i += 3)
+                    {
+                        if (part.Vertices.Length > 0xFFFF)
+                        {
+                            bw.Write(indices[i + 0]);
+                            bw.Write(indices[i + 1]);
+                            bw.Write(indices[i + 2]);
+                        }
+                        else
+                        {
+                            bw.Write((ushort)indices[i + 0]);
+                            bw.Write((ushort)indices[i + 1]);
+                            bw.Write((ushort)indices[i + 2]);
+                        }
+                        bw.Write((short)submesh.ShaderIndex);
+                    }
+                }
+            }
+
+            bw.Write("Instances\0".ToCharArray());
+            bw.Write(igs.Count);
+            foreach (scenario_structure_bsp.InstancedGeometry geom in igs)
+            {
+                var part = BSP.ModelSections[geom.SectionIndex];
+
+                bw.Write((geom.Name + "\0").ToCharArray());
+
+                VertexValue v;
+                bw.Write((byte)1); //no nodes
+
+                bw.Write(part.Vertices.Length);
+                foreach (Vertex vert in DeepClone(part.Vertices))
+                {
+                    vert.TryGetValue("position", 0, out v);
+                    v.Data *= geom.TransformScale;
+                    v.Data.Point3DTransform(geom.TransformMatrix);
+                    bw.Write(v.Data.x);
+                    bw.Write(v.Data.y);
+                    bw.Write(v.Data.z);
+
+                    vert.TryGetValue("normal", 0, out v);
+                    v.Data *= geom.TransformScale;
+                    v.Data.Vector3DTransform(geom.TransformMatrix);
+                    bw.Write(v.Data.i);
+                    bw.Write(v.Data.j);
+                    bw.Write(v.Data.k);
+
+                    vert.TryGetValue("texcoords", 0, out v);
+                    bw.Write(v.Data.x);
+                    bw.Write(v.Data.y);
+                }
+
+                bw.Write(1);
+
+                int count = 0;
+                foreach (var submesh in part.Submeshes)
+                    count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat).Count;
+
+                bw.Write(count / 3);
+                foreach (var submesh in part.Submeshes)
+                {
+                    var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat);
+                    for (int i = 0; i < indices.Count; i += 3)
+                    {
+                        if (part.Vertices.Length > 0xFFFF)
+                        {
+                            bw.Write(indices[i + 0]);
+                            bw.Write(indices[i + 1]);
+                            bw.Write(indices[i + 2]);
+                        }
+                        else
+                        {
+                            bw.Write((ushort)indices[i + 0]);
+                            bw.Write((ushort)indices[i + 1]);
+                            bw.Write((ushort)indices[i + 2]);
+                        }
+                        bw.Write((short)submesh.ShaderIndex);
+                    }
+                }
+            }
+            #endregion
+            #region Shaders
+            bw.Write(BSP.Shaders.Count);
+            foreach (render_model.Shader shaderBlock in BSP.Shaders)
+            {
+                //skip null shaders
+                if (shaderBlock.tagID == -1)
+                {
+                    bw.Write("null\0".ToCharArray());
+                    for (int i = 0; i < 8; i++)
+                        bw.Write("null\0".ToCharArray());
+
+                    bw.Write(Convert.ToByte(false));
+                    bw.Write(Convert.ToByte(false));
+
+                    continue;
+                }
+
+                var rmshTag = Cache.IndexItems.GetItemByID(shaderBlock.tagID);
+                var rmsh = DefinitionsManager.rmsh(Cache, rmshTag);
+                string shaderName = rmshTag.Filename.Substring(rmshTag.Filename.LastIndexOf("\\") + 1) + "\0";
+                string[] paths = new string[8] { "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
+                float[] uTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                float[] vTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                bool isTransparent = false;
+                bool ccOnly = false;
+
+                //Halo4 fucked this up
+                if (Cache.Version <= DefinitionSet.HaloReachRetail)
+                {
+                    var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
+                    var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
+
+                    for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
+                    {
+                        var s = rmt2.UsageBlocks[i].Usage;
+                        var bitmTag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[i].BitmapTagID);
+
+                        switch (s)
+                        {
+                            case "base_map":
+                                paths[0] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "detail_map":
+                            case "detail_map_overlay":
+                                paths[1] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "change_color_map":
+                                paths[2] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "bump_map":
+                                paths[3] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "bump_detail_map":
+                                paths[4] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "self_illum_map":
+                                paths[5] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                            case "specular_map":
+                                paths[6] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                break;
+                        }
+                    }
+
+                    short[] tiles = new short[8] { -1, -1, -1, -1, -1, -1, -1, -1 };
+
+                    foreach (var map in rmsh.Properties[0].ShaderMaps)
+                    {
+                        var bitmTag = Cache.IndexItems.GetItemByID(map.BitmapTagID);
+
+                        for (int i = 0; i < 8; i++)
+                        {
+                            if (bitmTag.Filename + "\0" != paths[i]) continue;
+
+                            tiles[i] = (short)map.TilingIndex;
+                        }
+                    }
+
+                    for (int i = 0; i < 8; i++)
+                    {
+                        try
+                        {
+                            uTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].UTiling;
+                            vTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].VTiling;
+                        }
+                        catch { }
+                    }
+                }
+                else
+                    try { paths[0] = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[0].BitmapTagID).Filename + "\0"; }
+                    catch { }
+
+                if (rmshTag.ClassCode != "rmsh" && rmshTag.ClassCode != "mat")
+                {
+                    isTransparent = true;
+                    if (paths[0] == "null\0" && paths[2] != "null\0")
+                        ccOnly = true;
+                }
+
+                bw.Write(shaderName.ToCharArray());
+                for (int i = 0; i < 8; i++)
+                {
+                    bw.Write(paths[i].ToCharArray());
+                    bw.Write(uTiles[i]);
+                    bw.Write(vTiles[i]);
+                }
+
+                bw.Write(Convert.ToByte(isTransparent));
+                bw.Write(Convert.ToByte(ccOnly));
+            }
+            #endregion
+
+            bw.Close();
+            bw.Dispose();
+        }
+
+        public static void WriteOBJ(string Filename, CacheFile Cache, scenario_structure_bsp BSP, List<int> ClusterIndices, List<int> InstanceIndices)
+        {
+            if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+
+            if (!BSP.RawLoaded) ModelFunctions.LoadBSPRaw(Cache, ref BSP);
+
+            StreamWriter sw = new StreamWriter(Filename);
+
+            sw.WriteLine("# ---------------------------------------");
+            sw.WriteLine("# Halo x360 BSP - Extracted with Adjutant");
+            sw.WriteLine("# ---------------------------------------");
+
+            foreach (var cluster in BSP.Clusters)
+            {
+                if (!ClusterIndices.Contains(BSP.Clusters.IndexOf(cluster))) continue;
+
+                var part = BSP.ModelSections[cluster.SectionIndex];
+
+                if(part.Submeshes.Count == 0) continue;
+
+                VertexValue v;
+
+                foreach (var vert in part.Vertices)
+                {
+                    vert.TryGetValue("position", 0, out v);
+                    sw.WriteLine("v  {0} {1} {2}", v.Data.x * 100, v.Data.y * 100, v.Data.z * 100);
+                }
+
+                foreach (var vert in part.Vertices)
+                {
+                    vert.TryGetValue("texcoords", 0, out v);
+                    sw.WriteLine("vt {0} {1}", v.Data.x, v.Data.y);
+                }
+
+                foreach (var vert in part.Vertices)
+                {
+                    vert.TryGetValue("normal", 0, out v);
+                    sw.WriteLine("vn {0} {1} {2}", v.Data.i, v.Data.j, v.Data.k);
+                }
+            }
+
+            foreach (var geom in BSP.GeomInstances)
+            {
+                if (!InstanceIndices.Contains(BSP.GeomInstances.IndexOf(geom))) continue;
+
+                var part = BSP.ModelSections[geom.SectionIndex];
+
+                if (part.Submeshes.Count == 0) continue;
+
+                VertexValue v;
+                var verts = DeepClone(part.Vertices);
+
+                foreach (var vert in verts)
+                {
+                    vert.TryGetValue("position", 0, out v);
+                    v.Data *= geom.TransformScale;
+                    v.Data.Point3DTransform(geom.TransformMatrix);
+                    sw.WriteLine("v  {0} {1} {2}", v.Data.x * 100, v.Data.y * 100, v.Data.z * 100);
+                }
+
+                foreach (var vert in verts)
+                {
+                    vert.TryGetValue("texcoords", 0, out v);
+                    sw.WriteLine("vt {0} {1}", v.Data.x, v.Data.y);
+                }
+
+                foreach (var vert in verts)
+                {
+                    vert.TryGetValue("normal", 0, out v);
+                    v.Data *= geom.TransformScale;
+                    v.Data.Vector3DTransform(geom.TransformMatrix);
+                    sw.WriteLine("vn {0} {1} {2}", v.Data.i, v.Data.j, v.Data.k);
+                }
+            }
+
+            int position = 1;
+
+            foreach (var cluster in BSP.Clusters)
+            {
+                if (!ClusterIndices.Contains(BSP.Clusters.IndexOf(cluster))) continue;
+
+                var part = BSP.ModelSections[cluster.SectionIndex];
+
+                if (part.Submeshes.Count == 0) continue;
+
+                sw.WriteLine("g Clusters-" + BSP.Clusters.IndexOf(cluster).ToString("D3"));
+
+                foreach (var submesh in part.Submeshes)
+                {
+                    var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat);
+                    for (int j = 0; j < indices.Count; j += 3)
+                    {
+                        var line = string.Concat(new object[] {
+                                        "f ", indices[j + 0] + position, "/", indices[j + 0] + position, "/", indices[j + 0] + position,
+                                         " ", indices[j + 1] + position, "/", indices[j + 1] + position, "/", indices[j + 1] + position,
+                                         " ", indices[j + 2] + position, "/", indices[j + 2] + position, "/", indices[j + 2] + position
+                                    });
+                        sw.WriteLine(line);
+                    }
+                }
+                position += BSP.VertInfoList[part.VertsIndex].VertexCount;
+            }
+
+            foreach (var geom in BSP.GeomInstances)
+            {
+                if (!InstanceIndices.Contains(BSP.GeomInstances.IndexOf(geom))) continue;
+
+                var part = BSP.ModelSections[geom.SectionIndex];
+
+                if (part.Submeshes.Count == 0) continue;
+
+                sw.WriteLine("g Instances-" + geom.Name);
+
+                foreach (var submesh in part.Submeshes)
+                {
+                    var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat);
+                    if (geom.TransformScale < 0) indices.Reverse();
+                    for (int j = 0; j < indices.Count; j += 3)
+                    {
+                        var line = string.Concat(new object[] {
+                                        "f ", indices[j + 0] + position, "/", indices[j + 0] + position, "/", indices[j + 0] + position,
+                                         " ", indices[j + 1] + position, "/", indices[j + 1] + position, "/", indices[j + 1] + position,
+                                         " ", indices[j + 2] + position, "/", indices[j + 2] + position, "/", indices[j + 2] + position
+                                    });
+                        sw.WriteLine(line);
+                    }
+                }
+                position += BSP.VertInfoList[part.VertsIndex].VertexCount;
+
+            }
+
+            sw.Close();
+            sw.Dispose();
+        }
+
+        public static void WriteAMF(string Filename, CacheFile Cache, scenario_structure_bsp BSP, List<int> ClusterIndices, List<int> InstanceIndices)
+        {
+            if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+            if (!Filename.EndsWith(".amf")) Filename += ".amf";
+
+            if (!BSP.RawLoaded) LoadBSPRaw(Cache, ref BSP);
+
+            var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
+            var bw = new BinaryWriter(fs);
+
+            var dupeDic = new Dictionary<int, int>();
+
+            #region Address Lists
+            var headerAddressList = new List<int>();
+            var headerValueList = new List<int>();
+
+            var markerAddressList = new List<int>();
+            var markerValueList = new List<int>();
+
+            var permAddressList = new List<int>();
+            var permValueList = new List<int>();
+
+            var vertAddressList = new List<int>();
+            var vertValueList = new List<int>();
+
+            var indxAddressList = new List<int>();
+            var indxValueList = new List<int>();
+
+            var meshAddressList = new List<int>();
+            var meshValueList = new List<int>();
+            #endregion
+
+            var clusters = new List<scenario_structure_bsp.Cluster>();
+            var igs = new List<scenario_structure_bsp.InstancedGeometry>();
+
+            foreach (var cluster in BSP.Clusters)
+            {
+                if (ClusterIndices.Contains(BSP.Clusters.IndexOf(cluster)) && BSP.ModelSections[cluster.SectionIndex].Submeshes.Count > 0)
+                    clusters.Add(cluster);
+            }
+
+            foreach (var geom in BSP.GeomInstances)
+            {
+                if (InstanceIndices.Contains(BSP.GeomInstances.IndexOf(geom)) && BSP.ModelSections[geom.SectionIndex].Submeshes.Count > 0)
+                    igs.Add(geom);
+            }
+
+            int rCount = 0;
+            if (clusters.Count > 0) rCount++;
+            if (igs.Count > 0) rCount++;
+
+            #region Header
+            bw.Write("AMF!".ToCharArray());
+            bw.Write(1.0f); //format version
+            bw.Write((BSP.BSPName + "\0").ToCharArray());
+
+            bw.Write(0); //nodes
+            //headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+
+            bw.Write(0); //marker groups
+            //headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+
+            bw.Write(rCount);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+
+            bw.Write(BSP.Shaders.Count);
+            headerAddressList.Add((int)bw.BaseStream.Position);
+            bw.Write(0);
+            #endregion
+            #region Regions
+            headerValueList.Add((int)bw.BaseStream.Position);
+            if (clusters.Count > 0)
+            {
+                bw.Write(("Clusters" + "\0").ToCharArray());
+                bw.Write(clusters.Count);
+                permAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+            }
+
+            if (igs.Count > 0)
+            {
+                bw.Write(("Instances" + "\0").ToCharArray());
+                bw.Write(igs.Count);
+                permAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+            }
+            #endregion
+            #region Permutations
+            permValueList.Add((int)bw.BaseStream.Position);
+            foreach (var cluster in clusters)
+            {
+                var part = BSP.ModelSections[cluster.SectionIndex];
+
+                bw.Write((BSP.Clusters.IndexOf(cluster).ToString("D3") + "\0").ToCharArray());
+                bw.Write((byte)0);   //not weighted
+                bw.Write((byte)255); //no node index
+
+                bw.Write(part.Vertices.Length);
+                vertAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+
+                int count = 0;
+                foreach (var submesh in part.Submeshes)
+                    count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat).Count / 3;
+
+                bw.Write(count);
+                indxAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+
+                bw.Write(part.Submeshes.Count);
+                meshAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+
+                bw.Write(float.NaN); //no transform
+            }
+
+            permValueList.Add((int)bw.BaseStream.Position);
+            foreach (var geom in igs)
+            {
+                var part = BSP.ModelSections[geom.SectionIndex];
+
+                bw.Write((geom.Name + "\0").ToCharArray());
+                bw.Write((byte)0);   //not weighted
+                bw.Write((byte)255); //no node index
+
+                bw.Write(part.Vertices.Length);
+                vertAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+
+                int count = 0;
+                foreach (var submesh in part.Submeshes)
+                    count += GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat).Count / 3;
+
+                bw.Write(count);
+                indxAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+
+                bw.Write(part.Submeshes.Count);
+                meshAddressList.Add((int)bw.BaseStream.Position);
+                bw.Write(0);
+
+                bw.Write(geom.TransformScale);
+                bw.Write(geom.TransformMatrix.m11);
+                bw.Write(geom.TransformMatrix.m12);
+                bw.Write(geom.TransformMatrix.m13);
+                bw.Write(geom.TransformMatrix.m21);
+                bw.Write(geom.TransformMatrix.m22);
+                bw.Write(geom.TransformMatrix.m23);
+                bw.Write(geom.TransformMatrix.m31);
+                bw.Write(geom.TransformMatrix.m32);
+                bw.Write(geom.TransformMatrix.m33);
+                bw.Write(geom.TransformMatrix.m41);
+                bw.Write(geom.TransformMatrix.m42);
+                bw.Write(geom.TransformMatrix.m43);
+            }
+            #endregion
+            #region Vertices
+
+            #region Clusters
+            foreach (var clust in clusters)
+            {
+                var part = BSP.ModelSections[clust.SectionIndex];
+
+                vertValueList.Add((int)bw.BaseStream.Position);
+
+                VertexValue v;
+                foreach (Vertex vert in part.Vertices)
+                {
+                    vert.TryGetValue("position", 0, out v);
+                    bw.Write(v.Data.x * 100);
+                    bw.Write(v.Data.y * 100);
+                    bw.Write(v.Data.z * 100);
+
+                    vert.TryGetValue("normal", 0, out v);
+                    bw.Write(v.Data.i);
+                    bw.Write(v.Data.j);
+                    bw.Write(v.Data.k);
+
+                    vert.TryGetValue("texcoords", 0, out v);
+                    bw.Write(v.Data.x);
+                    bw.Write(v.Data.y);
+                }
+            }
+            #endregion
+
+            #region Instances
+            foreach (var geom in igs)
+            {
+                var part = BSP.ModelSections[geom.SectionIndex];
+
+                int address;
+                if (dupeDic.TryGetValue(part.VertsIndex, out address))
+                {
+                    vertValueList.Add(address);
+                    continue;
+                }
+                else
+                    dupeDic.Add(part.VertsIndex, (int)bw.BaseStream.Position);
+
+                vertValueList.Add((int)bw.BaseStream.Position);
+
+                VertexValue v;
+                foreach (Vertex vert in DeepClone(part.Vertices))
+                {
+                    vert.TryGetValue("position", 0, out v);
+                    bw.Write(v.Data.x);
+                    bw.Write(v.Data.y);
+                    bw.Write(v.Data.z);
+
+                    vert.TryGetValue("normal", 0, out v);
+                    bw.Write(v.Data.i);
+                    bw.Write(v.Data.j);
+                    bw.Write(v.Data.k);
+
+                    vert.TryGetValue("texcoords", 0, out v);
+                    bw.Write(v.Data.x);
+                    bw.Write(v.Data.y);
+                }
+            }
+            #endregion
+
+            #endregion
+
+            dupeDic.Clear();
+
+            #region Indices
+
+            #region Clusters
+            foreach (var clust in clusters)
+            {
+                var part = BSP.ModelSections[clust.SectionIndex];
+
+                indxValueList.Add((int)bw.BaseStream.Position);
+
+                foreach (var submesh in part.Submeshes)
+                {
+                    var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat);
+                    foreach (var index in indices)
+                    {
+                        if (part.Vertices.Length > 0xFFFF) bw.Write(index);
+                        else bw.Write((ushort)index);
+                    }
+                }
+
+            }
+            #endregion
+
+            #region Instances
+            foreach (var geom in igs)
+            {
+                var part = BSP.ModelSections[geom.SectionIndex];
+
+                int address;
+                if (dupeDic.TryGetValue(part.FacesIndex, out address))
+                {
+                    indxValueList.Add(address);
+                    continue;
+                }
+                else
+                    dupeDic.Add(part.FacesIndex, (int)bw.BaseStream.Position);
+
+                indxValueList.Add((int)bw.BaseStream.Position);
+
+                foreach (var submesh in part.Submeshes)
+                {
+                    var indices = GetTriangleList(part.Indices, submesh.FaceIndex, submesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat);
+                    if (geom.TransformScale < 0) indices.Reverse();
+
+                    foreach (var index in indices)
+                    {
+                        if (part.Vertices.Length > 0xFFFF) bw.Write(index);
+                        else bw.Write((ushort)index);
+                    }
+                }
+
+            }
+            #endregion
+
+            #endregion
+            #region Submeshes
+            foreach (var clust in clusters)
+            {
+                var part = BSP.ModelSections[clust.SectionIndex];
+                meshValueList.Add((int)bw.BaseStream.Position);
+                int tCount = 0;
+                foreach (var mesh in part.Submeshes)
+                {
+
+                    int sCount = GetTriangleList(part.Indices, mesh.FaceIndex, mesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat).Count / 3;
+
+                    bw.Write((short)mesh.ShaderIndex);
+                    bw.Write(tCount);
+                    bw.Write(sCount);
+
+                    tCount += sCount;
+                }
+            }
+
+            foreach (var geom in igs)
+            {
+                var part = BSP.ModelSections[geom.SectionIndex];
+                meshValueList.Add((int)bw.BaseStream.Position);
+                int tCount = 0;
+                foreach (var mesh in part.Submeshes)
+                {
+
+                    int sCount = GetTriangleList(part.Indices, mesh.FaceIndex, mesh.FaceCount, BSP.IndexInfoList[part.FacesIndex].FaceFormat).Count / 3;
+
+                    bw.Write((short)mesh.ShaderIndex);
+                    bw.Write(tCount);
+                    bw.Write(sCount);
+
+                    tCount += sCount;
+                }
+            }
+            #endregion
+            #region Shaders
+            headerValueList.Add((int)bw.BaseStream.Position);
+            foreach (var shaderBlock in BSP.Shaders)
+            {
+                //skip null shaders
+                if (shaderBlock.tagID == -1)
+                {
+                    bw.Write("null\0".ToCharArray());
+                    for (int i = 0; i < 8; i++)
+                        bw.Write("null\0".ToCharArray());
+
+                    bw.Write(Convert.ToByte(false));
+                    bw.Write(Convert.ToByte(false));
+
+                    continue;
+                }
+
+                var rmshTag = Cache.IndexItems.GetItemByID(shaderBlock.tagID);
+                var rmsh = DefinitionsManager.rmsh(Cache, rmshTag);
+                string shaderName = rmshTag.Filename.Substring(rmshTag.Filename.LastIndexOf("\\") + 1) + "\0";
+                string[] paths = new string[8] { "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
+                float[] uTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                float[] vTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
+                bool isTransparent = false;
+                bool ccOnly = false;
+
+                var baseMaps = new List<KeyValuePair<string, RealQuat>>();
+                var bumpMaps = new List<KeyValuePair<string, RealQuat>>();
+                var detailMaps = new List<KeyValuePair<string, RealQuat>>();
+                var blendmap = new KeyValuePair<string, RealQuat>();
+
+                //Halo4 fucked this up
+                if (Cache.Version <= DefinitionSet.HaloReachRetail)
+                {
+                    var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
+                    var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
+
+                    if (rmshTag.ClassCode == "rmtr") 
+                    {
+                        shaderName = "*" + shaderName;
+                        for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
+                        {
+                            var s = rmt2.UsageBlocks[i].Usage;
+                            var map = rmsh.Properties[0].ShaderMaps[i];
+                            var tileInfo = (map.TilingIndex != 255) ? rmsh.Properties[0].Tilings[map.TilingIndex] : null;
+                            var bitmTag = Cache.IndexItems.GetItemByID(map.BitmapTagID);
+
+                            if (s == "blend_map" && bitmTag != null)
+                                blendmap = new KeyValuePair<string, RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling));
+
+                            if (s.Contains("base_map_m_") && bitmTag != null)
+                               baseMaps.Add(new KeyValuePair<string,RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling)));
+
+                            if (s.Contains("bump_map_m_") && bitmTag != null)
+                               bumpMaps.Add(new KeyValuePair<string,RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling)));
+
+                            if (s.Contains("detail_map_m_") && bitmTag != null)
+                               detailMaps.Add(new KeyValuePair<string,RealQuat>(bitmTag.Filename + "\0", new RealQuat(tileInfo.UTiling, tileInfo.VTiling)));
+                        }
+                    }
+                    else // default shaders
+                    {
+                        for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
+                        {
+                            var s = rmt2.UsageBlocks[i].Usage;
+                            var bitmTag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[i].BitmapTagID);
+
+                            switch (s)
+                            {
+                                case "base_map":
+                                    paths[0] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                    break;
+                                case "detail_map":
+                                case "detail_map_overlay":
+                                    paths[1] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                    break;
+                                case "change_color_map":
+                                    paths[2] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                    break;
+                                case "bump_map":
+                                    paths[3] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                    break;
+                                case "bump_detail_map":
+                                    paths[4] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                    break;
+                                case "self_illum_map":
+                                    paths[5] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                    break;
+                                case "specular_map":
+                                    paths[6] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
+                                    break;
+                            }
+                        }
+
+                        short[] tiles = new short[8] { -1, -1, -1, -1, -1, -1, -1, -1 };
+
+                        foreach (var map in rmsh.Properties[0].ShaderMaps)
+                        {
+                            var bitmTag = Cache.IndexItems.GetItemByID(map.BitmapTagID);
+
+                            for (int i = 0; i < 8; i++)
+                            {
+                                if (bitmTag.Filename + "\0" != paths[i]) continue;
+
+                                tiles[i] = (short)map.TilingIndex;
+                            }
+                        }
+
+                        for (int i = 0; i < 8; i++)
+                        {
+                            try
+                            {
+                                uTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].UTiling;
+                                vTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].VTiling;
+                            }
+                            catch { }
+                        }
+                    }
+                }
+                else
+                    try { paths[0] = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[0].BitmapTagID).Filename + "\0"; }
+                    catch { }
+
+                bw.Write(shaderName.ToCharArray());
+                if (rmshTag.ClassCode == "rmtr")
+                {
+                    if (blendmap.Key == null)
+                        bw.Write("null\0".ToCharArray());
+                    else
+                    {
+                        bw.Write(blendmap.Key.ToCharArray());
+                        bw.Write(blendmap.Value.a);
+                        bw.Write(blendmap.Value.b);
+                    }
+
+                    bw.Write((byte)baseMaps.Count);
+                    bw.Write((byte)bumpMaps.Count);
+                    bw.Write((byte)detailMaps.Count);
+
+                    foreach (var map in baseMaps)
+                    {
+                        bw.Write(map.Key.ToCharArray());
+                        bw.Write(map.Value.a);
+                        bw.Write(map.Value.b);
+                    }
+
+                    foreach (var map in bumpMaps)
+                    {
+                        bw.Write(map.Key.ToCharArray());
+                        bw.Write(map.Value.a);
+                        bw.Write(map.Value.b);
+                    }
+
+                    foreach (var map in detailMaps)
+                    {
+                        bw.Write(map.Key.ToCharArray());
+                        bw.Write(map.Value.a);
+                        bw.Write(map.Value.b);
+                    }
+                }
+                else
+                {
+                    if (rmshTag.ClassCode != "rmsh" && rmshTag.ClassCode != "mat")
+                    {
+                        isTransparent = true;
+                        if (paths[0] == "null\0" && paths[2] != "null\0")
+                            ccOnly = true;
+                    }
+
+                    for (int i = 0; i < 8; i++)
+                    {
+                        bw.Write(paths[i].ToCharArray());
+                        if (paths[i] != "null\0")
+                        {
+                            bw.Write(uTiles[i]);
+                            bw.Write(vTiles[i]);
+                        }
+                    }
+
+                    bw.Write(Convert.ToByte(isTransparent));
+                    bw.Write(Convert.ToByte(ccOnly));
+                }
+            }
+            #endregion
+            #region Write Addresses
+            for (int i = 0; i < headerAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = headerAddressList[i];
+                bw.Write(headerValueList[i]);
+            }
+
+            //for (int i = 0; i < markerAddressList.Count; i++)
+            //{
+            //    bw.BaseStream.Position = markerAddressList[i];
+            //    bw.Write(markerValueList[i]);
+            //}
+
+            for (int i = 0; i < permAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = permAddressList[i];
+                bw.Write(permValueList[i]);
+            }
+
+            for (int i = 0; i < vertAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = vertAddressList[i];
+                bw.Write(vertValueList[i]);
+            }
+
+            for (int i = 0; i < indxAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = indxAddressList[i];
+                bw.Write(indxValueList[i]);
+            }
+
+            for (int i = 0; i < meshAddressList.Count; i++)
+            {
+                bw.BaseStream.Position = meshAddressList[i];
+                bw.Write(meshValueList[i]);
+            }
+            #endregion
+
+            bw.Close();
+            bw.Dispose();
+        }
         #endregion
+
+        public static T DeepClone<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
+            }
+        }
     }
 }

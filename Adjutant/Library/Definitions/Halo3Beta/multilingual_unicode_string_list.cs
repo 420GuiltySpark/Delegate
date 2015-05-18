@@ -7,7 +7,7 @@ using Adjutant.Library.Cache;
 using Adjutant.Library.Endian;
 using unic = Adjutant.Library.Definitions.multilingual_unicode_string_list;
 
-namespace Adjutant.Library.Definitions.Halo3Retail
+namespace Adjutant.Library.Definitions.Halo3Beta
 {
     internal class multilingual_unicode_string_list : unic
     {

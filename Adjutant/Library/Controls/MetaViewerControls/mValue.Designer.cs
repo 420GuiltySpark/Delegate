@@ -34,6 +34,7 @@
             this.lblDesc = new System.Windows.Forms.Label();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.dumpRawToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dumpZoneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -67,9 +68,10 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.dumpRawToolStripMenuItem});
+            this.dumpRawToolStripMenuItem,
+            this.dumpZoneToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(133, 26);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 70);
             // 
             // dumpRawToolStripMenuItem
             // 
@@ -77,6 +79,13 @@
             this.dumpRawToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.dumpRawToolStripMenuItem.Text = "Dump Raw";
             this.dumpRawToolStripMenuItem.Click += new System.EventHandler(this.dumpRawToolStripMenuItem_Click);
+            // 
+            // dumpZoneToolStripMenuItem
+            // 
+            this.dumpZoneToolStripMenuItem.Name = "dumpZoneToolStripMenuItem";
+            this.dumpZoneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.dumpZoneToolStripMenuItem.Text = "Dump Zone";
+            this.dumpZoneToolStripMenuItem.Click += new System.EventHandler(this.dumpZoneToolStripMenuItem_Click);
             // 
             // mValue
             // 
@@ -101,5 +110,6 @@
         private System.Windows.Forms.Label lblDesc;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem dumpRawToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem dumpZoneToolStripMenuItem;
     }
 }

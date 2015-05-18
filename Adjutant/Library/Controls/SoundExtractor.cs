@@ -12,6 +12,8 @@ using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using System.IO;
 using System.Diagnostics;
+using Composer;
+using Composer.Wwise;
 using ugh_ = Adjutant.Library.Definitions.sound_cache_file_gestalt;
 
 namespace Adjutant.Library.Controls
@@ -23,6 +25,8 @@ namespace Adjutant.Library.Controls
             InitializeComponent();
         }
 
+        private static string towav = "Helpers\\towav.exe";
+
         private CacheFile cache;
         private CacheFile.IndexItem tag;
         private ugh_ ugh;
@@ -31,31 +35,7 @@ namespace Adjutant.Library.Controls
         private List<ugh_.SoundPermutation> Perms;
         private System.Media.SoundPlayer player = new System.Media.SoundPlayer() { SoundLocation = Path.GetTempPath() + "temp_playback.wav" };
 
-        #region Footers
-        private static byte[] monoFooter = new byte[]
-                {
-			        0x58, 0x4D, 0x41, 0x32, 0x2C, 0x00, 0x00, 0x00, 0x04, 
-			        0x01, 0x00, 0xFF, 0x00, 0x00, 0x01, 0x80, 0x00, 0x00, 
-			        0x8A, 0x00, 0x00, 0x00, 0xAB, 0xD2, 0x00, 0x00, 0x10, 
-			        0xD6, 0x00, 0x00, 0x3D, 0x14, 0x00, 0x01, 0x00, 0x00, 
-			        0x00, 0x00, 0x8A, 0x00, 0x00, 0x00, 0x88, 0x80, 0x00, 
-			        0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x73, 0x65, 
-			        0x65, 0x6B, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8A, 
-			        0x00
-		        };
-
-        private static byte[] stereoFooter = new byte[]
-                {
-			        0x58, 0x4D, 0x41, 0x32, 0x2C, 0x00, 0x00, 0x00, 0x04, 
-			        0x01, 0x00, 0xFF, 0x00, 0x00, 0x01, 0x80, 0x00, 0x01, 
-			        0x0F, 0x80, 0x00, 0x00, 0xAC, 0x44, 0x00, 0x00, 0x10, 
-			        0xD6, 0x00, 0x00, 0x3D, 0x14, 0x00, 0x01, 0x00, 0x00, 
-			        0x00, 0x01, 0x10, 0x00, 0x00, 0x01, 0x0E, 0x00, 0x00, 
-			        0x00, 0x00, 0x01, 0x02, 0x00, 0x02, 0x01, 0x73, 0x65, 
-			        0x65, 0x6B, 0x04, 0x00, 0x00, 0x00, 0x00, 0x01, 0x10, 
-			        0x00
-		        };
-        #endregion
+        public SoundFormat DefaultSnd_Format = SoundFormat.WAV;
 
         public void LoadSoundTag(CacheFile Cache, CacheFile.IndexItem Tag)
         {
@@ -91,6 +71,8 @@ namespace Adjutant.Library.Controls
 
         public void SaveTemp(int index)
         {
+            var tempName = Path.GetTempPath() + "temp_playback.xma";
+
             var playback = ugh.PlayBacks[snd.PlaybackIndex];
             var perm = cache.ugh_.SoundPermutations[playback.FirstPermutation + index];
             var data = cache.GetSoundRaw(snd.RawID, GetTotalSize(ugh, playback));
@@ -101,40 +83,17 @@ namespace Adjutant.Library.Controls
             else
                 buffer = GetPermData(data, ugh, perm);
 
-            var tempName = Path.GetTempPath() + "temp_playback.xma";
-
-            byte[] footer;
             var codec = cache.ugh_.Codecs[snd.CodecIndex];
-            switch (codec.Type)
-            {
-                case SoundType.Mono:
-                    footer = monoFooter;
-                    break;
-                case SoundType.Stereo:
-                    footer = stereoFooter;
-                    break;
-                default:
-                    throw new NotSupportedException("Unsupported Sound Type.");
-            }
+            var xma = GetXMA(buffer, snd.SampleRate, codec.Type);
 
-            var fs = new FileStream(tempName, FileMode.Create);
-            BinaryWriter sw = new BinaryWriter(fs);
-
-            sw.Write(Encoding.ASCII.GetBytes("RIFF"));
-            sw.Write(0);
-            sw.Write(Encoding.ASCII.GetBytes("WAVE"));
-            sw.Write(Encoding.ASCII.GetBytes("data"));
-            sw.Write(buffer.Length);
-            sw.Write(buffer);
-            sw.Write(footer);
-
-            sw.BaseStream.Position = 4;
-            sw.Write((int)fs.Length - 8);
+            var fs = File.OpenWrite(tempName);
+            EndianWriter sw = new EndianWriter(fs, EndianFormat.BigEndian);
+            sw.Write(xma);
 
             sw.Close();
             sw.Dispose();
 
-            var info = new ProcessStartInfo("towav.exe", tempName)
+            var info = new ProcessStartInfo(towav, tempName)
             {
                 CreateNoWindow = true,
                 UseShellExecute = false,
@@ -152,7 +111,8 @@ namespace Adjutant.Library.Controls
             {
                 AddExtension = false,
                 FileName = tag.Filename.Substring(tag.Filename.LastIndexOf('\\') + 1),
-                Filter = "WAV Files|*.wav|XMA Files|*.xma|Raw Data|*.bin"
+                Filter = "WAV Files|*.wav|XMA Files|*.xma|Raw Data|*.bin",
+                FilterIndex = (int)DefaultSnd_Format + 1
             };
 
             if (sfd.ShowDialog() != DialogResult.OK) return;
@@ -174,7 +134,8 @@ namespace Adjutant.Library.Controls
             var sfd = new SaveFileDialog()
             {
                 FileName = tag.Filename.Substring(tag.Filename.LastIndexOf('\\') + 1),
-                Filter = "WAV Files|*.wav|XMA Files|*.xma|Raw Data|*.bin"
+                Filter = "WAV Files|*.wav|XMA Files|*.xma|Raw Data|*.bin",
+                FilterIndex = (int)DefaultSnd_Format + 1
             };
 
             if (sfd.ShowDialog() != DialogResult.OK) return;
@@ -237,16 +198,24 @@ namespace Adjutant.Library.Controls
         /// <param name="Indices">The indices of the permutations to extract.</param>
         public static void SaveSelected(string Folder, CacheFile Cache, CacheFile.IndexItem Tag, SoundFormat Format, List<int> Indices, bool Overwrite)
         {
-            var ugh_ = Cache.ugh_;
             var snd_ = DefinitionsManager.snd_(Cache, Tag);
-            var playback = ugh_.PlayBacks[snd_.PlaybackIndex];
-            var data = Cache.GetSoundRaw(snd_.RawID, GetTotalSize(ugh_, playback));
             List<byte[]> perms = new List<byte[]>();
 
-            for (int i = 0; i < playback.PermutationCount; i++)
+            var ugh_ = Cache.ugh_;
+            var playback = ugh_.PlayBacks[snd_.PlaybackIndex];
+            var data = Cache.GetSoundRaw(snd_.RawID, GetTotalSize(ugh_, playback));
+
+            if (playback.PermutationCount == 1)
+                perms.Add(data);
+            else
             {
-                var perm = Cache.ugh_.SoundPermutations[playback.FirstPermutation + i];
-                perms.Add(GetPermData(data, ugh_, perm));
+                Folder = Directory.GetParent(Folder) + "\\" + Path.GetFileNameWithoutExtension(Folder);
+
+                for (int i = 0; i < playback.PermutationCount; i++)
+                {
+                    var perm = Cache.ugh_.SoundPermutations[playback.FirstPermutation + i];
+                    perms.Add(GetPermData(data, ugh_, perm));
+                }
             }
 
             #region XMA
@@ -254,39 +223,20 @@ namespace Adjutant.Library.Controls
             {
                 foreach (int index in Indices)
                 {
-                    string Filename = Folder + "\\" + ugh_.SoundNames[ugh_.SoundPermutations[playback.FirstPermutation + index].NameIndex].Name + ".xma";
+                    string Filename = (playback.PermutationCount == 1) ? Folder : Folder + "\\" + ugh_.SoundNames[ugh_.SoundPermutations[playback.FirstPermutation + index].NameIndex].Name + ".xma";
+                    if (!Filename.EndsWith(".xma")) Filename += ".xma";
+                    
                     if (File.Exists(Filename) && !Overwrite) continue;
 
                     byte[] buffer = perms[index];
-                    byte[] footer;
                     var codec = Cache.ugh_.Codecs[snd_.CodecIndex];
-                    switch (codec.Type)
-                    {
-                        case SoundType.Mono:
-                            footer = monoFooter;
-                            break;
-                        case SoundType.Stereo:
-                            footer = stereoFooter;
-                            break;
-                        default:
-                            throw new NotSupportedException("Unsupported Sound Type.");
-                    }
+                    var xma = GetXMA(buffer, snd_.SampleRate, codec.Type);
 
                     if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
                     var fs = new FileStream(Filename, FileMode.Create);
-                    BinaryWriter sw = new BinaryWriter(fs);
-
-                    sw.Write(Encoding.ASCII.GetBytes("RIFF"));
-                    sw.Write(0);
-                    sw.Write(Encoding.ASCII.GetBytes("WAVE"));
-                    sw.Write(Encoding.ASCII.GetBytes("data"));
-                    sw.Write(buffer.Length);
-                    sw.Write(buffer);
-                    sw.Write(footer);
-
-                    sw.BaseStream.Position = 4;
-                    sw.Write((int)fs.Length - 8);
+                    EndianWriter sw = new EndianWriter(fs, EndianFormat.BigEndian);
+                    sw.Write(xma);
 
                     sw.Close();
                     sw.Dispose();
@@ -298,48 +248,27 @@ namespace Adjutant.Library.Controls
             {
                 foreach (int index in Indices)
                 {
-                    string Filename = Folder + "\\" + ugh_.SoundNames[ugh_.SoundPermutations[playback.FirstPermutation + index].NameIndex].Name + ".wav";
+                    string Filename = (playback.PermutationCount == 1) ? Folder : Folder + "\\" + ugh_.SoundNames[ugh_.SoundPermutations[playback.FirstPermutation + index].NameIndex].Name + ".wav";
+                    if (!Filename.EndsWith(".wav")) Filename += ".wav";
+                    
                     if (File.Exists(Filename) && !Overwrite) continue;
 
-                    var tempName = Path.GetTempPath() + "tmp.xma";
+                    var tempName = Path.GetTempFileName();
 
                     #region Write XMA
-                    byte[] buffer = perms[index];
-                    byte[] footer;
+                    var buffer = perms[index];
                     var codec = Cache.ugh_.Codecs[snd_.CodecIndex];
-                    switch (codec.Type)
-                    {
-                        case SoundType.Mono:
-                            footer = monoFooter;
-                            break;
-                        case SoundType.Stereo:
-                            footer = stereoFooter;
-                            break;
-                        default:
-                            throw new NotSupportedException("Unsupported Sound Type.");
-                    }
+                    var xma = GetXMA(buffer, snd_.SampleRate, codec.Type);
 
-                    if (!Directory.GetParent(tempName).Exists) Directory.GetParent(tempName).Create();
-
-                    var fs = new FileStream(tempName, FileMode.Create);
-                    BinaryWriter sw = new BinaryWriter(fs);
-
-                    sw.Write(Encoding.ASCII.GetBytes("RIFF"));
-                    sw.Write(0);
-                    sw.Write(Encoding.ASCII.GetBytes("WAVE"));
-                    sw.Write(Encoding.ASCII.GetBytes("data"));
-                    sw.Write(buffer.Length);
-                    sw.Write(buffer);
-                    sw.Write(footer);
-
-                    sw.BaseStream.Position = 4;
-                    sw.Write((int)fs.Length - 8);
+                    var fs = File.OpenWrite(tempName);
+                    EndianWriter sw = new EndianWriter(fs, EndianFormat.BigEndian);
+                    sw.Write(xma);
 
                     sw.Close();
                     sw.Dispose();
                     #endregion
 
-                    var info = new ProcessStartInfo("towav.exe", tempName)
+                    var info = new ProcessStartInfo(towav, tempName)
                     {
                         CreateNoWindow = true,
                         UseShellExecute = false,
@@ -360,14 +289,17 @@ namespace Adjutant.Library.Controls
             {
                 foreach (int index in Indices)
                 {
-                    string Filename = Folder + "\\" + ugh_.SoundNames[ugh_.SoundPermutations[playback.FirstPermutation + index].NameIndex].Name + ".bin";
+                    string Filename = (playback.PermutationCount == 1) ? Folder : Folder + "\\" + ugh_.SoundNames[ugh_.SoundPermutations[playback.FirstPermutation + index].NameIndex].Name + ".bin";
+                    if (!Filename.EndsWith(".bin")) Filename += ".bin";
+
                     if (File.Exists(Filename) && !Overwrite) continue;
+                    
+                    byte[] buffer = perms[index];
 
                     if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
                     var fs = new FileStream(Filename, FileMode.Create);
                     BinaryWriter sw = new BinaryWriter(fs);
-                    byte[] buffer = perms[index];
 
                     sw.Write(buffer);
                     sw.Close();
@@ -396,36 +328,14 @@ namespace Adjutant.Library.Controls
                 byte[] buffer = Cache.GetSoundRaw(snd_.RawID, total);
 
                 if (buffer.Length == 0) throw new Exception("Empty raw data.");
-                
-                byte[] footer;
                 var codec = Cache.ugh_.Codecs[snd_.CodecIndex];
-                switch (codec.Type)
-                {
-                    case SoundType.Mono:
-                        footer = monoFooter;
-                        break;
-                    case SoundType.Stereo:
-                        footer = stereoFooter;
-                        break;
-                    default:
-                        throw new NotSupportedException("Unsupported Sound Type.");
-                }
+                var xma = GetXMA(buffer, snd_.SampleRate, codec.Type);
 
                 if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
-                var fs = new FileStream(Filename, FileMode.Create);
-                BinaryWriter sw = new BinaryWriter(fs);
-
-                sw.Write(Encoding.ASCII.GetBytes("RIFF"));
-                sw.Write(0);
-                sw.Write(Encoding.ASCII.GetBytes("WAVE"));
-                sw.Write(Encoding.ASCII.GetBytes("data"));
-                sw.Write(buffer.Length);
-                sw.Write(buffer);
-                sw.Write(footer);
-
-                sw.BaseStream.Position = 4;
-                sw.Write((int)fs.Length - 8);
+                var fs = File.OpenWrite(Filename); //new FileStream(Filename, FileMode.Create);
+                EndianWriter sw = new EndianWriter(fs, EndianFormat.BigEndian);
+                sw.Write(xma);
 
                 sw.Close();
                 sw.Dispose();
@@ -434,11 +344,11 @@ namespace Adjutant.Library.Controls
             #region WAV
             else if (Format == SoundFormat.WAV)
             {
-                var tempName = Path.GetTempPath() + "tmp.xma";
+                var tempName = Path.GetTempFileName(); //Path.GetTempPath() + "tmp.xma";
 
                 SaveAllAsSingle(tempName, Cache, Tag, SoundFormat.XMA);
 
-                var info = new ProcessStartInfo("towav.exe", tempName)
+                var info = new ProcessStartInfo(towav, tempName)
                 {
                     CreateNoWindow = true,
                     UseShellExecute = false,
@@ -456,11 +366,12 @@ namespace Adjutant.Library.Controls
             #region RAW
             else if (Format == SoundFormat.RAW)
             {
-                if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+                byte[] buffer = Cache.GetSoundRaw(snd_.RawID, GetTotalSize(Cache.ugh_, Cache.ugh_.PlayBacks[snd_.PlaybackIndex]));
                 
+                if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
+
                 var fs = new FileStream(Filename, FileMode.Create);
                 BinaryWriter sw = new BinaryWriter(fs);
-                byte[] buffer = Cache.GetSoundRaw(snd_.RawID, GetTotalSize(Cache.ugh_, Cache.ugh_.PlayBacks[snd_.PlaybackIndex]));
 
                 sw.Write(buffer);
                 sw.Close();
@@ -539,6 +450,85 @@ namespace Adjutant.Library.Controls
             }
 
             return total;
+        }
+
+        private static byte[] GetXMA(byte[] buffer, SampleRate sRate, SoundType sType)
+        {
+            int rate;
+            switch (sRate)
+            {
+                case SampleRate._22050Hz:
+                    rate = 22050;
+                    break;
+
+                case SampleRate._44100Hz:
+                    rate = 44100;
+                    break;
+
+                default:
+                    throw new Exception("Check sample rate.");
+            }
+
+            int cCount;
+            switch (sType)
+            {
+                case SoundType.Mono:
+                    cCount = 1;
+                    break;
+                case SoundType.Stereo:
+                    cCount = 2;
+                    break;
+                //case SoundType.Unknown2:
+                //    cCount = 2;
+                //    footer = stereoFooter;
+                //    break;
+                //case SoundType.Unknown3:
+                //    cCount = 2;
+                //    footer = stereoFooter;
+                //    break;
+                default:
+                    throw new NotSupportedException("Unsupported Sound Type.");
+            }
+
+            var ms = new MemoryStream();
+            EndianWriter sw = new EndianWriter(ms, EndianFormat.BigEndian);
+
+            sw.Write(0x52494646); // 'RIFF'
+            sw.EndianType = EndianFormat.LittleEndian;
+            sw.Write(buffer.Length + 0x34);
+            sw.EndianType = EndianFormat.BigEndian;
+            sw.Write(RIFFFormat.WAVE);
+
+            // Generate the 'fmt ' chunk
+            sw.Write(0x666D7420); // 'fmt '
+            sw.EndianType = EndianFormat.LittleEndian;
+            sw.Write(0x20);
+            sw.Write((short)0x165);
+            sw.Write((short)16);
+            sw.Write((short)0);
+            sw.Write((short)0);
+            sw.Write((short)1);
+            sw.Write((byte)0);
+            sw.Write((byte)3);
+            sw.Write(0);
+            sw.Write(rate);
+            sw.Write(0);
+            sw.Write(0);
+            sw.Write((byte)0);
+            sw.Write((byte)cCount);
+            sw.Write((short)0x0002);
+
+            // 'data' chunk
+            sw.EndianType = EndianFormat.BigEndian;
+            sw.Write(0x64617461); // 'data'
+            sw.EndianType = EndianFormat.LittleEndian;
+            sw.Write(buffer.Length);
+            sw.Write(buffer);
+
+            sw.Close();
+            sw.Dispose();
+
+            return ms.ToArray();
         }
         #endregion
 

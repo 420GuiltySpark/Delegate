@@ -21,8 +21,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 
             Reader.BaseStream.Position += 12; //28
 
-            PredictedBitmaps = new List<PredictedBitmap>();
-
             #region ShaderProperties Chunk
             long temp = Reader.BaseStream.Position;
             int pCount = Reader.ReadInt32();
@@ -80,8 +78,12 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                     Type = Reader.ReadInt16();
                     Reader.ReadByte();
                     TilingIndex = Reader.ReadByte();
-                    Reader.ReadInt16();
-                    Reader.ReadInt16();
+
+                    if (Cache.Version == DefinitionSet.Halo4Retail)
+                    {
+                        Reader.ReadInt16();
+                        Reader.ReadInt16();
+                    }
                 }
             }
 

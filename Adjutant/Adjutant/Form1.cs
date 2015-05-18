@@ -20,29 +20,89 @@ namespace Adjutant
     public partial class Form1 : Form
     {
         public Settings settings;
-        private int taskcount = 0;
-        private int tasks
-        {
-            get { return taskcount; }
-            set
-            {
-                taskcount = value;
-                Invoke((MethodInvoker)delegate
-                {
-                    toolStripProgressBar1.Visible = taskcount != 0;
-                });
-            }
-        }
+        private List<KeyValuePair<int, string>> Tasks;
 
-        public Form1()
+        public Form1(string[] args)
         {
             InitializeComponent();
             LoadSettings();
             versionToolStripMenuItem.Text = "v" + Application.ProductVersion;
+            Tasks = new List<KeyValuePair<int, string>>();
 
             if (settings.Flags.HasFlag(SettingsFlags.AutoUpdateCheck))
-                ThreadPool.QueueUserWorkItem(CheckUpdateThread, false);
+                    ThreadPool.QueueUserWorkItem(CheckUpdateThread, false);
+
+            foreach (string fName in args)
+                ThreadPool.QueueUserWorkItem(NewMapThread, fName);
         }
+
+        #region Task Managing
+        public int AddTask(string message)
+        {
+            int id = 0;
+
+            foreach (var task in Tasks)
+                if (task.Key >= id) id = task.Key + 1;
+
+            Tasks.Add(new KeyValuePair<int, string>(id, message));
+            this.Invoke((MethodInvoker)delegate 
+            {
+                toolStripProgressBar1.Visible = true;
+                tssStatus.Text = message; 
+            });
+
+            return id;
+        }
+
+        public void TaskDone(int ID)
+        {
+            for (int i = 0; i < Tasks.Count; i++)
+                if (Tasks[i].Key == ID)
+                {
+                    Tasks.RemoveAt(i);
+                    break;
+                }
+
+            if (Tasks.Count == 0)
+                this.Invoke((MethodInvoker)delegate
+                {
+                    toolStripProgressBar1.Visible = false;
+                    tssStatus.Text = "Done.";
+                });
+            else
+                this.Invoke((MethodInvoker)delegate
+                {
+                    try { tssStatus.Text = Tasks[Tasks.Count - 1].Value; }
+                    catch
+                    {
+                        toolStripProgressBar1.Visible = false;
+                        tssStatus.Text = "Done.";
+                    }
+                });
+        }
+
+        public void TaskError(int ID, string errorMessage)
+        {
+            for (int i = 0; i < Tasks.Count; i++)
+                if (Tasks[i].Key == ID)
+                {
+                    Tasks.RemoveAt(i);
+                    break;
+                }
+
+            if (Tasks.Count == 0)
+                this.Invoke((MethodInvoker)delegate 
+                { 
+                    toolStripProgressBar1.Visible = false;
+                    tssStatus.Text = errorMessage;
+                });
+            else
+                this.Invoke((MethodInvoker)delegate
+                {
+                    tssStatus.Text = Tasks[Tasks.Count - 1].Value;
+                });
+        }
+        #endregion
 
         #region Methods
         public void LoadSettings()
@@ -69,6 +129,11 @@ namespace Adjutant
         #endregion
 
         #region Events
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            SaveSettings();
+        }
 
         #region Menu Item Click
 
@@ -102,7 +167,7 @@ namespace Adjutant
 
             settings.mapFolder = Directory.GetParent(ofd.FileName).FullName;
 
-            tssStatus.Text = "Loading " + ofd.SafeFileName + "...";
+            int taskID = AddTask("Loading " + ofd.SafeFileName + "...");
 
             var viewer = (MapViewer)tabControl1.SelectedTab.Controls[0];
             tabControl1.SelectedTab.Text = ofd.SafeFileName;
@@ -110,7 +175,7 @@ namespace Adjutant
             viewer.CloseMap();
             viewer.LoadMap(ofd.FileName, folderHierarchyToolStripMenuItem.Checked);
 
-            tssStatus.Text = "Loaded " + ofd.SafeFileName + ".";
+            TaskDone(taskID);
         }
 
         private void reloadToolStripMenuItem_Click(object sender, EventArgs e)
@@ -179,6 +244,19 @@ namespace Adjutant
             MessageBox.Show(this, "Done!");
         }
 
+        private void aMFImporterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var sfd = new System.Windows.Forms.SaveFileDialog
+            {
+                Filter = "Encrypted MaxScript Files|*.mse",
+                FileName = "AMFImporter.mse"
+            };
+            if (sfd.ShowDialog() != DialogResult.OK) return;
+
+            File.WriteAllBytes(sfd.FileName, Properties.Resources.AMFImporter);
+            MessageBox.Show(this, "Done!");
+        }
+
         private void downloadPluginsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var sfd = new System.Windows.Forms.SaveFileDialog
@@ -217,18 +295,20 @@ namespace Adjutant
             MessageBox.Show(this, "Are you sure you want to force an update?", "Adjutant Update", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result != System.Windows.Forms.DialogResult.Yes)
                 return;
+
+            var exeString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/Adjutant.exe";
+            var logString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/changelog.txt";
+
             System.IO.File.WriteAllBytes(Application.StartupPath + '\\' + "update.exe", Properties.Resources.update);
-            System.Diagnostics.Process.Start(Application.StartupPath + '\\' + "update.exe");
+            var startInfo = new System.Diagnostics.ProcessStartInfo();
+            startInfo.FileName = Application.StartupPath + '\\' + "update.exe";
+            startInfo.Arguments = exeString + " " + logString;
+            System.Diagnostics.Process.Start(startInfo);
             Application.Exit();
         }
         #endregion
 
         #region Help
-        private void forumPostToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start("http://forum.halomaps.org/index.cfm?page=topic&topicID=41388");
-        }
-
         private void viewAdjutantHelpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             File.WriteAllBytes("AdjutantHelp.chm", Properties.Resources.Adjutant_Help);
@@ -238,11 +318,6 @@ namespace Adjutant
         #endregion
 
         #endregion
-
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            SaveSettings();
-        }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -269,12 +344,7 @@ namespace Adjutant
             var fullname = (string)Filename;
             var name = fullname.Substring(fullname.LastIndexOf("\\") + 1);
 
-            tasks++;
-
-            Invoke((MethodInvoker)delegate
-            {
-                tssStatus.Text = "Loading " + name + "...";
-            });
+            int taskID = AddTask("Loading " + name + "...");
 
             var tab = new TabPage(name);
             var mv = new MapViewer(settings);
@@ -289,19 +359,18 @@ namespace Adjutant
                 {
                     tabControl1.TabPages.Add(tab);
                     tabControl1_SelectedIndexChanged(null, null);
-                    tssStatus.Text = "Loaded " + name + ".";
                 });
+
+                TaskDone(taskID);
             }
             catch
             {
+                TaskError(taskID, "Error loading " + name + ".");
                 Invoke((MethodInvoker)delegate
                 {
                     MessageBox.Show(this, "Error loading " + name + "! File is invalid, unsupported or in use.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    tssStatus.Text = "Error loading " + name + ".";
                 });
             }
-
-            tasks--;
         }
 
         private void ReloadMapThread(object MapTab)
@@ -311,46 +380,40 @@ namespace Adjutant
 
         private void DownloadPluginsThread(object Filename)
         {
-            this.Invoke((MethodInvoker)delegate { tssStatus.Text = "Downloading plugins.zip..."; });
-
-            tasks++;
+            int taskID = AddTask("Downloading plugins.zip...");
 
             try
             {
                 WebClient client = new WebClient();
-                client.DownloadFile("http://db.tt/1KXOcb6Z", (string)Filename);
+                client.DownloadFile("https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/plugins.zip", (string)Filename);
 
-                this.Invoke((MethodInvoker)delegate { tssStatus.Text = "Downloaded plugins.zip."; });
+                TaskDone(taskID);
             }
-            catch { this.Invoke((MethodInvoker)delegate { tssStatus.Text = "Error downloading plugins.zip."; }); }
+            catch { TaskError(taskID, "Error downloading plugins.zip."); }
 
-            tasks--;
         }
 
         private void CheckUpdateThread(object UserRequest)
         {
             var userReq = (bool)UserRequest;
-
-            this.Invoke((MethodInvoker)delegate { tssStatus.Text = "Checking for updates..."; });
-
-            tasks++;
+            int taskID = AddTask("Checking for updates...");
+            var verString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/version";
+            var changeString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/change";
 
             try
             {
                 WebClient client = new WebClient();
-                string str = client.DownloadString("http://db.tt/8FYGAY8r");
+                string str = client.DownloadString(verString);
 
                 string[] newver = str.Split('.');
                 string[] current = Application.ProductVersion.Split('.');
                 bool update = false;
-                string changes = "";
 
                 for (int i = 0; i < 4; i++)
                 {
                     if (int.Parse(newver[i]) > int.Parse(current[i]))
                     {
                         update = true;
-                        changes = client.DownloadString("http://db.tt/P6TGVI5m");
                         break;
                     }
                     else if (int.Parse(newver[i]) < int.Parse(current[i]))
@@ -362,21 +425,23 @@ namespace Adjutant
 
                 if (update)
                 {
-                    UpdateForm frm = new UpdateForm();
+                    UpdateForm frm = new UpdateForm(ref settings);
                     frm.lblCurrent.Text = Application.ProductVersion;
                     frm.lblNew.Text = str;
 
-                    frm.rtbChangelog.Text = client.DownloadString("http://db.tt/P6TGVI5m");
+                    frm.rtbChangelog.Text = client.DownloadString(changeString);
                     this.Invoke((MethodInvoker)delegate
                     {
                         frm.ShowDialog(this);
                     });
+
+                    TaskDone(taskID);
                 }
                 else
                 {
+                    TaskDone(taskID);
                     this.Invoke((MethodInvoker)delegate
                     {
-                        tssStatus.Text = "No updates available.";
                         if (userReq)
                             MessageBox.Show(this, "No updates available.", "Adjutant Update", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     });
@@ -384,15 +449,13 @@ namespace Adjutant
             }
             catch
             {
+                TaskError(taskID, "Error checking for updates.");
                 if (userReq)
                     this.Invoke((MethodInvoker)delegate
                     {
-                        tssStatus.Text = "Error checking for updates.";
                         MessageBox.Show(this, "There was an error checking for updates.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     });
             }
-
-            tasks--;
         }
         #endregion
     }

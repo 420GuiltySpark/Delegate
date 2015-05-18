@@ -247,7 +247,8 @@
             this.cmbBitm.Items.AddRange(new object[] {
             "TIF (*.tif)",
             "DDS (*.dds)",
-            "Raw (*.bin)"});
+            "Raw (*.bin)",
+            "64bpp PNG (*.png)"});
             this.cmbBitm.Location = new System.Drawing.Point(9, 32);
             this.cmbBitm.Name = "cmbBitm";
             this.cmbBitm.Size = new System.Drawing.Size(121, 21);
@@ -261,6 +262,7 @@
             this.cmbMode.Items.AddRange(new object[] {
             "EMF v3 (*.emf)",
             "OBJ (*.obj)",
+            "AMF (*.amf)",
             "JMS (*.jms)"});
             this.cmbMode.Location = new System.Drawing.Point(141, 32);
             this.cmbMode.Name = "cmbMode";

@@ -9,7 +9,6 @@ using System.Windows.Forms;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Imaging;
 using Adjutant.Library.DataTypes;
-using Adjutant.Library.DataTypes.Space;
 
 namespace Adjutant.Library.Controls.MetaViewerControls
 {
@@ -69,7 +68,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                     break;
 
                 case iValue.ValueType.ShortPoint2D:
-                    var sp2 = new RealPoint2D(reader.ReadInt16(), reader.ReadInt16());
+                    var sp2 = new RealQuat(reader.ReadInt16(), reader.ReadInt16());
 
                     lblA.Text = "x";
                     txtA.Text = sp2.x.ToString();
@@ -80,7 +79,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                     break;
 
                 case iValue.ValueType.RealPoint2D:
-                    var p2 = new RealPoint2D(reader.ReadSingle(), reader.ReadSingle());
+                    var p2 = new RealQuat(reader.ReadSingle(), reader.ReadSingle());
 
                     lblA.Text = "x";
                     txtA.Text = p2.x.ToString();
@@ -91,7 +90,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                     break;
 
                 case iValue.ValueType.RealPoint3D:
-                    var p3 = new RealPoint3D(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                    var p3 = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
                     lblA.Text = "x";
                     txtA.Text = p3.x.ToString();
@@ -104,7 +103,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                     break;
 
                 case iValue.ValueType.RealPoint4D:
-                    var p4 = new RealPoint4D(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                    var p4 = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
                     lblA.Text = "x";
                     txtA.Text = p4.x.ToString();
@@ -119,7 +118,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                     break;
 
                 case iValue.ValueType.RealVector2D:
-                    var v2 = new RealVector2D(reader.ReadSingle(), reader.ReadSingle());
+                    var v2 = new RealQuat(reader.ReadSingle(), reader.ReadSingle());
 
                     lblA.Text = "i";
                     txtA.Text = v2.i.ToString();
@@ -130,7 +129,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                     break;
 
                 case iValue.ValueType.RealVector3D:
-                    var v3 = new RealVector3D(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                    var v3 = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
                     lblA.Text = "i";
                     txtA.Text = v3.i.ToString();
@@ -143,7 +142,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                     break;
 
                 case iValue.ValueType.RealVector4D:
-                    var v4 = new RealVector4D(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                    var v4 = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
                     lblA.Text = "i";
                     txtA.Text = v4.i.ToString();

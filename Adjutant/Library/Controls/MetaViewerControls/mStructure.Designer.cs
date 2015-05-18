@@ -41,7 +41,7 @@
             this.pnlContainer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.pnlContainer.Location = new System.Drawing.Point(8, 32);
             this.pnlContainer.Name = "pnlContainer";
-            this.pnlContainer.Size = new System.Drawing.Size(590, 31);
+            this.pnlContainer.Size = new System.Drawing.Size(645, 31);
             this.pnlContainer.TabIndex = 0;
             // 
             // pnlHeader
@@ -53,7 +53,7 @@
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(595, 63);
+            this.pnlHeader.Size = new System.Drawing.Size(650, 63);
             this.pnlHeader.TabIndex = 0;
             // 
             // lblName
@@ -84,7 +84,7 @@
             this.Controls.Add(this.pnlContainer);
             this.Controls.Add(this.pnlHeader);
             this.Name = "mStructure";
-            this.Size = new System.Drawing.Size(595, 63);
+            this.Size = new System.Drawing.Size(650, 63);
             this.EnabledChanged += new System.EventHandler(this.mStructure_EnabledChanged);
             this.pnlHeader.ResumeLayout(false);
             this.ResumeLayout(false);

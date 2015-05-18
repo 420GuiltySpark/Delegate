@@ -6,6 +6,8 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Adjutant.Library;
+using Adjutant.Library.Definitions;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Controls;
 
@@ -23,8 +25,11 @@ namespace Adjutant.Controls
         private BitmapExtractor eBitm;
         private ModelExtractor eMode;
         private SoundExtractor eSnd_;
+        private SoundExtractorH4 eSnd4;
         private StringsViewer vUnic;
         private ModelViewer vMode;
+        private BSPViewer vSbsp;
+        private BSPExtractor eSbsp;
         private TabPage tabMeta, tabRaw, tabModel;
         private bool metaLoaded, rawLoaded, modelLoaded;
         #endregion
@@ -39,15 +44,29 @@ namespace Adjutant.Controls
             eBitm = new BitmapExtractor();
             eMode = new ModelExtractor();
             eSnd_ = new SoundExtractor();
+            eSnd4 = new SoundExtractorH4();
             vUnic = new StringsViewer();
+            eSbsp = new BSPExtractor();
 
             eBitm.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
             eMode.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
             eSnd_.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
+            eSnd4.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
+            eSbsp.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
             eBitm.ErrorExtracting += new ErrorExtractingEventHandler(extractor_ErrorExtracting);
             eMode.ErrorExtracting += new ErrorExtractingEventHandler(extractor_ErrorExtracting);
             eSnd_.ErrorExtracting += new ErrorExtractingEventHandler(extractor_ErrorExtracting);
+            eSnd4.ErrorExtracting += new ErrorExtractingEventHandler(extractor_ErrorExtracting);
+            eSbsp.ErrorExtracting += new ErrorExtractingEventHandler(extractor_ErrorExtracting);
             eMode.FinishedRecursiveExtract += new FinishedRecursiveExtractEventHandler(eMode_FinishedRecursiveExtract);
+            eSbsp.FinishedRecursiveExtract += new FinishedRecursiveExtractEventHandler(eMode_FinishedRecursiveExtract);
+
+            eBitm.DefaultBitmFormat = settings.BitmFormat;
+            eMode.DefaultBitmFormat = settings.BitmFormat;
+            eMode.DefaultModeFormat = settings.ModeFormat;
+            eSnd_.DefaultSnd_Format = settings.Snd_Format;
+            eSbsp.DefaultBitmFormat = settings.BitmFormat;
+            eSbsp.DefaultModeFormat = settings.ModeFormat;
 
             tabMeta = new TabPage("Meta Viewer");
             tabMeta.Controls.Add(vMeta);
@@ -64,13 +83,28 @@ namespace Adjutant.Controls
             if (vMode == null)
             {
                 vMode = new ModelViewer();      //this cant go in the constructor because the
-                tabModel.Controls.Clear();      //ElementHost in the ModelViewer requires an
+                //tabModel.Controls.Clear();    //ElementHost in the ModelViewer requires an
                 tabModel.Controls.Add(vMode);   //STA thread, whereas the map open thread 
                 vMode.Dock = DockStyle.Fill;    //is MTA because it's done via ThreadPool
+                vMode.DefaultModeFormat = settings.ModeFormat;
 
                 vMode.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
                 vMode.ErrorExtracting += new ErrorExtractingEventHandler(extractor_ErrorExtracting);
             }
+            else vMode.Clear();
+
+            if (vSbsp == null)
+            {
+                vSbsp = new BSPViewer();
+                //tabModel.Controls.Clear();
+                tabModel.Controls.Add(vSbsp);
+                vSbsp.Dock = DockStyle.Fill;
+                vSbsp.DefaultModeFormat = settings.ModeFormat;
+
+                vSbsp.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
+                vSbsp.ErrorExtracting += new ErrorExtractingEventHandler(extractor_ErrorExtracting);
+            }
+            else vSbsp.Clear();
 
             cache = Cache;
             tag = Tag;
@@ -106,6 +140,8 @@ namespace Adjutant.Controls
                 #region mode
                 case "mode":
                     tabRaw.Controls.Clear();
+                    vSbsp.Visible = false;
+                    vMode.Visible = true;
 
                     if (!tabControl1.TabPages.Contains(tabRaw))
                         tabControl1.TabPages.Add(tabRaw);
@@ -115,6 +151,10 @@ namespace Adjutant.Controls
 
                     tabRaw.Controls.Add(eMode);
                     eMode.Dock = DockStyle.Fill;
+
+                    //tabModel.Controls.Clear();
+                    //tabModel.Controls.Add(vMode);
+                    //vMode.Dock = DockStyle.Fill;
 
                     if (tabControl1.SelectedTab == tabMeta)
                     {
@@ -141,17 +181,24 @@ namespace Adjutant.Controls
                     break;
                 #endregion
 
-                #region snd!
-                case "snd!":
-                    tabControl1.TabPages.Remove(tabModel);
-
+                #region sbsp
+                case "sbsp":
                     tabRaw.Controls.Clear();
+                    vMode.Visible = false;
+                    vSbsp.Visible = true;
 
                     if (!tabControl1.TabPages.Contains(tabRaw))
                         tabControl1.TabPages.Add(tabRaw);
 
-                    tabRaw.Controls.Add(eSnd_);
-                    eSnd_.Dock = DockStyle.Fill;
+                    if (!tabControl1.TabPages.Contains(tabModel))
+                        tabControl1.TabPages.Add(tabModel);
+
+                    tabRaw.Controls.Add(eSbsp);
+                    eSbsp.Dock = DockStyle.Fill;
+
+                    //tabModel.Controls.Clear();
+                    //tabModel.Controls.Add(vSbsp);
+                    //vSbsp.Dock = DockStyle.Fill;
 
                     if (tabControl1.SelectedTab == tabMeta)
                     {
@@ -160,7 +207,57 @@ namespace Adjutant.Controls
                     }
                     else if (tabControl1.SelectedTab == tabRaw)
                     {
-                        eSnd_.LoadSoundTag(cache, tag);
+                        eSbsp.DataFolder = settings.dataFolder;
+                        eSbsp.LoadBSPTag(cache, tag);
+                        rawLoaded = true;
+                    }
+                    else if (tabControl1.SelectedTab == tabModel)
+                    {
+                        vSbsp.LoadBSPTag(cache, tag, settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
+                        modelLoaded = true;
+                    }
+                    break;
+                #endregion
+
+                #region snd!
+                case "snd!":
+                    tabControl1.TabPages.Remove(tabModel);
+
+                    tabRaw.Controls.Clear();
+
+                    if (cache.Version == DefinitionSet.Halo3Beta)
+                        tabControl1.TabPages.Remove(tabRaw);
+                    else
+                    {
+
+                        if (!tabControl1.TabPages.Contains(tabRaw))
+                            tabControl1.TabPages.Add(tabRaw);
+
+                        if (cache.Version < DefinitionSet.Halo4Retail)
+                        {
+                            tabRaw.Controls.Add(eSnd_);
+                            eSnd_.Dock = DockStyle.Fill;
+                        }
+                        else
+                        {
+                            tabRaw.Controls.Add(eSnd4);
+                            eSnd4.Dock = DockStyle.Fill;
+                        }
+                    }
+
+
+                    if (tabControl1.SelectedTab == tabMeta)
+                    {
+                        vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
+                        metaLoaded = true;
+                    }
+                    else if (tabControl1.SelectedTab == tabRaw)
+                    {
+                        if (cache.Version < DefinitionSet.Halo4Retail)
+                            eSnd_.LoadSoundTag(cache, tag);
+                        else
+                            eSnd4.LoadSoundTag(cache, tag);
+                        
                         rawLoaded = true;
                     }
                     break;
@@ -214,7 +311,8 @@ namespace Adjutant.Controls
             eMode.Dispose();
             eSnd_.Dispose();
             vUnic.Dispose();
-            if (vMode != null) vMode.Dispose();
+            if (vMode != null) vMode.Clear();
+            if (vSbsp != null) vSbsp.Clear();
 
             base.Dispose();
         }
@@ -256,10 +354,23 @@ namespace Adjutant.Controls
                         }
                         break;
 
+                    case "sbsp":
+                        if (!rawLoaded)
+                        {
+                            eSbsp.DataFolder = settings.dataFolder;
+                            eSbsp.LoadBSPTag(cache, tag);
+                            rawLoaded = true;
+                        }
+                        break;
+
                     case "snd!":
                         if (!rawLoaded)
                         {
-                            eSnd_.LoadSoundTag(cache, tag);
+                            if(cache.Version < DefinitionSet.Halo4Retail)
+                                eSnd_.LoadSoundTag(cache, tag);
+                            else
+                                eSnd4.LoadSoundTag(cache, tag);
+
                             rawLoaded = true;
                         }
                         break;
@@ -278,15 +389,34 @@ namespace Adjutant.Controls
             #region Model Viewer Tab
             else if (tabControl1.SelectedTab == tabModel)
             {
-                if (!modelLoaded)
+                switch(tag.ClassCode)
                 {
-                    //vMode.RenderBackColor = settings.ViewerColour;
-                    vMode.PermutationFilter = new List<string>(settings.permFilter.Split(' '));
-                    vMode.LoadModelTag(cache, tag,
-                        settings.Flags.HasFlag(SettingsFlags.LoadSpecular),
-                        settings.Flags.HasFlag(SettingsFlags.UsePermFilter),
-                        settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
-                    modelLoaded = true;
+                    case "mode":
+                        if (!modelLoaded)
+                        {
+                            vSbsp.Visible = false;
+                            vMode.Visible = true;
+
+                            //vMode.RenderBackColor = settings.ViewerColour;
+                            vMode.PermutationFilter = new List<string>(settings.permFilter.Split(' '));
+                            vMode.LoadModelTag(cache, tag,
+                                settings.Flags.HasFlag(SettingsFlags.LoadSpecular),
+                                settings.Flags.HasFlag(SettingsFlags.UsePermFilter),
+                                settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
+                            modelLoaded = true;
+                        }
+                        break;
+
+                    case "sbsp":
+                        if (!modelLoaded)
+                        {
+                            vMode.Visible = false;
+                            vSbsp.Visible = true;
+
+                            vSbsp.LoadBSPTag(cache, tag, settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
+                            modelLoaded = true;
+                        }
+                        break;
                 }
             }
             #endregion

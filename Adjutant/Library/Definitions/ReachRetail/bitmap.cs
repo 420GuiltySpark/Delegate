@@ -6,16 +6,16 @@ using Adjutant.Library;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Endian;
 using Adjutant.Library.DataTypes;
-using Adjutant.Library.DataTypes.Space;
 using bitm = Adjutant.Library.Definitions.bitmap;
 
 namespace Adjutant.Library.Definitions.ReachRetail
 {
     internal class bitmap : bitm
     {
-        internal bitmap(CacheFile Cache)
+        internal bitmap(CacheFile Cache, int Offset)
         {
             EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Offset);
 
             Reader.BaseStream.Position += 112; //112
 
@@ -101,7 +101,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
                     Right = Reader.ReadSingle();
                     Top = Reader.ReadSingle();
                     Bottom = Reader.ReadSingle();
-                    RegPoint = new RealPoint2D(
+                    RegPoint = new RealQuat(
                         Reader.ReadSingle(),
                         Reader.ReadSingle());
                 }

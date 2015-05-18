@@ -33,11 +33,13 @@ namespace Adjutant.Library.Cache
                 IV[i] = (byte)(XOR[i] ^ 0x3C);
             }
 
-            var aes = new AesManaged();
-            aes.Mode = CipherMode.CBC;
-            aes.Key = XOR;
-            aes.IV = IV;
-            aes.Padding = PaddingMode.Zeros;
+            var aes = new AesManaged()
+            {
+                Mode = CipherMode.CBC,
+                Key = XOR,
+                IV = IV,
+                Padding = PaddingMode.Zeros
+            };
 
             Stream stream = (Stream)new MemoryStream(aes.CreateDecryptor(aes.Key, aes.IV).TransformFinalBlock(data, 0, data.Length));
             return new EndianReader(stream, EndianFormat.BigEndian);

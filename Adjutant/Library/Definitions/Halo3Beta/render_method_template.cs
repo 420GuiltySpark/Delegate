@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Adjutant.Library;
+using Adjutant.Library.Cache;
+using Adjutant.Library.Endian;
+using Adjutant.Library.DataTypes;
+using rmt2 = Adjutant.Library.Definitions.render_method_template;
+
+namespace Adjutant.Library.Definitions.Halo3Beta
+{
+    internal class render_method_template : rmt2
+    {
+        internal render_method_template(CacheFile Cache, int Address)
+        {
+            EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Address);
+
+            Reader.SeekTo(Address + 108);
+
+            #region Usage Blocks
+            int iCount = Reader.ReadInt32();
+            int iOffset = Reader.ReadInt32() - Cache.Magic;
+            UsageBlocks = new List<rmt2.UsageBlock>();
+            for (int i = 0; i < iCount; i++)
+                UsageBlocks.Add(new UsageBlock(Cache, iOffset + 4 * i));
+            #endregion
+
+            Reader.SeekTo(Address + 132);
+        }
+
+
+        new internal class UsageBlock : rmt2.UsageBlock
+        {
+            internal UsageBlock(CacheFile Cache, int Address)
+            {
+                EndianReader Reader = Cache.Reader;
+                Reader.SeekTo(Address);
+
+                Usage = Cache.Strings.GetItemByID(Reader.ReadInt32());
+            }
+        }
+    }
+}

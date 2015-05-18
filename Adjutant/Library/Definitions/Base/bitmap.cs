@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Adjutant.Library.DataTypes;
-using Adjutant.Library.DataTypes.Space;
 
 namespace Adjutant.Library.Definitions
 {
@@ -25,7 +24,7 @@ namespace Adjutant.Library.Definitions
             {
                 public int SubmapIndex;
                 public float Left, Right, Top, Bottom;
-                public RealPoint2D RegPoint;
+                public RealQuat RegPoint;
             }
 
             public override string ToString()
@@ -65,7 +64,7 @@ namespace Adjutant.Library.Definitions
                         case TextureFormat.R5G6B5:
                             var = 32;
                             break;
-                            //return Width;
+                        //return Width;
 
                         default:
                             var = 128;
@@ -92,7 +91,7 @@ namespace Adjutant.Library.Definitions
                         case TextureFormat.R5G6B5:
                             var = 32;
                             break;
-                            //return Height;
+                        //return Height;
 
                         default:
                             var = 128;
@@ -114,6 +113,7 @@ namespace Adjutant.Library.Definitions
                         case TextureFormat.DXT1:
                         case TextureFormat.DXT3a_mono:
                         case TextureFormat.DXT3a_alpha:
+                        case TextureFormat.DXT5a:
                         case TextureFormat.DXT5a_mono:
                         case TextureFormat.DXT5a_alpha:
                             size = VirtualWidth * VirtualHeight / 2;
