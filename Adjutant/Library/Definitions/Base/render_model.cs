@@ -43,12 +43,6 @@ namespace Adjutant.Library.Definitions
 
             var validParts = new Dictionary<int, render_model.ModelSection>();
 
-            //int totalVerts = 0;
-            //for (int i = 0; i < mode.ModelParts.Count; i++)
-            //{
-            //    totalVerts += mode.ModelParts[i].TotalVertexCount;
-            //}
-
             LoadFixups();
 
             if (mode.IndexInfoList.Count == 0) throw new Exception("Geometry contains no faces");
@@ -182,14 +176,13 @@ namespace Adjutant.Library.Definitions
 
         private void LoadFixups()
         {
-            var mode = this;
-            mode.VertInfoList = new List<render_model.VertexBufferInfo>();
-            mode.Unknown1List = new List<render_model.UnknownInfo1>();
-            mode.IndexInfoList = new List<render_model.IndexBufferInfo>();
-            mode.Unknown2List = new List<render_model.UnknownInfo2>();
-            mode.Unknown3List = new List<render_model.UnknownInfo3>();
+            VertInfoList = new List<render_model.VertexBufferInfo>();
+            Unknown1List = new List<render_model.UnknownInfo1>();
+            IndexInfoList = new List<render_model.IndexBufferInfo>();
+            Unknown2List = new List<render_model.UnknownInfo2>();
+            Unknown3List = new List<render_model.UnknownInfo3>();
 
-            var Entry = cache.zone.RawEntries[mode.RawID & ushort.MaxValue];
+            var Entry = cache.zone.RawEntries[RawID & ushort.MaxValue];
             var reader = new EndianReader(new MemoryStream(cache.zone.FixupData), EndianFormat.BigEndian);
 
             reader.SeekTo(Entry.FixupOffset + (Entry.FixupSize - 24));
@@ -201,7 +194,7 @@ namespace Adjutant.Library.Definitions
 
             for (int i = 0; i < vCount; i++)
             {
-                mode.VertInfoList.Add(new render_model.VertexBufferInfo()
+                VertInfoList.Add(new render_model.VertexBufferInfo()
                 {
                     Offset = Entry.Fixups[i].Offset,
                     VertexCount = reader.ReadInt32(),
@@ -217,7 +210,7 @@ namespace Adjutant.Library.Definitions
             for (int i = 0; i < vCount; i++)
             {
                 //assumed to be vertex related
-                mode.Unknown1List.Add(new render_model.UnknownInfo1()
+                Unknown1List.Add(new render_model.UnknownInfo1()
                 {
                     Unknown1 = reader.ReadInt32(), //always 0 so far
                     Unknown2 = reader.ReadInt32(), //always 0 so far
@@ -241,13 +234,13 @@ namespace Adjutant.Library.Definitions
                 data.Unknown2 = reader.ReadInt32();
                 data.Unknown3 = reader.ReadInt32();
 
-                mode.IndexInfoList.Add(data);
+                IndexInfoList.Add(data);
             }
 
             for (int i = 0; i < iCount; i++)
             {
                 //assumed to be index related
-                mode.Unknown2List.Add(new render_model.UnknownInfo2()
+                Unknown2List.Add(new render_model.UnknownInfo2()
                 {
                     Unknown1 = reader.ReadInt32(), //always 0 so far
                     Unknown2 = reader.ReadInt32(), //always 0 so far
@@ -257,7 +250,7 @@ namespace Adjutant.Library.Definitions
 
             for (int i = 0; i < 4; i++)
             {
-                mode.Unknown3List.Add(new render_model.UnknownInfo3()
+                Unknown3List.Add(new render_model.UnknownInfo3()
                 {
                     Unknown1 = reader.ReadInt32(), //vCount in 3rd, iCount in 4th
                     Unknown2 = reader.ReadInt32(), //always 0 so far

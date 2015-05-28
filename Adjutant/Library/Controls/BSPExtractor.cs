@@ -68,8 +68,6 @@ namespace Adjutant.Library.Controls
 
         private void RecursiveExtract(object SaveFolder)
         {
-            //var mode = DefinitionsManager.mode(cache, tag);
-
             List<CacheFile.IndexItem> tagsDone = new List<CacheFile.IndexItem>();
 
             foreach (var shader in sbsp.Shaders)

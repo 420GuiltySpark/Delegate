@@ -333,7 +333,7 @@ namespace Adjutant.Library.Controls
 
                 if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
-                var fs = File.OpenWrite(Filename); //new FileStream(Filename, FileMode.Create);
+                var fs = File.OpenWrite(Filename);
                 EndianWriter sw = new EndianWriter(fs, EndianFormat.BigEndian);
                 sw.Write(xma);
 
@@ -344,7 +344,7 @@ namespace Adjutant.Library.Controls
             #region WAV
             else if (Format == SoundFormat.WAV)
             {
-                var tempName = Path.GetTempFileName(); //Path.GetTempPath() + "tmp.xma";
+                var tempName = Path.GetTempFileName();
 
                 SaveAllAsSingle(tempName, Cache, Tag, SoundFormat.XMA);
 
@@ -415,7 +415,6 @@ namespace Adjutant.Library.Controls
             for (int i = 0; i < Perm.ChunkCount; i++)
             {
                 var chunk = ugh.RawChunks[Perm.RawChunkIndex + i];
-                //int size = chunk.SizeFlags & 0x0000FFFF;
                 totalSize += chunk.Size;
 
                 br.BaseStream.Position = chunk.FileOffset;

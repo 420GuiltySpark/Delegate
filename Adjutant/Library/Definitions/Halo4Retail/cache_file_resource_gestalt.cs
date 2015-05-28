@@ -96,8 +96,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 //    if (Reader.ReadInt32() > 0) throw new Exception("check this");
                 Reader.BaseStream.Position = temp + 12;
                 #endregion
-
-                //Reader.BaseStream.Position += 12; // 68
             }
 
             new internal class ResourceFixup : zone.RawEntry.ResourceFixup

@@ -369,7 +369,6 @@ namespace Adjutant.Controls
                 #endregion
 
                 #region models
-                    /*
                 case 12:
                     tabControl1.TabPages.Remove(tabRaw);
                     vMode.Visible = true;
@@ -410,18 +409,13 @@ namespace Adjutant.Controls
                         modelLoaded = true;
                     }
                     break;
-                    */
                 #endregion
 
                 #region bsps
-                    /*
                 case 16:
                     tabControl1.TabPages.Remove(tabRaw);
                     vMode.Visible = false;
                     vSbsp.Visible = true;
-
-                    //if (!tabControl1.TabPages.Contains(tabRaw))
-                    //    tabControl1.TabPages.Add(tabRaw);
 
                     if (!tabControl1.TabPages.Contains(tabModel))
                         tabControl1.TabPages.Add(tabModel);
@@ -451,7 +445,6 @@ namespace Adjutant.Controls
                         modelLoaded = true;
                     }
                     break;
-                    */
                 #endregion
 
                 #region other

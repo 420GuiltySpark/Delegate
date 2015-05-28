@@ -187,7 +187,6 @@ namespace Adjutant.Library.Controls
 
                 raw = DXTDecoder.DecodeBitmap(raw, submap, Cache.Version);
 
-                //PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
                 Bitmap bitmap2 = new Bitmap(submap.Width, submap.Height, PF);
                 Rectangle rect = new Rectangle(0, 0, submap.Width, submap.Height);
                 BitmapData bitmapdata = bitmap2.LockBits(rect, ImageLockMode.WriteOnly, PF);
@@ -336,18 +335,16 @@ namespace Adjutant.Library.Controls
             int vHeight = submap.VirtualHeight;
             int vWidth = submap.VirtualWidth;
 
-            if (Format == BitmapFormat.TIF || Format == BitmapFormat.PNG64)
+            if (Format == BitmapFormat.TIF || Format == BitmapFormat.PNG)
             {
                 string ext = (Format == BitmapFormat.TIF) ? ".tif" : ".png";
-                int pLength = (Format == BitmapFormat.TIF) ? 4 : 4;//8;
+                int pLength = (Format == BitmapFormat.TIF) ? 4 : 4;
                 ImageFormat IF = (Format == BitmapFormat.TIF) ? ImageFormat.Tiff : ImageFormat.Png;
 
                 if (!Filename.EndsWith(ext)) Filename += ext;
 
                 if (submap.Type == TextureType.CubeMap)
                 {
-                    //if (Format == BitmapFormat.PNG64) throw new Exception("Cubemaps not supported in 64bpp.");
-
                     var img = DXTDecoder.DecodeCubeMap(raw, submap, Alpha ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb, Cache.Version);
                     if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
                     img.Save(Filename, ImageFormat.Tiff);
@@ -356,24 +353,7 @@ namespace Adjutant.Library.Controls
 
                 raw = DXTDecoder.DecodeBitmap(raw, submap, Cache.Version);
 
-                //if (Format == BitmapFormat.PNG64)
-                //{
-                //    var br = new BinaryWriter(new MemoryStream());
-
-                //    for (int i = 0; i < raw.Length; i++)
-                //    {
-                //        if (!Alpha && i % 4 == 3)
-                //            br.Write((ushort)0xFFFF);
-                //        else
-                //            br.Write((ushort)(raw[i] * 257));
-                //    }
-
-                //    br.BaseStream.Position = 0;
-                //    raw = (new BinaryReader(br.BaseStream)).ReadBytes((int)br.BaseStream.Length);
-                //}
-
                 PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
-                //if (Format == BitmapFormat.PNG64) PF = PixelFormat.Format64bppArgb;
 
                 Bitmap bitmap2 = new Bitmap(submap.Width, submap.Height, PF);
                 Rectangle rect = new Rectangle(0, 0, submap.Width, submap.Height);
@@ -449,10 +429,10 @@ namespace Adjutant.Library.Controls
             }
 
 
-            if (Format == BitmapFormat.TIF || Format == BitmapFormat.PNG64)
+            if (Format == BitmapFormat.TIF || Format == BitmapFormat.PNG)
             {
                 string ext = (Format == BitmapFormat.TIF) ? ".tif" : ".png";
-                int pLength = (Format == BitmapFormat.TIF) ? 4 : 4;//8;
+                int pLength = (Format == BitmapFormat.TIF) ? 4 : 4;
                 ImageFormat IF = (Format == BitmapFormat.TIF) ? ImageFormat.Tiff : ImageFormat.Png;
                 PixelFormat PF = (Alpha) ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppRgb;
 
@@ -499,7 +479,6 @@ namespace Adjutant.Library.Controls
                     for (int i = 0; i < (raw.Length); i += 4)
                         Array.Reverse(raw, i, 4);
 
-                //new DDS(submap).Write(bw);
                 bw.Write(raw);
 
                 bw.Close();
@@ -549,7 +528,7 @@ namespace Adjutant.Library.Controls
                     ext = ".tif";
                     break;
 
-                case BitmapFormat.PNG64:
+                case BitmapFormat.PNG:
                     ext = ".png";
                     break;
 

@@ -72,7 +72,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 for (int i = 0; i < iCount; i++)
                     Tilings.Add(new Tiling(Cache, iOffset + 16 * i));
                 #endregion
-                //Tilings[0].UTiling = Tilings[0].VTiling = 1;
             }
 
             new internal class ShaderMap : rmsh.ShaderProperties.ShaderMap

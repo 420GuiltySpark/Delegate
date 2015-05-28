@@ -227,7 +227,6 @@
             this.convertToolStripMenuItem.Name = "convertToolStripMenuItem";
             this.convertToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.convertToolStripMenuItem.Text = "Convert Plugins";
-            this.convertToolStripMenuItem.Visible = false;
             this.convertToolStripMenuItem.Click += new System.EventHandler(this.convertPluginsToolStripMenuItem_Click);
             // 
             // optionsToolStripMenuItem
@@ -289,8 +288,8 @@
             // 
             this.versionToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.versionToolStripMenuItem.Name = "versionToolStripMenuItem";
-            this.versionToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
-            this.versionToolStripMenuItem.Text = "version";
+            this.versionToolStripMenuItem.Size = new System.Drawing.Size(65, 20);
+            this.versionToolStripMenuItem.Text = "[version]";
             // 
             // tabControl1
             // 
@@ -341,7 +340,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Adjutant";
+            this.Text = "Adjutant Reflex";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

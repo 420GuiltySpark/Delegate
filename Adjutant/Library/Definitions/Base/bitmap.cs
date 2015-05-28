@@ -52,14 +52,6 @@ namespace Adjutant.Library.Definitions
             {
                 get
                 {
-                    //int i = 1;
-                    //int vW = 0;
-                    //while (vW < Width || vW < Height)
-                    //    vW = (int)Math.Pow(2, i++);
-                    //return vW;
-
-                    //return Width;
-
                     int var;
                     switch (Format)
                     {
@@ -86,14 +78,6 @@ namespace Adjutant.Library.Definitions
             {
                 get
                 {
-                    //int i = 1;
-                    //int vH = 0;
-                    //while (vH < Height || vH < Width)
-                    //    vH = (int)Math.Pow(2, i++);
-                    //return vH;
-
-                    //return Height;
-
                     int var;
                     switch (Format)
                     {
@@ -106,7 +90,6 @@ namespace Adjutant.Library.Definitions
                         case TextureFormat.R5G6B5:
                             var = 32;
                             break;
-                        //return Height;
 
                         default:
                             var = 128;

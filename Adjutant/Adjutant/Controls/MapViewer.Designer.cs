@@ -101,6 +101,7 @@
             this.tvTags.Size = new System.Drawing.Size(415, 523);
             this.tvTags.TabIndex = 1;
             this.tvTags.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvTags_AfterSelect);
+            this.tvTags.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvTags_NodeMouseClick);
             // 
             // contextMenuStrip1
             // 

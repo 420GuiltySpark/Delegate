@@ -24,6 +24,9 @@ namespace Adjutant.Library.Controls
 {
     public partial class BSPViewer : UserControl
     {
+        int mscale = 2;
+        int pscale = 4;
+
         #region Init
         private CacheFile cache;
         private CacheFile.IndexItem tag;
@@ -168,7 +171,6 @@ namespace Adjutant.Library.Controls
 
             if (double.IsInfinity(pythagoras3d) || pythagoras3d == 0) //no clusters
             {
-                //pythagoras3d = 1500;
                 XBounds = sbsp.XBounds;
                 YBounds = sbsp.YBounds;
                 ZBounds = sbsp.ZBounds;
@@ -263,16 +265,14 @@ namespace Adjutant.Library.Controls
                         for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
                         {
                             if (rmt2.UsageBlocks[i].Usage.Contains("base_map") || rmt2.UsageBlocks[i].Usage == "foam_texture")
-                            {
                                 mapIndex = i;
-                                //break;
-                            }
                         }
                     }
 
                     var bitmTag = cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[mapIndex].BitmapTagID);
+
                     var image = BitmapExtractor.GetBitmapByTag(cache, bitmTag, 0, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    //image = ResizeImage(image, new Size(image.Width / 4, image.Height / 4));
+                    if (mscale > 1) image = new Bitmap(image, new Size(image.Width / mscale, image.Height / mscale));
 
                     if (image == null)
                     {
@@ -298,7 +298,7 @@ namespace Adjutant.Library.Controls
                     var diffuse = new BitmapImage();
 
                     diffuse.BeginInit();
-                    diffuse.StreamSource = stream; //new MemoryStream(stream.ToArray());
+                    diffuse.StreamSource = stream;
                     diffuse.EndInit();
 
                     matGroup.Children.Add(new DiffuseMaterial()
@@ -310,29 +310,6 @@ namespace Adjutant.Library.Controls
                             Viewport = new System.Windows.Rect(0, 0, 1f / Math.Abs(uTiling), 1f / Math.Abs(vTiling))
                         }
                     });
-
-                    //if (spec && rmshTag.ClassCode == "rmsh")
-                    //{
-                    //    stream = new MemoryStream();
-                    //    image.Save(stream, ImageFormat.Png);
-
-                    //    var specular = new BitmapImage();
-
-                    //    specular.BeginInit();
-                    //    specular.StreamSource = new MemoryStream(stream.ToArray());
-                    //    specular.EndInit();
-
-                    //    matGroup.Children.Add(new SpecularMaterial()
-                    //    {
-                    //        SpecularPower = 10,
-                    //        Brush = new ImageBrush(specular)
-                    //        {
-                    //            ViewportUnits = BrushMappingMode.Absolute,
-                    //            TileMode = TileMode.Tile,
-                    //            Viewport = new System.Windows.Rect(0, 0, 1f / Math.Abs(uTiling), 1f / Math.Abs(vTiling))
-                    //        }
-                    //    });
-                    //}
 
                     shaders.Add(matGroup);
                 }
@@ -428,27 +405,6 @@ namespace Adjutant.Library.Controls
                 if (sectList[IG.SectionIndex] == null) 
                     return;
 
-                //if (sbsp.Prefabs != null)
-                //{
-                //    foreach (var fab in sbsp.Prefabs)
-                //    {
-                //        int index = sbsp.GeomInstances.IndexOf(IG);
-                //        if (index >= fab.InstanceIndex && index < (fab.InstanceIndex + fab.InstanceCount))
-                //        {
-                //            //if (!IG.TransformMatrix.Equals(fab.TransformMatrix) || IG.TransformScale != fab.TransformScale)
-                //            //    IG = IG;
-
-                //            IG.TransformMatrix = fab.TransformMatrix;
-                //            IG.TransformScale = fab.TransformScale;
-
-                //            //IG.TransformMatrix = DataTypes.Matrix.Identity;
-                //            //IG.TransformScale = 1f;
-
-                //            break;
-                //        }
-                //    }
-                //}
-
                 var mat = Matrix3D.Identity;
                 mat.M11 = IG.TransformMatrix.m11;
                 mat.M12 = IG.TransformMatrix.m12;
@@ -513,7 +469,6 @@ namespace Adjutant.Library.Controls
 
             atpl = new S3DBSP(pak, item);
             atpl.ParseBSP();
-            //return;
 
             var tObj = atpl.Objects[0];
             foreach (var obj in atpl.Objects)
@@ -582,10 +537,6 @@ namespace Adjutant.Library.Controls
             #region BoundingBox Stuff
             PerspectiveCamera camera = (PerspectiveCamera)renderer1.Viewport.Camera;
 
-            //var XBounds = new RealBounds(float.MaxValue, float.MinValue);
-            //var YBounds = new RealBounds(float.MaxValue, float.MinValue);
-            //var ZBounds = new RealBounds(float.MaxValue, float.MinValue);
-
             var XBounds = atpl.RenderBounds.XBounds;
             var YBounds = atpl.RenderBounds.ZBounds;
             var ZBounds = atpl.RenderBounds.YBounds;
@@ -624,7 +575,6 @@ namespace Adjutant.Library.Controls
 
             if (double.IsInfinity(pythagoras3d) || pythagoras3d == 0) //no clusters
             {
-                //pythagoras3d = 1500;
                 XBounds = sbsp.XBounds;
                 YBounds = sbsp.YBounds;
                 ZBounds = sbsp.ZBounds;
@@ -668,17 +618,6 @@ namespace Adjutant.Library.Controls
             RenderSelected();
         }
 
-        public static Bitmap ResizeImage(Bitmap imgToResize, Size size)
-        {
-            Bitmap b = new Bitmap(size.Width, size.Height);
-            using (Graphics g = Graphics.FromImage((Image)b))
-            {
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.DrawImage(imgToResize, 0, 0, size.Width, size.Height);
-            }
-            return b;
-        }
-
         private void LoadS3DShaders(bool spec, List<int> indices)
         {
             var errMat = GetErrorMaterial();
@@ -703,7 +642,7 @@ namespace Adjutant.Library.Controls
                 {
                     var pict = new S3DPICT(sPak, sPak.GetItemByName(mat.Name));
                     var image = BitmapExtractor.GetBitmapByTag(sPak, pict, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    image = ResizeImage(image, new Size(image.Width / 8, image.Height / 8));
+                    if (pscale > 1) image = new Bitmap(image, new Size(image.Width / pscale, image.Height / pscale));
 
 
                     if (image == null)
@@ -730,7 +669,7 @@ namespace Adjutant.Library.Controls
                     var diffuse = new BitmapImage();
 
                     diffuse.BeginInit();
-                    diffuse.StreamSource = stream; //new MemoryStream(stream.ToArray());
+                    diffuse.StreamSource = stream;
                     diffuse.EndInit();
 
                     matGroup.Children.Add(new DiffuseMaterial()
@@ -839,7 +778,7 @@ namespace Adjutant.Library.Controls
                 foreach (var index in iList)
                     geom.TriangleIndices.Add(index);
 
-                GeometryModel3D modeld = new GeometryModel3D(geom, shaders[submesh.MaterialIndex+1])
+                GeometryModel3D modeld = new GeometryModel3D(geom, shaders[submesh.MaterialIndex + 1])
                 {
                     BackMaterial = shaders[submesh.MaterialIndex+1]
                 };
@@ -897,21 +836,7 @@ namespace Adjutant.Library.Controls
 
         private DiffuseMaterial GetErrorMaterial()
         {
-            var mat = new DiffuseMaterial(new SolidColorBrush(Colors.Gold));
-            //var brush = (SolidColorBrush)mat.Brush;
-
-            //var anim0 = new ColorAnimation
-            //{
-            //    From = new System.Windows.Media.Color?(brush.Color),
-            //    To = new System.Windows.Media.Color?(Colors.Red)
-            //};
-
-            //anim0.Duration = new System.Windows.Duration(TimeSpan.FromMilliseconds(500.0));
-            //anim0.AutoReverse = true;
-            //anim0.RepeatBehavior = RepeatBehavior.Forever;
-            //brush.BeginAnimation(SolidColorBrush.ColorProperty, anim0);
-
-            return mat;
+            return new DiffuseMaterial(new SolidColorBrush(Colors.Gold));
         }
         #endregion
 

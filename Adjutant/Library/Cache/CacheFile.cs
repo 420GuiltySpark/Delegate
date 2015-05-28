@@ -1158,11 +1158,7 @@ namespace Adjutant.Library.Cache
             var reqPage = play.Pages[segment.RequiredPageIndex];
             var optPage = play.Pages[segment.OptionalPageIndex];
 
-            if (size == 0)
-            {
-                //System.Windows.Forms.MessageBox.Show("0 size");
-                size = (reqPage.CompressedSize != 0) ? reqPage.CompressedSize : optPage.CompressedSize;
-            }
+            if (size == 0) size = (reqPage.CompressedSize != 0) ? reqPage.CompressedSize : optPage.CompressedSize;
 
             var reqSize = size - sRaw.RawSize;
             var optSize = size - reqSize;

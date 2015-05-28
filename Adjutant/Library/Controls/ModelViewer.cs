@@ -147,7 +147,6 @@ namespace Adjutant.Library.Controls
             }
             else //normal camera position
             {
-                //var dist = (bb.XBounds.Length() * 0.75) / Math.Tan(camera.FieldOfView / 2);
                 var p = new Point3D(
                 bb.XBounds.Max + pythagoras3d * 0.75,
                 bb.YBounds.MidPoint,

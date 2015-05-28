@@ -14,8 +14,8 @@ namespace update
         {
             if (args.Length != 0 && args.Length != 2) throw new Exception("Invalid arguments");
             var path = Directory.GetCurrentDirectory() + '\\';
-            var exe = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/Adjutant.exe";
-            var txt = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/changelog.txt";
+            var exe = "<Adjutant.exe>";
+            var txt = "<changelog.txt>";
 
             if (args.Length != 0)
             {

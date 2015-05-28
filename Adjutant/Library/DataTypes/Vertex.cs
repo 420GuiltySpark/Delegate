@@ -10,40 +10,6 @@ using Adjutant.Library.Definitions;
 namespace Adjutant.Library.DataTypes
 {
     //These need to be marked serializable for deep cloning
-
-    //[Serializable]
-    //public class VertexBuffer : List<Vertex>
-    //{
-    //    private XmlNode formatNode;
-
-    //    public string FormatName;
-
-    //    public string GetTypeByUsage(string Usage, int UsageIndex)
-    //    {
-    //        try
-    //        {
-    //            foreach (XmlNode node in formatNode.ChildNodes)
-    //            {
-    //                if (node.Attributes["usage"].Value == Usage && node.Attributes["usageIndex"].Value == UsageIndex.ToString())
-    //                    return node.Attributes["type"].Value;
-    //            }
-    //        }
-    //        catch { }
-
-    //        return "None";
-    //    }
-
-    //    public VertexBuffer() { }
-
-    //    public VertexBuffer(XmlNode FormatNode)
-    //    {
-    //        if (!FormatNode.HasChildNodes) throw new NotSupportedException(FormatNode.Attributes["type"].Value + ":" + FormatNode.Attributes["name"].Value + " has an empty definition.");
-
-    //        formatNode = FormatNode;
-    //        FormatName = formatNode.Attributes["name"].Value;
-    //    }
-    //}
-
     [Serializable]
     public class Vertex
     {

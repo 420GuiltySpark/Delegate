@@ -8,7 +8,6 @@ using System.Text;
 using System.Windows.Forms;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.Controls;
-//using Adjutant.Security;
 
 namespace Adjutant
 {

@@ -472,6 +472,15 @@ namespace Adjutant.Controls
                 tv.LoadPakItem(pak, item);
         }
 
+        private void tvTags_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            //left click will select the node by default
+            //anyway but since this activates regardless
+            //of mouse button it ensures right-click selects
+            //the node before showing the context menu
+            tvTags.SelectedNode = e.Node;
+        }
+
         private void extractSelectedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var dest = settings.dataFolder;

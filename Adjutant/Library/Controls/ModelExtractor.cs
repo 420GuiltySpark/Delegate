@@ -59,7 +59,7 @@ namespace Adjutant.Library.Controls
                 foreach (var perm in region.Permutations)
                 {
                     if (perm.PieceIndex != -1)
-                        if (mode.ModelSections[perm.PieceIndex].Submeshes.Count > 0 /*&& mode.ModelParts[perm.PieceIndex].TotalVertexCount > 0*/)
+                        if (mode.ModelSections[perm.PieceIndex].Submeshes.Count > 0)
                             node.Nodes.Add(new TreeNode(perm.Name) { Checked = true, Tag = perm });
                 }
                 if(node.Nodes.Count > 0)
@@ -69,8 +69,6 @@ namespace Adjutant.Library.Controls
 
         private void RecursiveExtract(object SaveFolder)
         {
-            //var mode = DefinitionsManager.mode(cache, tag);
-
             List<CacheFile.IndexItem> tagsDone = new List<CacheFile.IndexItem>();
 
             foreach (render_model.Shader shader in mode.Shaders)
@@ -174,7 +172,7 @@ namespace Adjutant.Library.Controls
             List<int> Parts = new List<int>();
             for (int i = 0; i < mode.ModelSections.Count; i++)
             {
-                if (mode.ModelSections[i].Submeshes.Count > 0 /*&& mode.ModelParts[i].TotalVertexCount > 0*/)
+                if (mode.ModelSections[i].Submeshes.Count > 0)
                     Parts.Add(i);
             }
 

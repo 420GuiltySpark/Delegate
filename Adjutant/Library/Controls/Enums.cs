@@ -10,7 +10,7 @@ namespace Adjutant.Library.Controls
         TIF = 0,
         DDS = 1,
         RAW = 2,
-        PNG64 = 3
+        PNG = 3
     }
 
     public enum ModelFormat : byte

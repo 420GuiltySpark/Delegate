@@ -126,12 +126,6 @@ namespace Adjutant
 
             tssStatus.Text = "Settings saved.";
         }
-
-        //public void Lockdown()
-        //{
-        //    LoginForm lf = new LoginForm(this);
-        //    lf.ShowDialog(this);
-        //}
         #endregion
 
         #region Events
@@ -263,8 +257,8 @@ namespace Adjutant
         {
             var sfd = new System.Windows.Forms.SaveFileDialog
             {
-                Filter = "Encrypted MaxScript Files|*.mse",
-                FileName = "AMFImporter.mse"
+                Filter = "MaxScript Files|*.ms",
+                FileName = "AMF2Importer.ms"
             };
             if (sfd.ShowDialog() != DialogResult.OK) return;
 
@@ -419,7 +413,7 @@ namespace Adjutant
             try
             {
                 WebClient client = new WebClient();
-                client.DownloadFile("https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/plugins.zip", (string)Filename);
+                client.DownloadFile("<plugins.zip>", (string)Filename);
 
                 TaskDone(taskID);
             }
@@ -431,8 +425,8 @@ namespace Adjutant
         {
             var userReq = (bool)UserRequest;
             int taskID = AddTask("Checking for updates...");
-            var verString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/version";
-            var changeString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/change";
+            var verString = "<version>";
+            var changeString = "<change>";
 
             try
             {

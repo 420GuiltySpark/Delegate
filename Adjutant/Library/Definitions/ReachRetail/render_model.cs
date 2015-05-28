@@ -232,15 +232,6 @@ namespace Adjutant.Library.Definitions.ReachRetail
                 TransformMatrix.m42 = Reader.ReadSingle();
                 TransformMatrix.m43 = Reader.ReadSingle();
 
-                //var vp = new Microsoft.DirectX.Vector3(Position.x, Position.y, Position.z);
-                //var vr = new Microsoft.DirectX.Vector4(0, 0, 0, 1);
-
-                //vp.TransformCoordinate(TransformMatrix);
-                //vr.Transform(TransformMatrix);
-
-                //Position = new RealQuat(vp.X, vp.Y, vp.Z);
-                //Rotation = new RealQuat(vr.X, vr.Y, vr.Z, vr.W);
-
                 DistanceFromParent = Reader.ReadSingle();
             }
         }

@@ -11,16 +11,11 @@ namespace Adjutant.Library.S3D
 {
     public class S3DBSP : S3DModelBase
     {
-        //public string Name;
-        //public List<S3DATPL.ATPL_Material> Materials;
-        //public List<S3DATPL.ATPL_Object> Objects;
-
         public int xF000;
         public int unkAddress0;
         public int x2C01;
         public int unk1;
 
-        //public render_model.BoundingBox RenderBounds;
         public RealQuat unkCoords0;
 
         public S3DBSP(S3DPak Pak, S3DPak.PakItem Item)
@@ -84,13 +79,5 @@ namespace Adjutant.Library.S3D
                     Objects[obj.inheritIndex].isInherited = true;
             var pos = reader.Position - Item.Offset;
         }
-
-        //public S3DATPL.ATPL_Object ObjectByID(int ID)
-        //{
-        //    foreach (var obj in Objects)
-        //        if (obj.ID == ID) return obj;
-
-        //    return null;
-        //}
     }
 }

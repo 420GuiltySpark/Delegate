@@ -118,7 +118,7 @@
 		     localesStart="656"
          languageCount="12"
          languageSize="68" />
-  <!--<build string="14064.12.05.05.1011.beta"
+  <build string="14064.12.05.05.1011.beta"
          inherits=""
          headerSize="122880"
 		     tagsKey="LetsAllPlayNice!"
@@ -147,7 +147,7 @@
 		     stringMods="+1568,+6520"
 		     localesStart="700"
          languageCount="12"
-         languageSize="68" />-->
+         languageSize="68" />
   <build string="20810.12.09.22.1647.main"
          inherits=""
          headerSize="122880"
@@ -165,13 +165,13 @@
          languageSize="68" />
   
   <build string="12065.08.08.26.0819.halo3_ship" inherits="11855.07.08.20.2317.halo3_ship" />
-  <!--<build string="16531.12.07.05.0200.main" name="DLC1" inherits="20810.12.09.22.1647.main" />
+  <build string="16531.12.07.05.0200.main" name="DLC1" inherits="20810.12.09.22.1647.main" />
   <build string="17539.12.07.24.0200.main" name="DLC3" inherits="20810.12.09.22.1647.main" />
   <build string="18223.12.08.06.0200.main" name="????" inherits="20810.12.09.22.1647.main" />
   <build string="18845.12.08.16.0200.main" name="DLC4" inherits="20810.12.09.22.1647.main" />
   <build string="20190.12.09.05.0200.main" name="DLC5" inherits="20810.12.09.22.1647.main" />
   <build string="20703.12.09.16.0400.main" name="DLC6" inherits="20810.12.09.22.1647.main" />
-  <build string="20744.12.09.18.0100.main" name="DLC7" inherits="20810.12.09.22.1647.main" />-->
+  <build string="20744.12.09.18.0100.main" name="DLC7" inherits="20810.12.09.22.1647.main" />
   <build string="20975.12.10.25.1337.main" name="????" inherits="20810.12.09.22.1647.main" />
   <build string="21122.12.11.21.0101.main" name="TU02" inherits="20810.12.09.22.1647.main" />
   <build string="21165.12.12.12.0112.main" name="TU03" inherits="20810.12.09.22.1647.main" />

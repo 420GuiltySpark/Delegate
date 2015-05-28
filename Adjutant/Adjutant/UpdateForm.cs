@@ -22,12 +22,8 @@ namespace Adjutant
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            var exeString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/Adjutant.exe";
-            var logString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/changelog.txt";
-
-#if REFLEX
-            exeString = "https://dl.dropboxusercontent.com/u/39530625/Haquez%20Co/Adjutant/Reflex/Adjutant.exe";
-#endif
+            var exeString = "<Adjutant.exe>";
+            var logString = "<changelog.txt>";
 
             System.IO.File.WriteAllBytes(Application.StartupPath + '\\' + "update.exe", Properties.Resources.update);
             var startInfo = new System.Diagnostics.ProcessStartInfo();

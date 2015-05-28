@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using Adjutant.Library;
 using Adjutant.Library.Cache;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using System.IO;
-using System.Diagnostics;
 using Composer;
 using Composer.Wwise;
+
+/**************************************************************
+ * Please note this sound extractor is integrated with Composer
+ * and contains code from Composer itself. Most Composer
+ * code is contained in the "Composer" region of the code.
+ ***************************************************************/
 
 namespace Adjutant.Library.Controls
 {
@@ -74,18 +73,10 @@ namespace Adjutant.Library.Controls
             if (snd.SoundBankTagID != -1) sbnk = DefinitionsManager.sbnk(cache, cache.IndexItems.GetItemByID(snd.SoundBankTagID));
             else sbnk = null;
 
-            if (Cache.Version != DefinitionSet.Halo4Retail)
+            if (Cache.Version != DefinitionSet.Halo4Retail) throw new Exception("This is for H4 ONLY");
 
-            throw new Exception("This is for H4 ONLY");
-
-            //throw new Exception("Dont touch this!");
             LoadCacheSoundPacks(cache);
 
-            //BackgroundWorker worker = new BackgroundWorker();
-            //worker.WorkerReportsProgress = true;
-            //worker.DoWork += ObjectLoadWorker;
-            //worker.RunWorkerAsync();
-                
             lstPerms.Items.Clear();
             _perms.Clear();
             _soundbanks.Clear();
