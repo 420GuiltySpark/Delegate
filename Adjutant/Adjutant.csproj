@@ -812,7 +812,6 @@
     <Content Include="Plugins\Halo3\rmtr.xml" />
     <Content Include="Plugins\Halo3\rmw .xml" />
     <Content Include="Plugins\Halo3\rwrd.xml" />
-    <Content Include="Plugins\Halo3\sbsp - Copy.xml" />
     <Content Include="Plugins\Halo3\sbsp.xml" />
     <Content Include="Plugins\Halo3\sbsp2.xml" />
     <Content Include="Plugins\Halo3\scen.xml" />
