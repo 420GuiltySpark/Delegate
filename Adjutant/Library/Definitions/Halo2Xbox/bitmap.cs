@@ -10,9 +10,9 @@ using bitm = Adjutant.Library.Definitions.bitmap;
 
 namespace Adjutant.Library.Definitions.Halo2Xbox
 {
-    internal class bitmap : bitm
+    public class bitmap : bitm
     {
-        internal bitmap(CacheFile Cache, int Address)
+        public bitmap(CacheFile Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -38,9 +38,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             #endregion
         }
 
-        new internal class Sequence : bitm.Sequence
+        new public class Sequence : bitm.Sequence
         {
-            internal Sequence(CacheFile Cache, int Address)
+            public Sequence(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -61,9 +61,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 #endregion
             }
 
-            new internal class Sprite : bitm.Sequence.Sprite
+            new public class Sprite : bitm.Sequence.Sprite
             {
-                internal Sprite(CacheFile Cache, int Address)
+                public Sprite(CacheFile Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);
@@ -81,12 +81,12 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        new internal class BitmapData : bitm.BitmapData
+        new public class BitmapData : bitm.BitmapData
         {
             public int[] LODOffset;
             public int[] LODSize;
 
-            internal BitmapData(CacheFile Cache, int Address)
+            public BitmapData(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);

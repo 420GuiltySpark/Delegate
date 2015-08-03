@@ -9,9 +9,9 @@ using rmsh = Adjutant.Library.Definitions.shader;
 
 namespace Adjutant.Library.Definitions.ReachBeta
 {
-    internal class shader : rmsh
+    public class shader : rmsh
     {
-        internal shader(CacheFile Cache)
+        public shader(CacheFile Cache)
         {
             EndianReader Reader = Cache.Reader;
 
@@ -35,9 +35,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.BaseStream.Position += 52; //104
         }
 
-        new internal class ShaderProperties : rmsh.ShaderProperties
+        new public class ShaderProperties : rmsh.ShaderProperties
         {
-            internal ShaderProperties(CacheFile Cache)
+            public ShaderProperties(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -70,9 +70,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 Reader.BaseStream.Position += 132; //172
             }
 
-            new internal class ShaderMap : rmsh.ShaderProperties.ShaderMap
+            new public class ShaderMap : rmsh.ShaderProperties.ShaderMap
             {
-                internal ShaderMap(CacheFile Cache)
+                public ShaderMap(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -85,9 +85,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 }
             }
 
-            new internal class Tiling : rmsh.ShaderProperties.Tiling
+            new public class Tiling : rmsh.ShaderProperties.Tiling
             {
-                internal Tiling(CacheFile Cache)
+                public Tiling(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 

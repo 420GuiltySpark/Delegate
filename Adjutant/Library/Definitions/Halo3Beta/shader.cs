@@ -9,9 +9,9 @@ using rmsh = Adjutant.Library.Definitions.shader;
 
 namespace Adjutant.Library.Definitions.Halo3Beta
 {
-    internal class shader : rmsh
+    public class shader : rmsh
     {
-        internal shader(CacheFile Cache, int Address)
+        public shader(CacheFile Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -33,9 +33,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 68);
         }
 
-        new internal class ShaderProperties : rmsh.ShaderProperties
+        new public class ShaderProperties : rmsh.ShaderProperties
         {
-            internal ShaderProperties(CacheFile Cache, int Address)
+            public ShaderProperties(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -65,9 +65,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 Reader.SeekTo(Address + 132);
             }
 
-            new internal class ShaderMap : rmsh.ShaderProperties.ShaderMap
+            new public class ShaderMap : rmsh.ShaderProperties.ShaderMap
             {
-                internal ShaderMap(CacheFile Cache, int Address)
+                public ShaderMap(CacheFile Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);
@@ -81,9 +81,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 }
             }
 
-            new internal class Tiling : rmsh.ShaderProperties.Tiling
+            new public class Tiling : rmsh.ShaderProperties.Tiling
             {
-                internal Tiling(CacheFile Cache, int Address)
+                public Tiling(CacheFile Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);

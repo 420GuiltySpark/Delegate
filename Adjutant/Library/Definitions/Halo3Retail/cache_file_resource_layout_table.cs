@@ -9,9 +9,9 @@ using play = Adjutant.Library.Definitions.cache_file_resource_layout_table;
 
 namespace Adjutant.Library.Definitions.Halo3Retail
 {
-    internal class cache_file_resource_layout_table : play
+    public class cache_file_resource_layout_table : play
     {
-        internal cache_file_resource_layout_table(CacheFile Cache, int Offset)
+        public cache_file_resource_layout_table(CacheFile Cache, int Offset)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Offset);
@@ -55,9 +55,9 @@ namespace Adjutant.Library.Definitions.Halo3Retail
             #endregion
         }
 
-        new internal class SharedCache : play.SharedCache
+        new public class SharedCache : play.SharedCache
         {
-            internal SharedCache(CacheFile Cache, int Offset)
+            public SharedCache(CacheFile Cache, int Offset)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Offset);
@@ -68,9 +68,9 @@ namespace Adjutant.Library.Definitions.Halo3Retail
             }
         }
 
-        new internal class Page : play.Page
+        new public class Page : play.Page
         {
-            internal Page(CacheFile Cache, int Offset)
+            public Page(CacheFile Cache, int Offset)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Offset);
@@ -89,9 +89,9 @@ namespace Adjutant.Library.Definitions.Halo3Retail
             }
         }
 
-        new internal class SoundRawChunk : play.SoundRawChunk
+        new public class SoundRawChunk : play.SoundRawChunk
         {
-            internal SoundRawChunk(CacheFile Cache, int Offset)
+            public SoundRawChunk(CacheFile Cache, int Offset)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Offset);
@@ -108,9 +108,9 @@ namespace Adjutant.Library.Definitions.Halo3Retail
                 #endregion
             }
 
-            new internal class Size : play.SoundRawChunk.Size
+            new public class Size : play.SoundRawChunk.Size
             {
-                internal Size(CacheFile Cache, int Offset)
+                public Size(CacheFile Cache, int Offset)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Offset);
@@ -123,9 +123,9 @@ namespace Adjutant.Library.Definitions.Halo3Retail
             }
         }
 
-        new internal class Segment : play.Segment
+        new public class Segment : play.Segment
         {
-            internal Segment(CacheFile Cache, int Offset)
+            public Segment(CacheFile Cache, int Offset)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Offset);

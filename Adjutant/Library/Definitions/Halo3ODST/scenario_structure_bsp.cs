@@ -11,9 +11,9 @@ using mode = Adjutant.Library.Definitions.render_model;
 
 namespace Adjutant.Library.Definitions.Halo3ODST
 {
-    internal class scenario_structure_bsp : sbsp
+    public class scenario_structure_bsp : sbsp
     {
-        internal scenario_structure_bsp(CacheFile Cache, int Address)
+        public scenario_structure_bsp(CacheFile Cache, int Address)
         {
             cache = Cache;
             EndianReader Reader = Cache.Reader;
@@ -130,9 +130,9 @@ namespace Adjutant.Library.Definitions.Halo3ODST
             RawID3 = Reader.ReadInt32();
         }
 
-        new internal class Cluster : sbsp.Cluster
+        new public class Cluster : sbsp.Cluster
         {
-            internal Cluster(CacheFile Cache, int Address)
+            public Cluster(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -146,9 +146,9 @@ namespace Adjutant.Library.Definitions.Halo3ODST
             }
         }
 
-        new internal class Shader : sbsp.Shader
+        new public class Shader : sbsp.Shader
         {
-            internal Shader(CacheFile Cache, int Address)
+            public Shader(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -161,9 +161,9 @@ namespace Adjutant.Library.Definitions.Halo3ODST
             }
         }
 
-        new internal class InstancedGeometry : sbsp.InstancedGeometry
+        new public class InstancedGeometry : sbsp.InstancedGeometry
         {
-            internal InstancedGeometry(CacheFile Cache, int Address)
+            public InstancedGeometry(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);

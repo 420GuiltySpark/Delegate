@@ -9,9 +9,9 @@ using zone = Adjutant.Library.Definitions.cache_file_resource_gestalt;
 
 namespace Adjutant.Library.Definitions.Halo3Beta
 {
-    internal class cache_file_resource_gestalt : zone
+    public class cache_file_resource_gestalt : zone
     {
-        internal cache_file_resource_gestalt(CacheFile Cache, int Address)
+        public cache_file_resource_gestalt(CacheFile Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
 
@@ -38,9 +38,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             #endregion
         }
 
-        new internal class RawEntry : zone.RawEntry
+        new public class RawEntry : zone.RawEntry
         {
-            internal RawEntry(CacheFile Cache, int Address)
+            public RawEntry(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -92,9 +92,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 #endregion
             }
 
-            new internal class ResourceFixup : zone.RawEntry.ResourceFixup
+            new public class ResourceFixup : zone.RawEntry.ResourceFixup
             {
-                internal ResourceFixup(CacheFile Cache, int Address)
+                public ResourceFixup(CacheFile Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);
@@ -106,9 +106,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 }
             }
 
-            new internal class ResourceDefinitionFixup : zone.RawEntry.ResourceDefinitionFixup
+            new public class ResourceDefinitionFixup : zone.RawEntry.ResourceDefinitionFixup
             {
-                internal ResourceDefinitionFixup(CacheFile Cache, int Address)
+                public ResourceDefinitionFixup(CacheFile Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);

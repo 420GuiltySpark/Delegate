@@ -10,9 +10,9 @@ using rmt2 = Adjutant.Library.Definitions.render_method_template;
 
 namespace Adjutant.Library.Definitions.Halo3Beta
 {
-    internal class render_method_template : rmt2
+    public class render_method_template : rmt2
     {
-        internal render_method_template(CacheFile Cache, int Address)
+        public render_method_template(CacheFile Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -40,9 +40,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 132);
         }
 
-        new internal class ArgumentBlock : rmt2.ArgumentBlock
+        new public class ArgumentBlock : rmt2.ArgumentBlock
         {
-            internal ArgumentBlock(CacheFile Cache, int Address)
+            public ArgumentBlock(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -51,9 +51,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             }
         }
 
-        new internal class UsageBlock : rmt2.UsageBlock
+        new public class UsageBlock : rmt2.UsageBlock
         {
-            internal UsageBlock(CacheFile Cache, int Address)
+            public UsageBlock(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);

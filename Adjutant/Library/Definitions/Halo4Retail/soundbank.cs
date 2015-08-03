@@ -9,9 +9,9 @@ using sbnk = Adjutant.Library.Definitions.soundbank;
 
 namespace Adjutant.Library.Definitions.Halo4Retail
 {
-    internal class soundbank : sbnk
+    public class soundbank : sbnk
     {
-        internal soundbank(CacheFile Cache)
+        public soundbank(CacheFile Cache)
         {
             EndianReader Reader = Cache.Reader;
 
@@ -33,9 +33,9 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             Address = Reader.ReadUInt32();
         }
 
-        new internal class BankReference : sbnk.BankReference
+        new public class BankReference : sbnk.BankReference
         {
-            internal BankReference(CacheFile Cache)
+            public BankReference(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
                 Address = Reader.ReadUInt32();

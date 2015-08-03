@@ -11,9 +11,9 @@ using ugh_ = Adjutant.Library.Definitions.sound_cache_file_gestalt;
 
 namespace Adjutant.Library.Definitions.ReachRetail
 {
-    internal class sound_cache_file_gestalt : ugh_
+    public class sound_cache_file_gestalt : ugh_
     {
-        internal sound_cache_file_gestalt(CacheFile Cache)
+        public sound_cache_file_gestalt(CacheFile Cache)
         {
             EndianReader Reader = Cache.Reader;
 
@@ -81,9 +81,9 @@ namespace Adjutant.Library.Definitions.ReachRetail
             Reader.BaseStream.Position += 36; //220
         }
 
-        new internal class Codec : ugh_.Codec
+        new public class Codec : ugh_.Codec
         {
-            internal Codec(CacheFile Cache)
+            public Codec(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -93,9 +93,9 @@ namespace Adjutant.Library.Definitions.ReachRetail
             }
         }
 
-        new internal class SoundName : ugh_.SoundName
+        new public class SoundName : ugh_.SoundName
         {
-            internal SoundName(CacheFile Cache)
+            public SoundName(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -103,9 +103,9 @@ namespace Adjutant.Library.Definitions.ReachRetail
             }
         }
 
-        new internal class Playback : ugh_.Playback
+        new public class Playback : ugh_.Playback
         {
-            internal Playback(CacheFile Cache)
+            public Playback(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -119,9 +119,9 @@ namespace Adjutant.Library.Definitions.ReachRetail
         }
 
         //TODO: finish this
-        new internal class SoundPermutation : ugh_.SoundPermutation
+        new public class SoundPermutation : ugh_.SoundPermutation
         {
-            internal SoundPermutation(CacheFile Cache)
+            public SoundPermutation(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -137,9 +137,9 @@ namespace Adjutant.Library.Definitions.ReachRetail
             }
         }
 
-        new internal class RawChunk : ugh_.RawChunk
+        new public class RawChunk : ugh_.RawChunk
         {
-            internal RawChunk(CacheFile Cache)
+            public RawChunk(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 

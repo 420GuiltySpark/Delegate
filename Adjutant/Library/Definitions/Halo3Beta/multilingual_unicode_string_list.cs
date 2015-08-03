@@ -9,9 +9,9 @@ using unic = Adjutant.Library.Definitions.multilingual_unicode_string_list;
 
 namespace Adjutant.Library.Definitions.Halo3Beta
 {
-    internal class multilingual_unicode_string_list : unic
+    public class multilingual_unicode_string_list : unic
     {
-        internal multilingual_unicode_string_list(CacheFile Cache)
+        public multilingual_unicode_string_list(CacheFile Cache)
         {
             EndianReader Reader = Cache.Reader;
 

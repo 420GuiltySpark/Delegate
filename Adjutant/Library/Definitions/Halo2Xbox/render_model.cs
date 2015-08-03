@@ -13,9 +13,9 @@ using mode = Adjutant.Library.Definitions.render_model;
 
 namespace Adjutant.Library.Definitions.Halo2Xbox
 {
-    internal class render_model : mode
+    public class render_model : mode
     {
-        internal render_model(CacheFile Cache, int Address)
+        public render_model(CacheFile Cache, int Address)
         {
             cache = Cache;
             EndianReader Reader = Cache.Reader;
@@ -268,9 +268,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             mode.RawLoaded = true;
         }
 
-        new internal class Region : mode.Region
+        new public class Region : mode.Region
         {
-            internal Region(CacheFile Cache)
+            public Region(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
                 long temp = Reader.BaseStream.Position;
@@ -288,9 +288,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 Reader.BaseStream.Position = temp + 16;
             }
 
-            new internal class Permutation : mode.Region.Permutation
+            new public class Permutation : mode.Region.Permutation
             {
-                internal Permutation(CacheFile Cache)
+                public Permutation(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -305,9 +305,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        new internal class Node : mode.Node
+        new public class Node : mode.Node
         {
-            internal Node(CacheFile Cache)
+            public Node(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -351,9 +351,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        new internal class MarkerGroup : mode.MarkerGroup
+        new public class MarkerGroup : mode.MarkerGroup
         {
-            internal MarkerGroup(CacheFile Cache)
+            public MarkerGroup(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
                 long temp = Reader.BaseStream.Position;
@@ -370,9 +370,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 Reader.BaseStream.Position = temp + 12;
             }
 
-            new internal class Marker : mode.MarkerGroup.Marker
+            new public class Marker : mode.MarkerGroup.Marker
             {
-                internal Marker(CacheFile Cache)
+                public Marker(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -394,9 +394,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        new internal class Shader : mode.Shader
+        new public class Shader : mode.Shader
         {
-            internal Shader(CacheFile Cache, int Address)
+            public Shader(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -407,7 +407,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        new internal class ModelSection : mode.ModelSection
+        new public class ModelSection : mode.ModelSection
         {
             public int vertcount;
             public int facecount;
@@ -423,7 +423,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             public int type;
             public int bones;
 
-            internal ModelSection(CacheFile Cache, int Address)
+            public ModelSection(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -460,9 +460,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        new internal class BoundingBox : mode.BoundingBox
+        new public class BoundingBox : mode.BoundingBox
         {
-            internal BoundingBox(CacheFile Cache, int Address)
+            public BoundingBox(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);

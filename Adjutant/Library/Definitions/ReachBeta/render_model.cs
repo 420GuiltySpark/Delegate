@@ -10,9 +10,9 @@ using mode = Adjutant.Library.Definitions.render_model;
 
 namespace Adjutant.Library.Definitions.ReachBeta
 {
-    internal class render_model : mode
+    public class render_model : mode
     {
-        internal render_model(CacheFile Cache, int Offset)
+        public render_model(CacheFile Cache, int Offset)
         {
             cache = Cache;
             EndianReader Reader = Cache.Reader;
@@ -127,9 +127,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.BaseStream.Position += 360; //600
         }
 
-        new internal class Region : mode.Region
+        new public class Region : mode.Region
         {
-            internal Region(CacheFile Cache)
+            public Region(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -145,9 +145,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 Reader.BaseStream.Position = temp + 12;
             }
 
-            new internal class Permutation : mode.Region.Permutation
+            new public class Permutation : mode.Region.Permutation
             {
-                internal Permutation(CacheFile Cache)
+                public Permutation(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -160,9 +160,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             }
         }
 
-        new internal class InstancedGeometry : mode.InstancedGeometry
+        new public class InstancedGeometry : mode.InstancedGeometry
         {
-            internal InstancedGeometry(CacheFile Cache)
+            public InstancedGeometry(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -191,9 +191,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             }
         }
 
-        new internal class Node : mode.Node
+        new public class Node : mode.Node
         {
-            internal Node(CacheFile Cache)
+            public Node(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -236,9 +236,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             }
         }
 
-        new internal class MarkerGroup : mode.MarkerGroup
+        new public class MarkerGroup : mode.MarkerGroup
         {
-            internal MarkerGroup(CacheFile Cache)
+            public MarkerGroup(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -254,9 +254,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 Reader.BaseStream.Position = temp + 12;
             }
 
-            new internal class Marker : mode.MarkerGroup.Marker
+            new public class Marker : mode.MarkerGroup.Marker
             {
-                internal Marker(CacheFile Cache)
+                public Marker(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -280,9 +280,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             }
         }
 
-        new internal class Shader : mode.Shader
+        new public class Shader : mode.Shader
         {
-            internal Shader(CacheFile Cache)
+            public Shader(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -294,9 +294,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             }
         }
 
-        new internal class ModelSection : mode.ModelSection
+        new public class ModelSection : mode.ModelSection
         {
-            internal ModelSection(CacheFile Cache, int Address)
+            public ModelSection(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -345,9 +345,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 #endregion
             }
 
-            new internal class Submesh : mode.ModelSection.Submesh
+            new public class Submesh : mode.ModelSection.Submesh
             {
-                internal Submesh(CacheFile Cache)
+                public Submesh(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -364,9 +364,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 }
             }
 
-            new internal class Subset : mode.ModelSection.Subset
+            new public class Subset : mode.ModelSection.Subset
             {
-                internal Subset(CacheFile Cache)
+                public Subset(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -379,9 +379,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             }
         }
 
-        new internal class BoundingBox : mode.BoundingBox
+        new public class BoundingBox : mode.BoundingBox
         {
-            internal BoundingBox(CacheFile Cache, int Address)
+            public BoundingBox(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -395,9 +395,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             }
         }
 
-        new internal class NodeIndexGroup : mode.NodeIndexGroup
+        new public class NodeIndexGroup : mode.NodeIndexGroup
         {
-            internal NodeIndexGroup(CacheFile Cache)
+            public NodeIndexGroup(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -411,9 +411,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 Reader.BaseStream.Position = temp + 12;
             }
 
-            new internal class NodeIndex : mode.NodeIndexGroup.NodeIndex
+            new public class NodeIndex : mode.NodeIndexGroup.NodeIndex
             {
-                internal NodeIndex(CacheFile Cache)
+                public NodeIndex(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 

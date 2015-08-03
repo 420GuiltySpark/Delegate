@@ -9,12 +9,12 @@ using rmsh = Adjutant.Library.Definitions.shader;
 
 namespace Adjutant.Library.Definitions.Halo2Xbox
 {
-    internal class shader : rmsh
+    public class shader : rmsh
     {
         public int Type;
         public int[] BitmIDs;
 
-        internal shader(CacheFile Cache, int Address)
+        public shader(CacheFile Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -55,9 +55,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         }
 
-        new internal class ShaderProperties : rmsh.ShaderProperties
+        new public class ShaderProperties : rmsh.ShaderProperties
         {
-            internal ShaderProperties(CacheFile Cache, int Address)
+            public ShaderProperties(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -74,9 +74,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 #endregion
             }
 
-            new internal class ShaderMap : rmsh.ShaderProperties.ShaderMap
+            new public class ShaderMap : rmsh.ShaderProperties.ShaderMap
             {
-                internal ShaderMap(CacheFile Cache, int Address)
+                public ShaderMap(CacheFile Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);
@@ -90,9 +90,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 }
             }
 
-            new internal class Tiling : rmsh.ShaderProperties.Tiling
+            new public class Tiling : rmsh.ShaderProperties.Tiling
             {
-                internal Tiling(CacheFile Cache, int Address)
+                public Tiling(CacheFile Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);

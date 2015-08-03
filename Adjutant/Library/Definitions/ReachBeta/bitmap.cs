@@ -10,9 +10,9 @@ using bitm = Adjutant.Library.Definitions.bitmap;
 
 namespace Adjutant.Library.Definitions.ReachBeta
 {
-    internal class bitmap : bitm
+    public class bitmap : bitm
     {
-        internal bitmap(CacheFile Cache, int Offset)
+        public bitmap(CacheFile Cache, int Offset)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Offset);
@@ -66,9 +66,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             #endregion
         }
 
-        new internal class Sequence : bitm.Sequence
+        new public class Sequence : bitm.Sequence
         {
-            internal Sequence(CacheFile Cache)
+            public Sequence(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
                 Name = Reader.ReadNullTerminatedString(32);
@@ -89,9 +89,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 #endregion
             }
 
-            new internal class Sprite : bitm.Sequence.Sprite
+            new public class Sprite : bitm.Sequence.Sprite
             {
-                internal Sprite(CacheFile Cache)
+                public Sprite(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -108,9 +108,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
             }
         }
 
-        new internal class BitmapData : bitm.BitmapData
+        new public class BitmapData : bitm.BitmapData
         {
-            internal BitmapData(CacheFile Cache)
+            public BitmapData(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -140,18 +140,18 @@ namespace Adjutant.Library.Definitions.ReachBeta
             }
         }
 
-        new internal class RawChunkA : bitm.RawChunkA
+        new public class RawChunkA : bitm.RawChunkA
         {
-            internal RawChunkA(CacheFile Cache)
+            public RawChunkA(CacheFile Cache)
             {
                 RawID = Cache.Reader.ReadInt32();
                 Cache.Reader.ReadInt32();
             }
         }
 
-        new internal class RawChunkB : bitm.RawChunkB
+        new public class RawChunkB : bitm.RawChunkB
         {
-            internal RawChunkB(CacheFile Cache)
+            public RawChunkB(CacheFile Cache)
             {
                 RawID = Cache.Reader.ReadInt32();
                 Cache.Reader.ReadInt32();

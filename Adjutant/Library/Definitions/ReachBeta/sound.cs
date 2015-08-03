@@ -12,9 +12,9 @@ using snd_ = Adjutant.Library.Definitions.sound;
 namespace Adjutant.Library.Definitions.ReachBeta
 {
     //TODO: finish this
-    internal class sound : snd_
+    public class sound : snd_
     {
-        internal sound(CacheFile Cache)
+        public sound(CacheFile Cache)
         {
             EndianReader Reader = Cache.Reader;
 

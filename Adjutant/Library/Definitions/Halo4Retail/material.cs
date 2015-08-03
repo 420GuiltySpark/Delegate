@@ -9,9 +9,9 @@ using rmsh = Adjutant.Library.Definitions.shader;
 
 namespace Adjutant.Library.Definitions.Halo4Retail
 {
-    internal class material : rmsh
+    public class material : rmsh
     {
-        internal material(CacheFile Cache)
+        public material(CacheFile Cache)
         {
             EndianReader Reader = Cache.Reader;
 
@@ -35,9 +35,9 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             Reader.BaseStream.Position += 28; //68
         }
 
-        new internal class ShaderProperties : rmsh.ShaderProperties
+        new public class ShaderProperties : rmsh.ShaderProperties
         {
-            internal ShaderProperties(CacheFile Cache)
+            public ShaderProperties(CacheFile Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -66,9 +66,9 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 Reader.BaseStream.Position += 136; //140
             }
 
-            new internal class ShaderMap : rmsh.ShaderProperties.ShaderMap
+            new public class ShaderMap : rmsh.ShaderProperties.ShaderMap
             {
-                internal ShaderMap(CacheFile Cache)
+                public ShaderMap(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -87,9 +87,9 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 }
             }
 
-            new internal class Tiling : rmsh.ShaderProperties.Tiling
+            new public class Tiling : rmsh.ShaderProperties.Tiling
             {
-                internal Tiling(CacheFile Cache)
+                public Tiling(CacheFile Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 

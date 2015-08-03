@@ -14,9 +14,9 @@ using mode = Adjutant.Library.Definitions.render_model;
 
 namespace Adjutant.Library.Definitions.Halo2Xbox
 {
-    internal class scenario_structure_bsp : sbsp
+    public class scenario_structure_bsp : sbsp
     {
-        internal scenario_structure_bsp(CacheFile Cache, CacheFile.IndexItem Tag)
+        public scenario_structure_bsp(CacheFile Cache, CacheFile.IndexItem Tag)
         {
             cache = Cache;
             int Address = Tag.Offset;
@@ -308,9 +308,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             sbsp.RawLoaded = true;
         }
 
-        new internal class Cluster : sbsp.Cluster
+        new public class Cluster : sbsp.Cluster
         {
-            internal Cluster()
+            public Cluster()
             {
                 XBounds = new RealBounds();
                 YBounds = new RealBounds();
@@ -318,9 +318,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        new internal class Shader : sbsp.Shader
+        new public class Shader : sbsp.Shader
         {
-            internal Shader(CacheFile Cache, int Address)
+            public Shader(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -331,7 +331,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        internal class ModelSection : mode.ModelSection
+        public class ModelSection : mode.ModelSection
         {
             public int vertcount;
             public int facecount;
@@ -344,7 +344,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             public int[] rOffset;
             public int[] rType;
 
-            internal ModelSection(CacheFile Cache, CacheFile.IndexItem Tag, int Address, List<mode.BoundingBox> bounds)
+            public ModelSection(CacheFile Cache, CacheFile.IndexItem Tag, int Address, List<mode.BoundingBox> bounds)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -396,9 +396,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        internal class BoundingBox : mode.BoundingBox
+        public class BoundingBox : mode.BoundingBox
         {
-            internal BoundingBox(CacheFile Cache, int Address)
+            public BoundingBox(CacheFile Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -411,9 +411,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
         }
 
-        new internal class InstancedGeometry : sbsp.InstancedGeometry
+        new public class InstancedGeometry : sbsp.InstancedGeometry
         {
-            internal InstancedGeometry(CacheFile Cache, int Address, int modifier)
+            public InstancedGeometry(CacheFile Cache, int Address, int modifier)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);

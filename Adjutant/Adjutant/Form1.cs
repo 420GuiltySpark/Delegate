@@ -481,7 +481,7 @@ namespace Adjutant
                 if (userReq)
                     this.Invoke((MethodInvoker)delegate
                     {
-                        MessageBox.Show(this, "There was an error checking for updates.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(this, "There was an error checking for updates.\n\r" + ex.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     });
             }
         }

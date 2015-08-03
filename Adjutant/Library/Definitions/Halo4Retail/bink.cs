@@ -9,9 +9,9 @@ using bik = Adjutant.Library.Definitions.bink;
 
 namespace Adjutant.Library.Definitions.Halo4Retail
 {
-    internal class bink : bik
+    public class bink : bik
     {
-        internal bink(CacheFile Cache, int Address)
+        public bink(CacheFile Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
