@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Adjutant.Library.Endian;
 using Adjutant.Library.DataTypes;
+using Adjutant.Library;
+using Adjutant.Library.S3D;
+using Adjutant.Library.Endian;
 using Adjutant.Library.Definitions;
-using System.IO;
+using Adjutant.Library.Controls;
 
 namespace Adjutant.Library.S3D
 {
@@ -54,13 +56,13 @@ namespace Adjutant.Library.S3D
                 reader.SeekTo(Item.Offset + PreMatricesAddress);
                 reader.Skip(8);
                 reader.SeekTo(Item.Offset + reader.ReadInt32());
-               
+
                 reader.ReadInt16(); //E602
                 reader.SeekTo(Item.Offset + reader.ReadInt32());
-                
+
                 reader.ReadInt16(); //0100
                 reader.SeekTo(Item.Offset + reader.ReadInt32());
-                
+
                 if (reader.ReadInt16() == 541) //1D02
                     reader.SeekTo(Item.Offset + reader.ReadInt32());
                 else //BA01
@@ -71,13 +73,13 @@ namespace Adjutant.Library.S3D
                     reader.ReadInt16(); //1103
                     reader.SeekTo(Item.Offset + reader.ReadInt32());
                 }
-                
+
                 reader.ReadInt16(); //0403
                 reader.SeekTo(Item.Offset + reader.ReadInt32());
-                
-                if(reader.ReadInt16() == 773) //0503
+
+                if (reader.ReadInt16() == 773) //0503
                     reader.SeekTo(Item.Offset + reader.ReadInt32() + 2);
-                
+
                 reader.Skip(8);
                 var min = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
                 var max = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
@@ -89,20 +91,18 @@ namespace Adjutant.Library.S3D
                 RenderBounds.UBounds = new RealBounds(0f, 0f);
                 RenderBounds.VBounds = new RealBounds(0f, 0f);
             }
-            catch {
-                int x = 0;
+            catch { }
+        }
+
+        public override void Parse()
+        {
+            foreach (var obj in Objects)
+            {
+                if (obj.VertCount > 0)
+                    ModelFunctions.DecompressVertex(ref obj.Vertices, obj.BoundingBox);
             }
 
-            //for (int i = 0; i < Objects.Count; i++)
-            //{
-            //    var obj = Objects[i];
-            //    if (obj.VertCount == 0) continue;
-            //    if (obj.BoundingBox.Length == 0)
-            //    {
-            //        for (int j = 0; j < obj.VertCount; j++)
-            //            Controls.ModelFunctions.DecompressVertex(ref obj.Vertices[j], unkBounds0);
-            //    }
-            //}
+            isParsed = true;
         }
     }
 }

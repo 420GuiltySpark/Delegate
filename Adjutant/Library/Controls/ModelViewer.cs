@@ -426,7 +426,7 @@ namespace Adjutant.Library.Controls
             item = Item;
 
             atpl = new S3DATPL(pak, item);
-            atpl.ParseTPL();
+            atpl.Parse();
 
             isWorking = true;
 
@@ -601,7 +601,7 @@ namespace Adjutant.Library.Controls
                 int xx = atpl.Objects.IndexOf(obj);
 
                 Matrix3D mat0 = ModelFunctions.MatrixFromBounds(obj.BoundingBox);
-                Matrix3D mat1 = obj.unkMatrix0;
+                Matrix3D mat1 = obj.Transform;
 
                 Matrix3D pMat = atpl.HierarchialTransformUp(obj);
 
@@ -609,72 +609,6 @@ namespace Adjutant.Library.Controls
                 var mat3 = new Matrix3D(100, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 100, 0, 0, 0, 1);
 
                 int id = obj.ParentID;
-
-                //if (obj.Name.Contains("nd_2"))
-                //{
-                //    mat0 = ModelFunctions.MatrixFromBounds(atpl.ObjectByID(44).BoundingBox);
-                //    mat1 = atpl.ObjectByID(44).unkMatrix0;
-                //    id = atpl.ObjectByID(44).ParentID;
-                //}
-
-                //while (id != -1)
-                //{
-                //    mat1 *= atpl.ObjectByID(id).unkMatrix0;
-                //    id = atpl.ObjectByID(id).ParentID;
-                //}
-
-                #region crap
-                //if (obj.Name.Contains("ound_1")) //.ls_glass.y (7)
-                //{
-                //    var min = new RealQuat(-43.963200f, -0.181524f, -35.303100f);
-                //    var max = new RealQuat(26.503230f, 10.720170f, 35.303100f);
-                //    mat0 = ModelFunctions.MatrixFromBounds(min, max);
-                //}
-
-                //if (obj.Name.Contains("ound_2"))
-                //{
-                //    //var min = new RealQuat(0.217994f, -2.37324f, -2.18598f);
-                //    //var max = new RealQuat(24.95f, 7.93335f, 2.17801f);
-                //    var min = new RealQuat(14.562100f, 5.023550f, -3.701670f);
-                //    var max = new RealQuat(25.516300f, 7.912340f, 3.701670f);
-                //    mat0 = ModelFunctions.MatrixFromBounds(min, max);
-                //}
-
-                //if (obj.Name.Contains("ound_3"))
-                //{
-                //    //var min = new RealQuat(1.79153f, 2.70626f, -2.18598f);
-                //    //var max = new RealQuat(16.6296f, 7.93335f, 2.17801f);
-                //    var min = new RealQuat(14.562100f, 5.023550f, -3.701670f);
-                //    var max = new RealQuat(25.516300f, 7.912340f, 3.701670f);
-                //    mat0 = ModelFunctions.MatrixFromBounds(min, max);
-                //}
-
-                //if (obj.Name.Contains("ound_4"))
-                //{
-                //    //var min = new RealQuat(-1.42619f, -2.352f, -3.69164f);
-                //    //var max = new RealQuat(25.5065f, 7.91415f, 3.69164f);
-                //    var min = new RealQuat(14.562100f, 5.023550f, -3.701670f);
-                //    var max = new RealQuat(25.516300f, 7.912340f, 3.701670f);
-                //    mat0 = ModelFunctions.MatrixFromBounds(min, max);
-                //}
-
-                //if (obj.Name.Contains("ound_5"))
-                //{
-                //    //var min = new RealQuat(13.5623f, 3.93286f, -6.79748f);
-                //    //var max = new RealQuat(26.4933f, 8.84179f, 6.79748f);
-                //    var min = new RealQuat(14.562100f, 5.023550f, -3.701670f);
-                //    var max = new RealQuat(25.516300f, 7.912340f, 3.701670f);
-                //    mat0 = ModelFunctions.MatrixFromBounds(min, max);
-                //}
-
-                //if (obj.Name.Contains("ound_6")) //.polySurface8.a (8)
-                //{
-                //    var min = new RealQuat(14.562100f, 5.023550f, -3.701670f);
-                //    var max = new RealQuat(25.516300f, 7.912340f, 3.701670f);
-                //    mat0 = ModelFunctions.MatrixFromBounds(min, max);
-                //}
-                #endregion
-
                 var mGroup = new Transform3DGroup();
                 mGroup.Children.Add(new MatrixTransform3D(pMat * mat2));
                 group.Transform = mGroup;

@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Adjutant.Library.Endian;
 using Adjutant.Library.DataTypes;
+using Adjutant.Library;
+using Adjutant.Library.S3D;
+using Adjutant.Library.Endian;
 using Adjutant.Library.Definitions;
-using System.IO;
+using Adjutant.Library.Controls;
 
 namespace Adjutant.Library.S3D
 {
@@ -78,6 +80,45 @@ namespace Adjutant.Library.S3D
                 if (obj.isInheritor)
                     Objects[obj.inheritIndex].isInherited = true;
             var pos = reader.Position - Item.Offset;
+        }
+
+        public override void Parse()
+        {
+            foreach (var obj in Objects)
+            {
+                if (!obj.isInheritor && !obj.isInherited && obj.Vertices != null && obj.BoundingBox != null)
+                    ModelFunctions.DecompressVertex(ref obj.Vertices, obj.BoundingBox);
+            }
+
+            foreach (var obj in Objects)
+            {
+                if (obj.isInheritor && obj.Submeshes.Count > 0)
+                {
+                    var pObj = ObjectByID(obj.inheritIndex);
+                    int maxVert = 0;
+                    int maxIndx = 0;
+
+                    foreach (var sub in obj.Submeshes)
+                    {
+                        maxVert = Math.Max(maxVert, sub.VertStart + obj.vertOffset + sub.VertLength);
+                        maxIndx = Math.Max(maxIndx, sub.FaceStart + obj.faceOffset + sub.FaceLength);
+                    }
+
+                    int vLength = maxVert - obj.vertOffset;
+                    int fLength = (maxIndx - obj.faceOffset) * 3;
+
+                    obj.Vertices = new Vertex[vLength];
+                    obj.Indices = new int[fLength];
+
+                    Array.Copy(pObj.Vertices, obj.vertOffset, obj.Vertices, 0, vLength);
+                    Array.Copy(pObj.Indices, obj.faceOffset * 3, obj.Indices, 0, fLength);
+
+                    //if (obj.Vertices != null && obj.BoundingBox != null)
+                    //    ModelFunctions.DecompressVertex(ref obj.Vertices, obj.BoundingBox);
+                }
+            }
+
+            isParsed = true;
         }
     }
 }

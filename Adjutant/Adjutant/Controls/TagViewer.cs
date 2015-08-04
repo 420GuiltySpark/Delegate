@@ -24,6 +24,7 @@ namespace Adjutant.Controls
         private Extractor output;
         private S3DPak pak;
         private S3DPak.PakItem item;
+
         private MetaViewer vMeta;
         private BitmapExtractor eBitm;
         private ModelExtractor eMode;
@@ -33,6 +34,8 @@ namespace Adjutant.Controls
         private ModelViewer vMode;
         private BSPViewer vSbsp;
         private BSPExtractor eSbsp;
+        private S3DExplorer vS3D;
+
         private TabPage tabMeta, tabRaw, tabModel;
         private bool metaLoaded, rawLoaded, modelLoaded;
         #endregion
@@ -50,6 +53,7 @@ namespace Adjutant.Controls
             eSnd4 = new SoundExtractorH4();
             vUnic = new StringsViewer();
             eSbsp = new BSPExtractor();
+            vS3D = new S3DExplorer();
 
             eBitm.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
             eMode.TagExtracted += new TagExtractedEventHandler(extractor_TagExtracted);
@@ -314,7 +318,10 @@ namespace Adjutant.Controls
         public void LoadPakItem(S3DPak Pak, S3DPak.PakItem Item)
         {
             tabMeta.Controls.Clear();
-            tabControl1.TabPages.Remove(tabMeta);
+            tabMeta.Controls.Add(vS3D);
+            vS3D.Dock = DockStyle.Fill;
+
+            //tabControl1.TabPages.Remove(tabMeta);
             if (vMode == null)
             {
                 vMode = new ModelViewer();      //this cant go in the constructor because the
@@ -387,11 +394,12 @@ namespace Adjutant.Controls
                     //tabModel.Controls.Add(vMode);
                     //vMode.Dock = DockStyle.Fill;
 
-                    //if (tabControl1.SelectedTab == tabMeta)
-                    //{
-                    //    vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
-                    //    metaLoaded = true;
-                    //}
+                    if (tabControl1.SelectedTab == tabMeta)
+                    {
+                        //vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
+                        vS3D.LoadModelHierarchy(pak, item, false);
+                        metaLoaded = true;
+                    }
                     //else if (tabControl1.SelectedTab == tabRaw)
                     //{
                     //    eMode.DataFolder = settings.dataFolder;
@@ -399,7 +407,7 @@ namespace Adjutant.Controls
                     //    eMode.LoadModelTag(cache, tag);
                     //    rawLoaded = true;
                     //}
-                    if (tabControl1.SelectedTab == tabModel)
+                    else if (tabControl1.SelectedTab == tabModel)
                     {
                         //vMode.RenderBackColor = settings.ViewerColour;
                         vMode.PermutationFilter = new List<string>(settings.permFilter.Split(' '));
@@ -427,11 +435,12 @@ namespace Adjutant.Controls
                     //tabModel.Controls.Add(vSbsp);
                     //vSbsp.Dock = DockStyle.Fill;
 
-                    //if (tabControl1.SelectedTab == tabMeta)
-                    //{
-                    //    vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
-                    //    metaLoaded = true;
-                    //}
+                    if (tabControl1.SelectedTab == tabMeta)
+                    {
+                        //vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
+                        vS3D.LoadModelHierarchy(pak, item, true);
+                        metaLoaded = true;
+                    }
                     //else if (tabControl1.SelectedTab == tabRaw)
                     //{
                     //    eMode.DataFolder = settings.dataFolder;
@@ -478,7 +487,8 @@ namespace Adjutant.Controls
             {
                 if (!metaLoaded)
                 {
-                    vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
+                    if (cache == null) vS3D.LoadModelHierarchy(pak, item, (item.Type == PakType.BSP));
+                    else vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
                     metaLoaded = true;
                 }
             }
@@ -487,6 +497,8 @@ namespace Adjutant.Controls
             #region Raw Tab
             else if (tabControl1.SelectedTab == tabRaw)
             {
+                if (cache == null && !rawLoaded) { eBitm.LoadBitmapTag(pak, item); rawLoaded = true; return; }
+
                 switch (tag.ClassCode)
                 {
                     case "bitm":
@@ -542,6 +554,28 @@ namespace Adjutant.Controls
             #region Model Viewer Tab
             else if (tabControl1.SelectedTab == tabModel)
             {
+                if (cache == null)
+                {
+                    if (modelLoaded) return;
+
+                    switch (item.Type)
+                    {
+                        case PakType.Models:
+                            vSbsp.Visible = false;
+                            vMode.Visible = true;
+                            vMode.LoadModelTag(pak, item, false, settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
+                            modelLoaded = true;
+                            break;
+                        case PakType.BSP:
+                            vMode.Visible = false;
+                            vSbsp.Visible = true;
+                            vSbsp.LoadBSPTag(pak, item, settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
+                            modelLoaded = true;
+                            break;
+                    }
+                    return; 
+                }
+
                 switch(tag.ClassCode)
                 {
                     case "mode":

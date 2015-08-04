@@ -468,7 +468,7 @@ namespace Adjutant.Library.Controls
             item = Item;
 
             atpl = new S3DBSP(pak, item);
-            atpl.ParseBSP();
+            atpl.Parse();
 
             var tObj = atpl.Objects[0];
             foreach (var obj in atpl.Objects)
@@ -714,8 +714,8 @@ namespace Adjutant.Library.Controls
                 Matrix3D mat1 = (obj.isInheritor) ? ModelFunctions.MatrixFromBounds(atpl.ObjectByID(obj.inheritIndex).BoundingBox) : Matrix3D.Identity;
                 Matrix3D mat2 = ModelFunctions.MatrixFromBounds(atpl.RenderBounds);
 
-                Matrix3D mat5 = obj.unkMatrix0;
-                Matrix3D mat6 = (obj.isInheritor) ? atpl.ObjectByID(obj.inheritIndex).unkMatrix0 : Matrix3D.Identity;
+                Matrix3D mat5 = obj.Transform;
+                Matrix3D mat6 = (obj.isInheritor) ? atpl.ObjectByID(obj.inheritIndex).Transform : Matrix3D.Identity;
 
                 //if (!mat5.IsIdentity || !mat6.IsIdentity)
                 //    mat5 = mat5;

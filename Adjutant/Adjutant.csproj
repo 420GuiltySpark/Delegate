@@ -117,6 +117,12 @@
     <Compile Include="Library\Controls\BSPExtractor.Designer.cs">
       <DependentUpon>BSPExtractor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Library\Controls\S3DExplorer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Library\Controls\S3DExplorer.Designer.cs">
+      <DependentUpon>S3DExplorer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Library\Controls\SoundExtractorH4.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -402,6 +408,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Library\Controls\BSPExtractor.resx">
       <DependentUpon>BSPExtractor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Library\Controls\S3DExplorer.resx">
+      <DependentUpon>S3DExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Library\Controls\SoundExtractorH4.resx">
       <DependentUpon>SoundExtractorH4.cs</DependentUpon>
