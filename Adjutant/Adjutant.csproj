@@ -380,6 +380,7 @@
     <Compile Include="Library\S3D\S3DBSP.cs" />
     <Compile Include="Library\S3D\Enums.cs" />
     <Compile Include="Library\S3D\S3DATPL.cs" />
+    <Compile Include="Library\S3D\S3DDATA.cs" />
     <Compile Include="Library\S3D\S3DModelBase.cs" />
     <Compile Include="Library\S3D\S3DPak.cs" />
     <Compile Include="Library\S3D\S3DPICT.cs" />
@@ -496,6 +497,8 @@
   <ItemGroup>
     <Content Include="Library\DataTypes\Float16\README.txt" />
     <Content Include="Library\Definitions\Composer\README.txt" />
+    <Content Include="Library\S3D\26_cdt.txt" />
+    <Content Include="Library\S3D\01_data.txt" />
     <Content Include="Plugins\Halo2\adlg.xml" />
     <Content Include="Plugins\Halo2\ant!.xml" />
     <Content Include="Plugins\Halo2\bipd.xml" />
@@ -1503,7 +1506,9 @@
     <Content Include="Plugins\Reach\wxcg.xml" />
     <Content Include="Plugins\Reach\zone.xml" />
     <Content Include="Plugins\Reach\____.xml" />
-    <Content Include="Resources\VertexBuffer.xml" />
+    <Content Include="Resources\VertexBuffer.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Resources\Adjutant Help.chm" />
     <None Include="Resources\AMF2.ms" />
     <None Include="Resources\Versions.xml" />

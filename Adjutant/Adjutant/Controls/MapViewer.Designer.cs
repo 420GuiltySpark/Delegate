@@ -58,6 +58,7 @@
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
@@ -69,6 +70,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.extractor1);
+            this.splitContainer1.Panel2MinSize = 110;
             this.splitContainer1.Size = new System.Drawing.Size(1341, 658);
             this.splitContainer1.SplitterDistance = 544;
             this.splitContainer1.TabIndex = 1;
@@ -76,6 +78,7 @@
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer2.Location = new System.Drawing.Point(0, 0);
             this.splitContainer2.Name = "splitContainer2";
             // 
@@ -83,8 +86,9 @@
             // 
             this.splitContainer2.Panel1.Controls.Add(this.tvTags);
             this.splitContainer2.Panel1.Controls.Add(this.panel1);
+            this.splitContainer2.Panel1MinSize = 250;
             this.splitContainer2.Size = new System.Drawing.Size(1341, 544);
-            this.splitContainer2.SplitterDistance = 415;
+            this.splitContainer2.SplitterDistance = 400;
             this.splitContainer2.TabIndex = 0;
             // 
             // tvTags
@@ -98,7 +102,7 @@
             this.tvTags.Location = new System.Drawing.Point(0, 0);
             this.tvTags.Name = "tvTags";
             this.tvTags.SelectedImageIndex = 0;
-            this.tvTags.Size = new System.Drawing.Size(415, 523);
+            this.tvTags.Size = new System.Drawing.Size(400, 523);
             this.tvTags.TabIndex = 1;
             this.tvTags.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvTags_AfterSelect);
             this.tvTags.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvTags_NodeMouseClick);
@@ -113,7 +117,7 @@
             this.copyToolStripMenuItem,
             this.refreshToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(157, 158);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(157, 136);
             // 
             // extractSelectedToolStripMenuItem
             // 
@@ -173,7 +177,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 523);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(415, 21);
+            this.panel1.Size = new System.Drawing.Size(400, 21);
             this.panel1.TabIndex = 2;
             // 
             // txtSearch

@@ -450,10 +450,6 @@ namespace Adjutant.Library.Controls
             isWorking = false;
 
             LoadS3DShaders(Specular);
-            //var matGroup = new MaterialGroup();
-            //matGroup.Children.Add(GetErrorMaterial());
-            //shaders.Add(matGroup);
-
             LoadS3DMeshes(Force);
 
             #region BoundingBox Stuff
@@ -544,15 +540,6 @@ namespace Adjutant.Library.Controls
                         continue;
                     }
 
-                    //int tileIndex = rmsh.Properties[0].ShaderMaps[mapIndex].TilingIndex;
-                    //float uTiling;
-                    //try { uTiling = rmsh.Properties[0].Tilings[tileIndex].UTiling; }
-                    //catch { uTiling = 1; }
-
-                    //float vTiling;
-                    //try { vTiling = rmsh.Properties[0].Tilings[tileIndex].VTiling; }
-                    //catch { vTiling = 1; }
-
                     float uTiling = 1, vTiling = 1;
 
                     MemoryStream stream = new MemoryStream();
@@ -561,7 +548,7 @@ namespace Adjutant.Library.Controls
                     var diffuse = new BitmapImage();
 
                     diffuse.BeginInit();
-                    diffuse.StreamSource = stream; //new MemoryStream(stream.ToArray());
+                    diffuse.StreamSource = stream;
                     diffuse.EndInit();
 
                     matGroup.Children.Add(new DiffuseMaterial()
@@ -617,7 +604,7 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        private void AddS3DMesh(Model3DGroup group, S3DModelBase.S3DObject obj, S3DModelBase.S3DObject.Submesh submesh, bool force)
+        private void AddS3DMesh(Model3DGroup group, S3DObject obj, S3DObject.Submesh submesh, bool force)
         {
             try
             {
@@ -625,37 +612,6 @@ namespace Adjutant.Library.Controls
 
                 int[] indcs = obj.Indices;
                 Vertex[] vrtcs = obj.Vertices;
-
-                //if (submesh.MeshInheritID > -1 && submesh.Inherits)
-                //{
-                //    //var obj1 = atpl.Objects[submesh.MeshInheritID];
-                //    var obj1 = atpl.ObjectByID(submesh.MeshInheritID);
-                //    indcs = obj1.Indices;
-                //    vrtcs = obj1.Vertices;
-
-                //    if (obj.Name.Contains("face8"))
-                //        obj.Name = obj.Name;
-
-                //    foreach (var sub in obj1.Submeshes)
-                //    {
-                //        if (sub.MeshInheritID == obj.ID + 1)
-                //        {
-                //            //submesh = sub;
-                //            submesh.FaceStart = sub.FaceStart;
-                //            submesh.FaceLength = sub.FaceLength;
-                //            submesh.VertStart = sub.VertStart;
-                //            submesh.VertLength = sub.VertLength;
-                //            submesh.MaterialIndex = sub.MaterialIndex;
-                //            //break;
-                //        }
-                //    }
-
-                //    //submesh.FaceStart = 0;
-                //    //submesh.FaceLength = indcs.Length / 3;
-                //    //submesh.VertStart = 0;
-                //    //submesh.VertLength = vrtcs.Length;
-                //    //submesh.MaterialIndex = atpl.Objects[submesh.MeshInheritID].Submeshes[0].MaterialIndex;
-                //}
 
                 var iList = ModelFunctions.GetTriangleList(indcs, submesh.FaceStart * 3, submesh.FaceLength * 3, 3);
 
@@ -667,31 +623,6 @@ namespace Adjutant.Library.Controls
 
                 var vArray = new Vertex[(max - min) + 1];
                 Array.Copy(ModelFunctions.DeepClone(vrtcs), min, vArray, 0, (max - min) + 1);
-
-                //if (submesh.MeshInheritID > -1 && obj.BoundingBox.Length == 0)
-                //{
-                //    var id = (submesh.unk1 == -1) ? submesh.MeshInheritID : submesh.MeshInheritID;
-
-                //    //if (obj.Name.Contains("ound_2")) id = 7;
-                //    //if (obj.Name.Contains("ound_4")) id = 8;
-
-                //    var obj1 = atpl.ObjectByID(id);
-
-                //    var mat = ModelFunctions.MatrixFromBounds(obj1.BoundingBox);
-                //    var mat2 = new DataTypes.Matrix(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0);
-                //    //if (submesh.unk1 != -1) mat *= atpl.ObjectByID(submesh.unk1).unkMatrix0;
-                //    //if (obj.Name.Contains("ound_2")) 
-                //    //  mat *= obj1.unkMatrix0;
-                //    mat *= mat2;
-
-
-                //    for (int i = 0; i < vArray.Length; i++)
-                //    {
-                //        VertexValue vv;
-                //        vArray[i].TryGetValue("position", 0, out vv);
-                //        vv.Data.Point3DTransform(mat);
-                //    }
-                //}
 
                 foreach (var vertex in vArray)
                 {
@@ -742,7 +673,7 @@ namespace Adjutant.Library.Controls
                     }
                     else //atpl
                     {
-                        var obj = child.Tag as S3DModelBase.S3DObject;
+                        var obj = child.Tag as S3DObject;
                         if (atplDic.TryGetValue(atpl.Objects.IndexOf(obj), out mesh))
                             group.Children.Add(mesh);
                     }
@@ -904,7 +835,7 @@ namespace Adjutant.Library.Controls
                 {
                     if (!child.Checked) continue;
                     if (cache != null) parts.Add((child.Tag as render_model.Region.Permutation).PieceIndex);
-                    else parts.Add(atpl.Objects.IndexOf(child.Tag as S3DModelBase.S3DObject));
+                    else parts.Add(atpl.Objects.IndexOf(child.Tag as S3DObject));
                 }
             }
 

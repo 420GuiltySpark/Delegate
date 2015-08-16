@@ -460,6 +460,8 @@ namespace Adjutant.Controls
                 default:
                     tabControl1.TabPages.Remove(tabModel);
                     tabControl1.TabPages.Remove(tabRaw);
+
+                    if (item.unk0 == 1) vS3D.displayDataInfo(new S3DDATA(pak, item), item.Offset);
                     break;
                 #endregion
             }

@@ -24,8 +24,8 @@ namespace Adjutant.Library.Controls
 {
     public partial class BSPViewer : UserControl
     {
-        int mscale = 2;
-        int pscale = 4;
+        int mscale = 2; //texture scaling for maps [1 / scale]
+        int pscale = 4; //texture scaling for paks [1 / scale]
 
         #region Init
         private CacheFile cache;
@@ -627,8 +627,8 @@ namespace Adjutant.Library.Controls
             shaders.Add(matGroup);
             if (atpl.Materials.Count == 0) return;
 
-            //var sPak = new S3DPak(pak.FilePath + "\\" + "pak_stream_decompressed.s3dpak");
-            var sPak = pak;
+            var sPak = new S3DPak(pak.FilePath + "\\" + "pak_stream_decompressed.s3dpak");
+            //var sPak = pak;
             foreach (var mat in atpl.Materials)
             {
                 if (!indices.Contains(atpl.Materials.IndexOf(mat)))
@@ -651,15 +651,6 @@ namespace Adjutant.Library.Controls
                         shaders.Add(matGroup);
                         continue;
                     }
-
-                    //int tileIndex = rmsh.Properties[0].ShaderMaps[mapIndex].TilingIndex;
-                    //float uTiling;
-                    //try { uTiling = rmsh.Properties[0].Tilings[tileIndex].UTiling; }
-                    //catch { uTiling = 1; }
-
-                    //float vTiling;
-                    //try { vTiling = rmsh.Properties[0].Tilings[tileIndex].VTiling; }
-                    //catch { vTiling = 1; }
 
                     float uTiling = 1, vTiling = 1;
 
@@ -747,7 +738,7 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        private void AddS3DMesh(Model3DGroup group, S3DModelBase.S3DObject obj, S3DModelBase.S3DObject.Submesh submesh, bool force)
+        private void AddS3DMesh(Model3DGroup group, S3DObject obj, S3DObject.Submesh submesh, bool force)
         {
             try
             {
@@ -780,7 +771,7 @@ namespace Adjutant.Library.Controls
 
                 GeometryModel3D modeld = new GeometryModel3D(geom, shaders[submesh.MaterialIndex + 1])
                 {
-                    BackMaterial = shaders[submesh.MaterialIndex+1]
+                    //BackMaterial = shaders[submesh.MaterialIndex+1]
                 };
 
                 group.Children.Add(modeld);
@@ -819,7 +810,7 @@ namespace Adjutant.Library.Controls
                     }
                     else //S3D
                     {
-                        var obj = cnode.Tag as S3DModelBase.S3DObject;
+                        var obj = cnode.Tag as S3DObject;
                         if (atplDic.TryGetValue(atpl.Objects.IndexOf(obj), out mesh))
                             group.Children.Add(mesh);
                     }
@@ -970,9 +961,9 @@ namespace Adjutant.Library.Controls
                         var ig = cnode.Tag as scenario_structure_bsp.InstancedGeometry;
                         igs.Add(sbsp.GeomInstances.IndexOf(ig));
                     }
-                    else if (cnode.Tag is S3DModelBase.S3DObject)
+                    else if (cnode.Tag is S3DObject)
                     {
-                        var obj = cnode.Tag as S3DModelBase.S3DObject;
+                        var obj = cnode.Tag as S3DObject;
                         clusts.Add(atpl.Objects.IndexOf(obj));
                     }
                 }

@@ -2664,14 +2664,6 @@ namespace Adjutant.Library.Controls
                     //var mat = MatrixFromBounds(obj.BoundingBox);
                     var mat = new Matrix(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0);
 
-                    //if (obj.Name.Contains("ound_1"))
-                    //{
-                    //    S3DModelBase.S3DObject obj1 = null;
-                    //    foreach (var ob in ATPL.Objects)
-                    //        if (ob.ID == obj.Submeshes[0].MeshInheritID) obj1 = ob;
-                    //    mat = MatrixFromBounds(obj1.BoundingBox);
-                    //}
-
                     //bw.Write(float.NaN); //no transforms (render_models are pre-transformed)
                     bw.Write(1f);
                     bw.Write(mat.m11 * 0.01f);
@@ -2897,14 +2889,17 @@ namespace Adjutant.Library.Controls
             //    //skip null shaders
             //    if (shaderBlock.tagID == -1)
             //    {
-            //        bw.Write("null\0".ToCharArray());
-            //        for (int i = 0; i < 8; i++)
-            //            bw.Write("null\0".ToCharArray());
+                bw.Write("null\0".ToCharArray());
+                for (int i = 0; i < 8; i++)
+                    bw.Write("null\0".ToCharArray());
 
-            //        bw.Write(Convert.ToByte(false));
-            //        bw.Write(Convert.ToByte(false));
+                for (int i = 0; i < 4; i++)
+                    bw.Write(0);
 
-            //        continue;
+                bw.Write(Convert.ToByte(false));
+                bw.Write(Convert.ToByte(false));
+
+                continue;
             //    }
 
             //    var rmshTag = Cache.IndexItems.GetItemByID(shaderBlock.tagID);

@@ -1,0 +1,10 @@
+﻿[44 bytes]	unmapped
+[int32]		index count
+[int32*]	index, repeat for count, appears to be struct0 indices
+[int32]		struct0 count
+
+[struct0]
+	[int16 x12]	appears to be 6 sets of int16_n2 bounds 
+[/struct0]
+
+[13 bytes]	unmapped
