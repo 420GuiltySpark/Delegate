@@ -64,7 +64,7 @@ namespace Adjutant.Controls
             backgroundWorker1.RunWorkerAsync(args);
         }
 
-        public void BeginExtraction(S3DPak Pak, List<TreeNode> Parents, Settings Settings, string Destination)
+        public void BeginExtraction(PakFile Pak, List<TreeNode> Parents, Settings Settings, string Destination)
         {
             if (backgroundWorker1.IsBusy)
             {
@@ -286,7 +286,7 @@ namespace Adjutant.Controls
             }
         }
 
-        private void BatchExtract(S3DPak pak, List<TreeNode> parents, Settings settings, string dest, BackgroundWorker worker)
+        private void BatchExtract(PakFile pak, List<TreeNode> parents, Settings settings, string dest, BackgroundWorker worker)
         {
             foreach (TreeNode parent in parents)
             {
@@ -300,7 +300,7 @@ namespace Adjutant.Controls
                         continue;
                     }
 
-                    var item = child.Tag as S3DPak.PakItem;
+                    var item = child.Tag as PakFile.PakTag;
                     var fName = dest + "\\" + item.Name;
                     var tName = "[" + item.unk0.ToString("D2") + "] " + item.Name;
 
@@ -428,7 +428,7 @@ namespace Adjutant.Controls
         private class ExtractionArgs
         {
             public CacheFile cache;
-            public S3DPak pak;
+            public PakFile pak;
             public List<TreeNode> parents;
             public Settings settings;
             public string destination;

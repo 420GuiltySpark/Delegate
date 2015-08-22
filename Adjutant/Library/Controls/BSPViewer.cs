@@ -38,9 +38,9 @@ namespace Adjutant.Library.Controls
         private List<Model3DGroup> sectList = new List<Model3DGroup>();
         private List<MaterialGroup> shaders = new List<MaterialGroup>();
 
-        private S3DPak pak;
-        private S3DPak.PakItem item;
-        private S3DBSP atpl;
+        private PakFile pak;
+        private PakFile.PakTag item;
+        private Scene atpl;
         private Dictionary<int, Model3DGroup> atplDic = new Dictionary<int, Model3DGroup>();
 
         public ModelFormat DefaultModeFormat = ModelFormat.AMF;
@@ -440,7 +440,7 @@ namespace Adjutant.Library.Controls
         #endregion
 
         #region Pak
-        public void LoadBSPTag(S3DPak Pak, S3DPak.PakItem Item, bool Force)
+        public void LoadBSPTag(PakFile Pak, PakFile.PakTag Item, bool Force)
         {
             try
             {
@@ -457,7 +457,7 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        private void loadBspTag(S3DPak Pak, S3DPak.PakItem Item, bool Specular, bool Force)
+        private void loadBspTag(PakFile Pak, PakFile.PakTag Item, bool Specular, bool Force)
         {
             if (!this.Enabled) this.Enabled = true;
             tvRegions.Nodes.Clear();
@@ -467,7 +467,7 @@ namespace Adjutant.Library.Controls
             pak = Pak;
             item = Item;
 
-            atpl = new S3DBSP(pak, item);
+            atpl = new Scene(pak, item);
             atpl.Parse();
 
             var tObj = atpl.Objects[0];
@@ -627,7 +627,7 @@ namespace Adjutant.Library.Controls
             shaders.Add(matGroup);
             if (atpl.Materials.Count == 0) return;
 
-            var sPak = new S3DPak(pak.FilePath + "\\" + "pak_stream_decompressed.s3dpak");
+            var sPak = new PakFile(pak.FilePath + "\\" + "pak_stream_decompressed.s3dpak");
             //var sPak = pak;
             foreach (var mat in atpl.Materials)
             {
@@ -640,7 +640,7 @@ namespace Adjutant.Library.Controls
 
                 try
                 {
-                    var pict = new S3DPICT(sPak, sPak.GetItemByName(mat.Name));
+                    var pict = new Texture(sPak, sPak.GetItemByName(mat.Name));
                     var image = BitmapExtractor.GetBitmapByTag(sPak, pict, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
                     if (pscale > 1) image = new Bitmap(image, new Size(image.Width / pscale, image.Height / pscale));
 

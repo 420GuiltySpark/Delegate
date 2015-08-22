@@ -970,7 +970,7 @@ namespace Adjutant.Library.Imaging
             return finalImage;
         }
 
-        public static Bitmap DecodeCubeMap(byte[] data, S3DPICT pict, PixelFormat PF)
+        public static Bitmap DecodeCubeMap(byte[] data, Texture pict, PixelFormat PF)
         {
             List<Bitmap> images = new List<Bitmap>();
             int imageSize = pict.VirtualWidth * pict.VirtualHeight * 4;
@@ -1051,7 +1051,7 @@ namespace Adjutant.Library.Imaging
             return finalImage;
         }
 
-        public static byte[] DecodeBitmap(byte[] bitmRaw, S3DPICT pict)
+        public static byte[] DecodeBitmap(byte[] bitmRaw, Texture pict)
         {
             #region switch format
             switch (pict.Format)

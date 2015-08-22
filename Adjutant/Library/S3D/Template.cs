@@ -11,7 +11,7 @@ using Adjutant.Library.Controls;
 
 namespace Adjutant.Library.S3D
 {
-    public class S3DATPL : S3DModelBase
+    public class Template : TemplateBase
     {
         public int unk0;
         public int xF000;
@@ -22,7 +22,7 @@ namespace Adjutant.Library.S3D
         public List<S3DNodeInfo> NodeInfo;
         public List<Matrix> unkMatList;
 
-        public S3DATPL(S3DPak Pak, S3DPak.PakItem Item)
+        public Template(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
             reader.EndianType = EndianFormat.LittleEndian;
@@ -197,7 +197,7 @@ namespace Adjutant.Library.S3D
         public int x0100;
         public int addr5; //points to next item
 
-        public S3DNodeInfo(S3DPak Pak, S3DPak.PakItem Item)
+        public S3DNodeInfo(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
 

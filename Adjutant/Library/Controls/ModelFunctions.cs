@@ -2441,7 +2441,7 @@ namespace Adjutant.Library.Controls
             bw.Dispose();
         }
 
-        public static void WriteAMF(string Filename, S3DPak Pak, S3DModelBase ATPL, List<int> PartIndices)
+        public static void WriteAMF(string Filename, PakFile Pak, TemplateBase ATPL, List<int> PartIndices)
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
             if (!Filename.EndsWith(".amf")) Filename += ".amf";

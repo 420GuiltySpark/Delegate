@@ -8,7 +8,7 @@ using Adjutant.Library.Definitions;
 
 namespace Adjutant.Library.S3D
 {
-    public class S3DPICT
+    public class Texture
     {
         public bool isLittleEndian;
 
@@ -119,7 +119,7 @@ namespace Adjutant.Library.S3D
             }
         }
 
-        public S3DPICT(S3DPak Pak, S3DPak.PakItem Item)
+        public Texture(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
             reader.EndianType = EndianFormat.LittleEndian;

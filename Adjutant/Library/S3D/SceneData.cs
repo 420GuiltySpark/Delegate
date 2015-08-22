@@ -10,14 +10,14 @@ using Adjutant.Library.Definitions;
 using Adjutant.Library.Controls;
 namespace Adjutant.Library.S3D
 {
-    public class S3DDATA
+    public class SceneData
     {
         public byte[] unmapped0;
         public List<int> indices;
         public List<struct0> unkS0;
         public byte[] unmapped1;
 
-        public S3DDATA(S3DPak Pak, S3DPak.PakItem Item)
+        public SceneData(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
             reader.EndianType = EndianFormat.LittleEndian;
@@ -42,7 +42,7 @@ namespace Adjutant.Library.S3D
         {
             public int[] unk0;
 
-            public struct0(S3DPak Pak, S3DPak.PakItem Item)
+            public struct0(PakFile Pak, PakFile.PakTag Item)
             {
                 unk0 = new int[12];
 

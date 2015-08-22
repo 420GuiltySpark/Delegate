@@ -16,7 +16,7 @@ namespace Adjutant.Controls
 {
     public partial class MapViewer : UserControl
     {
-        private S3DPak pak;
+        private PakFile pak;
         private CacheFile cache;
         private TagViewer tv;
         private Settings settings;
@@ -66,7 +66,7 @@ namespace Adjutant.Controls
             this.Filename = Filename;
             HierarchyMode = false;
  
-            pak = new S3DPak(Filename);
+            pak = new PakFile(Filename);
             tv = new TagViewer(settings, extractor1);
 
             tvTags.Nodes.Clear();
@@ -457,7 +457,7 @@ namespace Adjutant.Controls
             if (tvTags.SelectedNode.Nodes.Count > 0) return;
 
             var tag = tvTags.SelectedNode.Tag as CacheFile.IndexItem;
-            var item = tvTags.SelectedNode.Tag as S3DPak.PakItem;
+            var item = tvTags.SelectedNode.Tag as PakFile.PakTag;
 
             if (!splitContainer2.Panel2.Controls.Contains(tv))
             {
@@ -530,7 +530,7 @@ namespace Adjutant.Controls
 
         private void dumpFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var item = tvTags.SelectedNode.Tag as S3DPak.PakItem;
+            var item = tvTags.SelectedNode.Tag as PakFile.PakTag;
 
             var sfd = new SaveFileDialog()
             {
@@ -566,7 +566,7 @@ namespace Adjutant.Controls
 
             foreach (TreeNode node in tvTags.SelectedNode.Nodes)
             {
-                var item = node.Tag as S3DPak.PakItem;
+                var item = node.Tag as PakFile.PakTag;
 
                 var reader = pak.Reader;
 

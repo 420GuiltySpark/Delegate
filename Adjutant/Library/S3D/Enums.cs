@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Adjutant.Library.S3D
 {
-    public enum PakType
+    public enum TagType
     {
         Bitmaps6 = 6,
         Bitmaps7 = 7,

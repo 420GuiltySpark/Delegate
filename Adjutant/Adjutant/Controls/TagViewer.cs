@@ -22,8 +22,8 @@ namespace Adjutant.Controls
         private CacheFile cache;
         private CacheFile.IndexItem tag;
         private Extractor output;
-        private S3DPak pak;
-        private S3DPak.PakItem item;
+        private PakFile pak;
+        private PakFile.PakTag item;
 
         private MetaViewer vMeta;
         private BitmapExtractor eBitm;
@@ -315,7 +315,7 @@ namespace Adjutant.Controls
             }
         }
 
-        public void LoadPakItem(S3DPak Pak, S3DPak.PakItem Item)
+        public void LoadPakItem(PakFile Pak, PakFile.PakTag Item)
         {
             tabMeta.Controls.Clear();
             tabMeta.Controls.Add(vS3D);
@@ -461,7 +461,7 @@ namespace Adjutant.Controls
                     tabControl1.TabPages.Remove(tabModel);
                     tabControl1.TabPages.Remove(tabRaw);
 
-                    if (item.unk0 == 1) vS3D.displayDataInfo(new S3DDATA(pak, item), item.Offset);
+                    if (item.unk0 == 1) vS3D.displayDataInfo(new SceneData(pak, item), item.Offset);
                     break;
                 #endregion
             }
@@ -489,7 +489,7 @@ namespace Adjutant.Controls
             {
                 if (!metaLoaded)
                 {
-                    if (cache == null) vS3D.LoadModelHierarchy(pak, item, (item.Type == PakType.BSP));
+                    if (cache == null) vS3D.LoadModelHierarchy(pak, item, (item.Type == TagType.BSP));
                     else vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
                     metaLoaded = true;
                 }
@@ -562,13 +562,13 @@ namespace Adjutant.Controls
 
                     switch (item.Type)
                     {
-                        case PakType.Models:
+                        case TagType.Models:
                             vSbsp.Visible = false;
                             vMode.Visible = true;
                             vMode.LoadModelTag(pak, item, false, settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
                             modelLoaded = true;
                             break;
-                        case PakType.BSP:
+                        case TagType.BSP:
                             vMode.Visible = false;
                             vSbsp.Visible = true;
                             vSbsp.LoadBSPTag(pak, item, settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
@@ -620,7 +620,7 @@ namespace Adjutant.Controls
             }
             else
             {
-                var t = (S3DPak.PakItem)Tag;
+                var t = (PakFile.PakTag)Tag;
                 output.AddLine("Extracted [" + t.unk0.ToString("D2") + "] " + t.Name + ".");
             }
         }
@@ -634,7 +634,7 @@ namespace Adjutant.Controls
             }
             else
             {
-                var t = (S3DPak.PakItem)Tag;
+                var t = (PakFile.PakTag)Tag;
                 output.AddLine("Error extracting [" + t.unk0.ToString("D2") + "] " + t.Name + ":");
             }
             output.AddLine("--" + Error.Message);

@@ -11,7 +11,7 @@ using Adjutant.Library.Controls;
 
 namespace Adjutant.Library.S3D
 {
-    public abstract class S3DModelBase
+    public abstract class TemplateBase
     {
         #region Declarations
         public string Name;
@@ -55,7 +55,7 @@ namespace Adjutant.Library.S3D
         public int AddressOfNext;
         public string Name;
 
-        public S3DMaterial(S3DPak Pak, S3DPak.PakItem Item)
+        public S3DMaterial(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
             //reader.EndianType = EndianFormat.LittleEndian;
@@ -132,7 +132,7 @@ namespace Adjutant.Library.S3D
         public int faceOffset = 0;
         public int inheritIndex = -1;
 
-        public S3DObject(S3DPak Pak, S3DPak.PakItem Item)
+        public S3DObject(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
 
@@ -401,7 +401,7 @@ namespace Adjutant.Library.S3D
             public int unk9b;
             #endregion
 
-            public Submesh(S3DPak Pak, S3DPak.PakItem Item)
+            public Submesh(PakFile Pak, PakFile.PakTag Item)
             {
                 var reader = Pak.Reader;
                 reader.ReadInt16(); //0x0501

@@ -377,13 +377,13 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Adjutant\Program.cs" />
-    <Compile Include="Library\S3D\S3DBSP.cs" />
+    <Compile Include="Library\S3D\Scene.cs" />
     <Compile Include="Library\S3D\Enums.cs" />
-    <Compile Include="Library\S3D\S3DATPL.cs" />
-    <Compile Include="Library\S3D\S3DDATA.cs" />
-    <Compile Include="Library\S3D\S3DModelBase.cs" />
-    <Compile Include="Library\S3D\S3DPak.cs" />
-    <Compile Include="Library\S3D\S3DPICT.cs" />
+    <Compile Include="Library\S3D\Template.cs" />
+    <Compile Include="Library\S3D\SceneData.cs" />
+    <Compile Include="Library\S3D\TemplateBase.cs" />
+    <Compile Include="Library\S3D\PakFile.cs" />
+    <Compile Include="Library\S3D\Texture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Adjutant\Settings.cs" />
     <Compile Include="Adjutant\SettingsForm.cs">
@@ -497,8 +497,6 @@
   <ItemGroup>
     <Content Include="Library\DataTypes\Float16\README.txt" />
     <Content Include="Library\Definitions\Composer\README.txt" />
-    <Content Include="Library\S3D\26_cdt.txt" />
-    <Content Include="Library\S3D\01_data.txt" />
     <Content Include="Plugins\Halo2\adlg.xml" />
     <Content Include="Plugins\Halo2\ant!.xml" />
     <Content Include="Plugins\Halo2\bipd.xml" />

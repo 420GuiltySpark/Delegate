@@ -21,9 +21,9 @@ namespace Adjutant.Library.Controls
         private CacheFile cache;
         private CacheFile.IndexItem tag;
         private bitmap bitm;
-        private S3DPak pak;
-        private S3DPak.PakItem item;
-        private S3DPICT pict;
+        private PakFile pak;
+        private PakFile.PakTag item;
+        private Texture pict;
         private bool isWorking;
 
         public BitmapFormat DefaultBitmFormat = BitmapFormat.TIF;
@@ -65,13 +65,13 @@ namespace Adjutant.Library.Controls
             lstBitmaps_SelectedIndexChanged(null, null);
         }
 
-        public void LoadBitmapTag(S3DPak Pak, S3DPak.PakItem Item)
+        public void LoadBitmapTag(PakFile Pak, PakFile.PakTag Item)
         {
             exportAllImagesToolStripMenuItem.Visible = false;
 
             pak = Pak;
             item = Item;
-            pict = new S3DPICT(pak, item);
+            pict = new Texture(pak, item);
 
             lstBitmaps.Items.Clear();
             var list = new List<Bitmap>() { GetBitmapByTag(pak, pict, PixelFormat.Format32bppArgb) };
@@ -137,9 +137,9 @@ namespace Adjutant.Library.Controls
             return GetBitmapByTag(Cache, bitm, Index, PF);
         }
 
-        public static Bitmap GetBitmapByTag(S3DPak Pak, S3DPak.PakItem Item, PixelFormat PF)
+        public static Bitmap GetBitmapByTag(PakFile Pak, PakFile.PakTag Item, PixelFormat PF)
         {
-            var pict = new S3DPICT(Pak, Item);
+            var pict = new Texture(Pak, Item);
             return GetBitmapByTag(Pak, pict, PF);
         }
 
@@ -206,7 +206,7 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        public static Bitmap GetBitmapByTag(S3DPak Pak, S3DPICT pict, PixelFormat PF)
+        public static Bitmap GetBitmapByTag(PakFile Pak, Texture pict, PixelFormat PF)
         {
             try
             {
@@ -406,13 +406,13 @@ namespace Adjutant.Library.Controls
             else throw new InvalidOperationException("Invalid BitmapFormat received.");
         }
 
-        public static void SaveImage(string Filename, S3DPak Pak, S3DPak.PakItem Item, BitmapFormat Format, bool Alpha)
+        public static void SaveImage(string Filename, PakFile Pak, PakFile.PakTag Item, BitmapFormat Format, bool Alpha)
         {
-            var pict = new S3DPICT(Pak, Item);
+            var pict = new Texture(Pak, Item);
             SaveImage(Filename, Pak, pict, Format, Alpha);
         }
 
-        public static void SaveImage(string Filename, S3DPak Pak, S3DPICT pict, BitmapFormat Format, bool Alpha)
+        public static void SaveImage(string Filename, PakFile Pak, Texture pict, BitmapFormat Format, bool Alpha)
         {
             byte[] raw;
             Pak.Reader.SeekTo(pict.DataAddress);

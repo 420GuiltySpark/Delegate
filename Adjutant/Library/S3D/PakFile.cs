@@ -7,7 +7,7 @@ using Adjutant.Library.Endian;
 
 namespace Adjutant.Library.S3D
 {
-    public class S3DPak
+    public class PakFile
     {
         #region Declarations
         public string Filename;
@@ -19,7 +19,7 @@ namespace Adjutant.Library.S3D
         public PakTable PakItems;
         #endregion
 
-        public S3DPak(string Filename)
+        public PakFile(string Filename)
         {
             this.Filename = Filename;
 
@@ -30,13 +30,13 @@ namespace Adjutant.Library.S3D
         }
 
         #region Classes
-        public class PakItem
+        public class PakTag
         {
             public int Offset;
             public int Size;
             public string Name;
             public int unk0, unk1, unk2;
-            public PakType Type { get { return (PakType)unk0; } }
+            public TagType Type { get { return (TagType)unk0; } }
 
             public override string ToString()
             {
@@ -44,9 +44,9 @@ namespace Adjutant.Library.S3D
             }
         }
 
-        public class PakTable : List<PakItem>
+        public class PakTable : List<PakTag>
         {
-            public PakTable(S3DPak Pak)
+            public PakTable(PakFile Pak)
             {
                 var reader = Pak.Reader;
 
@@ -55,7 +55,7 @@ namespace Adjutant.Library.S3D
 
                 for (int i = 0; i < fCount; i++)
                 {
-                    var item = new PakItem();
+                    var item = new PakTag();
 
                     item.Offset = reader.ReadInt32();
                     item.Size = reader.ReadInt32();
@@ -72,7 +72,7 @@ namespace Adjutant.Library.S3D
         #endregion
 
         #region Methods
-        public PakItem GetItemByName(string Name)
+        public PakTag GetItemByName(string Name)
         {
             foreach (var item in PakItems)
                 if (item.Name == Name) return item;

@@ -11,7 +11,7 @@ using Adjutant.Library.Controls;
 
 namespace Adjutant.Library.S3D
 {
-    public class S3DBSP : S3DModelBase
+    public class Scene : TemplateBase
     {
         public int xF000;
         public int unkAddress0;
@@ -22,7 +22,7 @@ namespace Adjutant.Library.S3D
 
         public List<S3DScript> Scripts;
 
-        public S3DBSP(S3DPak Pak, S3DPak.PakItem Item)
+        public Scene(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
             reader.EndianType = EndianFormat.LittleEndian;
@@ -156,7 +156,7 @@ namespace Adjutant.Library.S3D
         public int AddressOfNext;
         public string Data;
 
-        public S3DScript(S3DPak Pak, S3DPak.PakItem Item)
+        public S3DScript(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
 

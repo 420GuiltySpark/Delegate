@@ -12,27 +12,27 @@ namespace Adjutant.Library.Controls
 {
     public partial class S3DExplorer : UserControl
     {
-        private S3DPak pak;
-        private S3DPak.PakItem item;
-        private S3DModelBase model;
+        private PakFile pak;
+        private PakFile.PakTag item;
+        private TemplateBase model;
 
         public S3DExplorer()
         {
             InitializeComponent();
         }
 
-        public void LoadModelHierarchy(S3DPak Pak, S3DPak.PakItem Item, bool useInherit)
+        public void LoadModelHierarchy(PakFile Pak, PakFile.PakTag Item, bool useInherit)
         {
             pak = Pak;
             item = Item;
 
             switch (item.Type)
             {
-                case PakType.Models:
-                    model = new S3DATPL(Pak, item);
+                case TagType.Models:
+                    model = new Template(Pak, item);
                     break;
-                case PakType.BSP:
-                    model = new S3DBSP(Pak, Item);
+                case TagType.BSP:
+                    model = new Scene(Pak, Item);
                     break;
                 default:
                     return;
@@ -53,11 +53,11 @@ namespace Adjutant.Library.Controls
             #endregion
 
             #region Scripts
-            if (item.Type == PakType.BSP)
+            if (item.Type == TagType.BSP)
             {
                 var sNode = new TreeNode("Scripts") { ImageIndex = 1, SelectedImageIndex = 1 };
                 i = 0;
-                foreach (var sc in ((S3DBSP)model).Scripts)
+                foreach (var sc in ((Scene)model).Scripts)
                     sNode.Nodes.Add(new TreeNode("[" + (i++).ToString("d3") + "]") { ImageIndex = 7, SelectedImageIndex = 7, Tag = sc });
                 root.Nodes.Add(sNode);
             }
@@ -103,7 +103,7 @@ namespace Adjutant.Library.Controls
             tvSub.SelectedNode = root;
         }
 
-        private void displayModelInfo(S3DATPL atpl, int baseAddress)
+        private void displayModelInfo(Template atpl, int baseAddress)
         {
             richTextBox1.Text = "";
             richTextBox1.Text += "Name:\t\t" + atpl.Name + "\r\n";
@@ -279,8 +279,8 @@ namespace Adjutant.Library.Controls
         {
             var tag = tvSub.SelectedNode.Tag;
 
-            if (tag is S3DATPL)
-                displayModelInfo((S3DATPL)tag, item.Offset);
+            if (tag is Template)
+                displayModelInfo((Template)tag, item.Offset);
             else if (tag is S3DMaterial)
                 displayMaterialInfo((S3DMaterial)tag, item.Offset);
             else if (tag is S3DScript)
