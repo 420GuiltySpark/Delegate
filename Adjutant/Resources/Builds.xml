@@ -48,6 +48,7 @@
          inherits=""
          headerSize="2048"
 		     tagsKey=""
+		     stringsKey=""
 		     localesKey=""
 		     networkKey=""
          version="Halo3Beta"
