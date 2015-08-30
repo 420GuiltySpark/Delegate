@@ -35,8 +35,8 @@ namespace Adjutant.Library.S3D
             public int Offset;
             public int Size;
             public string Name;
-            public int unk0, unk1, unk2;
-            public TagType Type { get { return (TagType)unk0; } }
+            public TagType Class;
+            public int unk1, unk2;
 
             public override string ToString()
             {
@@ -61,7 +61,7 @@ namespace Adjutant.Library.S3D
                     item.Size = reader.ReadInt32();
                     var len = reader.ReadInt32();
                     item.Name = reader.ReadString(len);
-                    item.unk0 = reader.ReadInt32();
+                    item.Class = (TagType)reader.ReadInt32();
                     item.unk1 = reader.ReadInt32();
                     item.unk2 = reader.ReadInt32();
 

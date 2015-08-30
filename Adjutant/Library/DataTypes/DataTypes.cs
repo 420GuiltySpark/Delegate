@@ -292,9 +292,9 @@ namespace Adjutant.Library.DataTypes
 
         public override string ToString()
         {
-            string s = a.ToString() + ", " + b.ToString();
-            if (values.Length > 2) s += ", " + c.ToString();
-            if (values.Length > 3) s += ", " + d.ToString();
+            string s = a.ToString("F6") + ", " + b.ToString("F6");
+            if (values.Length > 2) s += ", " + c.ToString("F6");
+            if (values.Length > 3) s += ", " + d.ToString("F6");
             return s;
         }
 

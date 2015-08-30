@@ -18,6 +18,8 @@ namespace Adjutant
         public BitmapFormat BitmFormat;
         public ModelFormat ModeFormat;
         public SoundFormat Snd_Format;
+        public byte mapScale;
+        public byte pakScale;
 
         public Settings()
         {
@@ -48,6 +50,8 @@ namespace Adjutant
             BitmFormat = (BitmapFormat)br.ReadByte();
             ModeFormat = (ModelFormat)br.ReadByte();
             Snd_Format = (SoundFormat)br.ReadByte();
+            mapScale = br.ReadByte();
+            pakScale = br.ReadByte();
         }
 
         public MemoryStream ToStream()
@@ -67,6 +71,9 @@ namespace Adjutant
             bw.Write((byte)BitmFormat);
             bw.Write((byte)ModeFormat);
             bw.Write((byte)Snd_Format);
+
+            bw.Write(mapScale);
+            bw.Write(pakScale);
 
             return ms;
         }

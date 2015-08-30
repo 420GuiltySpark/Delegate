@@ -15,14 +15,14 @@ namespace Adjutant.Library.S3D
     {
         #region Declarations
         public string Name;
-        public List<S3DMaterial> Materials;
-        public List<S3DObject> Objects;
+        public List<Material> Materials;
+        public List<Node> Objects;
         public render_model.BoundingBox RenderBounds;
         public bool isParsed = false;
         #endregion
 
         #region Methods
-        public S3DObject ObjectByID(int ID)
+        public Node ObjectByID(int ID)
         {
             foreach (var obj in Objects)
                 if (obj.ID == ID) return obj;
@@ -30,13 +30,13 @@ namespace Adjutant.Library.S3D
             return null;
         }
 
-        public Matrix HierarchialTransformDown(S3DObject obj)
+        public Matrix HierarchialTransformDown(Node obj)
         {
             if (obj.isInherited || obj.isInheritor) return Matrix.Identity; //these could end in infinite loop
             return (obj.ParentID == -1) ? obj.Transform : HierarchialTransformDown(ObjectByID(obj.ParentID)) * obj.Transform;
         }
 
-        public Matrix HierarchialTransformUp(S3DObject obj)
+        public Matrix HierarchialTransformUp(Node obj)
         {
             if (obj.isInherited || obj.isInheritor) return obj.Transform;
             return (obj.ParentID == -1) ? obj.Transform : obj.Transform * HierarchialTransformUp(ObjectByID(obj.ParentID));
@@ -49,17 +49,15 @@ namespace Adjutant.Library.S3D
         #endregion
     }
 
-    public class S3DMaterial
+    public class Material
     {
         public int x5601;
         public int AddressOfNext;
         public string Name;
 
-        public S3DMaterial(PakFile Pak, PakFile.PakTag Item)
+        public Material(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
-            //reader.EndianType = EndianFormat.LittleEndian;
-            //reader.SeekTo(Item.Offset);
 
             x5601 = reader.ReadInt16();
             AddressOfNext = reader.ReadInt32();
@@ -72,7 +70,7 @@ namespace Adjutant.Library.S3D
         }
     }
 
-    public class S3DObject
+    public class Node
     {
         #region Declarations
         public int xF000;
@@ -88,13 +86,11 @@ namespace Adjutant.Library.S3D
         public int VertCount;
         public int FaceCount;
         public int unk3; //F900 or 2E01 if verts or 2901 if inherits
-        public int unkAddress1;
 
         public int x1200;
         public int geomUnk01; //0x03 indicates no UV data
         public int x4001;
         public int xF100;
-        public int geomUnkAddress;
         public int VertCount2;
         public int CentreX;
         public int CentreY;
@@ -103,7 +99,12 @@ namespace Adjutant.Library.S3D
         public int RadiusY;
         public int RadiusZ;
         public byte[] preUV;
+        public int unkUV0;
         public int UVsize;
+        public int unk4;
+        public int unkCC;
+        public int unkC0; //possibly UV scale
+        public int[] unkC1;
 
         public Vertex[] Vertices;
         public int[] Indices;
@@ -114,11 +115,12 @@ namespace Adjutant.Library.S3D
         public int xFA00;
         public int unkAddress2;
         public int NodeIndex;
-        public int unk4;
-        #endregion
 
+        public int unk5;
+        public int unk5a;
+        #endregion
+        
         public int ParentID = -1;
-        public int uvScale;
 
         public int mainAddress;
         public int vertsAddress;
@@ -130,9 +132,9 @@ namespace Adjutant.Library.S3D
         public bool isInheritor = false;
         public int vertOffset = 0;
         public int faceOffset = 0;
-        public int inheritIndex = -1;
+        public int inheritID = -1;
 
-        public S3DObject(PakFile Pak, PakFile.PakTag Item)
+        public Node(PakFile Pak, PakFile.PakTag Item, bool loadMesh)
         {
             var reader = Pak.Reader;
 
@@ -142,7 +144,7 @@ namespace Adjutant.Library.S3D
             xF000 = reader.ReadInt16();
             PreNextAddress = reader.ReadInt32();
             xB903 = reader.ReadInt16();
-            unkAddress0 = reader.ReadInt32();
+            unkAddress0 = reader.ReadInt32(); //address to next block
             Name = reader.ReadNullTerminatedString();
             ID = reader.ReadInt16();
             x2400 = reader.ReadInt16();
@@ -154,117 +156,67 @@ namespace Adjutant.Library.S3D
             VertCount = reader.ReadInt32();
             FaceCount = reader.ReadInt32();
             unk3 = reader.ReadInt16();
-                
-            if (unk3 == 297) //2901
+
+            if (unk3 == 297) //2901 [only on bsps]
             {
                 isInheritor = true;
-                reader.ReadInt32(); //address
-                inheritIndex = reader.ReadInt16();
+                reader.ReadInt32(); //address of 2E01
+                inheritID = reader.ReadInt16();
                 vertOffset = reader.ReadInt32();
                 faceOffset = reader.ReadInt32();
-                unk3 = reader.ReadInt16();
-                unkAddress1 = reader.ReadInt32();
-                reader.Skip(47);
+                reader.ReadInt16(); //2E01
+                reader.ReadInt32(); //address to 3501/2301
+                reader.ReadInt16(); //1200
+                reader.ReadByte();  //geomUnk01
+                reader.ReadInt16(); //4001
+
+                if (reader.ReadInt16() == 309) //3501
+                {
+                    reader.ReadInt32(); //address of 2301
+                    reader.Skip(12);    //xxxx-xxxx-xxxx-4801-4801-4801
+                    reader.ReadInt16(); //2301
+                } //else 2301
+
+                reader.ReadInt32(); //address to 3101/2A01
+
+                if (reader.ReadInt16() == 305) //3101
+                {
+                    reader.ReadInt32(); //address to 2A01
+                    reader.ReadInt16(); //2A01
+                } //else 2A01
+
+                reader.ReadInt32(); //address to 1D01
             }
-            else unkAddress1 = reader.ReadInt32();
+
+            if (ID == 1739)
+                ID = ID;
 
             try
             {
-                if ((unk3 == 302 || unk3 == 297) && !isInheritor) //2E01/2901
+                #region Read Geometry
+                if (unk3 == 302) //2E01
                 {
-                    #region Read Geometry
+                    reader.ReadInt32(); //address to next block
                     x1200 = reader.ReadInt16();
                     geomUnk01 = reader.ReadByte();
                     x4001 = reader.ReadInt16();
-                    xF100 = reader.ReadInt16();
-                    geomUnkAddress = reader.ReadInt32();
 
-                    VertCount2 = reader.ReadInt32();
+                    ReadVertexData(reader, loadMesh, Item);
 
-                    if (VertCount > 0)
-                    {
-                        CentreX = reader.ReadInt16();
-                        CentreY = reader.ReadInt16();
-                        CentreZ = reader.ReadInt16();
-                        RadiusX = reader.ReadInt16();
-                        RadiusY = reader.ReadInt16();
-                        RadiusZ = reader.ReadInt16();
+                    if (geomUnk01 != 0 && geomUnk01 != 3)
+                        ReadUVData(reader, loadMesh, Item);
 
-                        Vertices = new Vertex[VertCount];
-                        Indices = new int[FaceCount * 3];
-                        vertsAddress = (int)reader.Position - Item.Offset;
-                        for (int i = 0; i < VertCount; i++)
-                        {
-                            var v = new Vertex() { FormatName = "S3D" };
-                            var data = new RealQuat(
-                                ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 
-                                ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 
-                                ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 
-                                ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF);
-                            v.Values.Add(new VertexValue(data, VertexValue.ValueType.Int16_N4, "position", 0));
-                            Vertices[i] = v;
-                        }
-                        reader.Skip(2); //3001
-                        var addr = Item.Offset + reader.ReadInt32();
-                        UVsize = 0;
-                        if (geomUnk01 != 3)
-                        {
-                            #region Read UVs
-                            uvsAddress = (int)reader.Position - Item.Offset;
-                            UVsize = ((addr - Item.Offset) - (uvsAddress + 4)) / VertCount2;
-                            var v2 = reader.ReadInt32(); //vCount
-
-                            preUV = reader.ReadBytes(8);
-
-                            for (int i = 0; i < VertCount; i++)
-                            {
-                                int a = reader.ReadInt16(); //bounds min?
-                                int b = reader.ReadInt16(); //bounds max?
-                                var texx = new RealQuat(((float)a + (float)0x7FFF) / (float)0xFFFF, ((float)b + (float)0x7FFF) / (float)0xFFFF);
-                                float len = texx.b - texx.a;
-
-                                reader.Skip(-4);
-                                var n = reader.ReadUInt32();
-                                var q0 = RealQuat.FromDHenN3(n);
-                                var q1 = RealQuat.FromHenDN3(n);
-                                var q2 = RealQuat.FromDecN4(n);
-
-                                if (UVsize == 16)
-                                {
-                                    reader.ReadInt32();
-                                    reader.ReadInt32();
-                                }
-                                int u = reader.ReadInt16();
-                                int v = reader.ReadInt16();
-                                var tex = new RealQuat(((float)u + (float)0) / (float)0xFFFF, ((float)v + (float)0x7FFF) / (float)0xFFFF);
-
-                                //tex = new RealQuat(tex.x * texx.b, tex.y);
-
-                                //Vertices[i].Values.Add(new VertexValue(norm, 0, "normal", 0));
-                                Vertices[i].Values.Add(new VertexValue(tex, VertexValue.ValueType.Int16_N2, "texcoords", 0));
-                            }
-                            reader.Skip(1);
-                            reader.ReadInt16();
-                            reader.ReadInt32();
-                            #endregion
-                        }
-                        if (UVsize > 8)
-                            reader.SeekTo(addr + 6);
-                        faceAddress = (int)reader.Position - Item.Offset;
-                        var f2 = reader.ReadInt32(); //fCount
-                        for (int i = 0; i < FaceCount * 3; i++)
-                            Indices[i] = reader.ReadUInt16();
-                    }
-                    else reader.Skip(10);
-
-                    reader.ReadInt16(); //1D01
-                    reader.ReadInt32(); //address
+                    ReadIndexData(reader, loadMesh, Item);
                 }
+                #endregion
 
+                #region bounds crap
                 if (unk3 == 302 || unk3 == 297) //2E01/2901
                 {
-                    var pos = reader.BaseStream.Position - Item.Offset;
-                    var c = reader.ReadInt32(); //count?
+                    var t = reader.ReadInt16(); //1D01
+                    reader.ReadInt32(); //address to end of bounds (F800)
+
+                    var c = reader.ReadInt32(); //bounds count?
                     var min = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
                     var max = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
@@ -276,21 +228,34 @@ namespace Adjutant.Library.S3D
                     reader.ReadInt16(); //F800
                     reader.ReadInt32(); //address
                     reader.ReadInt32(); //FFFFFFFF
-                    var t = reader.ReadInt16(); //2F01
-                    uvScale = 1;
-                    if (t != 249) //2F01
+                    unk4 = reader.ReadInt16(); //2F01 or F900
+
+                    if (unk4 != 249) //2F01
                     {
-                        reader.SeekTo(Item.Offset + reader.ReadInt32() - 4); //address to F900
-                        //reader.ReadInt16(); //0100
-                        uvScale = reader.ReadInt32(); //not actually uv scale?
+                        /*var addr = Item.Offset +*/ reader.ReadInt32(); //address to F900
+                        unkCC = reader.ReadByte(); //count
+
+                        reader.ReadByte(); //index
+                        unkC0 = reader.ReadInt32(); //UV related (this section is missing on meshes with no UVs)
+
+                        //first block is above, skip the rest
+                        for (int i = 1; i < unkCC; i++)
+                        {
+                            reader.ReadByte(); //index
+                            reader.ReadInt32(); //count
+                        }
+
                         reader.ReadInt16(); //F900
                     }
-                    reader.ReadInt32(); //address to matrix end
-                    BoundingBox.UBounds = new RealBounds(-1f * uvScale, 1f * uvScale);
-                    BoundingBox.VBounds = new RealBounds(-1f * uvScale, 1f * uvScale);
-                    #endregion
+                    
+                    BoundingBox.UBounds = new RealBounds(0, 1f * unkC0);
+                    BoundingBox.VBounds = new RealBounds(0, 1f * unkC0);
                 }
+                #endregion
 
+                #region transform
+                reader.ReadInt32(); //address to transform end
+                
                 Transform.m11 = reader.ReadSingle();
                 Transform.m12 = reader.ReadSingle();
                 Transform.m13 = reader.ReadSingle();
@@ -307,34 +272,55 @@ namespace Adjutant.Library.S3D
                 Transform.m42 = reader.ReadSingle();
                 Transform.m43 = reader.ReadSingle();
                 reader.ReadSingle(); //1.0f
+                #endregion
 
                 xFA00 = reader.ReadInt16();
                 unkAddress2 = reader.ReadInt32();
                 NodeIndex = reader.ReadInt32(); //node data index
-                unk4 = reader.ReadInt16();
+                unk5 = reader.ReadInt16();
 
-                if (unk4 == 1155) //8304
+                if (unk5 == 1155) //8304, used on zone/path objects
                 {
                     reader.ReadInt32(); //address
-                    reader.ReadInt32(); //index/ID/count
+                    unk5a = reader.ReadInt32(); //index to something
                     reader.ReadInt16(); //1501
                 }
-                else if (unk4 == 253)
+                else if (unk5 == 253) //FD00, used on template root node
                 {
                     reader.ReadInt32(); //address
-                    reader.ReadInt16();
+                    reader.ReadInt16(); //BA01
                     reader.ReadInt32(); //address
                     reader.ReadNullTerminatedString();
                     reader.ReadInt16(); //1501
                 }
 
-                reader.ReadInt32();
+                reader.ReadInt32(); //address to end of string
                 reader.ReadNullTerminatedString();
 
                 if (unk3 == 302 || unk3 == 297) //2E01/2901
                 {
-                    reader.Skip(102);
-                    #region Read Submeshes
+                    reader.ReadInt16(); //0701
+                    reader.ReadInt32(); //address to 1601 after submeshes
+                    reader.ReadInt16(); //F300
+                    reader.ReadInt32(); //address to 0401
+                    reader.ReadInt32(); //struct count (always 5 so far)
+
+                    unkC1 = new int[5];
+
+                    //aformentioned struct
+                    for (int i = 0; i < 5; i++)
+                    {
+                        reader.ReadInt16(); //0301
+                        reader.ReadInt32(); //address to 0100
+                        unkC1[i] = reader.ReadInt32(); //count (always 0?)
+                        reader.ReadInt16(); //0100
+                        reader.ReadInt32(); //address to next
+                    }
+
+                    #region Read Submesh Data [0401]
+                    reader.ReadInt16(); //0401
+                    reader.ReadInt32(); //address to 0100 after submeshes (end of submesh data)
+
                     subAddress = (int)reader.Position - Item.Offset;
                     var count = reader.ReadInt32();
                     Submeshes = new List<Submesh>();
@@ -350,14 +336,172 @@ namespace Adjutant.Library.S3D
                     //else
                     //    count = count;
                     #endregion
+
+                    //bone indices/weights (?) here
                 }
 
                 reader.SeekTo(Item.Offset + (PreNextAddress - 4));
-                if (unk4 == 277) ParentID = reader.ReadInt32(); //1501, parent ID
+                if (unk5 == 277) ParentID = reader.ReadInt32(); //1501
             }
             catch { }
 
             reader.SeekTo(Item.Offset + PreNextAddress + 6);
+        }
+
+        private void ReadVertexData(EndianReader reader, bool loadMesh, PakFile.PakTag Item)
+        {
+            xF100 = reader.ReadInt16();
+            var addr = reader.ReadInt32(); //address to end of vert data
+
+            VertCount2 = reader.ReadInt32();
+            if (VertCount2 == 0) return;
+
+            if (geomUnk01 != 134)
+            {
+                CentreX = reader.ReadInt16();
+                CentreY = reader.ReadInt16();
+                CentreZ = reader.ReadInt16();
+                RadiusX = reader.ReadInt16();
+                RadiusY = reader.ReadInt16();
+                RadiusZ = reader.ReadInt16();
+            }
+
+            vertsAddress = (int)reader.Position - Item.Offset;
+
+            if (!loadMesh) reader.SeekTo(Item.Offset + addr);
+            else
+            {
+                Vertices = new Vertex[VertCount];
+                for (int i = 0; i < VertCount; i++)
+                {
+                    var v = new Vertex() { FormatName = "S3D" };
+
+                    if (geomUnk01 == 134)
+                    {
+                        var data = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                        v.Values.Add(new VertexValue(data, VertexValue.ValueType.Float32_3, "position", 0));
+                        Vertices[i] = v;
+                    }
+                    else
+                    {
+                        var data = new RealQuat(
+                            ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF,
+                            ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF,
+                            ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF,
+                            ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF);
+                        v.Values.Add(new VertexValue(data, VertexValue.ValueType.Int16_N4, "position", 0));
+                        Vertices[i] = v;
+                    }
+                }
+            }
+        }
+
+        private void ReadUVData(EndianReader reader, bool loadMesh, PakFile.PakTag Item)
+        {
+            reader.ReadInt16(); //3001
+            var addr = Item.Offset + reader.ReadInt32(); //address to end of UVs
+
+            uvsAddress = (int)reader.Position - Item.Offset;
+            UVsize = ((addr - Item.Offset) - (uvsAddress + 8)) / VertCount2;
+            var v2 = reader.ReadInt32(); //vCount
+
+            reader.ReadInt16(); //2E00
+            preUV = reader.ReadBytes(6);
+            
+            if (!loadMesh) reader.SeekTo(addr - 1);
+            else for (int i = 0; i < VertCount; i++)
+                {
+                    int a = 0, b = 0;
+
+                    switch (UVsize)
+                    {
+                        case 8:
+                            a = reader.ReadUInt16();
+                            b = reader.ReadUInt16();
+                            reader.Skip(0);
+                            break;
+                        case 12:
+                            reader.Skip(4);
+                            break;
+                        case 16:
+                            reader.Skip(12);
+                            break;
+                        case 20:
+                            reader.Skip(16);
+                            break;
+                        case 24:
+                            reader.Skip(16);
+                            break;
+                        case 28:
+                            reader.Skip(20);
+                            break;
+                        case 36:
+                            reader.Skip(24);
+                            break;
+                        case 44:
+                            reader.Skip(28);
+                            break;
+                    }
+
+                    int u = reader.ReadInt16();
+                    int v = reader.ReadInt16();
+                    var tex0 = new RealQuat(((float)a + (float)0) / (float)0xFFFF, ((float)b + (float)0) / (float)0xFFFF);
+                    var tex1 = new RealQuat(((float)u + (float)0x7FFF) / (float)0xFFFF, ((float)v + (float)0x7FFF) / (float)0xFFFF);
+
+                    switch (UVsize)
+                    {
+                        case 8:
+                            reader.Skip(0);
+                            break;
+                        case 12:
+                            reader.Skip(4);
+                            break;
+                        case 16:
+                            reader.Skip(0);
+                            break;
+                        case 20:
+                            reader.Skip(0);
+                            break;
+                        case 24:
+                            reader.Skip(4);
+                            break;
+                        case 28:
+                            reader.Skip(4);
+                            break;
+                        case 36:
+                            reader.Skip(8);
+                            break;
+                        case 44:
+                            reader.Skip(12);
+                            break;
+                    }
+
+                    //Vertices[i].Values.Add(new VertexValue(norm, 0, "normal", 0));
+                    Vertices[i].Values.Add(new VertexValue(tex1 * 2, VertexValue.ValueType.Int16_N2, "texcoords", 0));
+                }
+            unkUV0 = reader.ReadByte();
+
+            //if (UVsize > 8)
+            reader.SeekTo(addr);
+        }
+
+        private void ReadIndexData(EndianReader reader, bool loadMesh, PakFile.PakTag Item)
+        {
+            reader.ReadInt16(); //F200
+            var addr = reader.ReadInt32(); //address to end of indices
+
+            faceAddress = (int)reader.Position - Item.Offset;
+            var count = reader.ReadInt32(); //fCount
+            if (count == 0) return;
+
+            if (!loadMesh) reader.Skip(FaceCount * 6);
+            else
+            {
+                Indices = new int[FaceCount * 3];
+                for (int i = 0; i < FaceCount * 3; i++)
+                    Indices[i] = reader.ReadUInt16();
+            }
+            reader.SeekTo(Item.Offset + addr);
         }
 
         public override string ToString()
@@ -371,6 +515,7 @@ namespace Adjutant.Library.S3D
             public int FaceLength;
             public int VertStart;
             public int VertLength;
+            public int MaterialCount;
             public int MaterialIndex;
 
             #region unknowns
@@ -380,8 +525,8 @@ namespace Adjutant.Library.S3D
             public int unkID1 = -1;
             public int unkCount1;
 
-            public float unkf0;
-            public float unkf1;
+            public int unkfAddress;
+            public float unkf0, unkf1;
             public int x2001;
             public byte[] unkb0;
 
@@ -431,22 +576,23 @@ namespace Adjutant.Library.S3D
                     reader.ReadInt16(); //0x0B01
                 }
 
-                var addr = reader.ReadInt32();
-                reader.ReadInt32(); //0x01000000 [material count, not always 1]
+                var addr = reader.ReadInt32(); //address to 1C01
+                MaterialCount = reader.ReadInt32();
                 reader.ReadInt16(); //0x0E01
                 reader.ReadInt32(); //address
                 MaterialIndex = reader.ReadInt32();
 
                 reader.SeekTo(Item.Offset + addr);
                 reader.ReadInt16(); //0x1C01
-                    
+
                 #region unknowns
                 reader.ReadInt32(); //address to 2001
-                unkf0 = reader.ReadSingle();
-                unkf1 = reader.ReadSingle();
+                unkfAddress = (int)reader.Position;
+                unkf0 = reader.ReadSingle(); //UV related
+                unkf1 = reader.ReadSingle(); //UV related
                 x2001 = reader.ReadInt16();
                 reader.ReadInt32(); //address to 2801
-                unkb0 = reader.ReadBytes(32);
+                unkb0 = reader.ReadBytes(32); //8 floats, UV related
                 x2801 = reader.ReadInt16();
                 addr = reader.ReadInt32(); //address to 0100
                 if (x2801 != 1) //0100
@@ -463,11 +609,39 @@ namespace Adjutant.Library.S3D
                     unk8 = reader.ReadInt32(); //seems to increase with mesh size
                     unk9a = reader.ReadInt16(); //not used on standard meshes
                     unk9b = reader.ReadInt16(); //not used on standard meshes
+                    reader.ReadInt16(); //0100
                 }
+                reader.ReadInt32(); //address to next
                 #endregion
 
-                reader.SeekTo(Item.Offset + addr + 6);
+                //reader.SeekTo(Item.Offset + addr + 6);
+            }
+
+            public class MatInfo
+            {
+                public MatInfo(PakFile Pak, PakFile.PakTag Item)
+                {
+                    var reader = Pak.Reader;
+
+                    reader.ReadInt16(); //0E01
+                    reader.ReadInt32(); //address to 1401
+                    reader.ReadInt32(); //mat ID
+                    reader.ReadInt32(); //FFFFFFFF
+                    reader.ReadInt16(); //00FF/FFFF
+                    reader.ReadInt16(); //1401
+                    reader.ReadInt32(); //address to 1F01
+                    reader.ReadInt16(); //FFFF/0001
+                    reader.ReadInt16(); //1F01
+                    reader.ReadInt32(); //address to BA01
+                    reader.ReadInt16(); //00FF
+                    reader.ReadInt16(); //BA01
+                    reader.ReadInt32(); //address to end of string (0100)
+                    reader.ReadNullTerminatedString();
+                    reader.ReadInt16(); //0100
+                    reader.ReadInt16(); //address of next
+                }
             }
         }
     }
+
 }

@@ -39,6 +39,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -379,6 +380,7 @@
     <Compile Include="Adjutant\Program.cs" />
     <Compile Include="Library\S3D\Scene.cs" />
     <Compile Include="Library\S3D\Enums.cs" />
+    <Compile Include="Library\S3D\SceneCDT.cs" />
     <Compile Include="Library\S3D\Template.cs" />
     <Compile Include="Library\S3D\SceneData.cs" />
     <Compile Include="Library\S3D\TemplateBase.cs" />
@@ -1545,6 +1547,10 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>call "$(VS100COMNTOOLS)..\tools\vsvars32.bat"
+editbin /largeaddressaware "$(TargetPath)"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

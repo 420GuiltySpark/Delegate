@@ -42,6 +42,9 @@ namespace Adjutant
             cmbMode.SelectedIndex = (int)settings.ModeFormat;
             cmbSnd_.SelectedIndex = (int)settings.Snd_Format;
             cmbLang.SelectedIndex = (int)settings.Language;
+
+            tbMapScale.Value = settings.mapScale;
+            tbPakScale.Value = settings.pakScale;
         }
 
         private void btnBrowseMap_Click(object sender, EventArgs e)
@@ -86,6 +89,16 @@ namespace Adjutant
             txtPluginPath.Text = dialog.SelectedPath;
         }
 
+        private void tbMapScale_ValueChanged(object sender, EventArgs e)
+        {
+            lblMapScale.Text = string.Format("{0,3}%", tbMapScale.Value);
+        }
+
+        private void tbPakScale_ValueChanged(object sender, EventArgs e)
+        {
+            lblPakScale.Text = string.Format("{0,3}%", tbPakScale.Value);
+        }
+
         private void btnColour_Click(object sender, EventArgs e)
         {
             ColorDialog cd = new ColorDialog()
@@ -127,6 +140,9 @@ namespace Adjutant
             settings.ModeFormat = (ModelFormat)cmbMode.SelectedIndex;
             settings.Snd_Format = (SoundFormat)cmbSnd_.SelectedIndex;
             settings.Language = (Language)cmbLang.SelectedIndex;
+
+            settings.mapScale = (byte)tbMapScale.Value;
+            settings.pakScale = (byte)tbPakScale.Value;
 
             MainForm.SaveSettings();
             Close();

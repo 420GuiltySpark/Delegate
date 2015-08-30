@@ -302,13 +302,13 @@ namespace Adjutant.Controls
 
                     var item = child.Tag as PakFile.PakTag;
                     var fName = dest + "\\" + item.Name;
-                    var tName = "[" + item.unk0.ToString("D2") + "] " + item.Name;
+                    var tName = "[" + item.Class.ToString("D2") + "] " + item.Name;
 
-                    switch (item.unk0)
+                    switch (item.Class)
                     {
                         #region bitmap
-                        case 6:
-                        case 7:
+                        case TagType.Textures:
+                        case TagType.TexturesMips64:
                             try
                             {
                                 switch (settings.BitmFormat)

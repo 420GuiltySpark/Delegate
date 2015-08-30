@@ -95,6 +95,7 @@
             this.richTextBox1.Size = new System.Drawing.Size(512, 531);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
+            this.richTextBox1.WordWrap = false;
             // 
             // S3DExplorer
             // 

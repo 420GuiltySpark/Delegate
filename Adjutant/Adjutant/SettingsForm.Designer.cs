@@ -59,10 +59,21 @@
             this.label7 = new System.Windows.Forms.Label();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
+            this.tbMapScale = new System.Windows.Forms.TrackBar();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.tbPakScale = new System.Windows.Forms.TrackBar();
+            this.lblMapScale = new System.Windows.Forms.Label();
+            this.lblPakScale = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbMapScale)).BeginInit();
+            this.groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbPakScale)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox2
@@ -78,7 +89,7 @@
             this.groupBox2.Controls.Add(this.txtDataPath);
             this.groupBox2.Location = new System.Drawing.Point(12, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(268, 142);
+            this.groupBox2.Size = new System.Drawing.Size(250, 142);
             this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Directories";
@@ -87,7 +98,7 @@
             // 
             this.btnBrowsePlugins.AutoSize = true;
             this.btnBrowsePlugins.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnBrowsePlugins.Location = new System.Drawing.Point(236, 108);
+            this.btnBrowsePlugins.Location = new System.Drawing.Point(218, 108);
             this.btnBrowsePlugins.Name = "btnBrowsePlugins";
             this.btnBrowsePlugins.Size = new System.Drawing.Size(26, 23);
             this.btnBrowsePlugins.TabIndex = 8;
@@ -108,7 +119,7 @@
             // 
             this.txtPluginPath.Location = new System.Drawing.Point(9, 110);
             this.txtPluginPath.Name = "txtPluginPath";
-            this.txtPluginPath.Size = new System.Drawing.Size(221, 20);
+            this.txtPluginPath.Size = new System.Drawing.Size(205, 20);
             this.txtPluginPath.TabIndex = 7;
             this.toolTip1.SetToolTip(this.txtPluginPath, "The folder to load plugins from");
             // 
@@ -116,7 +127,7 @@
             // 
             this.btnBrowseData.AutoSize = true;
             this.btnBrowseData.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnBrowseData.Location = new System.Drawing.Point(236, 69);
+            this.btnBrowseData.Location = new System.Drawing.Point(218, 69);
             this.btnBrowseData.Name = "btnBrowseData";
             this.btnBrowseData.Size = new System.Drawing.Size(26, 23);
             this.btnBrowseData.TabIndex = 5;
@@ -128,7 +139,7 @@
             // 
             this.btnBrowseMap.AutoSize = true;
             this.btnBrowseMap.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnBrowseMap.Location = new System.Drawing.Point(236, 30);
+            this.btnBrowseMap.Location = new System.Drawing.Point(218, 30);
             this.btnBrowseMap.Name = "btnBrowseMap";
             this.btnBrowseMap.Size = new System.Drawing.Size(26, 23);
             this.btnBrowseMap.TabIndex = 2;
@@ -149,7 +160,7 @@
             // 
             this.txtMapPath.Location = new System.Drawing.Point(9, 32);
             this.txtMapPath.Name = "txtMapPath";
-            this.txtMapPath.Size = new System.Drawing.Size(221, 20);
+            this.txtMapPath.Size = new System.Drawing.Size(205, 20);
             this.txtMapPath.TabIndex = 1;
             this.toolTip1.SetToolTip(this.txtMapPath, "The default folder to start in when opening maps");
             // 
@@ -166,7 +177,7 @@
             // 
             this.txtDataPath.Location = new System.Drawing.Point(9, 71);
             this.txtDataPath.Name = "txtDataPath";
-            this.txtDataPath.Size = new System.Drawing.Size(221, 20);
+            this.txtDataPath.Size = new System.Drawing.Size(205, 20);
             this.txtDataPath.TabIndex = 4;
             this.toolTip1.SetToolTip(this.txtDataPath, "The default save folder for batch extracts");
             // 
@@ -178,7 +189,7 @@
             this.groupBox1.Controls.Add(this.txtClassFilter);
             this.groupBox1.Location = new System.Drawing.Point(12, 160);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(268, 105);
+            this.groupBox1.Size = new System.Drawing.Size(250, 105);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Filters";
@@ -196,7 +207,7 @@
             // 
             this.txtPermFilter.Location = new System.Drawing.Point(9, 71);
             this.txtPermFilter.Name = "txtPermFilter";
-            this.txtPermFilter.Size = new System.Drawing.Size(253, 20);
+            this.txtPermFilter.Size = new System.Drawing.Size(235, 20);
             this.txtPermFilter.TabIndex = 3;
             this.toolTip1.SetToolTip(this.txtPermFilter, "Load certain permutations when the model viewer starts");
             // 
@@ -213,7 +224,7 @@
             // 
             this.txtClassFilter.Location = new System.Drawing.Point(9, 32);
             this.txtClassFilter.Name = "txtClassFilter";
-            this.txtClassFilter.Size = new System.Drawing.Size(253, 20);
+            this.txtClassFilter.Size = new System.Drawing.Size(235, 20);
             this.txtClassFilter.TabIndex = 1;
             this.toolTip1.SetToolTip(this.txtClassFilter, "Only show certain tag classes in the tag tree");
             // 
@@ -236,7 +247,7 @@
             "Unknown1"});
             this.cmbLang.Location = new System.Drawing.Point(10, 72);
             this.cmbLang.Name = "cmbLang";
-            this.cmbLang.Size = new System.Drawing.Size(121, 21);
+            this.cmbLang.Size = new System.Drawing.Size(112, 21);
             this.cmbLang.TabIndex = 5;
             this.toolTip1.SetToolTip(this.cmbLang, "The format to use when batch extracting images");
             // 
@@ -251,7 +262,7 @@
             "PNG (*.png)"});
             this.cmbBitm.Location = new System.Drawing.Point(9, 32);
             this.cmbBitm.Name = "cmbBitm";
-            this.cmbBitm.Size = new System.Drawing.Size(121, 21);
+            this.cmbBitm.Size = new System.Drawing.Size(112, 21);
             this.cmbBitm.TabIndex = 1;
             this.toolTip1.SetToolTip(this.cmbBitm, "The format to use when batch extracting images");
             // 
@@ -264,9 +275,9 @@
             "OBJ (*.obj)",
             "AMF (*.amf)",
             "JMS (*.jms)"});
-            this.cmbMode.Location = new System.Drawing.Point(141, 32);
+            this.cmbMode.Location = new System.Drawing.Point(132, 32);
             this.cmbMode.Name = "cmbMode";
-            this.cmbMode.Size = new System.Drawing.Size(121, 21);
+            this.cmbMode.Size = new System.Drawing.Size(112, 21);
             this.cmbMode.TabIndex = 3;
             this.toolTip1.SetToolTip(this.cmbMode, "The format to use when batch extracting models");
             // 
@@ -275,14 +286,13 @@
             this.btnColour.BackColor = System.Drawing.SystemColors.Control;
             this.btnColour.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.btnColour.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnColour.Location = new System.Drawing.Point(12, 274);
+            this.btnColour.Location = new System.Drawing.Point(14, 219);
             this.btnColour.Name = "btnColour";
-            this.btnColour.Size = new System.Drawing.Size(121, 23);
+            this.btnColour.Size = new System.Drawing.Size(88, 23);
             this.btnColour.TabIndex = 6;
-            this.btnColour.Text = "Background Colour";
-            this.toolTip1.SetToolTip(this.btnColour, "The background colour of the viewer");
+            this.btnColour.Text = "Viewer Colour";
+            this.toolTip1.SetToolTip(this.btnColour, "The background colour of the model viewer");
             this.btnColour.UseVisualStyleBackColor = false;
-            this.btnColour.Visible = false;
             this.btnColour.BackColorChanged += new System.EventHandler(this.btnColour_BackColorChanged);
             this.btnColour.Click += new System.EventHandler(this.btnColour_Click);
             // 
@@ -295,18 +305,18 @@
             "WAV (*.wav)",
             "XMA (*.xma)",
             "Raw (*.bin)"});
-            this.cmbSnd_.Location = new System.Drawing.Point(141, 72);
+            this.cmbSnd_.Location = new System.Drawing.Point(132, 72);
             this.cmbSnd_.Name = "cmbSnd_";
-            this.cmbSnd_.Size = new System.Drawing.Size(121, 21);
+            this.cmbSnd_.Size = new System.Drawing.Size(112, 21);
             this.cmbSnd_.TabIndex = 7;
             this.toolTip1.SetToolTip(this.cmbSnd_, "The format to use when batch extracting sounds");
             // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.chkFlags);
-            this.groupBox3.Location = new System.Drawing.Point(286, 12);
+            this.groupBox3.Location = new System.Drawing.Point(268, 12);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(268, 142);
+            this.groupBox3.Size = new System.Drawing.Size(250, 142);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Options";
@@ -329,7 +339,7 @@
             "Force-load models in viewer"});
             this.chkFlags.Location = new System.Drawing.Point(9, 19);
             this.chkFlags.Name = "chkFlags";
-            this.chkFlags.Size = new System.Drawing.Size(253, 109);
+            this.chkFlags.Size = new System.Drawing.Size(235, 109);
             this.chkFlags.TabIndex = 0;
             // 
             // groupBox4
@@ -342,9 +352,9 @@
             this.groupBox4.Controls.Add(this.label7);
             this.groupBox4.Controls.Add(this.cmbBitm);
             this.groupBox4.Controls.Add(this.cmbMode);
-            this.groupBox4.Location = new System.Drawing.Point(286, 160);
+            this.groupBox4.Location = new System.Drawing.Point(268, 160);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(268, 105);
+            this.groupBox4.Size = new System.Drawing.Size(250, 105);
             this.groupBox4.TabIndex = 3;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Batch Extraction";
@@ -353,7 +363,7 @@
             // 
             this.lblSnd_.AutoSize = true;
             this.lblSnd_.Cursor = System.Windows.Forms.Cursors.Default;
-            this.lblSnd_.Location = new System.Drawing.Point(138, 56);
+            this.lblSnd_.Location = new System.Drawing.Point(129, 56);
             this.lblSnd_.Name = "lblSnd_";
             this.lblSnd_.Size = new System.Drawing.Size(76, 13);
             this.lblSnd_.TabIndex = 6;
@@ -371,7 +381,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(138, 16);
+            this.label6.Location = new System.Drawing.Point(129, 16);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(74, 13);
             this.label6.TabIndex = 2;
@@ -390,7 +400,7 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(286, 274);
+            this.btnCancel.Location = new System.Drawing.Point(328, 274);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 5;
@@ -401,7 +411,7 @@
             // btnSave
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSave.Location = new System.Drawing.Point(205, 274);
+            this.btnSave.Location = new System.Drawing.Point(247, 274);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 4;
@@ -409,13 +419,113 @@
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
+            // tbMapScale
+            // 
+            this.tbMapScale.AutoSize = false;
+            this.tbMapScale.LargeChange = 25;
+            this.tbMapScale.Location = new System.Drawing.Point(14, 46);
+            this.tbMapScale.Maximum = 100;
+            this.tbMapScale.Minimum = 10;
+            this.tbMapScale.Name = "tbMapScale";
+            this.tbMapScale.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.tbMapScale.Size = new System.Drawing.Size(42, 155);
+            this.tbMapScale.SmallChange = 5;
+            this.tbMapScale.TabIndex = 7;
+            this.tbMapScale.TickFrequency = 10;
+            this.tbMapScale.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.toolTip1.SetToolTip(this.tbMapScale, "Texture quality when viewing .map BSPs.\r\nLower values will use less memory.");
+            this.tbMapScale.Value = 100;
+            this.tbMapScale.ValueChanged += new System.EventHandler(this.tbMapScale_ValueChanged);
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.label11);
+            this.groupBox5.Controls.Add(this.label10);
+            this.groupBox5.Controls.Add(this.label9);
+            this.groupBox5.Controls.Add(this.lblPakScale);
+            this.groupBox5.Controls.Add(this.btnColour);
+            this.groupBox5.Controls.Add(this.lblMapScale);
+            this.groupBox5.Controls.Add(this.tbPakScale);
+            this.groupBox5.Controls.Add(this.tbMapScale);
+            this.groupBox5.Location = new System.Drawing.Point(524, 12);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(116, 253);
+            this.groupBox5.TabIndex = 8;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Model Viewer";
+            // 
+            // tbPakScale
+            // 
+            this.tbPakScale.AutoSize = false;
+            this.tbPakScale.LargeChange = 25;
+            this.tbPakScale.Location = new System.Drawing.Point(62, 46);
+            this.tbPakScale.Maximum = 100;
+            this.tbPakScale.Minimum = 10;
+            this.tbPakScale.Name = "tbPakScale";
+            this.tbPakScale.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.tbPakScale.Size = new System.Drawing.Size(42, 155);
+            this.tbPakScale.SmallChange = 5;
+            this.tbPakScale.TabIndex = 8;
+            this.tbPakScale.TickFrequency = 10;
+            this.tbPakScale.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.toolTip1.SetToolTip(this.tbPakScale, "Texture quality when viewing .s3dpak BSPs.\r\nLower values will use less memory.");
+            this.tbPakScale.Value = 100;
+            this.tbPakScale.ValueChanged += new System.EventHandler(this.tbPakScale_ValueChanged);
+            // 
+            // lblMapScale
+            // 
+            this.lblMapScale.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblMapScale.Location = new System.Drawing.Point(12, 199);
+            this.lblMapScale.Name = "lblMapScale";
+            this.lblMapScale.Size = new System.Drawing.Size(44, 14);
+            this.lblMapScale.TabIndex = 8;
+            this.lblMapScale.Text = "100%";
+            this.lblMapScale.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // lblPakScale
+            // 
+            this.lblPakScale.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblPakScale.Location = new System.Drawing.Point(60, 199);
+            this.lblPakScale.Name = "lblPakScale";
+            this.lblPakScale.Size = new System.Drawing.Size(44, 14);
+            this.lblPakScale.TabIndex = 9;
+            this.lblPakScale.Text = "100%";
+            this.lblPakScale.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 16);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(105, 13);
+            this.label9.TabIndex = 10;
+            this.label9.Text = "BSP Texture Quality:";
+            // 
+            // label10
+            // 
+            this.label10.Location = new System.Drawing.Point(13, 32);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(42, 18);
+            this.label10.TabIndex = 11;
+            this.label10.Text = "MAP";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label11
+            // 
+            this.label11.Location = new System.Drawing.Point(60, 32);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(42, 18);
+            this.label11.TabIndex = 12;
+            this.label11.Text = "PAK";
+            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // SettingsForm
             // 
             this.AcceptButton = this.btnSave;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(566, 309);
-            this.Controls.Add(this.btnColour);
+            this.ClientSize = new System.Drawing.Size(651, 309);
+            this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.groupBox4);
@@ -438,6 +548,10 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbMapScale)).EndInit();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbPakScale)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -474,5 +588,13 @@
         private System.Windows.Forms.Button btnColour;
         private System.Windows.Forms.Label lblSnd_;
         private System.Windows.Forms.ComboBox cmbSnd_;
+        private System.Windows.Forms.TrackBar tbMapScale;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.Label lblPakScale;
+        private System.Windows.Forms.Label lblMapScale;
+        private System.Windows.Forms.TrackBar tbPakScale;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label9;
     }
 }

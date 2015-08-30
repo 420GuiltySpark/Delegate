@@ -20,9 +20,9 @@ namespace Adjutant.Library.S3D
 
         public RealQuat unkCoords0;
 
-        public List<S3DScript> Scripts;
+        public List<Script> Scripts;
 
-        public Scene(PakFile Pak, PakFile.PakTag Item)
+        public Scene(PakFile Pak, PakFile.PakTag Item, bool loadMesh)
         {
             var reader = Pak.Reader;
             reader.EndianType = EndianFormat.LittleEndian;
@@ -37,9 +37,9 @@ namespace Adjutant.Library.S3D
             reader.ReadInt32(); //address to end of shaders (0100)
 
             int count = reader.ReadInt32();
-            Materials = new List<S3DMaterial>();
+            Materials = new List<Material>();
             for (int i = 0; i < count; i++)
-                Materials.Add(new S3DMaterial(Pak, Item));
+                Materials.Add(new Material(Pak, Item));
 
             reader.ReadInt16(); //0100
             reader.ReadInt32(); //address to 1F02
@@ -84,9 +84,9 @@ namespace Adjutant.Library.S3D
             addr = reader.ReadInt32();
 
             count = reader.ReadInt32();
-            Scripts = new List<S3DScript>();
+            Scripts = new List<Script>();
             for (int i = 0; i < count; i++)
-                Scripts.Add(new S3DScript(Pak, Item));
+                Scripts.Add(new Script(Pak, Item));
 
             reader.SeekTo(Item.Offset + addr);
             reader.ReadInt16(); //8404
@@ -100,13 +100,13 @@ namespace Adjutant.Library.S3D
             unk1 = reader.ReadInt32(); //address to first object
 
             count = reader.ReadInt32();
-            Objects = new List<S3DObject>();
+            Objects = new List<Node>();
             for (int i = 0; i < count; i++)
-                Objects.Add(new S3DObject(Pak, Item));
+                Objects.Add(new Node(Pak, Item, loadMesh));
 
             foreach (var obj in Objects)
                 if (obj.isInheritor)
-                    Objects[obj.inheritIndex].isInherited = true;
+                    Objects[obj.inheritID].isInherited = true;
             var pos = reader.Position - Item.Offset;
         }
 
@@ -122,7 +122,7 @@ namespace Adjutant.Library.S3D
             {
                 if (obj.isInheritor && obj.Submeshes.Count > 0)
                 {
-                    var pObj = ObjectByID(obj.inheritIndex);
+                    var pObj = ObjectByID(obj.inheritID);
                     int maxVert = 0;
                     int maxIndx = 0;
 
@@ -150,13 +150,13 @@ namespace Adjutant.Library.S3D
         }
     }
 
-    public class S3DScript
+    public class Script
     {
         public int xBA01;
         public int AddressOfNext;
         public string Data;
 
-        public S3DScript(PakFile Pak, PakFile.PakTag Item)
+        public Script(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
 

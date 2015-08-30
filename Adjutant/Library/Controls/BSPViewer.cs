@@ -24,9 +24,6 @@ namespace Adjutant.Library.Controls
 {
     public partial class BSPViewer : UserControl
     {
-        int mscale = 2; //texture scaling for maps [1 / scale]
-        int pscale = 4; //texture scaling for paks [1 / scale]
-
         #region Init
         private CacheFile cache;
         private CacheFile.IndexItem tag;
@@ -44,6 +41,7 @@ namespace Adjutant.Library.Controls
         private Dictionary<int, Model3DGroup> atplDic = new Dictionary<int, Model3DGroup>();
 
         public ModelFormat DefaultModeFormat = ModelFormat.AMF;
+        public float TextureScale = 1;
 
         public System.Drawing.Color RenderBackColor
         {
@@ -272,7 +270,7 @@ namespace Adjutant.Library.Controls
                     var bitmTag = cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[mapIndex].BitmapTagID);
 
                     var image = BitmapExtractor.GetBitmapByTag(cache, bitmTag, 0, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    if (mscale > 1) image = new Bitmap(image, new Size(image.Width / mscale, image.Height / mscale));
+                    if (TextureScale < 1) image = new Bitmap(image, new Size((int)(image.Width * TextureScale), (int)(image.Height * TextureScale)));
 
                     if (image == null)
                     {
@@ -467,28 +465,20 @@ namespace Adjutant.Library.Controls
             pak = Pak;
             item = Item;
 
-            atpl = new Scene(pak, item);
-            atpl.Parse();
+            atpl = new Scene(pak, item, true);
 
-            var tObj = atpl.Objects[0];
-            foreach (var obj in atpl.Objects)
-                if (obj.VertCount > tObj.VertCount) tObj = obj;
-
-            var idx = atpl.Objects.IndexOf(tObj);
             var shList = new List<int>();
 
             isWorking = true;
 
             #region Build Tree
 
+            #region non-shared nodes
             TreeNode pNode = new TreeNode(atpl.Name) { Tag = atpl };
             foreach (var obj in atpl.Objects)
             {
-                if (obj.Vertices == null || obj.Submeshes == null) continue;
-                if (obj.VertCount == 0 || obj.Submeshes.Count == 0) continue;
-                //if (obj.Submeshes[0].MaterialIndex == -1) continue;
-                if (obj.isInherited) continue;
-                if (obj.isInheritor) continue;
+                if (obj.isInherited || obj.isInheritor) continue;
+                if (obj.Submeshes == null) continue;
 
                 pNode.Nodes.Add(new TreeNode(obj.Name) { Tag = obj });
 
@@ -496,30 +486,31 @@ namespace Adjutant.Library.Controls
                     if (!shList.Contains(sub.MaterialIndex)) shList.Add(sub.MaterialIndex);
             }
             if (pNode.Nodes.Count > 0) tvRegions.Nodes.Add(pNode);
+            #endregion
 
-            foreach (var obj in atpl.Objects)
+            #region shared nodes
+            foreach (var pObj in atpl.Objects)
             {
-                if (!obj.isInherited) continue;
+                if (!pObj.isInherited) continue;
 
-                TreeNode iNode = new TreeNode(obj.Name) { Tag = obj };
+                TreeNode iNode = new TreeNode(pObj.Name) { Tag = pObj };
 
-                foreach (var obj1 in atpl.Objects)
+                foreach (var cObj in atpl.Objects)
                 {
-                    if (!obj1.isInheritor) continue;
-                    if (obj.Vertices == null || obj.Submeshes == null) continue;
-                    if (obj.VertCount == 0 || obj.Submeshes.Count == 0) continue;
-                    //if (obj.Submeshes[0].MaterialIndex == -1) continue;
-                    if (obj1.inheritIndex == atpl.Objects.IndexOf(obj))
-                    {
-                        iNode.Nodes.Add(new TreeNode(obj1.Name) { Tag = obj1 });
+                    if (!cObj.isInheritor) continue;
 
-                        foreach (var sub in obj1.Submeshes)
+                    if (cObj.inheritID == pObj.ID)
+                    {
+                        iNode.Nodes.Add(new TreeNode(cObj.Name) { Tag = cObj });
+
+                        foreach (var sub in cObj.Submeshes)
                             if (!shList.Contains(sub.MaterialIndex)) shList.Add(sub.MaterialIndex);
                     }
                 }
 
                 if (iNode.Nodes.Count > 0) tvRegions.Nodes.Add(iNode);
             }
+            #endregion
 
             foreach (TreeNode node in tvRegions.Nodes)
                 node.Nodes[0].Checked = node.Checked = true;
@@ -625,10 +616,10 @@ namespace Adjutant.Library.Controls
             var matGroup = new MaterialGroup();
             matGroup.Children.Add(errMat);
             shaders.Add(matGroup);
-            if (atpl.Materials.Count == 0) return;
 
-            var sPak = new PakFile(pak.FilePath + "\\" + "pak_stream_decompressed.s3dpak");
-            //var sPak = pak;
+            var texpath = pak.FilePath + "\\" + "pak_stream_decompressed.s3dpak";
+            var sPak = (File.Exists(texpath)) ? new PakFile(texpath) : pak;
+
             foreach (var mat in atpl.Materials)
             {
                 if (!indices.Contains(atpl.Materials.IndexOf(mat)))
@@ -642,7 +633,7 @@ namespace Adjutant.Library.Controls
                 {
                     var pict = new Texture(sPak, sPak.GetItemByName(mat.Name));
                     var image = BitmapExtractor.GetBitmapByTag(sPak, pict, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    if (pscale > 1) image = new Bitmap(image, new Size(image.Width / pscale, image.Height / pscale));
+                    if (TextureScale < 1) image = new Bitmap(image, new Size((int)(image.Width * TextureScale), (int)(image.Height * TextureScale)));
 
 
                     if (image == null)
@@ -690,69 +681,45 @@ namespace Adjutant.Library.Controls
 
             foreach (var obj in atpl.Objects)
             {
-                if (obj.Vertices == null || obj.Submeshes == null) continue;
-                if (obj.VertCount == 0 || obj.Submeshes.Count == 0) continue;
-                //if (obj.Submeshes[0].MaterialIndex == -1) continue;
-                if (obj.isInherited) continue;
+                if (obj.isInherited || obj.Submeshes == null) continue;
 
-                var group = new Model3DGroup();
-                foreach (var submesh in obj.Submeshes)
-                    AddS3DMesh(group, obj, submesh, force);
+                try
+                {
+                    var group = new Model3DGroup();
+                    foreach (var submesh in obj.Submeshes)
+                        AddS3DMesh(group, obj, submesh, force);
 
-                var mGroup = new Transform3DGroup();
+                    var mGroup = new Transform3DGroup();
+                    var pObj = (obj.inheritID == -1) ? obj : atpl.ObjectByID(obj.inheritID);
 
-                Matrix3D mat0 = ModelFunctions.MatrixFromBounds(obj.BoundingBox);
-                Matrix3D mat1 = (obj.isInheritor) ? ModelFunctions.MatrixFromBounds(atpl.ObjectByID(obj.inheritIndex).BoundingBox) : Matrix3D.Identity;
-                Matrix3D mat2 = ModelFunctions.MatrixFromBounds(atpl.RenderBounds);
+                    //Matrix3D mat0 = ModelFunctions.MatrixFromBounds(obj.BoundingBox);
+                    //Matrix3D mat1 = (obj.isInheritor) ? ModelFunctions.MatrixFromBounds(pObj.BoundingBox) : Matrix3D.Identity;
+                    //Matrix3D mat2 = ModelFunctions.MatrixFromBounds(atpl.RenderBounds);
 
-                Matrix3D mat5 = obj.Transform;
-                Matrix3D mat6 = (obj.isInheritor) ? atpl.ObjectByID(obj.inheritIndex).Transform : Matrix3D.Identity;
+                    var mat3 = new Matrix3D(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
+                    var mat4 = (pObj.geomUnk01 == 134) ? Matrix3D.Identity : new Matrix3D(500, 0, 0, 0, 0, 500, 0, 0, 0, 0, 500, 0, 0, 0, 0, 1);
 
-                //if (!mat5.IsIdentity || !mat6.IsIdentity)
-                //    mat5 = mat5;
 
-                var mat3 = new Matrix3D(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
-                var mat4 = new Matrix3D(500, 0, 0, 0, 0, 500, 0, 0, 0, 0, 500, 0, 0, 0, 0, 1);
+                    mGroup.Children.Add(new MatrixTransform3D(mat4 * mat3));
+                    group.Transform = mGroup;
 
-                //if (obj.isInheritor)
-                //{
-                //    var bb0 = atpl.ObjectByID(obj.inheritIndex).BoundingBox;
-                //    var bb1 = obj.BoundingBox;
-
-                //    RealQuat min = new RealQuat(bb0.XBounds.Min * bb1.XBounds.Min, bb0.YBounds.Min * bb1.YBounds.Min, bb0.ZBounds.Min * bb1.ZBounds.Min);
-                //    RealQuat max = new RealQuat(bb0.XBounds.Max * bb1.XBounds.Max, bb0.YBounds.Max * bb1.YBounds.Max, bb0.ZBounds.Max * bb1.ZBounds.Max);
-                //    //var matx = ModelFunctions.MatrixFromBounds(min, max);
-                //    var matx = ModelFunctions.MatrixFromBounds(bb1) * ModelFunctions.MatrixFromBounds(bb0);
-                //    mGroup.Children.Add(new MatrixTransform3D(matx * mat3));
-                //    group.Transform = mGroup;
-
-                //    atplDic.Add(atpl.Objects.IndexOf(obj), group);
-                //    continue;
-                //}
-
-                //mGroup.Children.Add(new ScaleTransform3D(100, 100, 100));
-                mGroup.Children.Add(new MatrixTransform3D(mat4 * mat3));
-                group.Transform = mGroup;
-
-                atplDic.Add(atpl.Objects.IndexOf(obj), group);
+                    atplDic.Add(atpl.Objects.IndexOf(obj), group);
+                }
+                catch (Exception ex) { if (!force)throw ex; }
             }
         }
 
-        private void AddS3DMesh(Model3DGroup group, S3DObject obj, S3DObject.Submesh submesh, bool force)
+        private void AddS3DMesh(Model3DGroup group, Node obj, Node.Submesh submesh, bool force)
         {
             try
             {
+                var pObj = (obj.inheritID == -1) ? obj : atpl.ObjectByID(obj.inheritID);
+                
                 var geom = new MeshGeometry3D();
-                var iList = ModelFunctions.GetTriangleList(obj.Indices, submesh.FaceStart * 3, submesh.FaceLength * 3, 3);
+                var iList = ModelFunctions.GetTriangleList(pObj.Indices, (obj.faceOffset + submesh.FaceStart) * 3, submesh.FaceLength * 3, 3);
 
-                int min = iList.Min();
-                int max = iList.Max();
-
-                for (int i = 0; i < iList.Count; i++)
-                    iList[i] -= min;
-
-                var vArray = new Vertex[(max - min) + 1];
-                Array.Copy(obj.Vertices.ToArray(), min, vArray, 0, (max - min) + 1);
+                var vArray = new Vertex[submesh.VertLength];
+                Array.Copy(pObj.Vertices.ToArray(), (obj.vertOffset + submesh.VertStart), vArray, 0, submesh.VertLength);
 
                 foreach (var vertex in vArray)
                 {
@@ -761,8 +728,8 @@ namespace Adjutant.Library.Controls
                     vertex.TryGetValue("position", 0, out pos);
                     vertex.TryGetValue("texcoords", 0, out tex);
 
-                    geom.Positions.Add(new Point3D(pos.Data.x * 1, pos.Data.y * 1, pos.Data.z * 1));
-                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * 2 * obj.uvScale, tex.Data.y * 2 * obj.uvScale));
+                    geom.Positions.Add(new Point3D(pos.Data.x, pos.Data.y, pos.Data.z));
+                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * obj.unkC0, tex.Data.y * obj.unkC0));
                     if (vertex.TryGetValue("normal", 0, out norm)) geom.Normals.Add(new Vector3D(norm.Data.x, norm.Data.y, norm.Data.z));
                 }
 
@@ -771,7 +738,7 @@ namespace Adjutant.Library.Controls
 
                 GeometryModel3D modeld = new GeometryModel3D(geom, shaders[submesh.MaterialIndex + 1])
                 {
-                    //BackMaterial = shaders[submesh.MaterialIndex+1]
+                    //BackMaterial = shaders[submesh.MaterialIndex + 1]
                 };
 
                 group.Children.Add(modeld);
@@ -810,7 +777,7 @@ namespace Adjutant.Library.Controls
                     }
                     else //S3D
                     {
-                        var obj = cnode.Tag as S3DObject;
+                        var obj = cnode.Tag as Node;
                         if (atplDic.TryGetValue(atpl.Objects.IndexOf(obj), out mesh))
                             group.Children.Add(mesh);
                     }
@@ -961,9 +928,9 @@ namespace Adjutant.Library.Controls
                         var ig = cnode.Tag as scenario_structure_bsp.InstancedGeometry;
                         igs.Add(sbsp.GeomInstances.IndexOf(ig));
                     }
-                    else if (cnode.Tag is S3DObject)
+                    else if (cnode.Tag is Node)
                     {
-                        var obj = cnode.Tag as S3DObject;
+                        var obj = cnode.Tag as Node;
                         clusts.Add(atpl.Objects.IndexOf(obj));
                     }
                 }

@@ -425,7 +425,7 @@ namespace Adjutant.Library.Controls
             pak = Pak;
             item = Item;
 
-            atpl = new Template(pak, item);
+            atpl = new Template(pak, item, true);
             atpl.Parse();
 
             isWorking = true;
@@ -516,17 +516,16 @@ namespace Adjutant.Library.Controls
         {
             var errMat = GetErrorMaterial();
 
-            if (atpl.Materials.Count == 0)
-            {
-                var matGroup = new MaterialGroup();
-                matGroup.Children.Add(errMat);
-                shaders.Add(matGroup);
-            }
+            var matGroup = new MaterialGroup();
+            matGroup.Children.Add(errMat);
+            shaders.Add(matGroup);
 
-            var sPak = new PakFile(pak.FilePath + "\\" + "pak_stream_decompressed.s3dpak");
+            var texpath = pak.FilePath + "\\" + "pak_stream_decompressed.s3dpak";
+            var sPak = (File.Exists(texpath)) ? new PakFile(texpath) : pak;
+
             foreach (var mat in atpl.Materials)
             {
-                var matGroup = new MaterialGroup();
+                matGroup = new MaterialGroup();
 
                 try
                 {
@@ -604,7 +603,7 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        private void AddS3DMesh(Model3DGroup group, S3DObject obj, S3DObject.Submesh submesh, bool force)
+        private void AddS3DMesh(Model3DGroup group, Node obj, Node.Submesh submesh, bool force)
         {
             try
             {
@@ -639,9 +638,9 @@ namespace Adjutant.Library.Controls
                 foreach (var index in iList)
                     geom.TriangleIndices.Add(index);
 
-                GeometryModel3D modeld = new GeometryModel3D(geom, shaders[submesh.MaterialIndex])
+                GeometryModel3D modeld = new GeometryModel3D(geom, shaders[submesh.MaterialIndex + 1])
                 {
-                    BackMaterial = shaders[submesh.MaterialIndex]
+                    BackMaterial = shaders[submesh.MaterialIndex + 1]
                 };
 
                 group.Children.Add(modeld);
@@ -673,7 +672,7 @@ namespace Adjutant.Library.Controls
                     }
                     else //atpl
                     {
-                        var obj = child.Tag as S3DObject;
+                        var obj = child.Tag as Node;
                         if (atplDic.TryGetValue(atpl.Objects.IndexOf(obj), out mesh))
                             group.Children.Add(mesh);
                     }
@@ -835,7 +834,7 @@ namespace Adjutant.Library.Controls
                 {
                     if (!child.Checked) continue;
                     if (cache != null) parts.Add((child.Tag as render_model.Region.Permutation).PieceIndex);
-                    else parts.Add(atpl.Objects.IndexOf(child.Tag as S3DObject));
+                    else parts.Add(atpl.Objects.IndexOf(child.Tag as Node));
                 }
             }
 

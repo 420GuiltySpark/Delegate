@@ -117,6 +117,10 @@ namespace Adjutant.Controls
             tag = Tag;
             metaLoaded = rawLoaded = modelLoaded = false;
 
+            vMode.RenderBackColor = settings.ViewerColour;
+            vSbsp.RenderBackColor = settings.ViewerColour;
+            vSbsp.TextureScale = settings.mapScale / 100f;
+
             switch (Tag.ClassCode)
             {
                 #region bitm
@@ -315,13 +319,12 @@ namespace Adjutant.Controls
             }
         }
 
-        public void LoadPakItem(PakFile Pak, PakFile.PakTag Item)
+        public void LoadTag(PakFile Pak, PakFile.PakTag Tag)
         {
             tabMeta.Controls.Clear();
             tabMeta.Controls.Add(vS3D);
             vS3D.Dock = DockStyle.Fill;
 
-            //tabControl1.TabPages.Remove(tabMeta);
             if (vMode == null)
             {
                 vMode = new ModelViewer();      //this cant go in the constructor because the
@@ -349,14 +352,18 @@ namespace Adjutant.Controls
             else vSbsp.Clear();
 
             pak = Pak;
-            item = Item;
+            item = Tag;
             metaLoaded = rawLoaded = modelLoaded = false;
 
-            switch (item.unk0)
+            vMode.RenderBackColor = settings.ViewerColour;
+            vSbsp.RenderBackColor = settings.ViewerColour;
+            vSbsp.TextureScale = settings.pakScale / 100f;
+
+            switch (item.Class)
             {
                 #region bitmaps
-                case 6:
-                case 7:
+                case TagType.Textures:
+                case TagType.TexturesMips64:
                     tabControl1.TabPages.Remove(tabModel);
 
                     tabRaw.Controls.Clear();
@@ -376,7 +383,7 @@ namespace Adjutant.Controls
                 #endregion
 
                 #region models
-                case 12:
+                case TagType.Templates:
                     tabControl1.TabPages.Remove(tabRaw);
                     vMode.Visible = true;
                     vSbsp.Visible = false;
@@ -397,7 +404,7 @@ namespace Adjutant.Controls
                     if (tabControl1.SelectedTab == tabMeta)
                     {
                         //vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
-                        vS3D.LoadModelHierarchy(pak, item, false);
+                        vS3D.LoadModelHierarchy(pak, item);
                         metaLoaded = true;
                     }
                     //else if (tabControl1.SelectedTab == tabRaw)
@@ -420,7 +427,7 @@ namespace Adjutant.Controls
                 #endregion
 
                 #region bsps
-                case 16:
+                case TagType.Scene:
                     tabControl1.TabPages.Remove(tabRaw);
                     vMode.Visible = false;
                     vSbsp.Visible = true;
@@ -438,7 +445,7 @@ namespace Adjutant.Controls
                     if (tabControl1.SelectedTab == tabMeta)
                     {
                         //vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
-                        vS3D.LoadModelHierarchy(pak, item, true);
+                        vS3D.LoadModelHierarchy(pak, item);
                         metaLoaded = true;
                     }
                     //else if (tabControl1.SelectedTab == tabRaw)
@@ -461,7 +468,7 @@ namespace Adjutant.Controls
                     tabControl1.TabPages.Remove(tabModel);
                     tabControl1.TabPages.Remove(tabRaw);
 
-                    if (item.unk0 == 1) vS3D.displayDataInfo(new SceneData(pak, item), item.Offset);
+                    vS3D.DisplayTagInfo(pak, item);
                     break;
                 #endregion
             }
@@ -489,7 +496,7 @@ namespace Adjutant.Controls
             {
                 if (!metaLoaded)
                 {
-                    if (cache == null) vS3D.LoadModelHierarchy(pak, item, (item.Type == TagType.BSP));
+                    if (cache == null) vS3D.LoadModelHierarchy(pak, item);
                     else vMeta.LoadTagMeta(cache, tag, settings.Flags.HasFlag(SettingsFlags.ShowInvisibles), settings.pluginFolder);
                     metaLoaded = true;
                 }
@@ -560,15 +567,15 @@ namespace Adjutant.Controls
                 {
                     if (modelLoaded) return;
 
-                    switch (item.Type)
+                    switch (item.Class)
                     {
-                        case TagType.Models:
+                        case TagType.Templates:
                             vSbsp.Visible = false;
                             vMode.Visible = true;
                             vMode.LoadModelTag(pak, item, false, settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
                             modelLoaded = true;
                             break;
-                        case TagType.BSP:
+                        case TagType.Scene:
                             vMode.Visible = false;
                             vSbsp.Visible = true;
                             vSbsp.LoadBSPTag(pak, item, settings.Flags.HasFlag(SettingsFlags.ForceLoadModels));
@@ -621,7 +628,7 @@ namespace Adjutant.Controls
             else
             {
                 var t = (PakFile.PakTag)Tag;
-                output.AddLine("Extracted [" + t.unk0.ToString("D2") + "] " + t.Name + ".");
+                output.AddLine("Extracted [" + ((int)t.Class).ToString("D2") + "] " + t.Name + ".");
             }
         }
 
@@ -635,7 +642,7 @@ namespace Adjutant.Controls
             else
             {
                 var t = (PakFile.PakTag)Tag;
-                output.AddLine("Error extracting [" + t.unk0.ToString("D2") + "] " + t.Name + ":");
+                output.AddLine("Error extracting [" + ((int)t.Class).ToString("D2") + "] " + t.Name + ":");
             }
             output.AddLine("--" + Error.Message);
         }

@@ -154,15 +154,15 @@ namespace Adjutant.Controls
                 TreeNode pnode;
                 var node = new TreeNode(item.Name) { Name = item.Name, Tag = item, ImageIndex = 1, SelectedImageIndex = 1 };
 
-                if (dic.TryGetValue(item.unk0, out pnode))
+                if (dic.TryGetValue((int)item.Class, out pnode))
                     pnode.Nodes.Add(node);
                 else
                 {
-                    pnode = new TreeNode(item.unk0.ToString("D2")+ " [" + item.Type.ToString() + "]") 
-                    { Name = item.unk0.ToString(), ImageIndex = 0, SelectedImageIndex = 0 };
+                    pnode = new TreeNode("[" + ((int)item.Class).ToString("D2") + "] " + item.Class.ToString()) 
+                    { Name = item.Class.ToString(), ImageIndex = 0, SelectedImageIndex = 0 };
                     pnode.Nodes.Add(node);
                     nList.Add(pnode);
-                    dic.Add(item.unk0, pnode);
+                    dic.Add((int)item.Class, pnode);
                 }
             }
 
@@ -427,15 +427,15 @@ namespace Adjutant.Controls
                 TreeNode pnode;
                 var node = new TreeNode(item.Name) { Name = item.Name, Tag = item, ImageIndex = 1, SelectedImageIndex = 1 };
 
-                if (dic.TryGetValue(item.unk0, out pnode))
+                if (dic.TryGetValue((int)item.Class, out pnode))
                     pnode.Nodes.Add(node);
                 else
                 {
-                    pnode = new TreeNode(item.unk0.ToString("D2") + " [" + item.Type.ToString() + "]")
-                    { Name = item.unk0.ToString(), ImageIndex = 0, SelectedImageIndex = 0 };
+                    pnode = new TreeNode(((int)item.Class).ToString("D2") + " [" + item.Class.ToString() + "]")
+                    { Name = item.Class.ToString(), ImageIndex = 0, SelectedImageIndex = 0 };
                     pnode.Nodes.Add(node);
                     nList.Add(pnode);
-                    dic.Add(item.unk0, pnode);
+                    dic.Add((int)item.Class, pnode);
                 }
             }
 
@@ -469,7 +469,7 @@ namespace Adjutant.Controls
             if (cache != null)
                 tv.LoadTag(cache, tag);
             else if (item != null)
-                tv.LoadPakItem(pak, item);
+                tv.LoadTag(pak, item);
         }
 
         private void tvTags_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)

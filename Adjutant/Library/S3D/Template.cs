@@ -19,23 +19,35 @@ namespace Adjutant.Library.S3D
         public int x2C01;
         public int unk1;
 
-        public List<S3DNodeInfo> NodeInfo;
+        public List<NodeInfo> NodeInfo;
         public List<Matrix> unkMatList;
 
-        public Template(PakFile Pak, PakFile.PakTag Item)
+        public Template(PakFile Pak, PakFile.PakTag Item, bool loadMesh)
         {
             var reader = Pak.Reader;
             reader.EndianType = EndianFormat.LittleEndian;
             reader.SeekTo(Item.Offset);
 
-            reader.Skip(16);
-            Name = reader.ReadNullTerminatedString();
-            reader.Skip(16);
+            reader.ReadInt16(); //E402
+            reader.ReadInt32(); //filesize
+            
+            reader.ReadInt16(); //E502
+            reader.ReadInt32(); //address of 1603
+            reader.ReadInt32(); //LPTA (probs part of the string)
+            Name = reader.ReadNullTerminatedString();           
+            reader.ReadByte(); //00
+
+            reader.ReadInt16(); //1603
+            reader.ReadInt32(); //address of 5501
+            reader.ReadBytes(3); //02 01 01
+
+            reader.ReadInt16(); //5501
+            reader.ReadInt32(); //address to end of materials
 
             int count = reader.ReadInt32();
-            Materials = new List<S3DMaterial>();
+            Materials = new List<Material>();
             for (int i = 0; i < count; i++)
-                Materials.Add(new S3DMaterial(Pak, Item));
+                Materials.Add(new Material(Pak, Item));
 
             reader.ReadInt16(); //0100
             unk0 = reader.ReadInt32();
@@ -45,28 +57,30 @@ namespace Adjutant.Library.S3D
             unk1 = reader.ReadInt32();
 
             count = reader.ReadInt32();
-            Objects = new List<S3DObject>();
+            Objects = new List<Node>();
             for (int i = 0; i < count; i++)
-                Objects.Add(new S3DObject(Pak, Item));
+                Objects.Add(new Node(Pak, Item, loadMesh));
 
             foreach (var obj in Objects)
                 if (obj.isInheritor)
-                    Objects[obj.inheritIndex].isInherited = true;
+                    Objects[obj.inheritID].isInherited = true;
 
-            NodeInfo = new List<S3DNodeInfo>();
+            NodeInfo = new List<NodeInfo>();
             unkMatList = new List<Matrix>();
 
             try
             {
                 reader.SeekTo(Item.Offset + PreNodeInfoAddress);
+                
                 reader.ReadInt16(); //0100
                 reader.ReadInt32(); //address
+                
                 reader.ReadInt16(); //E802
                 var addr = reader.ReadInt32();
 
                 count = reader.ReadInt32();
                 for (int i = 0; i < count; i++)
-                    NodeInfo.Add(new S3DNodeInfo(Pak, Item));
+                    NodeInfo.Add(new NodeInfo(Pak, Item));
 
                 reader.SeekTo(Item.Offset + addr);
 
@@ -86,7 +100,7 @@ namespace Adjutant.Library.S3D
                 {
                     reader.ReadInt32(); //address to end of string
                     reader.ReadNullTerminatedString(); //LOD related
-                    reader.ReadInt16(); //1D01
+                    int t = reader.ReadInt16(); //1D02 [541]
                     addr = reader.ReadInt32(); //address to end of next block
                     reader.ReadInt32(); //block count? havent seen used
 
@@ -107,7 +121,7 @@ namespace Adjutant.Library.S3D
                     reader.ReadInt16(); //0D03
                     reader.ReadInt32(); //points to 6 before addr
 
-                    count = reader.ReadInt32();
+                    count = reader.ReadInt32(); //may not have matrixdata even if count > 0
                     reader.ReadInt16(); //no idea
                     reader.ReadByte();  //no idea
                     for (int i = 0; i < count; i++)
@@ -177,56 +191,61 @@ namespace Adjutant.Library.S3D
         }
     }
 
-    public class S3DNodeInfo
+    public class NodeInfo
     {
         public int xE902;
         public int addr0; //points to 0100
         public float unk00; //assumed float, but always been zero so far
         public int xFA02;
         public int addr1; //points to FB02
-        public float unk01, unk02, unk03;
+        public float unk01, unk02, unk03; //position xyz relative to parent
         public int xFB02;
         public int addr2; //points to FC02
         public float unk04, unk05, unk06, unk07;
         public int xFC02;
         public int addr3; //points to 0A03
-        public float unk08, unk09, unk10;
+        public float unk08, unk09, unk10; //always 1/1/1
         public int x0A03;
         public int addr4; //points to 0100;
-        public float unk11;
+        public float unk11; //always 1, possibly node scale
         public int x0100;
         public int addr5; //points to next item
 
-        public S3DNodeInfo(PakFile Pak, PakFile.PakTag Item)
+        public NodeInfo(PakFile Pak, PakFile.PakTag Item)
         {
             var reader = Pak.Reader;
 
             xE902 = reader.ReadInt16();
             addr0 = reader.ReadInt32();
             unk00 = reader.ReadSingle();
-            
+
             xFA02 = reader.ReadInt16();
             addr1 = reader.ReadInt32();
             unk01 = reader.ReadSingle();
             unk02 = reader.ReadSingle();
             unk03 = reader.ReadSingle();
 
-            xFB02 = reader.ReadInt16();
-            addr2 = reader.ReadInt32();
-            unk04 = reader.ReadSingle();
-            unk05 = reader.ReadSingle();
-            unk06 = reader.ReadSingle();
-            unk07 = reader.ReadSingle();
+            if (false) //not always accurate, needs more mapping
+            {
+                xFB02 = reader.ReadInt16();
+                addr2 = reader.ReadInt32();
+                unk04 = reader.ReadSingle();
+                unk05 = reader.ReadSingle();
+                unk06 = reader.ReadSingle();
+                unk07 = reader.ReadSingle();
 
-            xFC02 = reader.ReadInt16();
-            addr3 = reader.ReadInt32();
-            unk08 = reader.ReadSingle();
-            unk09 = reader.ReadSingle();
-            unk10 = reader.ReadSingle();
+                xFC02 = reader.ReadInt16();
 
-            x0A03 = reader.ReadInt16();
-            addr4 = reader.ReadInt32();
-            unk11 = reader.ReadSingle();
+                addr3 = reader.ReadInt32();
+                unk08 = reader.ReadSingle();
+                unk09 = reader.ReadSingle();
+                unk10 = reader.ReadSingle();
+
+                x0A03 = reader.ReadInt16();
+                addr4 = reader.ReadInt32();
+                unk11 = reader.ReadSingle();
+            }
+            else reader.SeekTo(Item.Offset + addr0);
 
             x0100 = reader.ReadInt16();
             addr5 = reader.ReadInt32();

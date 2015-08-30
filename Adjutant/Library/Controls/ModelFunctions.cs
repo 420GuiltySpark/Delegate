@@ -2481,7 +2481,7 @@ namespace Adjutant.Library.Controls
                 List<int> iList;
                 if (obj.isInheritor)
                 {
-                    var pObj = ATPL.ObjectByID(obj.inheritIndex);
+                    var pObj = ATPL.ObjectByID(obj.inheritID);
 
                     if (objDic.TryGetValue(pObj.Name, out iList))
                         iList.Add(ATPL.Objects.IndexOf(obj));
