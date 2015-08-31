@@ -32,6 +32,8 @@ namespace Adjutant
             BitmFormat = 0;
             ModeFormat = 0;
             Snd_Format = 0;
+            mapScale = 100;
+            pakScale = 50;
         }
 
         public Settings(MemoryStream Stream)

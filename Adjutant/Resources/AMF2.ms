@@ -98,8 +98,6 @@ fn readMarkers = (
 )
 
 fn expand cFormat val bounds = (
-	--((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF
-	--(float)(vv.Data.x * bb.XBounds.Length + bb.XBounds.Min)
 	if cFormat == 1 do (
 		newval = (((val as float) + 32767.0) / 65535.0) as float
 		newval = newval * (bounds.y - bounds.x) + bounds.x
@@ -222,12 +220,9 @@ fn readFaces vLen fCount = (
 			if vLen > 65535 then (
 				append faces [readLong inFile + 1, readLong inFile + 1, readLong inFile + 1]
 			)
-			else /*if vLen > 255 then*/ (
+			else (
 				append faces  [readShort inFile #unsigned + 1, readShort inFile #unsigned + 1, readShort inFile #unsigned + 1]
 			)
--- 			else (
--- 				append faces  [readByte inFile #unsigned + 1, readByte inFile #unsigned + 1, readByte inFile #unsigned + 1]
--- 			)
 		)
 	)
 	return faces

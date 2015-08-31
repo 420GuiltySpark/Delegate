@@ -236,7 +236,7 @@ namespace Adjutant.Library.S3D
                         unkCC = reader.ReadByte(); //count
 
                         reader.ReadByte(); //index
-                        unkC0 = reader.ReadInt32(); //UV related (this section is missing on meshes with no UVs)
+                        unkC0 = reader.ReadInt32() * 2; //UV related (this section is missing on meshes with no UVs) [x2 for scale fix]
 
                         //first block is above, skip the rest
                         for (int i = 1; i < unkCC; i++)
@@ -477,7 +477,7 @@ namespace Adjutant.Library.S3D
                     }
 
                     //Vertices[i].Values.Add(new VertexValue(norm, 0, "normal", 0));
-                    Vertices[i].Values.Add(new VertexValue(tex1 * 2, VertexValue.ValueType.Int16_N2, "texcoords", 0));
+                    Vertices[i].Values.Add(new VertexValue(tex1, VertexValue.ValueType.Int16_N2, "texcoords", 0));
                 }
             unkUV0 = reader.ReadByte();
 

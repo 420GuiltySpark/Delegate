@@ -2449,6 +2449,8 @@ namespace Adjutant.Library.Controls
             var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
             var bw = new BinaryWriter(fs);
 
+            if (!ATPL.isParsed) ATPL.Parse();
+
             #region Address Lists
             var headerAddressList = new List<int>();
             var headerValueList = new List<int>();
@@ -2708,7 +2710,7 @@ namespace Adjutant.Library.Controls
 
                     var bb = new render_model.BoundingBox();
                     bb.XBounds = bb.YBounds = bb.ZBounds = new RealBounds(0, 1);
-                    bb.UBounds = bb.VBounds = new RealBounds(-1, 1);
+                    bb.UBounds = bb.VBounds = new RealBounds(0, obj.unkC0);
                     if (obj.BoundingBox.Length > 0 && !obj.isInheritor) bb = obj.BoundingBox;
 
                     bool compress = obj.Vertices[0].FormatName == "S3D";
@@ -2823,8 +2825,6 @@ namespace Adjutant.Library.Controls
             }
             #endregion
 
-            //dupeDic.Clear();
-
             #region Indices
             foreach (var pair in objDic)
             {
@@ -2886,111 +2886,13 @@ namespace Adjutant.Library.Controls
             headerValueList.Add((int)bw.BaseStream.Position);
             foreach (var mat in ATPL.Materials)
             {
-            //    //skip null shaders
-            //    if (shaderBlock.tagID == -1)
-            //    {
-                bw.Write("null\0".ToCharArray());
-                for (int i = 0; i < 8; i++)
-                    bw.Write("null\0".ToCharArray());
-
-                for (int i = 0; i < 4; i++)
-                    bw.Write(0);
-
-                bw.Write(Convert.ToByte(false));
-                bw.Write(Convert.ToByte(false));
-
-                continue;
-            //    }
-
-            //    var rmshTag = Cache.IndexItems.GetItemByID(shaderBlock.tagID);
-            //    var rmsh = DefinitionsManager.rmsh(Cache, rmshTag);
                 string shaderName = mat.Name + "\0";
-                string[] paths = new string[8] { "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
+                string[] paths = new string[8] { shaderName, "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
                 float[] uTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
                 float[] vTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
-                bool isTransparent = false;
-                bool ccOnly = false;
-
-                paths[0] = mat.Name + "\0";
-                if (Pak.GetItemByName(mat.Name + "_nm") != null) paths[3] = mat.Name + "_nm\0";
-                if (Pak.GetItemByName(mat.Name + "_spec") != null) paths[6] = mat.Name + "_spec\0";
-
-                #region OLD
-                //    //Halo4 fucked this up
-                //    if (Cache.Version >= DefinitionSet.Halo3Beta && Cache.Version <= DefinitionSet.HaloReachRetail)
-                //    {
-                //        var rmt2Tag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].TemplateTagID);
-                //        var rmt2 = DefinitionsManager.rmt2(Cache, rmt2Tag);
-
-                //        for (int i = 0; i < rmt2.UsageBlocks.Count; i++)
-                //        {
-                //            var s = rmt2.UsageBlocks[i].Usage;
-                //            var bitmTag = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[i].BitmapTagID);
-
-                //            switch (s)
-                //            {
-                //                case "base_map":
-                //                    paths[0] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
-                //                    break;
-                //                case "detail_map":
-                //                case "detail_map_overlay":
-                //                    paths[1] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
-                //                    break;
-                //                case "change_color_map":
-                //                    paths[2] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
-                //                    break;
-                //                case "bump_map":
-                //                    paths[3] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
-                //                    break;
-                //                case "bump_detail_map":
-                //                    paths[4] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
-                //                    break;
-                //                case "self_illum_map":
-                //                    paths[5] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
-                //                    break;
-                //                case "specular_map":
-                //                    paths[6] = (bitmTag != null) ? bitmTag.Filename + "\0" : "null\0";
-                //                    break;
-                //            }
-                //        }
-
-                //        short[] tiles = new short[8] { -1, -1, -1, -1, -1, -1, -1, -1 };
-
-                //        foreach (var map in rmsh.Properties[0].ShaderMaps)
-                //        {
-                //            var bitmTag = Cache.IndexItems.GetItemByID(map.BitmapTagID);
-
-                //            for (int i = 0; i < 8; i++)
-                //            {
-                //                if (bitmTag.Filename + "\0" != paths[i]) continue;
-
-                //                tiles[i] = (short)map.TilingIndex;
-                //            }
-                //        }
-
-                //        for (int i = 0; i < 8; i++)
-                //        {
-                //            try
-                //            {
-                //                uTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].UTiling;
-                //                vTiles[i] = rmsh.Properties[0].Tilings[tiles[i]].VTiling;
-                //            }
-                //            catch { }
-                //        }
-                //    }
-                //    else
-                //        try { paths[0] = Cache.IndexItems.GetItemByID(rmsh.Properties[0].ShaderMaps[0].BitmapTagID).Filename + "\0"; }
-                //        catch { }
-
-                //    if (rmshTag.ClassCode != "rmsh" && rmshTag.ClassCode != "mat")
-                //    {
-                //        isTransparent = true;
-                //        if (paths[0] == "null\0" && paths[2] != "null\0")
-                //            ccOnly = true;
-                //    }
-                #endregion
 
                 bw.Write(shaderName.ToCharArray());
+
                 for (int i = 0; i < 8; i++)
                 {
                     bw.Write(paths[i].ToCharArray());
@@ -3001,10 +2903,13 @@ namespace Adjutant.Library.Controls
                     }
                 }
 
-                bw.Write(Convert.ToByte(isTransparent));
-                bw.Write(Convert.ToByte(ccOnly));
+                for (int i = 0; i < 4; i++)
+                    bw.Write(0); //no tints
+
+                bw.Write((short)0); //no transparency or cc
             }
             #endregion
+
             #region Write Addresses
             for (int i = 0; i < headerAddressList.Count; i++)
             {

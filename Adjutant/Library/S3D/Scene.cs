@@ -141,8 +141,12 @@ namespace Adjutant.Library.S3D
                     Array.Copy(pObj.Vertices, obj.vertOffset, obj.Vertices, 0, vLength);
                     Array.Copy(pObj.Indices, obj.faceOffset * 3, obj.Indices, 0, fLength);
 
-                    //if (obj.Vertices != null && obj.BoundingBox != null)
-                    //    ModelFunctions.DecompressVertex(ref obj.Vertices, obj.BoundingBox);
+                    var bb = new render_model.BoundingBox();
+                    bb.XBounds = bb.YBounds = bb.ZBounds = new RealBounds(0, 1);
+                    bb.UBounds = bb.VBounds = new RealBounds(0, obj.unkC0);
+
+                    if (obj.Vertices != null && obj.BoundingBox != null)
+                        ModelFunctions.DecompressVertex(ref obj.Vertices, bb);
                 }
             }
 
