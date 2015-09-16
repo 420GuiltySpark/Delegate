@@ -426,7 +426,6 @@ namespace Adjutant.Library.Controls
             item = Item;
 
             atpl = new Template(pak, item, true);
-            atpl.Parse();
 
             isWorking = true;
 
@@ -435,10 +434,10 @@ namespace Adjutant.Library.Controls
             TreeNode pNode = new TreeNode(atpl.Name) { Tag = atpl };
             foreach (var obj in atpl.Objects)
             {
-                if (obj.VertCount == 0 /*&& obj.Submeshes == null*/) continue;
+                if (obj._B903.VertCount == 0 /*&& obj.Submeshes == null*/) continue;
                 //if (obj.BoundingBox.Length == 0) continue;
 
-                pNode.Nodes.Add(new TreeNode(obj.Name) { Tag = obj });
+                pNode.Nodes.Add(new TreeNode(obj._B903.Name) { Tag = obj });
             }
             if (pNode.Nodes.Count > 0) tvRegions.Nodes.Add(pNode);
 
@@ -529,7 +528,7 @@ namespace Adjutant.Library.Controls
 
                 try
                 {
-                    var pict = new Texture(sPak, sPak.GetItemByName(mat.Name));
+                    var pict = new Texture(sPak, sPak.GetItemByName(mat.Reference));
                     var image = BitmapExtractor.GetBitmapByTag(sPak, pict, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
                     if (image == null)
@@ -577,7 +576,7 @@ namespace Adjutant.Library.Controls
 
             foreach (var obj in atpl.Objects)
             {
-                if (obj.VertCount == 0 /*&& obj.Submeshes == null*/) continue;
+                if (obj._B903.VertCount == 0 /*&& obj.Submeshes == null*/) continue;
                 //if (obj.BoundingBox.Length == 0) continue;
 
                 var group = new Model3DGroup();
@@ -586,17 +585,24 @@ namespace Adjutant.Library.Controls
 
                 int xx = atpl.Objects.IndexOf(obj);
 
-                Matrix3D mat0 = ModelFunctions.MatrixFromBounds(obj.BoundingBox);
-                Matrix3D mat1 = obj.Transform;
+                Matrix3D mat0 = ModelFunctions.MatrixFromBounds(obj.BoundingBox.Data);
+                Matrix3D mat1 = obj.Transform.Data;
 
                 Matrix3D pMat = atpl.HierarchialTransformUp(obj);
+
+                var dmat = new Matrix3D(
+                    1f / 0xFFFF, 0, 0, 0,
+                    0, 1f / 0xFFFF, 0, 0,
+                    0, 0, 1f / 0xFFFF, 0,
+                    0.5, 0.5, 0.5, 1
+                    );
 
                 var mat2 = new Matrix3D(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
                 var mat3 = new Matrix3D(100, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 100, 0, 0, 0, 1);
 
                 int id = obj.ParentID;
                 var mGroup = new Transform3DGroup();
-                mGroup.Children.Add(new MatrixTransform3D(pMat * mat2));
+                mGroup.Children.Add(new MatrixTransform3D(dmat * mat0 * pMat * mat2));
                 group.Transform = mGroup;
 
                 atplDic.Add(atpl.Objects.IndexOf(obj), group);
@@ -609,8 +615,8 @@ namespace Adjutant.Library.Controls
             {
                 var geom = new MeshGeometry3D();
 
-                int[] indcs = obj.Indices;
-                Vertex[] vrtcs = obj.Vertices;
+                int[] indcs = obj.Indices.Data;
+                Vertex[] vrtcs = obj.Vertices.Data;
 
                 var iList = ModelFunctions.GetTriangleList(indcs, submesh.FaceStart * 3, submesh.FaceLength * 3, 3);
 
@@ -631,7 +637,7 @@ namespace Adjutant.Library.Controls
                     vertex.TryGetValue("texcoords", 0, out tex);
 
                     geom.Positions.Add(new Point3D(pos.Data.x*1, pos.Data.y*1, pos.Data.z*1));
-                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x, 1f - tex.Data.y));
+                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * obj._2F01.unkC0, tex.Data.y * obj._2F01.unkC0));
                     if (vertex.TryGetValue("normal", 0, out norm)) geom.Normals.Add(new Vector3D(norm.Data.x, norm.Data.y, norm.Data.z));
                 }
 

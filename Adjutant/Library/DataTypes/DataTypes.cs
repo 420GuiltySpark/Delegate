@@ -2,11 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 
 namespace Adjutant.Library.DataTypes
 {
+    public struct RealBoundingBox
+    {
+        public RealBounds XBounds, YBounds, ZBounds;
+
+        public float Length
+        {
+            get
+            {
+                return (float)Math.Sqrt(
+                Math.Pow(XBounds.Length, 2) +
+                Math.Pow(YBounds.Length, 2) +
+                Math.Pow(ZBounds.Length, 2));
+            }
+        }
+    }
+
     public struct RealBounds
     {
         public float Min, Max;

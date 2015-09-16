@@ -5,8 +5,8 @@ using System.Text;
 using Adjutant.Library.DataTypes;
 using Adjutant.Library;
 using Adjutant.Library.S3D;
+using Adjutant.Library.S3D.Blocks;
 using Adjutant.Library.Endian;
-using Adjutant.Library.Definitions;
 using Adjutant.Library.Controls;
 
 namespace Adjutant.Library.S3D
@@ -14,159 +14,90 @@ namespace Adjutant.Library.S3D
     public class Scene : TemplateBase
     {
         public int xF000;
-        public int unkAddress0;
         public int x2C01;
-        public int unk1;
+
+        public unkBlock_XXXX _C003;
+        public Block_2002 _2002;
+        public unkBlock_XXXX _2102;
+        public unkBlock_XXXX _2202;
+        public unkBlock_XXXX _8404;
 
         public RealQuat unkCoords0;
 
-        public List<Script> Scripts;
+        public List<StringBlock_BA01> Scripts;
 
         public Scene(PakFile Pak, PakFile.PakTag Item, bool loadMesh)
         {
             var reader = Pak.Reader;
             reader.EndianType = EndianFormat.LittleEndian;
-            reader.SeekTo(Item.Offset);
+            reader.StreamOrigin = Item.Offset;
+            reader.SeekTo(0);
 
             Name = Item.Name;
 
-            reader.ReadInt16(); //C003
-            reader.ReadInt32(); //so far just 22 (0x16000000)
-            reader.Skip(16); //maybe all uint16
+            //contains 16bytes, maybe all uint16
+            _C003 = new unkBlock_XXXX(reader, 0xC003);
+
+            #region Block 5501
             reader.ReadInt16(); //5501
-            reader.ReadInt32(); //address to end of shaders (0100)
+            reader.ReadInt32(); //address
 
             int count = reader.ReadInt32();
-            Materials = new List<Material>();
+            Materials = new List<MatRefBlock_5601>();
             for (int i = 0; i < count; i++)
-                Materials.Add(new Material(Pak, Item));
+                Materials.Add(new MatRefBlock_5601(Pak.Reader)); 
+            #endregion
 
             reader.ReadInt16(); //0100
-            reader.ReadInt32(); //address to 1F02
+            reader.ReadInt32(); //address
+
+            #region Block 1F02
             reader.ReadInt16(); //1F02
-            reader.ReadInt32(); //address to section after next
-            reader.ReadInt16(); //2002
-            reader.ReadInt32(); //address to 2102
+            reader.ReadInt32(); //EOB offset
 
-            reader.ReadInt32(); // ]
-            reader.ReadInt32(); // ] unknown purpose, often all 60
-            reader.ReadInt32(); // ]
-            
-            var min = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-            var max = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-            RenderBounds = new render_model.BoundingBox()
-            {
-                XBounds = new RealBounds(min.x, max.x),
-                YBounds = new RealBounds(min.y, max.y),
-                ZBounds = new RealBounds(min.z, max.z),
-                UBounds = new RealBounds(-1, 1),
-                VBounds = new RealBounds(-1, 1)
-            };
-            unkCoords0 = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-            reader.ReadInt16(); //2102
-            var addr = reader.ReadInt32(); //address to next section
-            reader.ReadInt32(); //object count?
-            //loads of empty space here
-            
-            reader.SeekTo(Item.Offset + addr);
+            _2002 = new Block_2002(reader);
 
-            reader.ReadInt16(); //2202
-            addr = reader.ReadInt32(); //address to next section
-            reader.ReadInt32(); //max value of int list
+            //contains count and lots of empty space
+            _2102 = new unkBlock_XXXX(reader, 0x2102);
+
+            //int32 max value of int list
             //12 bytes of 0
-            //int list; int32 * object count, unknown purpose
-            
-            reader.SeekTo(Item.Offset + addr);
+            //int list; int32 * object count
+            _2202 = new unkBlock_XXXX(reader, 0x2202); 
+            #endregion
 
             reader.ReadInt16(); //0100
-            reader.ReadInt32(); //address to 8204
+            reader.ReadInt32(); //address
+
+            #region Block 8204
             reader.ReadInt16(); //8204
-            addr = reader.ReadInt32();
+            reader.ReadInt32(); //address
 
             count = reader.ReadInt32();
-            Scripts = new List<Script>();
+            Scripts = new List<StringBlock_BA01>();
             for (int i = 0; i < count; i++)
-                Scripts.Add(new Script(Pak, Item));
+                Scripts.Add(new StringBlock_BA01(Pak.Reader));
+            #endregion
 
-            reader.SeekTo(Item.Offset + addr);
-            reader.ReadInt16(); //8404
-            addr = reader.ReadInt32();
+            _8404 = new unkBlock_XXXX(reader, 0x8404);
 
-            reader.SeekTo(Item.Offset + addr);
-
+            #region Block F000
             xF000 = reader.ReadInt16();
-            unkAddress0 = reader.ReadInt32();
+            reader.ReadInt32();
             x2C01 = reader.ReadInt16();
-            unk1 = reader.ReadInt32(); //address to first object
+            reader.ReadInt32(); //address to first object
 
             count = reader.ReadInt32();
             Objects = new List<Node>();
             for (int i = 0; i < count; i++)
-                Objects.Add(new Node(Pak, Item, loadMesh));
+                Objects.Add(new Node(Pak.Reader, loadMesh)); 
+            #endregion
 
             foreach (var obj in Objects)
                 if (obj.isInheritor)
-                    Objects[obj.inheritID].isInherited = true;
-            var pos = reader.Position - Item.Offset;
-        }
+                    Objects[obj._2901.InheritID].isInherited = true;
 
-        public override void Parse()
-        {
-            foreach (var obj in Objects)
-            {
-                if (!obj.isInheritor && !obj.isInherited && obj.Vertices != null && obj.BoundingBox != null)
-                    ModelFunctions.DecompressVertex(ref obj.Vertices, obj.BoundingBox);
-            }
-
-            foreach (var obj in Objects)
-            {
-                if (obj.isInheritor && obj.Submeshes.Count > 0)
-                {
-                    var pObj = ObjectByID(obj.inheritID);
-                    int maxVert = 0;
-                    int maxIndx = 0;
-
-                    foreach (var sub in obj.Submeshes)
-                    {
-                        maxVert = Math.Max(maxVert, sub.VertStart + obj.vertOffset + sub.VertLength);
-                        maxIndx = Math.Max(maxIndx, sub.FaceStart + obj.faceOffset + sub.FaceLength);
-                    }
-
-                    int vLength = maxVert - obj.vertOffset;
-                    int fLength = (maxIndx - obj.faceOffset) * 3;
-
-                    obj.Vertices = new Vertex[vLength];
-                    obj.Indices = new int[fLength];
-
-                    Array.Copy(pObj.Vertices, obj.vertOffset, obj.Vertices, 0, vLength);
-                    Array.Copy(pObj.Indices, obj.faceOffset * 3, obj.Indices, 0, fLength);
-
-                    var bb = new render_model.BoundingBox();
-                    bb.XBounds = bb.YBounds = bb.ZBounds = new RealBounds(0, 1);
-                    bb.UBounds = bb.VBounds = new RealBounds(0, obj.unkC0);
-
-                    if (obj.Vertices != null && obj.BoundingBox != null)
-                        ModelFunctions.DecompressVertex(ref obj.Vertices, bb);
-                }
-            }
-
-            isParsed = true;
-        }
-    }
-
-    public class Script
-    {
-        public int xBA01;
-        public int AddressOfNext;
-        public string Data;
-
-        public Script(PakFile Pak, PakFile.PakTag Item)
-        {
-            var reader = Pak.Reader;
-
-            xBA01 = reader.ReadInt16();
-            AddressOfNext = reader.ReadInt32();
-            Data = reader.ReadNullTerminatedString();
+            reader.StreamOrigin = 0;
         }
     }
 }

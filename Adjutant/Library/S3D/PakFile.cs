@@ -17,6 +17,9 @@ namespace Adjutant.Library.S3D
         }
         public EndianReader Reader;
         public PakTable PakItems;
+
+        public SceneData SceneData;
+        public SceneCDT SceneCDT;
         #endregion
 
         public PakFile(string Filename)
@@ -27,6 +30,12 @@ namespace Adjutant.Library.S3D
             Reader = new EndianReader((Stream)fs, EndianFormat.LittleEndian);
 
             PakItems = new PakTable(this);
+
+            foreach (var item in PakItems)
+            {
+                if (item.Class == TagType.SceneData) SceneData = new SceneData(this, item);
+                if (item.Class == TagType.SceneCDT) SceneCDT = new SceneCDT(this, item);
+            }
         }
 
         #region Classes

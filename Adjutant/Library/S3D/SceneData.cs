@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Adjutant.Library.DataTypes;
 using Adjutant.Library;
 using Adjutant.Library.S3D;
 using Adjutant.Library.Endian;
-using Adjutant.Library.Definitions;
 using Adjutant.Library.Controls;
+using Adjutant.Library.DataTypes;
 
 namespace Adjutant.Library.S3D
 {
@@ -16,7 +15,7 @@ namespace Adjutant.Library.S3D
         public byte[] unmapped0;
         public int x0700;
         public int xADDE;
-        public render_model.BoundingBox unkBounds;
+        public RealBoundingBox unkBounds;
         public List<int> indices;
         public List<struct0> unkS0;
         public byte[] unmapped1;
@@ -33,13 +32,11 @@ namespace Adjutant.Library.S3D
 
             var min = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
             var max = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-            unkBounds = new render_model.BoundingBox()
+            unkBounds = new RealBoundingBox()
             {
                 XBounds = new RealBounds(min.x, max.x),
                 YBounds = new RealBounds(min.y, max.y),
                 ZBounds = new RealBounds(min.z, max.z),
-                UBounds = new RealBounds(),
-                VBounds = new RealBounds(),
             };
 
             var count = reader.ReadInt32(); //always bsp object count + 1

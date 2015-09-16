@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Adjutant.Library.S3D;
+using Adjutant.Library.S3D.Blocks;
 
 namespace Adjutant.Library.Controls
 {
@@ -51,7 +52,7 @@ namespace Adjutant.Library.Controls
             var mNode = new TreeNode("Materials") { ImageIndex = 1, SelectedImageIndex = 1 };
             int i = 0;
             foreach (var mat in model.Materials)
-                mNode.Nodes.Add(new TreeNode("[" + (i++).ToString("d3") + "] " + mat.Name) { ImageIndex = 2, SelectedImageIndex = 2, Tag = mat });
+                mNode.Nodes.Add(new TreeNode("[" + (i++).ToString("d3") + "] " + mat.Reference) { ImageIndex = 2, SelectedImageIndex = 2, Tag = mat });
             root.Nodes.Add(mNode);
             #endregion
 
@@ -71,18 +72,18 @@ namespace Adjutant.Library.Controls
 
             foreach (var obj in model.Objects)
             {
-                var node = new TreeNode("[" + obj.ID.ToString("d3") + "] " + obj.Name) { Tag = obj };
-                if (obj.VertCount > 0 || obj.Submeshes != null) node.ImageIndex = node.SelectedImageIndex = 3;
-                if (obj.VertCount == 0 && obj.Submeshes != null || obj.isInheritor) node.ImageIndex = node.SelectedImageIndex = 4;
+                var node = new TreeNode("[" + obj._B903.ID.ToString("d3") + "] " + obj._B903.Name) { Tag = obj };
+                if (obj._B903.VertCount > 0 || obj.Submeshes != null) node.ImageIndex = node.SelectedImageIndex = 3;
+                if (obj._B903.VertCount == 0 && obj.Submeshes != null || obj.isInheritor) node.ImageIndex = node.SelectedImageIndex = 4;
 
                 if (node.ImageIndex > 0 || !useInherit)
-                    dic.Add(obj.ID, node);
+                    dic.Add(obj._B903.ID, node);
             }
 
             foreach (var pair in dic)
             {
                 var obj = (Node)pair.Value.Tag;
-                int id = (obj.inheritID != -1) ? obj.inheritID : obj.ParentID;
+                int id = (obj._2901 != null) ? obj._2901.InheritID : obj.ParentID;
 
                 if (id == -1)
                 {
@@ -128,25 +129,25 @@ namespace Adjutant.Library.Controls
 
                 #region SceneData
                 case TagType.SceneData:
-                    var data = new SceneData(Pak, Item);
+                    var data = Pak.SceneData;
 
                     richTextBox1.Text += "Header:\t" + "[" + BitConverter.ToString(data.unmapped0, 0).Replace("-", string.Empty) + "]\r\n";
 
-                    richTextBox1.Text += "x0700:\t\t" + data.x0700.ToString("d4") + "\t(" + leString(data.x0700, 2) + ")\r\n";
-                    richTextBox1.Text += "xADDE:\t\t" + data.xADDE.ToString("d4") + "\t(" + leString(data.xADDE, 2) + ")\r\n";
+                    richTextBox1.Text += string.Format("x0700:\t\t{0:d4}\r\n", data.x0700, leString(data.x0700, 2));
+                    richTextBox1.Text += string.Format("xADDE:\t\t{0:d4}\r\n", data.xADDE, leString(data.xADDE, 2));
 
                     richTextBox1.Text += "=======Bounds=======\r\n";
-                    richTextBox1.Text += string.Format("{0, 13}\t{1, 13}\t{2, 13}\r\n{3, 13}\t{4, 13}\t{5, 13}\r\n",
-                        data.unkBounds.XBounds.Min.ToString("F6"), data.unkBounds.YBounds.Min.ToString("F6"), data.unkBounds.ZBounds.Min.ToString("F6"),
-                        data.unkBounds.XBounds.Max.ToString("F6"), data.unkBounds.YBounds.Max.ToString("F6"), data.unkBounds.ZBounds.Max.ToString("F6"));
+                    richTextBox1.Text += string.Format(
+                        "{0,13:F6}\t{1,13:F6}\t{2,13:F6}\r\n{3,13:F6}\t{4,13:F6}\t{5,13:F6}\r\n",
+                        data.unkBounds.XBounds.Min, data.unkBounds.YBounds.Min, data.unkBounds.ZBounds.Min,
+                        data.unkBounds.XBounds.Max, data.unkBounds.YBounds.Max, data.unkBounds.ZBounds.Max);
                     richTextBox1.Text += "\r\n";
 
-                    richTextBox1.Text += "Index Count:\t" + data.indices.Count.ToString("d5") + "\r\n";
-                    richTextBox1.Text += "Struct Count:\t" + data.unkS0.Count.ToString("d5") + "\r\n";
+                    richTextBox1.Text += string.Format("Index Count:\t{0:d5}\r\n" + data.indices.Count);
+                    richTextBox1.Text += string.Format("Struct Count:\t{0:d5}\r\n" + data.unkS0.Count);
 
                     richTextBox1.Text += "Footer:\t" + "[" + BitConverter.ToString(data.unmapped1, 0).Replace("-", string.Empty) + "]\r\n";
                     richTextBox1.Text += "\r\n";
-                    //return;
 
                     richTextBox1.Text += "=======Indices=======\r\n";
 
@@ -159,18 +160,22 @@ namespace Adjutant.Library.Controls
                     for (int x = 0; x < Math.Min(data.unkS0.Count, 650); x++)
                     {
                         var dat = data.unkS0[x];
-                        //for (int i = 0; i < 12; i += 3)
-                        //{
-                        //    int a = dat.unk0[i + 0];
-                        //    int b = dat.unk0[i + 1];
-                        //    int c = dat.unk0[i + 2];
+                        for (int i = 0; i < 12; i += 3)
+                        {
+                            int a = dat.unk0[i + 0];
+                            int b = dat.unk0[i + 1];
+                            int c = dat.unk0[i + 2];
 
-                        //    richTextBox1.Text += string.Format("{0} [{1,6}, {2,6}, {3,6}]", (((i + 1) % 12 == 1) ? x.ToString("d5") : " "),
-                        //        a.ToString("d5"), b.ToString("d5"), c.ToString("d5"))
-                        //        + (((i + 1) % 6 == 5) ? "\r\n" : "");
-                        //}
-                        //richTextBox1.Text += "\r\n";
-                        //continue;
+                            richTextBox1.Text += string.Format("{0} [{1,6}, {2,6}, {3,6}]", (((i + 1) % 12 == 1) ? x.ToString("d5") : " "),
+                                a.ToString("d5"), b.ToString("d5"), c.ToString("d5"))
+                                + (((i + 1) % 6 == 5) ? "\r\n" : "");
+
+                            //richTextBox1.Text += string.Format("{0} [{1,4}, {2,4}, {3,4}]", (((i + 1) % 12 == 1) ? x.ToString("d5") : " "),
+                            //    leString(a, 2), leString(b, 2), leString(c, 2))
+                            //    + (((i + 1) % 6 == 5) ? "\r\n" : "");
+                        }
+                        richTextBox1.Text += "\r\n";
+                        continue;
 
                         for (int i = 0; i < 12; i += 3)
                         {
@@ -182,12 +187,12 @@ namespace Adjutant.Library.Controls
                             b = (b + (float)0x7FFF) / (float)0xFFFF;
                             c = (c + (float)0x7FFF) / (float)0xFFFF;
 
-                            a = a * data.unkBounds.XBounds.Length + data.unkBounds.XBounds.Min;
-                            b = b * data.unkBounds.YBounds.Length + data.unkBounds.YBounds.Min;
-                            c = c * data.unkBounds.ZBounds.Length + data.unkBounds.ZBounds.Min;
+                            //a = a * data.unkBounds.XBounds.Length + data.unkBounds.XBounds.Min;
+                            //b = b * data.unkBounds.YBounds.Length + data.unkBounds.YBounds.Min;
+                            //c = c * data.unkBounds.ZBounds.Length + data.unkBounds.ZBounds.Min;
 
                             richTextBox1.Text += string.Format("{0} [{1,11}, {2,11}, {3,11}]", (((i + 1) % 12 == 1) ? x.ToString("d5") : " "),
-                                a.ToString("F4"), b.ToString("F4"), c.ToString("F4"))
+                                a.ToString("f6"), b.ToString("f6"), c.ToString("f6"))
                                 + (((i + 1) % 6 == 5) ? "\r\n" : "");
                         }
                         richTextBox1.Text += "\r\n";
@@ -203,22 +208,35 @@ namespace Adjutant.Library.Controls
 
                 #region SceneCDT
                 case TagType.SceneCDT:
-                    var cdt = new SceneCDT(Pak, Item);
+                    var cdt = Pak.SceneCDT;
 
-                    richTextBox1.Text += "Header:\t" + "[" + BitConverter.ToString(cdt.unmapped0, 0).Replace("-", string.Empty) + "]\r\n";
+                    richTextBox1.Text += string.Format("Header:\t[{0}]\r\n", BitConverter.ToString(cdt.unmapped0, 0).Replace("-", string.Empty));
                     richTextBox1.Text += "\r\n";
 
-                    richTextBox1.Text += "Struct Count:\t" + cdt.unkS0.Count.ToString("d5") + "\r\n";
-
-                    richTextBox1.Text += "\r\n=======???????=======\r\n";
-
-                    for (int i = 0; i < Math.Min(cdt.unkS0.Count, 250); i++)
+                    richTextBox1.Text += string.Format("Set Count:\t{0:d5}\r\n", cdt.sets.Count.ToString("d5"));
+                    foreach (var set in cdt.sets)
                     {
-                        var dat = cdt.unkS0[i];
-                        richTextBox1.Text += "unkIndex:\t" + dat.unkIndex.ToString("d4") + "\t\t(" + leString(dat.unkIndex, 2) + ")\r\n";
-                        richTextBox1.Text += "unk0:\t\t" + dat.unk0.ToString("d6") + "\t\t(" + leString(dat.unk0, 4) + ")\r\n";
-                        richTextBox1.Text += "unk1:\t\t" + dat.unk1.ToString("d6") + "\t\t(" + leString(dat.unk1, 4) + ")\r\n";
-                        richTextBox1.Text += "unkf0:\t\t" + dat.unkf0.ToString("F4") + "\r\n\r\n";
+                        richTextBox1.Text += "\r\n=======DataSet=======\r\n";
+                        richTextBox1.Text += string.Format("Struct Count:\t{0:d5}\r\n\r\n", set.unkS0.Count.ToString("d5"));
+
+                        if (set.unkS0.Count == 0) continue;
+
+                        richTextBox1.Text += string.Format("FaceTotal:\t{0:d8}\t({1})\r\n", set.unk0, leString(set.unk0, 4));
+                        richTextBox1.Text += string.Format("MinBound:\t{0}", set.MinBound.ToString());
+                        richTextBox1.Text += string.Format("unkf0:\t\t{0:F6}", set.unkf0);
+                        richTextBox1.Text += string.Format("DataLength:\t{0:d8}\t({1})\r\n", set.DataLength, leString(set.DataLength, 4));
+
+                        richTextBox1.Text += "\r\n\r\n";
+                        richTextBox1.Text += "\r\n=======Set Structs=======\r\n";
+                        for (int i = 0; i < Math.Min(set.unkS0.Count, 250); i++)
+                        {
+                            var dat = set.unkS0[i];
+                            richTextBox1.Text += string.Format("NodeID:\t{0:d4}\t\t({1})\r\n", dat.NodeID, leString(dat.NodeID, 2));
+                            richTextBox1.Text += string.Format("NodeFaces:\t{0:d6}\t\t({1})\r\n", dat.NodeFaces, leString(dat.NodeFaces, 4));
+                            richTextBox1.Text += string.Format("unk1:\t\t{0:d6}\t\t({1})\r\n", dat.unk1, leString(dat.unk1, 4));
+                            richTextBox1.Text += string.Format("unkf0:\t\t{0:F4}\r\n\r\n", dat.unkf0);
+                        }
+                        richTextBox1.Text += "\r\n\r\n";
                     }
                     break;
                 #endregion
@@ -237,40 +255,50 @@ namespace Adjutant.Library.Controls
             if (obj is Template)
             {
                 var atpl = (Template)obj;
-                richTextBox1.Text += "Name:\t\t" + atpl.Name + "\r\n";
-                richTextBox1.Text += "Mat Count:\t" + atpl.Materials.Count.ToString("d3") + "\r\n";
-                richTextBox1.Text += "Obj Count:\t" + atpl.Objects.Count.ToString("d3") + "\r\n";
-                richTextBox1.Text += "Node Count:\t" + atpl.NodeInfo.Count.ToString("d3") + "\r\n";
-                richTextBox1.Text += "Matrix Count:\t" + atpl.unkMatList.Count.ToString("d3") + "\r\n";
-                richTextBox1.Text += "\r\n";
-                richTextBox1.Text += "unk0:\t\t" + atpl.unk0.ToString("d4") + "\t\t(" + leString(atpl.unk0, 4) + ")\r\n";
-                richTextBox1.Text += "xF000:\t\t" + atpl.xF000.ToString("d4") + "\t\t(" + leString(atpl.xF000, 2) + ")\r\n";
-                richTextBox1.Text += "x2C01:\t\t" + atpl.x2C01.ToString("d4") + "\t\t(" + leString(atpl.x2C01, 2) + ")\r\n";
-                richTextBox1.Text += "unk1:\t\t" + atpl.unk1.ToString("d4") + "\t\t(" + leString(atpl.unk1, 4) + ")\r\n";
+                richTextBox1.Text += string.Format("Name:\t\t{0}\r\n", atpl.Name);
+                richTextBox1.Text += string.Format("Mat Count:\t{0:d3}\r\n", atpl.Materials.Count);
+                richTextBox1.Text += string.Format("Obj Count:\t{0:d3}\r\n", atpl.Objects.Count);
+                richTextBox1.Text += string.Format("Bone Count:\t{0:d3}\r\n", atpl.Bones.Count);
+                richTextBox1.Text += string.Format("Matrix Count:\t{0:d3}\r\n", atpl._0503 == null ? 0 : atpl._0503.DataCount);
                 richTextBox1.Text += "\r\n";
 
                 richTextBox1.Text += "=======Bounds=======\r\n";
-                richTextBox1.Text += string.Format("{0, 11}\t{1, 11}\t{2, 11}\r\n{3, 11}\t{4, 11}\t{5, 11}\r\n",
-                    atpl.RenderBounds.XBounds.Min.ToString("F6"), atpl.RenderBounds.YBounds.Min.ToString("F6"), atpl.RenderBounds.ZBounds.Min.ToString("F6"),
-                    atpl.RenderBounds.XBounds.Max.ToString("F6"), atpl.RenderBounds.YBounds.Max.ToString("F6"), atpl.RenderBounds.ZBounds.Max.ToString("F6"));
+                richTextBox1.Text += string.Format("{0,11:F6}\t{1,11:F6}\t{2,11:F6}\r\n{3,11:F6}\t{4,11:F6}\t{5,11:F6}\r\n",
+                    atpl.RenderBounds.XBounds.Min, atpl.RenderBounds.YBounds.Min, atpl.RenderBounds.ZBounds.Min,
+                    atpl.RenderBounds.XBounds.Max, atpl.RenderBounds.YBounds.Max, atpl.RenderBounds.ZBounds.Max);
                 richTextBox1.Text += "\r\n";
 
-                richTextBox1.Text += "=======Node Data=======\r\n";
-                foreach (var info in atpl.NodeInfo)
-                {
-                    richTextBox1.Text += string.Format("{0, 11}\r\n{1, 11}\t{2, 11}\t{3, 11}\r\n{4, 11}\t{5, 11}\t{6, 11}\t{7, 11}\r\n{8, 11}\t{9, 11}\t{10, 11}\r\n{11, 11}\r\n\r\n",
-                        info.unk00.ToString("F6"), info.unk01.ToString("F6"), info.unk02.ToString("F6"), info.unk03.ToString("F6"), info.unk04.ToString("F6"), info.unk05.ToString("F6"), info.unk06.ToString("F6"), info.unk07.ToString("F6"), info.unk08.ToString("F6"), info.unk09.ToString("F6"), info.unk10.ToString("F6"), info.unk11.ToString("F6"));
-                }
+                //richTextBox1.Text += "=======Node Data=======\r\n";
+                //foreach (var info in atpl.Bones)
+                //{
+                //    richTextBox1.Text += string.Format("{0,10:F6}\r\n", info.unk00);
+                //    richTextBox1.Text += string.Format("{0,10:F6},\t{1,10:F6},\t{2,10:F6}\r\n", info._FA02.Data.x, info._FA02.Data.y, info._FA02.Data.z);
+                //    if (info._FB02 != null) richTextBox1.Text += string.Format("{0,10:F6},\t{1,10:F6},\t{2,10:F6},\t{3,10:F6}\r\n", info._FB02.Data.x, info._FB02.Data.y, info._FB02.Data.z, info._FB02.Data.w);
+                //    if (info._FC02 != null) richTextBox1.Text += string.Format("{0,10:F6},\t{1,10:F6},\t{2,10:F6}\r\n", info._FC02.unk08, info._FC02.unk09, info._FC02.unk10);
+                //    if (info._0A03 != null) richTextBox1.Text += string.Format("{0,10:F6}\r\n", info._0A03.unk11);
+                //    richTextBox1.Text += "\r\n";
+                //}
 
-                richTextBox1.Text += "=======Matrices=======\r\n";
-                foreach (var mat in atpl.unkMatList)
-                {
-                    richTextBox1.Text += string.Format("{0, 11}\t{1, 11}\t{2, 11}\t{3, 11}\r\n{4, 11}\t{5, 11}\t{6, 11}\t{7, 11}\r\n{8, 11}\t{9, 11}\t{10, 11}\t{11, 11}\r\n{12, 11}\t{13, 11}\t{14, 11}\t{15, 11}\r\n\r\n",
-                        mat.m11.ToString("F6"), mat.m12.ToString("F6"), mat.m13.ToString("F6"), 0f.ToString("F6"),
-                        mat.m21.ToString("F6"), mat.m22.ToString("F6"), mat.m23.ToString("F6"), 0f.ToString("F6"),
-                        mat.m31.ToString("F6"), mat.m32.ToString("F6"), mat.m33.ToString("F6"), 0f.ToString("F6"),
-                        mat.m41.ToString("F6"), mat.m42.ToString("F6"), mat.m43.ToString("F6"), 1f.ToString("F6"));
-                }
+                //if (atpl._0503 != null)
+                //{
+                //    richTextBox1.Text += "=======Matrices=======\r\n";
+                //    richTextBox1.Text += string.Format("unk0:\t\t{0:d3}\r\n", atpl._0503.unk0);
+                //    richTextBox1.Text += string.Format("unk1:\t\t{0:d3}\r\n", atpl._0503.unk1);
+                //    richTextBox1.Text += "\r\n";
+
+                //    foreach (var mat in atpl._0503.Data)
+                //    {
+                //        richTextBox1.Text += string.Format(
+                //            "{0,11:F6}\t{1,11:F6}\t{2,11:F6}\t{3,11:F6}\r\n" +
+                //            "{4,11:F6}\t{5,11:F6}\t{6,11:F6}\t{7,11:F6}\r\n" +
+                //            "{8,11:F6}\t{9,11:F6}\t{10,11:F6}\t{11,11:F6}\r\n" +
+                //            "{12,11:F6}\t{13,11:F6}\t{14,11:F6}\t{15,11:F6}\r\n\r\n",
+                //            mat.m11, mat.m12, mat.m13, 0f,
+                //            mat.m21, mat.m22, mat.m23, 0f,
+                //            mat.m31, mat.m32, mat.m33, 0f,
+                //            mat.m41, mat.m42, mat.m43, 1f);
+                //    }
+                //}
             }
             #endregion
 
@@ -278,40 +306,24 @@ namespace Adjutant.Library.Controls
             else if (obj is Scene)
             {
                 var bsp = (Scene)obj;
-                richTextBox1.Text += "Name:\t\t" + bsp.Name + "\r\n";
-                richTextBox1.Text += "Mat Count:\t" + bsp.Materials.Count.ToString("d3") + "\r\n";
-                richTextBox1.Text += "Obj Count:\t" + bsp.Objects.Count.ToString("d3") + "\r\n";
-                richTextBox1.Text += "\r\n";
-                richTextBox1.Text += "xF000:\t\t" + bsp.xF000.ToString("d4") + "\t\t(" + leString(bsp.xF000, 2) + ")\r\n";
-                richTextBox1.Text += "x2C01:\t\t" + bsp.x2C01.ToString("d4") + "\t\t(" + leString(bsp.x2C01, 2) + ")\r\n";
-                richTextBox1.Text += "unk1:\t\t" + bsp.unk1.ToString("d4") + "\t\t(" + leString(bsp.unk1, 4) + ")\r\n";
+                richTextBox1.Text += string.Format("Name:\t\t{0}\r\n", bsp.Name);
+                richTextBox1.Text += string.Format("Mat Count:\t{0:d3}\r\n", bsp.Materials.Count);
+                richTextBox1.Text += string.Format("Obj Count:\t{0:d3}\r\n", bsp.Objects.Count);
                 richTextBox1.Text += "\r\n";
 
                 richTextBox1.Text += "=======Bounds=======\r\n";
-                richTextBox1.Text += string.Format("{0, 11}\t{1, 11}\t{2, 11}\r\n{3, 11}\t{4, 11}\t{5, 11}\r\n",
-                    bsp.RenderBounds.XBounds.Min.ToString("F6"), bsp.RenderBounds.YBounds.Min.ToString("F6"), bsp.RenderBounds.ZBounds.Min.ToString("F6"),
-                    bsp.RenderBounds.XBounds.Max.ToString("F6"), bsp.RenderBounds.YBounds.Max.ToString("F6"), bsp.RenderBounds.ZBounds.Max.ToString("F6"));
+                richTextBox1.Text += string.Format("{0,11:F6}\t{1,11:F6}\t{2,11:F6}\r\n{3,11:F6}\t{4,11:F6}\t{5,11:F6}\r\n",
+                    bsp._2002.Bounds.XBounds.Min, bsp._2002.Bounds.YBounds.Min, bsp._2002.Bounds.ZBounds.Min,
+                    bsp._2002.Bounds.XBounds.Max, bsp._2002.Bounds.YBounds.Max, bsp._2002.Bounds.ZBounds.Max);
                 richTextBox1.Text += "\r\n";
-            }
-            #endregion
-
-            #region Material
-            else if (obj is Material)
-            {
-                var mat = (Material)obj;
-                richTextBox1.Text += "x5601:\t\t" + mat.x5601.ToString("d4") + "\t\t(" + leString(mat.x5601, 2) + ")\r\n";
-                richTextBox1.Text += "Next Address:\t" + mat.AddressOfNext.ToString("d9") + "\t(" + (mat.AddressOfNext + baseAddress).ToString("d9") + ")\r\n";
-                richTextBox1.Text += "Name:\t\t" + mat.Name + "\r\n";
             }
             #endregion
 
             #region Script
-            else if (obj is Script)
+            else if (obj is StringBlock_BA01)
             {
-                var sc = (Script)obj;
-                richTextBox1.Text += "xBA01:\t\t" + sc.xBA01.ToString("d4") + "\t\t(" + leString(sc.xBA01, 2) + ")\r\n";
-                richTextBox1.Text += "Next Address:\t" + sc.AddressOfNext.ToString("d9") + "\t(" + (sc.AddressOfNext + baseAddress).ToString("d9") + ")\r\n";
-                richTextBox1.Text += "\r\n=======Script Data=====\r\n\r\n" + sc.Data.Replace("\\t", "\t").Replace("\\n", "\n") + "\r\n";
+                var sc = (StringBlock_BA01)obj;
+                richTextBox1.Text += sc.Data.Replace("\\t", "\t").Replace("\\n", "\n");
             }
             #endregion
 
@@ -319,120 +331,203 @@ namespace Adjutant.Library.Controls
             else if (obj is Node)
             {
                 var node = (Node)obj;
-                richTextBox1.Text += "Base Address:\t" + node.mainAddress.ToString("d9") + "\t(" + (node.mainAddress + baseAddress).ToString("d9") + ")\r\n";
-                richTextBox1.Text += "xF000:\t\t" + node.xF000.ToString("d4") + "\t\t(" + leString(node.xF000, 2) + ")\r\n";
-                richTextBox1.Text += "Next Address:\t" + node.PreNextAddress.ToString("d9") + "\t(" + (node.PreNextAddress + baseAddress).ToString("d9") + ")\r\n";
-                richTextBox1.Text += "xB903:\t\t" + node.xB903.ToString("d4") + "\t\t(" + leString(node.xB903, 2) + ")\r\n";
-                richTextBox1.Text += "Name:\t\t" + node.Name + "\r\n";
-                richTextBox1.Text += "ID:\t\t" + node.ID.ToString("d3") + "\t\t(" + leString(node.ID, 2) + ")\r\n";
-                richTextBox1.Text += "x2400:\t\t" + node.x2400.ToString("d4") + "\t\t(" + leString(node.x2400, 2) + ")\r\n";
-                richTextBox1.Text += "unk0:\t\t" + node.unk0.ToString("d3") + "\t\t(" + leString(node.unk0, 1) + ")\r\n";
-                richTextBox1.Text += "unk1:\t\t" + node.unk1.ToString("d4") + "\t\t(" + leString(node.unk1, 2) + ")\r\n";
-                richTextBox1.Text += "unk2:\t\t" + node.unk2.ToString("d4") + "\t\t(" + leString(node.unk2, 2) + ")\r\n";
-                richTextBox1.Text += "Vert Count:\t" + node.VertCount.ToString("d6") + "\r\n";
-                richTextBox1.Text += "Face Count:\t" + node.FaceCount.ToString("d6") + "\r\n";
-                richTextBox1.Text += "unk3:\t\t" + node.unk3.ToString("d4") + "\t\t(" + leString(node.unk3, 2) + ")\r\n";
-                richTextBox1.Text += "unk4:\t\t" + node.unk4.ToString("d4") + "\t\t(" + leString(node.unk4, 2) + ")\r\n";
-                richTextBox1.Text += "unk5:\t\t" + node.unk5.ToString("d4") + "\t\t(" + leString(node.unk5, 2) + ")\r\n";
-                richTextBox1.Text += "unk5a:\t\t" + node.unk5a.ToString("d4") + "\t\t(" + leString(node.unk5a, 4) + ")\r\n";
+
+                #region Experimental
+                //richTextBox1.Text += "=======SceneData=======\r\n";
+                //var idx = pak.SceneData.indices[node._B903.ID];
+                //var dat = pak.SceneData.unkS0[idx];
+                //var sbb = pak.SceneData.unkBounds;
+                //var fmt = "[{0,8}, {1,8}, {2,8}] ";
+
+                //richTextBox1.Text += "index:\t" + idx.ToString("d5") + "\r\n\r\n";
+                //richTextBox1.Text += "\r\n";
+
+                //richTextBox1.Text += "sint16:  ";
+                //for (int i = 0; i < 12; i += 3)
+                //{
+                //    int a = dat.unk0[i + 0];
+                //    int b = dat.unk0[i + 1];
+                //    int c = dat.unk0[i + 2];
+                //    richTextBox1.Text += string.Format(fmt, a.ToString("d6"), b.ToString("d6"), c.ToString("d6"));
+                //}
+                //richTextBox1.Text += "\r\n";
+                //richTextBox1.Text += "uint16:  ";
+                //for (int i = 0; i < 12; i += 3)
+                //{
+                //    int a = BitConverter.ToUInt16(BitConverter.GetBytes((short)dat.unk0[i + 0]), 0);
+                //    int b = BitConverter.ToUInt16(BitConverter.GetBytes((short)dat.unk0[i + 1]), 0);
+                //    int c = BitConverter.ToUInt16(BitConverter.GetBytes((short)dat.unk0[i + 2]), 0);
+                //    richTextBox1.Text += string.Format(fmt, a.ToString("d6"), b.ToString("d6"), c.ToString("d6"));
+                //}
+                //richTextBox1.Text += "\r\n";
+                //richTextBox1.Text += "sfloat:  ";
+                //for (int i = 0; i < 12; i += 3)
+                //{
+                //    float a = dat.unk0[i + 0];
+                //    float b = dat.unk0[i + 1];
+                //    float c = dat.unk0[i + 2];
+
+                //    a = (a + (float)0x7FFF) / (float)0xFFFF;
+                //    b = (b + (float)0x7FFF) / (float)0xFFFF;
+                //    c = (c + (float)0x7FFF) / (float)0xFFFF;
+
+                //    //a = a * sbb.XBounds.Length + sbb.XBounds.Min;
+                //    //b = b * sbb.YBounds.Length + sbb.YBounds.Min;
+                //    //c = c * sbb.ZBounds.Length + sbb.ZBounds.Min;
+
+                //    richTextBox1.Text += string.Format(fmt, a.ToString("F6"), b.ToString("F6"), c.ToString("F6"));
+                //}
+                //richTextBox1.Text += "\r\n";
+                //richTextBox1.Text += "ufloat:  ";
+                //for (int i = 0; i < 12; i += 3)
+                //{
+                //    float a = BitConverter.ToUInt16(BitConverter.GetBytes((short)dat.unk0[i + 0]), 0);
+                //    float b = BitConverter.ToUInt16(BitConverter.GetBytes((short)dat.unk0[i + 1]), 0);
+                //    float c = BitConverter.ToUInt16(BitConverter.GetBytes((short)dat.unk0[i + 2]), 0);
+
+                //    a = a / (float)0xFFFF;
+                //    b = b / (float)0xFFFF;
+                //    c = c / (float)0xFFFF;
+
+                //    //a = a * sbb.XBounds.Length + sbb.XBounds.Min;
+                //    //b = b * sbb.YBounds.Length + sbb.YBounds.Min;
+                //    //c = c * sbb.ZBounds.Length + sbb.ZBounds.Min;
+
+                //    richTextBox1.Text += string.Format(fmt, a.ToString("F6"), b.ToString("F6"), c.ToString("F6"));
+                //}
+                //richTextBox1.Text += "\r\n\r\n\r\n"; 
+                #endregion
+
+                richTextBox1.Text += string.Format("Base Address:\t{0:d9}\t({1})\r\n", node.mainAddress, (node.mainAddress + baseAddress));
+                richTextBox1.Text += string.Format("Name:\t\t{0}\r\n", node._B903.Name);
+                richTextBox1.Text += string.Format("ID:\t\t{0:d3}\t\t({1})\r\n", node._B903.ID, leString(node._B903.ID, 2));
+                richTextBox1.Text += string.Format("x2400:\t\t{0:d4}\t\t({1})\r\n", node._B903.x2400, leString(node._B903.x2400, 2));
+                richTextBox1.Text += string.Format("unk0:\t\t{0:d3}\t\t({1})\r\n", node._B903.unk0, leString(node._B903.unk0, 1));
+                richTextBox1.Text += string.Format("unk1:\t\t{0:d4}\t\t({1})\r\n", node._B903.unk1, leString(node._B903.unk1, 2));
+                richTextBox1.Text += string.Format("unk2:\t\t{0:d4}\t\t({1})\r\n", node._B903.unk2, leString(node._B903.unk2, 2));
+                richTextBox1.Text += string.Format("Vert Count:\t{0:d6}\r\n", node._B903.VertCount);
+                richTextBox1.Text += string.Format("Face Count:\t{0:d6}\r\n", node._B903.FaceCount);
                 richTextBox1.Text += "\r\n";
+
+                if (node._3301 != null)
+                {
+                    richTextBox1.Text += "=======Rigging=======\r\n";
+                    richTextBox1.Text += string.Format("FirstNode:\t{0:D4}\r\nNodeCount:\t{1:D4}\r\n", node._3301.FirstNodeID, node._3301.NodeCount);
+                    richTextBox1.Text += string.Format("weights:\t{0}\r\n", node._1A01 != null);
+                    richTextBox1.Text += "\r\n";
+                }
 
                 richTextBox1.Text += "=======Matrix=======\r\n";
-                richTextBox1.Text += string.Format("{0, 11}\t{1, 11}\t{2, 11}\t{3, 11}\r\n{4, 11}\t{5, 11}\t{6, 11}\t{7, 11}\r\n{8, 11}\t{9, 11}\t{10, 11}\t{11, 11}\r\n{12, 11}\t{13, 11}\t{14, 11}\t{15, 11}\r\n",
-                    node.Transform.m11.ToString("F6"), node.Transform.m12.ToString("F6"), node.Transform.m13.ToString("F6"), 0f.ToString("F6"),
-                    node.Transform.m21.ToString("F6"), node.Transform.m22.ToString("F6"), node.Transform.m23.ToString("F6"), 0f.ToString("F6"),
-                    node.Transform.m31.ToString("F6"), node.Transform.m32.ToString("F6"), node.Transform.m33.ToString("F6"), 0f.ToString("F6"),
-                    node.Transform.m41.ToString("F6"), node.Transform.m42.ToString("F6"), node.Transform.m43.ToString("F6"), 1f.ToString("F6"));
+                richTextBox1.Text += string.Format(
+                    "{0,11:F6}\t{1,11:F6}\t{2,11:F6}\t{3,11:F6}\r\n" + 
+                    "{4,11:F6}\t{5,11:F6}\t{6,11:F6}\t{7,11:F6}\r\n" + 
+                    "{8,11:F6}\t{9,11:F6}\t{10,11:F6}\t{11,11:F6}\r\n" + 
+                    "{12,11:F6}\t{13,11:F6}\t{14,11:F6}\t{15,11:F6}\r\n",
+                    node.Transform.Data.m11, node.Transform.Data.m12, node.Transform.Data.m13, 0f,
+                    node.Transform.Data.m21, node.Transform.Data.m22, node.Transform.Data.m23, 0f,
+                    node.Transform.Data.m31, node.Transform.Data.m32, node.Transform.Data.m33, 0f,
+                    node.Transform.Data.m41, node.Transform.Data.m42, node.Transform.Data.m43, 1f);
                 richTextBox1.Text += "\r\n";
 
-                richTextBox1.Text += "xFA00:\t\t" + node.xFA00.ToString("d4") + "\t\t(" + leString(node.xFA00, 2) + ")\r\n";
-                richTextBox1.Text += "NodeIndex:\t" + node.NodeIndex.ToString() + "\r\n";
-                richTextBox1.Text += "Mesh Count:\t" + ((node.Submeshes == null) ? "0" : node.Submeshes.Count.ToString()) + "\r\n";
-                richTextBox1.Text += "Parent ID:\t" + node.ParentID.ToString("d3") + "\t\t(" + leString(node.ParentID, 2) + ")\r\n";
-                richTextBox1.Text += "Inherits ID:\t" + node.inheritID.ToString("d2") + "\t\t(" + leString(node.inheritID, 2) + ")\r\n";
+                richTextBox1.Text += string.Format("NodeIndex:\t{0}\r\n", node.BoneIndex);
+                richTextBox1.Text += string.Format("Mesh Count:\t{0}\r\n", ((node.Submeshes == null) ? 0 : node.Submeshes.Count));
+                richTextBox1.Text += string.Format("Parent ID:\t{0:d3}\t\t({1})\r\n", node.ParentID, leString(node.ParentID, 2));
+                if (node._2901 != null) richTextBox1.Text += string.Format("Inherits ID:\t{0:d3}\t\t({1})\r\n", node._2901.InheritID, leString(node._2901.InheritID, 2));
                 richTextBox1.Text += "\r\n";
 
                 if (node.BoundingBox != null)
                 {
                     richTextBox1.Text += "=======Bounds=======\r\n";
-                    richTextBox1.Text += string.Format("{0, 11}\t{1, 11}\t{2, 11}\r\n{3, 11}\t{4, 11}\t{5, 11}\r\n",
-                        node.BoundingBox.XBounds.Min.ToString("F6"), node.BoundingBox.YBounds.Min.ToString("F6"), node.BoundingBox.ZBounds.Min.ToString("F6"),
-                        node.BoundingBox.XBounds.Max.ToString("F6"), node.BoundingBox.YBounds.Max.ToString("F6"), node.BoundingBox.ZBounds.Max.ToString("F6"));
+                    richTextBox1.Text += string.Format("{0,11:F6}\t{1,11:F6}\t{2,11:F6}\r\n{3,11:F6}\t{4,11:F6}\t{5,11:F6}\r\n",
+                        node.BoundingBox.Data.XBounds.Min, node.BoundingBox.Data.YBounds.Min, node.BoundingBox.Data.ZBounds.Min,
+                        node.BoundingBox.Data.XBounds.Max, node.BoundingBox.Data.YBounds.Max, node.BoundingBox.Data.ZBounds.Max);
                     richTextBox1.Text += "\r\n";
                 }
 
-                if (node.VertCount > 0 || node.Submeshes != null)
+                if (node._B903.VertCount > 0 || node.Submeshes != null)
                 {
                     richTextBox1.Text += "======Vert Info======\r\n";
-                    richTextBox1.Text += "x1200:\t\t" + node.x1200.ToString("d4") + "\t\t(" + leString(node.x1200, 2) + ")\r\n";
-                    richTextBox1.Text += "geomUnk01:\t" + node.geomUnk01.ToString("d3") + "\t\t(" + leString(node.geomUnk01, 1) + ")\r\n";
-                    richTextBox1.Text += "x4001:\t\t" + node.x4001.ToString("d4") + "\t\t(" + leString(node.x4001, 2) + ")\r\n";
-                    richTextBox1.Text += "CentreX:\t" + node.CentreX.ToString("d4") + "\t\t(" + leString(node.CentreX, 2) + ")\r\n";
-                    richTextBox1.Text += "CentreY:\t" + node.CentreY.ToString("d4") + "\t\t(" + leString(node.CentreY, 2) + ")\r\n";
-                    richTextBox1.Text += "CentreZ:\t" + node.CentreZ.ToString("d4") + "\t\t(" + leString(node.CentreZ, 2) + ")\r\n";
-                    richTextBox1.Text += "RadiusX:\t" + node.RadiusX.ToString("d4") + "\t\t(" + leString(node.RadiusX, 2) + ")\r\n";
-                    richTextBox1.Text += "RadiusY:\t" + node.RadiusY.ToString("d4") + "\t\t(" + leString(node.RadiusY, 2) + ")\r\n";
-                    richTextBox1.Text += "RadiusZ:\t" + node.RadiusZ.ToString("d4") + "\t\t(" + leString(node.RadiusZ, 2) + ")\r\n";
-                    richTextBox1.Text += "unkUV0:\t" + node.unkUV0.ToString("d3") + "\t\t(" + leString(node.unkUV0, 1) + ")\r\n";
-                    if (node.preUV != null) richTextBox1.Text += "preUV:\t\t" + "[" + BitConverter.ToString(node.preUV, 0).Replace("-", string.Empty) + "]\r\n" + node.UVsize.ToString() + "\r\n";
-                    else richTextBox1.Text += "preUV:\t\t[NA]\r\n\r\n";
+                    richTextBox1.Text += string.Format("x1200:\t\t{0:d4}\t\t({1})\r\n", node._2E01.x1200, leString(node._2E01.x1200, 2));
+                    richTextBox1.Text += string.Format("geomUnk01:\t{0:d3}\t\t({1})\r\n", node._2E01.geomUnk01, leString(node._2E01.geomUnk01, 1));
+                    richTextBox1.Text += string.Format("x4001:\t\t{0:d4}\t\t({1})\r\n", node._2E01.x4001, leString(node._2E01.x4001, 2));
+
+                    //if (node.Vertices != null)
+                    //{
+                    //    richTextBox1.Text += string.Format("CentreX:\t{0:d4}\t\t({1})\r\n", node.Vertices.CentreX, leString(node.Vertices.CentreX, 2));
+                    //    richTextBox1.Text += string.Format("CentreY:\t{0:d4}\t\t({1})\r\n", node.Vertices.CentreY, leString(node.Vertices.CentreY, 2));
+                    //    richTextBox1.Text += string.Format("CentreZ:\t{0:d4}\t\t({1})\r\n", node.Vertices.CentreZ, leString(node.Vertices.CentreZ, 2));
+                    //    richTextBox1.Text += string.Format("RadiusX:\t{0:d4}\t\t({1})\r\n", node.Vertices.RadiusX, leString(node.Vertices.RadiusX, 2));
+                    //    richTextBox1.Text += string.Format("RadiusY:\t{0:d4}\t\t({1})\r\n", node.Vertices.RadiusY, leString(node.Vertices.RadiusY, 2));
+                    //    richTextBox1.Text += string.Format("RadiusZ:\t{0:d4}\t\t({1})\r\n", node.Vertices.RadiusZ, leString(node.Vertices.RadiusZ, 2));
+                    //}
+
+                    if (node._3001 != null)
+                    {
+                        richTextBox1.Text += string.Format("unkUV0:\t{0:d4}\t\t({1})\r\n", node._3001.unkUV0, leString(node._3001.unkUV0, 2));
+                        richTextBox1.Text += string.Format("unkUV1:\t{0:d3}\t\t({1})\r\n", node._3001.unkUV1, leString(node._3001.unkUV1, 1));
+                        richTextBox1.Text += string.Format("unkUV2:\t{0:d3}\t\t({1})\r\n", node._3001.unkUV2, leString(node._3001.unkUV2, 1));
+                        richTextBox1.Text += string.Format("unkUV3:\t{0:d3}\t\t({1})\r\n", node._3001.unkUV3, leString(node._3001.unkUV3, 1));
+                        richTextBox1.Text += string.Format("unkUV4:\t{0:d3}\t\t({1})\r\n", node._3001.unkUV4, leString(node._3001.unkUV4, 1));
+                        richTextBox1.Text += string.Format("UVSize:\t{0:d3}\t\t({1})\r\n", node._3001.DataSize, leString(node._3001.DataSize, 1));
+                    }
 
                     richTextBox1.Text += "\r\n";
                 }
 
                 if (node.Submeshes == null) return;
 
-                richTextBox1.Text += "unkCC:\t\t" + node.unkCC.ToString("d3") + "\t\t(" + leString(node.unkCC, 1) + ")\r\n";
-                richTextBox1.Text += "unkC0:\t\t" + node.unkC0.ToString("d3") + "\t\t(" + leString(node.unkC0, 4) + ")\r\n";
-                for (int i = 0; i < 5; i++)
-                    richTextBox1.Text += "unkC1[" + i.ToString() + "]:\t" + node.unkC1[i].ToString("d3") + "\t\t(" + leString(node.unkC1[i], 4) + ")\r\n";
+                if (node._2F01 != null)
+                {
+                    richTextBox1.Text += string.Format("unkCC:\t\t{0:d3}\t\t({1})\r\n", node._2F01.unkCC, leString(node._2F01.unkCC, 1));
+                    richTextBox1.Text += string.Format("unkC0:\t\t{0:d3}\t\t({1})\r\n", node._2F01.unkC0, leString(node._2F01.unkC0, 4));
+                }
+                
+                //for (int i = 0; i < 5; i++)
+                //    richTextBox1.Text += string.Format("unkC1[{0}]:\t{1:d3}\t\t({2})\r\n", i, node.unkC1[i], leString(node.unkC1[i], 4));
                 richTextBox1.Text += "\r\n";
 
-                richTextBox1.Text += "======Submeshes======\t" + node.subAddress.ToString("d9") + "\t(" + (node.subAddress + baseAddress).ToString("d9") + ")\r\n";
+                richTextBox1.Text += string.Format("======Submeshes======\t{0:d9}\t({1:d9})\r\n", node.subAddress, (node.subAddress + baseAddress));
+                richTextBox1.Text += string.Format("{0}\r\n", node.unk0);
+                richTextBox1.Text += string.Format("{0}\r\n\r\n", node.unk1);
+                
                 foreach (var sub in node.Submeshes)
                 {
-                    richTextBox1.Text += "Vert Bounds:\t" + sub.VertStart.ToString("d6") + " - " + (sub.VertStart + sub.VertLength).ToString("d6") + "  (" + sub.VertLength.ToString("d6") + ")\r\n";
-                    richTextBox1.Text += "Face Bounds:\t" + sub.FaceStart.ToString("d6") + " - " + (sub.FaceStart + sub.FaceLength).ToString("d6") + "  (" + sub.FaceLength.ToString("d6") + ")\r\n";
-                    richTextBox1.Text += "Mat Count:\t" + sub.MaterialCount.ToString("d3") + "\r\n";
-                    richTextBox1.Text += "Mat Index:\t" + sub.MaterialIndex.ToString("d3") + "\r\n";
+                    richTextBox1.Text += string.Format("Vert Bounds:\t{0:d6} - {1:d6} ({2:d6})\r\n", sub.VertStart, (sub.VertStart + sub.VertLength - 1), sub.VertLength);
+                    richTextBox1.Text += string.Format("Face Bounds:\t{0:d6} - {1:d6} ({2:d6})\r\n", sub.FaceStart, (sub.FaceStart + sub.FaceLength - 1), sub.FaceLength);
+                    richTextBox1.Text += string.Format("Mat Count:\t{0:d3}\r\n", sub.MaterialCount);
+                    richTextBox1.Text += string.Format("Mat Index:\t{0:d3}\r\n", sub.MaterialIndex);
 
-                    richTextBox1.Text += "unk0:\t\t" + sub.unk0.ToString("d4") + "\t\t(" + leString((int)sub.unk0, 2) + ")\r\n";
-                    richTextBox1.Text += "unkID0:\t" + sub.unkID0.ToString("d3") + "\t\t(" + leString(sub.unkID0, 2) + ")\r\n";
+                    if (sub._3401 != null) richTextBox1.Text += string.Format("unkID0:\t{0:d3}\t\t({1})\r\n", sub._3401.unkID0, leString(sub._3401.unkID0, 2));
 
-                    if (sub.unk0 == 306) //3201
+                    if (sub._3201 != null)
                     {
-                        richTextBox1.Text += "unkCount0:\t" + sub.unkCount0.ToString("d4") + "\t\t(" + leString(sub.unkCount0, 1) + ")\r\n";
-                        richTextBox1.Text += "unkID1:\t" + sub.unkID1.ToString("d3") + "\t\t(" + leString(sub.unkID1, 2) + ")\r\n";
-                        richTextBox1.Text += "unkCount1:\t" + sub.unkCount1.ToString("d4") + "\t\t(" + leString(sub.unkCount1, 1) + ")\r\n";
+                        richTextBox1.Text += string.Format("unkID0:\t{0:d3}\t\t({1})\r\n", sub._3201.unkID0, leString(sub._3201.unkID0, 2));
+                        richTextBox1.Text += string.Format("unkCount0:\t{0:d4}\t\t({1})\r\n", sub._3201.unkCount0, leString(sub._3201.unkCount0, 1));
+                        richTextBox1.Text += string.Format("unkID1:\t{0:d3}\t\t({1})\r\n", sub._3201.unkID1, leString(sub._3201.unkID1, 2));
+                        richTextBox1.Text += string.Format("unkCount1:\t{0:d4}\t\t({1})\r\n", sub._3201.unkCount1, leString(sub._3201.unkCount1, 1));
                     }
-                    else richTextBox1.Text += "\r\n\r\n\r\n";
 
-                    richTextBox1.Text += "unkfAdr:\t" + sub.unkfAddress.ToString("d6") + "\r\n";
-                    richTextBox1.Text += "unkf0,1:\t" + sub.unkf0.ToString("F6") + ", " + sub.unkf1.ToString("F6") + "\r\n";
+                    richTextBox1.Text += string.Format("unkf0,1:\t{0:F6}, {1:F6}\r\n", sub._1C01.unkf0, sub._1C01.unkf1);
 
-                    richTextBox1.Text += "x2001:\t\t" + sub.x2001.ToString("d4") + "\t\t(" + leString(sub.x2001, 2) + ")\r\n";
-                    richTextBox1.Text += "unkb0:\t\t" +
-                        BitConverter.ToSingle(sub.unkb0, 0).ToString("F6") + ", " + BitConverter.ToSingle(sub.unkb0, 4).ToString("F6") + ", " +
-                        BitConverter.ToSingle(sub.unkb0, 8).ToString("F6") + ", " + BitConverter.ToSingle(sub.unkb0, 12).ToString("F6") + ", " +
-                        BitConverter.ToSingle(sub.unkb0, 16).ToString("F6") + ", " + BitConverter.ToSingle(sub.unkb0, 20).ToString("F6") + ", " +
-                        BitConverter.ToSingle(sub.unkb0, 24).ToString("F6") + ", " + BitConverter.ToSingle(sub.unkb0, 28).ToString("F6") + "\r\n";
+                    richTextBox1.Text += string.Format(
+                        "unkb0:\t\t{0:F6}, {1:F6}, {2:F6}, {3:F6}, {4:F6}, {5:F6}, {6:F6}, {7:F6}\r\n",
+                        sub._2001.unkf[0], sub._2001.unkf[1], sub._2001.unkf[2], sub._2001.unkf[3],
+                        sub._2001.unkf[4], sub._2001.unkf[5], sub._2001.unkf[6], sub._2001.unkf[7]);
 
-                    if (sub.x2801 != 1)
+                    if (sub._2801 != null)
                     {
-                        richTextBox1.Text += "x2801:\t\t" + sub.x2801.ToString("d4") + "\t\t(" + leString(sub.x2801, 2) + ")\r\n";
-                        richTextBox1.Text += "x81:\t\t" + sub.x81.ToString("d3") + "\t\t(" + leString(sub.x81, 1) + ")\r\n";
-                        richTextBox1.Text += "unk4:\t\t" + sub.unk4.ToString("d4") + "\t\t(" + leString(sub.unk4, 4) + ")\r\n";
-                        richTextBox1.Text += "xFF:\t\t" + sub.xFF.ToString("d3") + "\t\t(" + leString(sub.xFF, 1) + ")\r\n";
-                        richTextBox1.Text += "x1300:\t\t" + sub.x1300.ToString("d4") + "\t\t(" + leString(sub.x1300, 2) + ")\r\n";
-                        richTextBox1.Text += "VertexCount:\t" + sub.VertexCount.ToString("d4") + "\t\t(" + leString(sub.VertexCount, 2) + ")\r\n";
-                        richTextBox1.Text += "IndexCount:\t" + sub.IndexCount.ToString("d4") + "\t\t(" + leString(sub.IndexCount, 2) + ")\r\n";
-                        richTextBox1.Text += "unkID2:\t" + sub.unkID2.ToString("d3") + "\t\t(" + leString(sub.unkID2, 4) + ")\r\n";
-                        richTextBox1.Text += "unk7:\t\t" + sub.unk7.ToString("d6") + "\t\t(" + leString(sub.unk7, 4) + ")\r\n";
-                        richTextBox1.Text += "unk8:\t\t" + sub.unk8.ToString("d6") + "\t\t(" + leString(sub.unk8, 4) + ")\r\n";
-                        richTextBox1.Text += "unk9a:\t\t" + sub.unk9a.ToString("d4") + "\t\t(" + leString(sub.unk9a, 2) + ")\r\n";
-                        richTextBox1.Text += "unk9b:\t\t" + sub.unk9b.ToString("d4") + "\t\t(" + leString(sub.unk9b, 2) + ")\r\n";
+                        richTextBox1.Text += string.Format("x81:\t\t{0:d3}\t\t({1})\r\n", sub._2801.x81.ToString("d3"), leString(sub._2801.x81, 1));
+                        richTextBox1.Text += string.Format("unk4:\t\t{0:d4}\t\t({1})\r\n", sub._2801.unk4.ToString("d4"), leString(sub._2801.unk4, 4));
+                        richTextBox1.Text += string.Format("xFF:\t\t{0:d3}\t\t({1})\r\n", sub._2801.xFF.ToString("d3"), leString(sub._2801.xFF, 1));
+                        richTextBox1.Text += string.Format("x1300:\t\t{0:d4}\t\t({1})\r\n", sub._2801.x1300.ToString("d4"), leString(sub._2801.x1300, 2));
+                        richTextBox1.Text += string.Format("VertexCount:\t{0:d4}\t\t({1})\r\n", sub._2801.VertexCount.ToString("d4"), leString(sub._2801.VertexCount, 2));
+                        richTextBox1.Text += string.Format("IndexCount:\t{0:d4}\t\t({1})\r\n", sub._2801.IndexCount.ToString("d4"), leString(sub._2801.IndexCount, 2));
+                        richTextBox1.Text += string.Format("unkID2:\t{0:d3}\t\t({1})\r\n", sub._2801.unkID2.ToString("d3"), leString(sub._2801.unkID2, 4));
+                        richTextBox1.Text += string.Format("unk7:\t\t{0:d6}\t\t({1})\r\n", sub._2801.unk7.ToString("d6"), leString(sub._2801.unk7, 4));
+                        richTextBox1.Text += string.Format("unk8:\t\t{0:d6}\t\t({1})\r\n", sub._2801.unk8.ToString("d6"), leString(sub._2801.unk8, 4));
+                        richTextBox1.Text += string.Format("unk9a:\t\t{0:d4}\t\t({1})\r\n", sub._2801.unk9a.ToString("d4"), leString(sub._2801.unk9a, 2));
+                        richTextBox1.Text += string.Format("unk9b:\t\t{0:d4}\t\t({1})\r\n", sub._2801.unk9b.ToString("d4"), leString(sub._2801.unk9b, 2));
                     }
-                    else richTextBox1.Text += "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
 
                     richTextBox1.Text += "\r\n";
                 }

@@ -9,6 +9,7 @@ namespace Adjutant.Library.Endian
     public class EndianReader : BinaryReader
     {
         public EndianFormat EndianType;
+        public long StreamOrigin;
 
         /// <summary>
         /// Creates a new instance of the EndianReader class.
@@ -19,6 +20,7 @@ namespace Adjutant.Library.Endian
             : base(Stream)
         {
             EndianType = Type;
+            StreamOrigin = 0;
         }
 
         #region Param-less Overrides
@@ -260,6 +262,37 @@ namespace Adjutant.Library.Endian
         }
         #endregion
 
+        /// <summary>
+        /// Returns the next BigEndian UInt16 and does not advance the stream position.
+        /// </summary>
+        /// <returns></returns>
+        public ushort PeekUInt16()
+        {
+            return PeekUInt16(EndianFormat.BigEndian);
+        }
+
+        /// <summary>
+        /// Returns the next UInt16 and does not advance the stream position.
+        /// </summary>
+        /// <param name="Type">The EndianFormat of the value.</param>
+        /// <returns></returns>
+        public ushort PeekUInt16(EndianFormat Type)
+        {
+            ushort val;
+
+            if (Type == EndianFormat.LittleEndian)
+                val = base.ReadUInt16();
+            else
+            {
+                byte[] bytes = base.ReadBytes(2);
+                Array.Reverse(bytes);
+                val = BitConverter.ToUInt16(bytes, 0);
+            }
+
+            Skip(-2);
+            return val;
+        }
+
         public int ReadBlock(byte[] buffer, int offset, int size)
         {
             return BaseStream.Read(buffer, offset, size);
@@ -267,7 +300,7 @@ namespace Adjutant.Library.Endian
 
         public void SeekTo(long offset)
         {
-            BaseStream.Seek(offset, SeekOrigin.Begin);
+            BaseStream.Seek(StreamOrigin + offset, SeekOrigin.Begin);
         }
 
         public void Skip(long count)
@@ -277,12 +310,12 @@ namespace Adjutant.Library.Endian
 
         public long Position
         {
-            get { return BaseStream.Position; }
+            get { return BaseStream.Position - StreamOrigin; }
         }
 
         public long Length
         {
-            get { return BaseStream.Length; }
+            get { return BaseStream.Length - StreamOrigin; }
         }
 
         public bool EOF

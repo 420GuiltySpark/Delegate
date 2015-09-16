@@ -471,6 +471,19 @@ namespace Adjutant.Library.Controls
 
             isWorking = true;
 
+            SceneCDT cdt = null;
+            foreach (var tag in pak.PakItems)
+            {
+                if (tag.Class == TagType.SceneCDT)
+                {
+                    cdt = new SceneCDT(pak, tag);
+                    break;
+                }
+            }
+            List<int> IDs = new List<int>();
+            foreach (var dat in cdt.sets[0].unkS0)
+                IDs.Add(dat.NodeID);
+
             #region Build Tree
 
             #region non-shared nodes
@@ -480,7 +493,7 @@ namespace Adjutant.Library.Controls
                 if (obj.isInherited || obj.isInheritor) continue;
                 if (obj.Submeshes == null) continue;
 
-                pNode.Nodes.Add(new TreeNode(obj.Name) { Tag = obj });
+                pNode.Nodes.Add(new TreeNode(obj._B903.Name) { Tag = obj });
 
                 foreach (var sub in obj.Submeshes)
                     if (!shList.Contains(sub.MaterialIndex)) shList.Add(sub.MaterialIndex);
@@ -493,15 +506,18 @@ namespace Adjutant.Library.Controls
             {
                 if (!pObj.isInherited) continue;
 
-                TreeNode iNode = new TreeNode(pObj.Name) { Tag = pObj };
+                TreeNode iNode = new TreeNode(pObj._B903.Name) { Tag = pObj };
 
                 foreach (var cObj in atpl.Objects)
                 {
                     if (!cObj.isInheritor) continue;
 
-                    if (cObj.inheritID == pObj.ID)
+                    if (cObj._2901.InheritID == pObj._B903.ID)
                     {
-                        iNode.Nodes.Add(new TreeNode(cObj.Name) { Tag = cObj });
+                        var newnode = new TreeNode(string.Format("[{0}] {1}", cObj._B903.ID.ToString("d4"), cObj._B903.Name)) { Tag = cObj };
+                        iNode.Nodes.Add(newnode);
+
+                        if (IDs.Contains(cObj._B903.ID)) newnode.Checked = iNode.Checked = true;
 
                         foreach (var sub in cObj.Submeshes)
                             if (!shList.Contains(sub.MaterialIndex)) shList.Add(sub.MaterialIndex);
@@ -512,8 +528,8 @@ namespace Adjutant.Library.Controls
             }
             #endregion
 
-            foreach (TreeNode node in tvRegions.Nodes)
-                node.Nodes[0].Checked = node.Checked = true;
+            //foreach (TreeNode node in tvRegions.Nodes)
+            //    node.Nodes[0].Checked = node.Checked = true;
 
             //tvRegions.Sort(); //much easier for looking through IGs
             #endregion
@@ -528,9 +544,9 @@ namespace Adjutant.Library.Controls
             #region BoundingBox Stuff
             PerspectiveCamera camera = (PerspectiveCamera)renderer1.Viewport.Camera;
 
-            var XBounds = atpl.RenderBounds.XBounds;
-            var YBounds = atpl.RenderBounds.ZBounds;
-            var ZBounds = atpl.RenderBounds.YBounds;
+            var XBounds = atpl._2002.Bounds.XBounds;
+            var YBounds = atpl._2002.Bounds.ZBounds;
+            var ZBounds = atpl._2002.Bounds.YBounds;
 
             #region Get Bounds
             //foreach (var c in sbsp.Clusters)
@@ -564,17 +580,17 @@ namespace Adjutant.Library.Controls
                 Math.Pow(YBounds.Length, 2) +
                 Math.Pow(ZBounds.Length, 2));
 
-            if (double.IsInfinity(pythagoras3d) || pythagoras3d == 0) //no clusters
-            {
-                XBounds = sbsp.XBounds;
-                YBounds = sbsp.YBounds;
-                ZBounds = sbsp.ZBounds;
+            //if (double.IsInfinity(pythagoras3d) || pythagoras3d == 0) //no clusters
+            //{
+            //    XBounds = sbsp.XBounds;
+            //    YBounds = sbsp.YBounds;
+            //    ZBounds = sbsp.ZBounds;
 
-                pythagoras3d = Math.Sqrt(
-                Math.Pow(XBounds.Length, 2) +
-                Math.Pow(YBounds.Length, 2) +
-                Math.Pow(ZBounds.Length, 2));
-            }
+            //    pythagoras3d = Math.Sqrt(
+            //    Math.Pow(XBounds.Length, 2) +
+            //    Math.Pow(YBounds.Length, 2) +
+            //    Math.Pow(ZBounds.Length, 2));
+            //}
 
             if (XBounds.Length / 2 > (YBounds.Length)) //side view
             {
@@ -631,7 +647,7 @@ namespace Adjutant.Library.Controls
 
                 try
                 {
-                    var pict = new Texture(sPak, sPak.GetItemByName(mat.Name));
+                    var pict = new Texture(sPak, sPak.GetItemByName(mat.Reference));
                     var image = BitmapExtractor.GetBitmapByTag(sPak, pict, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
                     if (TextureScale < 1) image = new Bitmap(image, new Size((int)(image.Width * TextureScale), (int)(image.Height * TextureScale)));
 
@@ -690,17 +706,26 @@ namespace Adjutant.Library.Controls
                         AddS3DMesh(group, obj, submesh, force);
 
                     var mGroup = new Transform3DGroup();
-                    var pObj = (obj.inheritID == -1) ? obj : atpl.ObjectByID(obj.inheritID);
+                    var pObj = (obj._2901.InheritID == -1) ? obj : atpl.ObjectByID(obj._2901.InheritID);
 
-                    //Matrix3D mat0 = ModelFunctions.MatrixFromBounds(obj.BoundingBox);
-                    //Matrix3D mat1 = (obj.isInheritor) ? ModelFunctions.MatrixFromBounds(pObj.BoundingBox) : Matrix3D.Identity;
-                    //Matrix3D mat2 = ModelFunctions.MatrixFromBounds(atpl.RenderBounds);
+                    Matrix3D mat0 = ModelFunctions.MatrixFromBounds(obj.BoundingBox.Data);
+                    Matrix3D mat1 = (obj.isInheritor) ? ModelFunctions.MatrixFromBounds(pObj.BoundingBox.Data) : mat0;
+                    Matrix3D mat2 = ModelFunctions.MatrixFromBounds(atpl.RenderBounds);
 
                     var mat3 = new Matrix3D(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
-                    var mat4 = (pObj.geomUnk01 == 134) ? Matrix3D.Identity : new Matrix3D(500, 0, 0, 0, 0, 500, 0, 0, 0, 0, 500, 0, 0, 0, 0, 1);
+                    var mat4 = new Matrix3D(600, 0, 0, 0, 0, 600, 0, 0, 0, 0, 600, 0, 0, 0, 0, 1);
 
+                    var dmat = new Matrix3D(
+                        1f / 0xFFFF, 0, 0, 0,
+                        0, 1f / 0xFFFF, 0, 0,
+                        0, 0, 1f / 0xFFFF, 0,
+                        0.5, 0.5, 0.5, 1
+                        );
 
-                    mGroup.Children.Add(new MatrixTransform3D(mat4 * mat3));
+                    if (pObj._2E01.geomUnk01 == 134)
+                        dmat = mat0 = mat1 = mat4 = Matrix3D.Identity;
+
+                    mGroup.Children.Add(new MatrixTransform3D(dmat * mat4 * mat3));
                     group.Transform = mGroup;
 
                     atplDic.Add(atpl.Objects.IndexOf(obj), group);
@@ -713,13 +738,13 @@ namespace Adjutant.Library.Controls
         {
             try
             {
-                var pObj = (obj.inheritID == -1) ? obj : atpl.ObjectByID(obj.inheritID);
+                var pObj = (obj._2901.InheritID == -1) ? obj : atpl.ObjectByID(obj._2901.InheritID);
                 
                 var geom = new MeshGeometry3D();
-                var iList = ModelFunctions.GetTriangleList(pObj.Indices, (obj.faceOffset + submesh.FaceStart) * 3, submesh.FaceLength * 3, 3);
+                var iList = ModelFunctions.GetTriangleList(pObj.Indices.Data, (obj._2901.IndexOffset + submesh.FaceStart) * 3, submesh.FaceLength * 3, 3);
 
                 var vArray = new Vertex[submesh.VertLength];
-                Array.Copy(pObj.Vertices.ToArray(), (obj.vertOffset + submesh.VertStart), vArray, 0, submesh.VertLength);
+                Array.Copy(pObj.Vertices.Data, (obj._2901.VertexOffset + submesh.VertStart), vArray, 0, submesh.VertLength);
 
                 foreach (var vertex in vArray)
                 {
@@ -729,7 +754,7 @@ namespace Adjutant.Library.Controls
                     vertex.TryGetValue("texcoords", 0, out tex);
 
                     geom.Positions.Add(new Point3D(pos.Data.x, pos.Data.y, pos.Data.z));
-                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * obj.unkC0, tex.Data.y * obj.unkC0));
+                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * obj._2F01.unkC0, tex.Data.y * obj._2F01.unkC0));
                     if (vertex.TryGetValue("normal", 0, out norm)) geom.Normals.Add(new Vector3D(norm.Data.x, norm.Data.y, norm.Data.z));
                 }
 

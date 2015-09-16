@@ -97,23 +97,23 @@ fn readMarkers = (
 	fseek inFile fPos #seek_set
 )
 
-fn expand cFormat val bounds = (
-	if cFormat == 1 do (
-		newval = (((val as float) + 32767.0) / 65535.0) as float
-		newval = newval * (bounds.y - bounds.x) + bounds.x
-		return newval
-	)
-	if cFormat == 2 do (
-		newval = ((val as float) / 65535.0) as float
-		newval = newval * (bounds.y - bounds.x) + bounds.x
-		return newval
-	)
-	
-	return val as float
+fn getVMatrix xbounds ybounds zbounds = (
+	dMat = matrix3 [1.0 / 65535.0, 0, 0] [0, 1.0 / 65535.0, 0] [0, 0, 1.0 / 65535.0] [0.5, 0.5, 0.5]
+	bMat = matrix3 [xbounds.y - xbounds.x, 0, 0] [0, ybounds.y - ybounds.x, 0] [0, 0, zbounds.y - zbounds.x] [xbounds.x, ybounds.x, zbounds.x]
+	return (dMat * bMat)
+)
+
+fn getTMatrix ubounds vbounds = (
+	dMat = matrix3 [1.0 / 32767.0, 0, 0] [0, 1.0 / 32767.0, 0] [0, 0, 1.0 / 32767.0] [0, 0, 0]
+	bMat = matrix3 [ubounds.y - ubounds.x, 0, 0] [0, vbounds.y - vbounds.x, 0] [0, 0, 0] [ubounds.x, vbounds.x, 0]
+	return (dMat * bMat)
 )
 
 fn readVertices vFormat cFormat vCount = (
 	verts = #()
+	vmat = matrix3 1
+	tmat = matrix3 1
+	
 	if vCount > 0 do (
 		if cFormat > 0 then (
 			xbounds = [readFloat inFile, readFloat inFile]
@@ -121,20 +121,17 @@ fn readVertices vFormat cFormat vCount = (
 			zbounds = [readFloat inFile, readFloat inFile]
 			ubounds = [readFloat inFile, readFloat inFile]
 			vbounds = [readFloat inFile, readFloat inFile]
+			
+			vmat = getVMatrix xbounds ybounds zbounds
+			tmat = getTMatrix ubounds vbounds
 		)
 		
 		for v = 1 to vCount do (
 			if cFormat == 1 then (
-				pos = [expand cFormat (readShort inFile) xbounds, expand cFormat (readShort inFile) ybounds, expand cFormat (readShort inFile) zbounds]
+				pos = [readShort inFile, readShort inFile, readShort inFile]
 				norm = [0,0,0]
 				readLong inFile
-				tex = [(expand cFormat (readShort inFile) ubounds), expand cFormat (readShort inFile) vbounds, 0.0]
-			)
-			else if cFormat == 2 then (
-				pos = [expand cFormat (readShort inFile #unsigned) xbounds, expand cFormat (readShort inFile #unsigned) ybounds, expand cFormat (readShort inFile #unsigned) zbounds]
-				norm = [0,0,0]
-				readLong inFile
-				tex = [expand cFormat (readShort inFile #unsigned) ubounds, expand cFormat (readShort inFile #unsigned) vbounds, 0.0]
+				tex = [readShort inFile, readShort inFile, 0.0] * tmat
 			)
 			else (
 				pos = [readFloat inFile, readFloat inFile, readFloat inFile]
@@ -210,7 +207,7 @@ fn readVertices vFormat cFormat vCount = (
 			append verts #(pos, norm, tex, indices, weights)
 		)
 	)
-	return verts
+	return #(verts, vmat)
 )
 
 fn readFaces vLen fCount = (
@@ -322,7 +319,7 @@ fn readRegions = (
 					fseek inFile sAddress #seek_set
 					meshes = readMeshes sCount
 					
-					append perms #(pName, vFormat, nIndex, verts, faces, meshes, vAddress, fAddress, mult, trnsfm)
+					append perms #(pName, vFormat, nIndex, verts[1], faces, meshes, vAddress, fAddress, mult, (verts[2] * trnsfm))
 					
 					fseek inFile xPos #seek_set
 				)
@@ -1383,7 +1380,7 @@ rollout shaderRollout "AMF Shaders" width:392 height:416
 	)
 )
 
-rollout mainRollout "AMF Importer v2.0" width:368 height:488
+rollout mainRollout "AMF Importer v2.1" width:368 height:488
 (
 	GroupBox grp_load "Load File" pos:[8,8] width:352 height:72
 	button btn_load "Load Model File" pos:[120,32] width:122 height:29
@@ -1434,7 +1431,7 @@ rollout mainRollout "AMF Importer v2.0" width:368 height:488
 				return()
 			)
 			
-			if version > 2.0 do (
+			if version > 2.1 do (
 				messageBox "Unknown format version. Try updating your AMF script." title:"Error"
 				FClose inFile
 				return()

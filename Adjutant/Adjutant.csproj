@@ -378,12 +378,13 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Adjutant\Program.cs" />
+    <Compile Include="Library\S3D\TemplateBase.cs" />
     <Compile Include="Library\S3D\Scene.cs" />
     <Compile Include="Library\S3D\Enums.cs" />
     <Compile Include="Library\S3D\SceneCDT.cs" />
+    <Compile Include="Library\S3D\Blocks.cs" />
     <Compile Include="Library\S3D\Template.cs" />
     <Compile Include="Library\S3D\SceneData.cs" />
-    <Compile Include="Library\S3D\TemplateBase.cs" />
     <Compile Include="Library\S3D\PakFile.cs" />
     <Compile Include="Library\S3D\Texture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

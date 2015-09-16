@@ -89,7 +89,7 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        public static Matrix MatrixFromBounds(render_model.BoundingBox bb)
+        public static Matrix MatrixFromBounds(RealBoundingBox bb)
         {
             Matrix m = Matrix.Identity;
 
@@ -2449,8 +2449,6 @@ namespace Adjutant.Library.Controls
             var fs = new FileStream(Filename, FileMode.Create, FileAccess.Write);
             var bw = new BinaryWriter(fs);
 
-            if (!ATPL.isParsed) ATPL.Parse();
-
             #region Address Lists
             var headerAddressList = new List<int>();
             var headerValueList = new List<int>();
@@ -2477,21 +2475,25 @@ namespace Adjutant.Library.Controls
             foreach (var obj in ATPL.Objects)
             {
                 if (!PartIndices.Contains(ATPL.Objects.IndexOf(obj))) continue;
-                if (obj.Vertices == null || obj.Submeshes == null) continue;
-                if (obj.VertCount == 0 || obj.Submeshes.Count == 0) continue;
+                
+                if (!obj.isInheritor)
+                {
+                    if (obj.Vertices == null || obj.Submeshes == null) continue;
+                    if (obj._B903.VertCount == 0 || obj.Submeshes.Count == 0) continue;
+                }
 
                 List<int> iList;
                 if (obj.isInheritor)
                 {
-                    var pObj = ATPL.ObjectByID(obj.inheritID);
+                    var pObj = ATPL.ObjectByID(obj._2901.InheritID);
 
-                    if (objDic.TryGetValue(pObj.Name, out iList))
+                    if (objDic.TryGetValue(pObj._B903.Name, out iList))
                         iList.Add(ATPL.Objects.IndexOf(obj));
                     else
                     {
                         iList = new List<int>();
                         iList.Add(ATPL.Objects.IndexOf(obj));
-                        objDic.Add(pObj.Name, iList);
+                        objDic.Add(pObj._B903.Name, iList);
                     }
                 }
                 else
@@ -2510,10 +2512,10 @@ namespace Adjutant.Library.Controls
 
             #region Header
             bw.Write("AMF!".ToCharArray());
-            bw.Write(2.0f); //format version
+            bw.Write(2.1f); //format version
             bw.Write((ATPL.Name + "\0").ToCharArray());
 
-            bw.Write(0);
+            bw.Write(ATPL.Bones.Count);
             headerAddressList.Add((int)bw.BaseStream.Position);
             bw.Write(0);
 
@@ -2531,34 +2533,31 @@ namespace Adjutant.Library.Controls
             #endregion
             #region Nodes
             headerValueList.Add((int)bw.BaseStream.Position);
-            //foreach (var node in Model.Nodes)
-            //{
-            //    bw.Write((node.Name + "\0").ToCharArray());
-            //    bw.Write((short)node.ParentIndex);
-            //    bw.Write((short)node.FirstChildIndex);
-            //    bw.Write((short)node.NextSiblingIndex);
-            //    bw.Write(node.Position.x * 100);
-            //    bw.Write(node.Position.y * 100);
-            //    bw.Write(node.Position.z * 100);
-            //    bw.Write(node.Rotation.i);
-            //    bw.Write(node.Rotation.j);
-            //    bw.Write(node.Rotation.k);
-            //    bw.Write(node.Rotation.w);
-            //    //bw.Write(node.TransformScale);
-            //    //bw.Write(node.SkewX.x);
-            //    //bw.Write(node.SkewX.y);
-            //    //bw.Write(node.SkewX.z);
-            //    //bw.Write(node.SkewY.x);
-            //    //bw.Write(node.SkewY.y);
-            //    //bw.Write(node.SkewY.z);
-            //    //bw.Write(node.SkewZ.x);
-            //    //bw.Write(node.SkewZ.y);
-            //    //bw.Write(node.SkewZ.z);
-            //    //bw.Write(node.Center.x);
-            //    //bw.Write(node.Center.y);
-            //    //bw.Write(node.Center.z);
-            //    //bw.Write(node.DistanceFromParent);
-            //}
+            foreach (var node in ATPL.Bones)
+            {
+                int pIdx = -1;
+                Node cObj = null;
+
+                foreach (var obj in ATPL.Objects)
+                    if (obj.BoneIndex == ATPL.Bones.IndexOf(node))
+                    {
+                        cObj = obj;
+                        if (cObj.ParentID != -1) pIdx = ATPL.ObjectByID(cObj.ParentID).BoneIndex;
+                        break;
+                    }
+
+                bw.Write((cObj._B903.Name + "\0").ToCharArray());
+                bw.Write((short)pIdx);
+                bw.Write((short)-1);
+                bw.Write((short)-1);
+                bw.Write(node._FA02.Data.x);
+                bw.Write(node._FA02.Data.y);
+                bw.Write(node._FA02.Data.z);
+                bw.Write(node._FB02.Data.i);
+                bw.Write(node._FB02.Data.j);
+                bw.Write(node._FB02.Data.k);
+                bw.Write(node._FB02.Data.w);
+            }
             #endregion
             #region Marker Groups
             headerValueList.Add((int)bw.BaseStream.Position);
@@ -2625,16 +2624,17 @@ namespace Adjutant.Library.Controls
                 foreach (int i in pair.Value)
                 {
                     var obj = ATPL.Objects[i];
+                    var vObj = (obj._2901 == null) ? obj : ATPL.ObjectByID(obj._2901.InheritID);
+
                     //if (!PartIndices.Contains(perm.PieceIndex)) continue;
 
                     //var part = Model.ModelSections[perm.PieceIndex];
-                    //VertexValue v;
-                    //bool hasNodes = part.Vertices[0].TryGetValue("blendindices", 0, out v) && part.NodeIndex == 255;
+                    VertexValue v;
+                    bool hasNodes = vObj.Vertices.Data[0].TryGetValue("blendindices", 0, out v);
                     //bool isBoned = part.Vertices[0].FormatName.Contains("rigid_boned");
-                    bool hasNodes = false;
                     bool isBoned = false;
 
-                    bw.Write((obj.Name + "\0").ToCharArray());
+                    bw.Write((obj._B903.Name + "\0").ToCharArray());
 
                     // 0 - no nodes
                     // 1 - nodes
@@ -2642,20 +2642,28 @@ namespace Adjutant.Library.Controls
                     byte vType;
                     if (isBoned) vType = (byte)2;
                     else vType = hasNodes ? (byte)1 : (byte)0;
-                    vType += 16;
+                    if (vObj._2E01.geomUnk01 != 0x86) vType += 16;
                     bw.Write(vType);
                     bw.Write((byte)255); //bone ID if applicable
 
+                    int vOffset = (obj._2901 == null) ? 0 : obj._2901.VertexOffset;
+                    int iOffset = (obj._2901 == null) ? 0 : obj._2901.IndexOffset;
+                    int maxV = 0, maxI = 0;
 
-                    bw.Write(obj.Vertices.Length);
+                    foreach (var submesh in obj.Submeshes)
+                    {
+                        maxV = Math.Max(maxV, submesh.VertStart + vOffset + submesh.VertLength);
+                        maxI = Math.Max(maxI, submesh.FaceStart + iOffset + submesh.FaceLength);
+                    }
+
+                    int vCount = maxV - vOffset;
+                    int iCount = maxI - iOffset;
+
+                    bw.Write(vCount);
                     vertAddressList.Add((int)bw.BaseStream.Position);
                     bw.Write(0);
 
-                    int count = 0;
-                    foreach (var submesh in obj.Submeshes)
-                        count += GetTriangleList(obj.Indices, submesh.FaceStart * 3, submesh.FaceLength * 3, 3).Count / 3;
-
-                    bw.Write(count);
+                    bw.Write(iCount);
                     indxAddressList.Add((int)bw.BaseStream.Position);
                     bw.Write(0);
 
@@ -2663,8 +2671,8 @@ namespace Adjutant.Library.Controls
                     meshAddressList.Add((int)bw.BaseStream.Position);
                     bw.Write(0);
 
-                    //var mat = MatrixFromBounds(obj.BoundingBox);
                     var mat = new Matrix(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0);
+                    //mat = Matrix.Identity;
 
                     //bw.Write(float.NaN); //no transforms (render_models are pre-transformed)
                     bw.Write(1f);
@@ -2689,31 +2697,22 @@ namespace Adjutant.Library.Controls
                 foreach (int z in pair.Value)
                 {
                     var obj = ATPL.Objects[z];
-                    //var part = Model.ModelSections[perm.PieceIndex];
-
-                    //int address;
-                    //if (dupeDic.TryGetValue(part.VertsIndex, out address))
-                    //{
-                    //    vertValueList.Add(address);
-                    //    continue;
-                    //}
-                    //else
-                    //    dupeDic.Add(part.VertsIndex, (int)bw.BaseStream.Position);
+                    var vObj = (obj._2901 == null) ? obj : ATPL.ObjectByID(obj._2901.InheritID);
 
                     VertexValue v;
-                    //bool hasNodes = part.Vertices[0].TryGetValue("blendindices", 0, out v) && part.NodeIndex == 255;
+                    bool hasNodes = vObj.Vertices.Data[0].TryGetValue("blendindices", 0, out v);
                     //bool isBoned = part.Vertices[0].FormatName.Contains("rigid_boned");
-                    bool hasNodes = false;
                     bool isBoned = false;
 
                     vertValueList.Add((int)bw.BaseStream.Position);
 
-                    var bb = new render_model.BoundingBox();
+                    var bb = new RealBoundingBox();
+                    RealBounds UBounds, VBounds;
                     bb.XBounds = bb.YBounds = bb.ZBounds = new RealBounds(0, 1);
-                    bb.UBounds = bb.VBounds = new RealBounds(0, obj.unkC0);
-                    if (obj.BoundingBox.Length > 0 && !obj.isInheritor) bb = obj.BoundingBox;
+                    UBounds = VBounds = new RealBounds(0, (obj._2F01 != null) ? obj._2F01.unkC0 : 1);
+                    if (obj.BoundingBox.Data.Length > 0 && !obj.isInheritor) bb = obj.BoundingBox.Data;
 
-                    bool compress = obj.Vertices[0].FormatName == "S3D";
+                    bool compress = (vObj._2E01.geomUnk01 != 0x86);
                     if (compress)
                     {
                         bw.Write(bb.XBounds.Min);
@@ -2722,20 +2721,30 @@ namespace Adjutant.Library.Controls
                         bw.Write(bb.YBounds.Max);
                         bw.Write(bb.ZBounds.Min);
                         bw.Write(bb.ZBounds.Max);
-                        bw.Write(bb.UBounds.Min);
-                        bw.Write(bb.UBounds.Max);
-                        bw.Write(bb.VBounds.Min);
-                        bw.Write(bb.VBounds.Max);
+                        bw.Write(UBounds.Min);
+                        bw.Write(UBounds.Max);
+                        bw.Write(VBounds.Min);
+                        bw.Write(VBounds.Max);
                     }
 
-                    foreach (Vertex vert in obj.Vertices)
+                    int vOffset = (obj._2901 == null) ? 0 : obj._2901.VertexOffset;
+                    int maxV = 0;
+
+                    foreach (var submesh in obj.Submeshes)
+                        maxV = Math.Max(maxV, submesh.VertStart + vOffset + submesh.VertLength);
+
+
+                    for (int x = vOffset; x < maxV; x++)
                     {
+                        var vert = vObj.Vertices.Data[x];
+
+                        #region Coordinate Data
                         if (compress)
                         {
                             vert.TryGetValue("position", 0, out v);
-                            bw.Write((short)Math.Round(((((v.Data.x - bb.XBounds.Min) / bb.XBounds.Length) * 0xFFFF) - 0x7FFF), 0));
-                            bw.Write((short)Math.Round(((((v.Data.y - bb.YBounds.Min) / bb.YBounds.Length) * 0xFFFF) - 0x7FFF), 0));
-                            bw.Write((short)Math.Round(((((v.Data.z - bb.ZBounds.Min) / bb.ZBounds.Length) * 0xFFFF) - 0x7FFF), 0));
+                            bw.Write((short)v.Data.x);
+                            bw.Write((short)v.Data.y);
+                            bw.Write((short)v.Data.z);
 
                             vert.TryGetValue("normal", 0, out v);
                             bw.Write(0);
@@ -2744,15 +2753,15 @@ namespace Adjutant.Library.Controls
                             //bw.Write(v.Data.j);
 
                             vert.TryGetValue("texcoords", 0, out v);
-                            bw.Write((short)Math.Round(((((v.Data.x - bb.UBounds.Min) / bb.UBounds.Length) * 0xFFFF) - 0x7FFF), 0));
-                            bw.Write((short)Math.Round(((((v.Data.y - bb.VBounds.Min) / bb.VBounds.Length) * 0xFFFF) - 0x7FFF), 0));
+                            bw.Write((short)Math.Round(v.Data.x * 0x7FFF, 0));
+                            bw.Write((short)Math.Round((1f - v.Data.y) * 0x7FFF, 0));
                         }
                         else
                         {
                             vert.TryGetValue("position", 0, out v);
-                            bw.Write(v.Data.x * 1);
-                            bw.Write(v.Data.y * 1);
-                            bw.Write(v.Data.z * 1);
+                            bw.Write(v.Data.x);
+                            bw.Write(v.Data.y);
+                            bw.Write(v.Data.z);
 
                             vert.TryGetValue("normal", 0, out v);
                             bw.Write(v.Data.i);
@@ -2762,8 +2771,10 @@ namespace Adjutant.Library.Controls
                             vert.TryGetValue("texcoords", 0, out v);
                             bw.Write(v.Data.x);
                             bw.Write(v.Data.y);
-                        }
+                        } 
+                        #endregion
 
+                        #region Rigid Vertex Data
                         if (isBoned)
                         {
                             VertexValue i;
@@ -2783,31 +2794,42 @@ namespace Adjutant.Library.Controls
 
                             continue;
                         }
+                        
+                        #endregion
 
-                        if (hasNodes)
+                        #region Skinned Vertex Data
+		                if (hasNodes)
                         {
                             VertexValue i, w;
                             vert.TryGetValue("blendindices", 0, out i);
                             vert.TryGetValue("blendweight", 0, out w);
                             int count = 0;
+
+                            RealQuat boneIndex = new RealQuat();
+                            boneIndex.a = ATPL.ObjectByID((int)i.Data.a + obj._3301.FirstNodeID).BoneIndex;
+                            boneIndex.b = ATPL.ObjectByID((int)i.Data.b + obj._3301.FirstNodeID).BoneIndex;
+                            boneIndex.c = ATPL.ObjectByID((int)i.Data.c + obj._3301.FirstNodeID).BoneIndex;
+                            boneIndex.d = ATPL.ObjectByID((int)i.Data.d + obj._3301.FirstNodeID).BoneIndex;
+
+
                             if (w.Data.a > 0)
                             {
-                                bw.Write((byte)i.Data.a);
+                                bw.Write((byte)boneIndex.a);
                                 count++;
                             }
                             if (w.Data.b > 0)
                             {
-                                bw.Write((byte)i.Data.b);
+                                bw.Write((byte)boneIndex.b);
                                 count++;
                             }
                             if (w.Data.c > 0)
                             {
-                                bw.Write((byte)i.Data.c);
+                                bw.Write((byte)boneIndex.c);
                                 count++;
                             }
                             if (w.Data.d > 0)
                             {
-                                bw.Write((byte)i.Data.d);
+                                bw.Write((byte)boneIndex.d);
                                 count++;
                             }
 
@@ -2818,8 +2840,9 @@ namespace Adjutant.Library.Controls
                             if (w.Data.a > 0) bw.Write(w.Data.a);
                             if (w.Data.b > 0) bw.Write(w.Data.b);
                             if (w.Data.c > 0) bw.Write(w.Data.c);
-                            if (w.Data.d > 0) bw.Write(w.Data.d);
+                            if (w.Data.d > 0) bw.Write(w.Data.d);  
                         }
+	                    #endregion                      
                     }
                 }
             }
@@ -2831,29 +2854,26 @@ namespace Adjutant.Library.Controls
                 foreach (int z in pair.Value)
                 {
                     var obj = ATPL.Objects[z];
-                    //var part = Model.ModelSections[perm.PieceIndex];
-
-                    //int address;
-                    //if (dupeDic.TryGetValue(part.FacesIndex, out address))
-                    //{
-                    //    indxValueList.Add(address);
-                    //    continue;
-                    //}
-                    //else
-                    //    dupeDic.Add(part.FacesIndex, (int)bw.BaseStream.Position);
+                    var vObj = (obj._2901 == null) ? obj : ATPL.ObjectByID(obj._2901.InheritID);
 
                     indxValueList.Add((int)bw.BaseStream.Position);
 
+                    int vOffset = (obj._2901 == null) ? 0 : obj._2901.VertexOffset;
+                    int iOffset = (obj._2901 == null) ? 0 : obj._2901.IndexOffset;
+                    int maxV = 0;
+
+                    foreach (var submesh in obj.Submeshes)
+                        maxV = Math.Max(maxV, submesh.VertStart + vOffset + submesh.VertLength);
+
+                    int vCount = maxV - vOffset;
+
                     foreach (var submesh in obj.Submeshes)
                     {
-                        var indices = GetTriangleList(obj.Indices, submesh.FaceStart * 3, submesh.FaceLength * 3, 3).ToArray();
-                        //for (int i = 0; i < indices.Length; i += 3)
-                        //    Array.Reverse(indices, i, 3);
+                        var indices = GetTriangleList(vObj.Indices.Data, (iOffset + submesh.FaceStart) * 3, submesh.FaceLength * 3, 3).ToArray();
                         foreach (var index in indices)
                         {
-                            if (obj.Vertices.Length > 0xFFFF) bw.Write(index);
-                            else /*if (obj.Vertices.Length > 0xFF)*/ bw.Write((ushort)index);
-                            //else bw.Write((byte)index);
+                            if (vCount > 0xFFFF) bw.Write(index);
+                            else bw.Write((ushort)index);
                         }
                     }
                 }
@@ -2865,13 +2885,14 @@ namespace Adjutant.Library.Controls
                 foreach (int z in pair.Value)
                 {
                     var obj = ATPL.Objects[z];
-                    //var part = Model.ModelSections[perm.PieceIndex];
+                    var vObj = (obj._2901 == null) ? obj : ATPL.ObjectByID(obj._2901.InheritID);
+
                     meshValueList.Add((int)bw.BaseStream.Position);
                     int tCount = 0;
                     foreach (var mesh in obj.Submeshes)
                     {
 
-                        int sCount = GetTriangleList(obj.Indices, mesh.FaceStart * 3, mesh.FaceLength * 3, 3).Count / 3;
+                        int sCount = GetTriangleList(vObj.Indices.Data, mesh.FaceStart * 3, mesh.FaceLength * 3, 3).Count / 3;
 
                         bw.Write((short)mesh.MaterialIndex);
                         bw.Write(tCount);
@@ -2886,7 +2907,7 @@ namespace Adjutant.Library.Controls
             headerValueList.Add((int)bw.BaseStream.Position);
             foreach (var mat in ATPL.Materials)
             {
-                string shaderName = mat.Name + "\0";
+                string shaderName = mat.Reference + "\0";
                 string[] paths = new string[8] { shaderName, "null\0", "null\0", "null\0", "null\0", "null\0", "null\0", "null\0" };
                 float[] uTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };
                 float[] vTiles = new float[8] { 1, 1, 1, 1, 1, 1, 1, 1 };

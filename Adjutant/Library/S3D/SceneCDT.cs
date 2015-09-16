@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Adjutant.Library.DataTypes;
 using Adjutant.Library;
 using Adjutant.Library.S3D;
 using Adjutant.Library.Endian;
-using Adjutant.Library.Definitions;
 using Adjutant.Library.Controls;
+using Adjutant.Library.DataTypes;
 
 namespace Adjutant.Library.S3D
 {
     public class SceneCDT
     {
         public byte[] unmapped0;
-        public List<struct0> unkS0 = new List<struct0>();
+        public List<DataSet> sets = new List<DataSet>();
 
         public SceneCDT(PakFile Pak, PakFile.PakTag Item)
         {
@@ -28,34 +27,61 @@ namespace Adjutant.Library.S3D
 
             unmapped0 = reader.ReadBytes(16); //???
 
-            reader.ReadInt32(); //03000000
-
-            var count = reader.ReadInt32();
+            var count = reader.ReadInt32(); //03000000 [data set count]
             for (int i = 0; i < count; i++)
-                unkS0.Add(new struct0(Pak, Item));
-
-            //unmapped from here
+                sets.Add(new DataSet(Pak, Item));
         }
 
-        public class struct0
+        public class DataSet
         {
-            public int unkIndex;
-            public int unk0, unk1;
-            public float unkf0;
+            public List<struct0> unkS0 = new List<struct0>();
 
-            public struct0(PakFile Pak, PakFile.PakTag Item)
+            public int unk0;
+            public RealQuat MinBound;
+            public float unkf0;
+            public int DataLength;
+
+
+            public DataSet(PakFile Pak, PakFile.PakTag Item)
             {
                 var reader = Pak.Reader;
 
-                unkIndex = reader.ReadInt16(); //ID for bsp node
+                var count = reader.ReadInt32();
+                if (count == 0) return;
 
-                unk0 = reader.ReadInt32(); //face count for bsp node
-                unk1 = reader.ReadInt32(); //???
-                
-                //usually always large negative
-                //may not actually be a float
-                //(though always valid as one)
+                for (int i = 0; i < count; i++)
+                    unkS0.Add(new struct0(Pak, Item));
+
+                unk0 = reader.ReadInt32(); //total faces
+
+                MinBound = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+
                 unkf0 = reader.ReadSingle();
+                DataLength = reader.ReadInt32();
+
+                reader.ReadBytes(DataLength); //unmapped
+            }
+
+            public class struct0
+            {
+                public int NodeID;
+                public int NodeFaces, unk1;
+                public float unkf0;
+
+                public struct0(PakFile Pak, PakFile.PakTag Item)
+                {
+                    var reader = Pak.Reader;
+
+                    NodeID = reader.ReadInt16(); //ID for bsp node
+                    NodeFaces = reader.ReadInt32(); //face count for bsp node
+
+                    unk1 = reader.ReadInt32(); //???
+
+                    //usually always large negative
+                    //may not actually be a float
+                    //(though always valid as one)
+                    unkf0 = reader.ReadSingle();
+                }
             }
         }
     }

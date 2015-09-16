@@ -466,10 +466,17 @@ namespace Adjutant.Controls
                 tv.Dock = DockStyle.Fill;
             }
 
-            if (cache != null)
-                tv.LoadTag(cache, tag);
-            else if (item != null)
-                tv.LoadTag(pak, item);
+            try
+            {
+                if (cache != null)
+                    tv.LoadTag(cache, tag);
+                else if (item != null)
+                    tv.LoadTag(pak, item);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, "Error loading tag:\r\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void tvTags_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
