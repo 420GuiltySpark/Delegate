@@ -636,8 +636,10 @@ namespace Adjutant.Library.Controls
                     vertex.TryGetValue("position", 0, out pos);
                     vertex.TryGetValue("texcoords", 0, out tex);
 
-                    geom.Positions.Add(new Point3D(pos.Data.x*1, pos.Data.y*1, pos.Data.z*1));
-                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * obj._2F01.unkC0, tex.Data.y * obj._2F01.unkC0));
+                    var texSize = (obj._2F01 != null) ? obj._2F01.unkC0 : 1;
+
+                    geom.Positions.Add(new Point3D(pos.Data.x, pos.Data.y, pos.Data.z));
+                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * texSize, tex.Data.y * texSize));
                     if (vertex.TryGetValue("normal", 0, out norm)) geom.Normals.Add(new Vector3D(norm.Data.x, norm.Data.y, norm.Data.z));
                 }
 
