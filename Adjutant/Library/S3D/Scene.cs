@@ -18,8 +18,8 @@ namespace Adjutant.Library.S3D
 
         public unkBlock_XXXX _C003;
         public Block_2002 _2002;
-        public unkBlock_XXXX _2102;
-        public unkBlock_XXXX _2202;
+        public Block_2102 _2102;
+        public Block_2202 _2202;
         public unkBlock_XXXX _8404;
 
         public RealQuat unkCoords0;
@@ -57,13 +57,9 @@ namespace Adjutant.Library.S3D
 
             _2002 = new Block_2002(reader);
 
-            //contains count and lots of empty space
-            _2102 = new unkBlock_XXXX(reader, 0x2102);
+            _2102 = new Block_2102(reader);
 
-            //int32 max value of int list
-            //12 bytes of 0
-            //int list; int32 * object count
-            _2202 = new unkBlock_XXXX(reader, 0x2202); 
+            _2202 = new Block_2202(reader, _2102.unk0); 
             #endregion
 
             reader.ReadInt16(); //0100

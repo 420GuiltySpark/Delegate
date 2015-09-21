@@ -722,7 +722,7 @@ namespace Adjutant.Library.Controls
                         0.5, 0.5, 0.5, 1
                         );
 
-                    if (pObj._2E01.geomUnk01 == 134)
+                    if (pObj.Vertices.Data[0].FormatName == "S3D_World")
                         dmat = mat0 = mat1 = mat4 = Matrix3D.Identity;
 
                     mGroup.Children.Add(new MatrixTransform3D(dmat * mat4 * mat3));
@@ -753,8 +753,10 @@ namespace Adjutant.Library.Controls
                     vertex.TryGetValue("position", 0, out pos);
                     vertex.TryGetValue("texcoords", 0, out tex);
 
+                    var texSize = (obj._2F01 != null) ? obj._2F01.unkC0 : 1;
+
                     geom.Positions.Add(new Point3D(pos.Data.x, pos.Data.y, pos.Data.z));
-                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * obj._2F01.unkC0, tex.Data.y * obj._2F01.unkC0));
+                    geom.TextureCoordinates.Add(new System.Windows.Point(tex.Data.x * texSize, tex.Data.y * texSize));
                     if (vertex.TryGetValue("normal", 0, out norm)) geom.Normals.Add(new Vector3D(norm.Data.x, norm.Data.y, norm.Data.z));
                 }
 

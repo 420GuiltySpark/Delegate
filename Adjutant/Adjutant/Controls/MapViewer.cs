@@ -475,6 +475,7 @@ namespace Adjutant.Controls
             }
             catch (Exception ex)
             {
+                if (pak != null) pak.Reader.StreamOrigin = 0;
                 MessageBox.Show(this, "Error loading tag:\r\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

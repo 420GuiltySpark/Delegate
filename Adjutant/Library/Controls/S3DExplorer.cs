@@ -123,6 +123,7 @@ namespace Adjutant.Library.Controls
             {
                 #region None
                 case TagType.None:
+                case TagType.AnimStream:
                     richTextBox1.Text = reader.ReadString(reader.ReadInt32());
                     break;
                 #endregion
@@ -143,8 +144,8 @@ namespace Adjutant.Library.Controls
                         data.unkBounds.XBounds.Max, data.unkBounds.YBounds.Max, data.unkBounds.ZBounds.Max);
                     richTextBox1.Text += "\r\n";
 
-                    richTextBox1.Text += string.Format("Index Count:\t{0:d5}\r\n" + data.indices.Count);
-                    richTextBox1.Text += string.Format("Struct Count:\t{0:d5}\r\n" + data.unkS0.Count);
+                    richTextBox1.Text += string.Format("Index Count:\t{0:d5}\r\n", data.indices.Count);
+                    richTextBox1.Text += string.Format("Struct Count:\t{0:d5}\r\n", data.unkS0.Count);
 
                     richTextBox1.Text += "Footer:\t" + "[" + BitConverter.ToString(data.unmapped1, 0).Replace("-", string.Empty) + "]\r\n";
                     richTextBox1.Text += "\r\n";
@@ -222,8 +223,8 @@ namespace Adjutant.Library.Controls
                         if (set.unkS0.Count == 0) continue;
 
                         richTextBox1.Text += string.Format("FaceTotal:\t{0:d8}\t({1})\r\n", set.unk0, leString(set.unk0, 4));
-                        richTextBox1.Text += string.Format("MinBound:\t{0}", set.MinBound.ToString());
-                        richTextBox1.Text += string.Format("unkf0:\t\t{0:F6}", set.unkf0);
+                        richTextBox1.Text += string.Format("MinBound:\t{0}\r\n", set.MinBound.ToString());
+                        richTextBox1.Text += string.Format("unkf0:\t\t{0:F6}\r\n", set.unkf0);
                         richTextBox1.Text += string.Format("DataLength:\t{0:d8}\t({1})\r\n", set.DataLength, leString(set.DataLength, 4));
 
                         richTextBox1.Text += "\r\n\r\n";
@@ -311,11 +312,30 @@ namespace Adjutant.Library.Controls
                 richTextBox1.Text += string.Format("Obj Count:\t{0:d3}\r\n", bsp.Objects.Count);
                 richTextBox1.Text += "\r\n";
 
-                richTextBox1.Text += "=======Bounds=======\r\n";
+                richTextBox1.Text += "=======2002=======\r\n";
+                richTextBox1.Text += string.Format("unk0:\t\t{0}\r\nunk1:\t\t{1}\r\nunk2:\t\t{2}\r\n", bsp._2002.unk0, bsp._2002.unk1, bsp._2002.unk2);
+                richTextBox1.Text += "bounds:\r\n";
                 richTextBox1.Text += string.Format("{0,11:F6}\t{1,11:F6}\t{2,11:F6}\r\n{3,11:F6}\t{4,11:F6}\t{5,11:F6}\r\n",
                     bsp._2002.Bounds.XBounds.Min, bsp._2002.Bounds.YBounds.Min, bsp._2002.Bounds.ZBounds.Min,
                     bsp._2002.Bounds.XBounds.Max, bsp._2002.Bounds.YBounds.Max, bsp._2002.Bounds.ZBounds.Max);
                 richTextBox1.Text += "\r\n";
+                richTextBox1.Text += string.Format("unkPos0:\t{0}\r\n", bsp._2002.unkPos0.ToString(3, ", "));
+                richTextBox1.Text += "\r\n";
+
+                richTextBox1.Text += "=======2102=======\r\n";
+                richTextBox1.Text += string.Format("count\t\t{0}\r\n", bsp._2102.unk0);
+                richTextBox1.Text += string.Format("size\t\t{0}\r\n", bsp._2102.BlockSize);
+                richTextBox1.Text += "\r\n";
+
+
+                richTextBox1.Text += "=======2202=======\r\n";
+                richTextBox1.Text += string.Format("unk0\t\t{0}\r\n", bsp._2202.unk0);
+                richTextBox1.Text += string.Format("unk1:\t\t{0}\r\nunk2:\t\t{1}\r\nunk3:\t\t{2}\r\n", bsp._2202.unk1, bsp._2202.unk2, bsp._2202.unk3);
+                richTextBox1.Text += "list:\r\n";
+
+                for (int i = 0; i < Math.Min(bsp._2202.unkList.Length, 1000); i++)
+                    richTextBox1.Text += bsp._2202.unkList[i].ToString("d7") + ((i % 10 == 9) ? "\r\n" : " ");
+                
             }
             #endregion
 

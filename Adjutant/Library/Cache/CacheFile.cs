@@ -1201,7 +1201,6 @@ namespace Adjutant.Library.Cache
                 buffer = er.ReadBytes(reqPage.CompressedSize);
 
                 Array.Copy(buffer, segment.RequiredPageOffset, data, 0, reqSize);
-                //data = buffer;
 
                 if (er != Reader)
                 {
@@ -1234,8 +1233,11 @@ namespace Adjutant.Library.Cache
                 er.SeekTo(offset);
                 buffer = er.ReadBytes(optPage.CompressedSize);
 
-                //Array.Copy(buffer, segment.OptionalPageOffset, data, reqSize, optSize);
-                data = buffer;
+                if (buffer.Length > data.Length)
+                    data = buffer;
+                else
+                    Array.Copy(buffer, segment.OptionalPageOffset, data, reqSize, optSize);
+               
 
                 if (er != Reader)
                 {

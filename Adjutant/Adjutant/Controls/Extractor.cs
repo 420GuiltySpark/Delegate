@@ -112,7 +112,7 @@ namespace Adjutant.Controls
 
                                 fName += ".bik";
 
-                                AddLine("Extracting " + tName + "...");
+                                //AddLine("Extracting " + tName + "...");
                                 if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
                                 {
                                     BinkExtractor.SaveBink(fName, cache, tag);
@@ -200,7 +200,7 @@ namespace Adjutant.Controls
                         case "sbsp":
                             try
                             {
-                                AddLine("Extracting " + tName + "...");
+                                //AddLine("Extracting " + tName + "...");
                                 switch (settings.ModeFormat)
                                 {
                                     case ModelFormat.EMF:
@@ -237,7 +237,7 @@ namespace Adjutant.Controls
                                 //H2, H3B not supported
                                 if (cache.Version <= DefinitionSet.Halo3Beta) continue;
 
-                                AddLine("Extracting " + tName + "...");
+                                //AddLine("Extracting " + tName + "...");
                                 if (cache.Version < DefinitionSet.Halo4Retail)
                                     SoundExtractor.SaveAllAsSeparate(dest + tag.Filename, cache, tag, settings.Snd_Format, settings.Flags.HasFlag(SettingsFlags.OverwriteTags));
                                 else
@@ -265,7 +265,7 @@ namespace Adjutant.Controls
 
                                 fName += ".txt";
 
-                                AddLine("Extracting " + tName + "...");
+                                //AddLine("Extracting " + tName + "...");
                                 if (settings.Flags.HasFlag(SettingsFlags.OverwriteTags) || !File.Exists(fName))
                                 {
                                     StringsViewer.SaveUnicStrings(fName, cache, tag, settings.Language);

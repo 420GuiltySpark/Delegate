@@ -114,7 +114,7 @@ namespace Adjutant.Library.S3D.Blocks
         //public int BaseAddress;
         //public int x2E01, EOBAddress;
         public int x1200;
-        public int geomUnk01; //03 for no materials, 86 for world, 87 for one material, 8F for two, 9F for three, BF for four
+        public int geomUnk01; //03 for no materials, 86/8E for world, 87 for one material, 8F for two, 9F for three, BF for four
         public int x4001; //not always 4001
 
         public Block_2E01(EndianReader reader)
@@ -160,7 +160,7 @@ namespace Adjutant.Library.S3D.Blocks
             Data = new Vertex[DataCount];
             if (DataCount == 0) return;
 
-            if (geomUnk01 != 134)
+            if (geomUnk01 != 134 && geomUnk01 != 142)
             {
                 CentreX = reader.ReadInt16();
                 CentreY = reader.ReadInt16();
@@ -170,25 +170,25 @@ namespace Adjutant.Library.S3D.Blocks
                 RadiusZ = reader.ReadInt16();
             }
 
-            if (!loadMesh) reader.Skip(DataCount * ((geomUnk01 == 134) ? 12 : 8));
+            if (!loadMesh) reader.SeekTo(EOBOffset);
             else for (int i = 0; i < DataCount; i++)
-                {
-                    Vertex v;
+            {
+                Vertex v;
 
-                    if (geomUnk01 == 134)
-                    {
-                        v = new Vertex() { FormatName = "S3D_World" };
-                        var data = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-                        v.Values.Add(new VertexValue(data, VertexValue.ValueType.Float32_3, "position", 0));
-                    }
-                    else
-                    {
-                        v = new Vertex() { FormatName = "S3D_Compressed" };
-                        var data = new RealQuat(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16());
-                        v.Values.Add(new VertexValue(data, VertexValue.ValueType.Int16_N4, "position", 0));
-                    }
-                    Data[i] = v;
+                if (geomUnk01 == 134 || geomUnk01 == 142)
+                {
+                    v = new Vertex() { FormatName = "S3D_World" };
+                    var data = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+                    v.Values.Add(new VertexValue(data, VertexValue.ValueType.Float32_3, "position", 0));
                 }
+                else
+                {
+                    v = new Vertex() { FormatName = "S3D_Compressed" };
+                    var data = new RealQuat(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16());
+                    v.Values.Add(new VertexValue(data, VertexValue.ValueType.Int16_N4, "position", 0));
+                }
+                Data[i] = v;
+            }
         }
     }
 
@@ -215,90 +215,87 @@ namespace Adjutant.Library.S3D.Blocks
             unkUV4 = reader.ReadByte(); //0x00 when world, else 0x20
             DataSize = reader.ReadByte();
 
-            if (!loadMesh) reader.Skip(DataCount * DataSize);
+            if (!loadMesh) reader.SeekTo(EOBOffset);
             else for (int i = 0; i < DataCount; i++)
+            {
+                RealQuat tex0 = new RealQuat();
+
+                #region switch
+                switch (DataSize)
                 {
-                    RealQuat tex0 = new RealQuat();
-
-                    #region switch
-                    switch (DataSize)
-                    {
-                        case 8:
-                            tex0 = RealQuat.FromUByteN4(reader.ReadUInt32());
-                            reader.Skip(0);
-                            break;
-                        case 12:
-                            reader.Skip(4);
-                            break;
-                        case 16:
-                            reader.Skip(12);
-                            break;
-                        case 20:
-                            reader.Skip(16);
-                            break;
-                        case 24:
-                            reader.Skip(16);
-                            break;
-                        case 28:
-                            reader.Skip(20);
-                            break;
-                        case 32:
-                            reader.Skip(16);
-                            break;
-                        case 36:
-                            reader.Skip(24);
-                            break;
-                        case 44:
-                            reader.Skip(28);
-                            break;
-                    }
-                    #endregion
-
-                    //if (tex0.w == 1)
-                    //  tex0 = tex0;
-
-                    int u = reader.ReadInt16();
-                    int v = reader.ReadInt16();
-
-                    //var tex0 = new RealQuat(((float)a + (float)0) / (float)0xFFFF, ((float)b + (float)0) / (float)0xFFFF);
-                    var tex1 = new RealQuat((float)u / (float)(0x7FFF), (float)v / (float)(0x7FFF));
-
-                    #region switch
-                    switch (DataSize)
-                    {
-                        case 8:
-                            reader.Skip(0);
-                            break;
-                        case 12:
-                            reader.Skip(4);
-                            break;
-                        case 16:
-                            reader.Skip(0);
-                            break;
-                        case 20:
-                            reader.Skip(0);
-                            break;
-                        case 24:
-                            reader.Skip(4);
-                            break;
-                        case 28:
-                            reader.Skip(4);
-                            break;
-                        case 32:
-                            reader.Skip(12);
-                            break;
-                        case 36:
-                            reader.Skip(8);
-                            break;
-                        case 44:
-                            reader.Skip(12);
-                            break;
-                    }
-                    #endregion
-
-                    //Vertices[i].Values.Add(new VertexValue(tex0, 0, "normal", 0));
-                    Vertices[i].Values.Add(new VertexValue(tex1, VertexValue.ValueType.Int16_N2, "texcoords", 0));
+                    case 8:
+                        tex0 = RealQuat.FromUByteN4(reader.ReadUInt32());
+                        reader.Skip(0);
+                        break;
+                    case 12:
+                        reader.Skip(4);
+                        break;
+                    case 16:
+                        reader.Skip(12);
+                        break;
+                    case 20:
+                        reader.Skip(16);
+                        break;
+                    case 24:
+                        reader.Skip(16);
+                        break;
+                    case 28:
+                        reader.Skip(20);
+                        break;
+                    case 32:
+                        reader.Skip(16);
+                        break;
+                    case 36:
+                        reader.Skip(24);
+                        break;
+                    case 44:
+                        reader.Skip(28);
+                        break;
                 }
+                #endregion
+
+                int u = reader.ReadInt16();
+                int v = reader.ReadInt16();
+
+                //var tex0 = new RealQuat(((float)a + (float)0) / (float)0xFFFF, ((float)b + (float)0) / (float)0xFFFF);
+                var tex1 = new RealQuat((float)u / (float)(0x7FFF), (float)v / (float)(0x7FFF));
+
+                #region switch
+                switch (DataSize)
+                {
+                    case 8:
+                        reader.Skip(0);
+                        break;
+                    case 12:
+                        reader.Skip(4);
+                        break;
+                    case 16:
+                        reader.Skip(0);
+                        break;
+                    case 20:
+                        reader.Skip(0);
+                        break;
+                    case 24:
+                        reader.Skip(4);
+                        break;
+                    case 28:
+                        reader.Skip(4);
+                        break;
+                    case 32:
+                        reader.Skip(12);
+                        break;
+                    case 36:
+                        reader.Skip(8);
+                        break;
+                    case 44:
+                        reader.Skip(12);
+                        break;
+                }
+                #endregion
+
+                //Vertices[i].Values.Add(new VertexValue(tex0, 0, "normal", 0));
+                Vertices[i].Values.Add(new VertexValue(tex1, VertexValue.ValueType.Int16_N2, "texcoords", 0));
+            }
 
             reader.EndianType = EndianFormat.LittleEndian;
         }
@@ -316,7 +313,7 @@ namespace Adjutant.Library.S3D.Blocks
             Data = new int[DataCount * 3];
             if (DataCount == 0) return;
 
-            if (!loadMesh) reader.Skip(DataCount * 6);
+            if (!loadMesh) reader.SeekTo(EOBOffset);
             else for (int i = 0; i < DataCount * 3; i++)
                     Data[i] = reader.ReadUInt16();
         }
@@ -740,6 +737,43 @@ namespace Adjutant.Library.S3D.Blocks
                 ZBounds = new RealBounds(min.z, max.z),
             };
             unkPos0 = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+        }
+    }
+
+    public class Block_2102 : S3DBlock
+    {
+        public int unk0;
+
+        public Block_2102(EndianReader reader)
+            : base(reader, 0x2102)
+        {
+            unk0 = reader.ReadInt32();
+
+            //loads of empty space here
+
+            reader.SeekTo(EOBOffset);
+        }
+    }
+
+    public class Block_2202 : S3DBlock
+    {
+        public int unk0; //total face count
+        public int unk1, unk2, unk3;
+        public int[] unkList; //cumulative face count per node
+
+        public Block_2202(EndianReader reader, int count)
+            : base(reader, 0x2202)
+        {
+            unk0 = reader.ReadInt32();
+
+            unk1 = reader.ReadInt32();
+            unk2 = reader.ReadInt32();
+            unk3 = reader.ReadInt32();
+
+            unkList = new int[count];
+            for (int i = 0; i < count; i++) unkList[i] = reader.ReadInt32();
+
+            reader.SeekTo(EOBOffset);
         }
     }
     #endregion
