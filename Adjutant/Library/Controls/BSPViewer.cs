@@ -706,7 +706,7 @@ namespace Adjutant.Library.Controls
                         AddS3DMesh(group, obj, submesh, force);
 
                     var mGroup = new Transform3DGroup();
-                    var pObj = (obj._2901.InheritID == -1) ? obj : atpl.ObjectByID(obj._2901.InheritID);
+                    var pObj = (obj._2901 == null) ? obj : atpl.ObjectByID(obj._2901.InheritID);
 
                     Matrix3D mat0 = ModelFunctions.MatrixFromBounds(obj.BoundingBox.Data);
                     Matrix3D mat1 = (obj.isInheritor) ? ModelFunctions.MatrixFromBounds(pObj.BoundingBox.Data) : mat0;
@@ -738,13 +738,15 @@ namespace Adjutant.Library.Controls
         {
             try
             {
-                var pObj = (obj._2901.InheritID == -1) ? obj : atpl.ObjectByID(obj._2901.InheritID);
+                var pObj = (obj._2901 == null) ? obj : atpl.ObjectByID(obj._2901.InheritID);
+                var iOffset = (obj._2901 == null) ? 0 : obj._2901.IndexOffset;
+                var vOffset = (obj._2901 == null) ? 0 : obj._2901.VertexOffset;
                 
                 var geom = new MeshGeometry3D();
-                var iList = ModelFunctions.GetTriangleList(pObj.Indices.Data, (obj._2901.IndexOffset + submesh.FaceStart) * 3, submesh.FaceLength * 3, 3);
+                var iList = ModelFunctions.GetTriangleList(pObj.Indices.Data, (iOffset + submesh.FaceStart) * 3, submesh.FaceLength * 3, 3);
 
                 var vArray = new Vertex[submesh.VertLength];
-                Array.Copy(pObj.Vertices.Data, (obj._2901.VertexOffset + submesh.VertStart), vArray, 0, submesh.VertLength);
+                Array.Copy(pObj.Vertices.Data, (vOffset + submesh.VertStart), vArray, 0, submesh.VertLength);
 
                 foreach (var vertex in vArray)
                 {
