@@ -234,7 +234,7 @@
     <Compile Include="Library\Definitions\Base\sound.cs" />
     <Compile Include="Library\Definitions\Base\soundbank.cs" />
     <Compile Include="Library\Definitions\Base\sound_cache_file_gestalt.cs" />
-    <Compile Include="Library\Definitions\Composer\Wwise\RTPC.cs" />
+    <Compile Include="Composer\Wwise\RTPC.cs" />
     <Compile Include="Library\Definitions\DefinitionsManager.cs" />
     <Compile Include="Library\Definitions\Enums.cs" />
     <Compile Include="Library\Definitions\Halo2Xbox\bitmap.cs" />
@@ -276,75 +276,75 @@
     <Compile Include="Library\Definitions\ReachRetail\render_model.cs" />
     <Compile Include="Library\Definitions\ReachRetail\scenario_structure_bsp.cs" />
     <Compile Include="Library\Definitions\ReachRetail\sound_cache_file_gestalt.cs" />
-    <Compile Include="Library\Definitions\Composer\FormatIdentification.cs" />
-    <Compile Include="Library\Definitions\Composer\Info.cs" />
-    <Compile Include="Library\Definitions\Composer\Wwise\IWwiseObject.cs">
+    <Compile Include="Composer\FormatIdentification.cs" />
+    <Compile Include="Composer\Info.cs" />
+    <Compile Include="Composer\Wwise\IWwiseObject.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\IWwiseObjectVisitor.cs">
+    <Compile Include="Composer\Wwise\IWwiseObjectVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\RIFX.cs">
+    <Compile Include="Composer\Wwise\RIFX.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBank.cs">
+    <Compile Include="Composer\Wwise\SoundBank.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankAction.cs">
+    <Compile Include="Composer\Wwise\SoundBankAction.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankActorMixer.cs">
+    <Compile Include="Composer\Wwise\SoundBankActorMixer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankEvent.cs">
+    <Compile Include="Composer\Wwise\SoundBankEvent.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankFile.cs">
+    <Compile Include="Composer\Wwise\SoundBankFile.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankMusicPlaylist.cs">
+    <Compile Include="Composer\Wwise\SoundBankMusicPlaylist.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankMusicSegment.cs">
+    <Compile Include="Composer\Wwise\SoundBankMusicSegment.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankMusicSwitchContainer.cs">
+    <Compile Include="Composer\Wwise\SoundBankMusicSwitchContainer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankMusicTrack.cs">
+    <Compile Include="Composer\Wwise\SoundBankMusicTrack.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankSequenceContainer.cs">
+    <Compile Include="Composer\Wwise\SoundBankSequenceContainer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankSwitchContainer.cs">
+    <Compile Include="Composer\Wwise\SoundBankSwitchContainer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundBankVoice.cs">
+    <Compile Include="Composer\Wwise\SoundBankVoice.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\SoundExtraction.cs" />
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundInfo.cs">
+    <Compile Include="Composer\SoundExtraction.cs" />
+    <Compile Include="Composer\Wwise\SoundInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundPack.cs">
+    <Compile Include="Composer\Wwise\SoundPack.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundPackFile.cs">
+    <Compile Include="Composer\Wwise\SoundPackFile.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundPackFolder.cs">
+    <Compile Include="Composer\Wwise\SoundPackFolder.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\Wwise\SoundPath.cs">
+    <Compile Include="Composer\Wwise\SoundPath.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\SoundScanner.cs" />
-    <Compile Include="Library\Definitions\Composer\Wwise\StateGroup.cs">
+    <Compile Include="Composer\SoundScanner.cs" />
+    <Compile Include="Composer\Wwise\StateGroup.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Definitions\Composer\StreamUtil.cs" />
-    <Compile Include="Library\Definitions\Composer\Wwise\WwiseObjectCollection.cs">
+    <Compile Include="Composer\StreamUtil.cs" />
+    <Compile Include="Composer\Wwise\WwiseObjectCollection.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Library\Endian\EndianReader.cs" />
@@ -499,7 +499,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Library\DataTypes\Float16\README.txt" />
-    <Content Include="Library\Definitions\Composer\README.txt" />
+    <Content Include="Composer\README.txt" />
     <Content Include="Plugins\Halo2\adlg.xml" />
     <Content Include="Plugins\Halo2\ant!.xml" />
     <Content Include="Plugins\Halo2\bipd.xml" />

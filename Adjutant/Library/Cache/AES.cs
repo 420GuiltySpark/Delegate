@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Adjutant.Library.Cache
 {
-    internal static class AES
+    public static class AES
     {
         /// <summary>
         /// Decrypts a segment of an EndianReader stream.
@@ -18,7 +18,7 @@ namespace Adjutant.Library.Cache
         /// <param name="Length">The number of bytes to decrypt.</param>
         /// <param name="Key">The decryption key as a string.</param>
         /// <returns>A new EndianReader stream containing only the decrypted segment.</returns>
-        internal static EndianReader DecryptSegment(EndianReader Reader, int StartPosition, int Length, string Key)
+        public static EndianReader DecryptSegment(EndianReader Reader, int StartPosition, int Length, string Key)
         {
             Reader.BaseStream.Position = StartPosition;
             if (Length % 16 != 0) Length += 16 - Length % 16;
