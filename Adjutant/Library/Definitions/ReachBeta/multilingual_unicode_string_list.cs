@@ -11,7 +11,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 {
     public class multilingual_unicode_string_list : unic
     {
-        public multilingual_unicode_string_list(CacheFile Cache)
+        public multilingual_unicode_string_list(CacheBase Cache)
         {
             EndianReader Reader = Cache.Reader;
 

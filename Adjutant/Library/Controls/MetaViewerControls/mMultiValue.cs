@@ -14,7 +14,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
 {
     internal partial class mMultiValue : MetaViewerControl
     {
-        public mMultiValue(iValue Value, CacheFile Cache)
+        public mMultiValue(iValue Value, CacheBase Cache)
         {
             InitializeComponent();
             value = Value;

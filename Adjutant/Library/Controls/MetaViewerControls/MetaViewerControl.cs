@@ -10,7 +10,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
     internal class MetaViewerControl : UserControl
     {
         protected iValue value;
-        protected CacheFile cache;
+        protected CacheBase cache;
 
         public virtual void Reload(int ParentAddress)
         {

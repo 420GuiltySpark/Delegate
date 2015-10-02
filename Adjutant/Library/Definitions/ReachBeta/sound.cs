@@ -14,7 +14,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
     //TODO: finish this
     public class sound : snd_
     {
-        public sound(CacheFile Cache)
+        public sound(CacheBase Cache)
         {
             EndianReader Reader = Cache.Reader;
 

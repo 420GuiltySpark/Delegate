@@ -12,7 +12,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 {
     public class render_model : mode
     {
-        public render_model(CacheFile Cache, int Offset)
+        public render_model(CacheBase Cache, int Offset)
         {
             cache = Cache;
             EndianReader Reader = Cache.Reader;
@@ -129,7 +129,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
         new public class Region : mode.Region
         {
-            public Region(CacheFile Cache)
+            public Region(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -147,7 +147,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
             new public class Permutation : mode.Region.Permutation
             {
-                public Permutation(CacheFile Cache)
+                public Permutation(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -162,7 +162,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
         new public class InstancedGeometry : mode.InstancedGeometry
         {
-            public InstancedGeometry(CacheFile Cache)
+            public InstancedGeometry(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -193,7 +193,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
         new public class Node : mode.Node
         {
-            public Node(CacheFile Cache)
+            public Node(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -238,7 +238,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
         new public class MarkerGroup : mode.MarkerGroup
         {
-            public MarkerGroup(CacheFile Cache)
+            public MarkerGroup(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -256,7 +256,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
             new public class Marker : mode.MarkerGroup.Marker
             {
-                public Marker(CacheFile Cache)
+                public Marker(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -282,7 +282,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
         new public class Shader : mode.Shader
         {
-            public Shader(CacheFile Cache)
+            public Shader(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -296,7 +296,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
         new public class ModelSection : mode.ModelSection
         {
-            public ModelSection(CacheFile Cache, int Address)
+            public ModelSection(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -347,7 +347,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
             new public class Submesh : mode.ModelSection.Submesh
             {
-                public Submesh(CacheFile Cache)
+                public Submesh(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -366,7 +366,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
             new public class Subset : mode.ModelSection.Subset
             {
-                public Subset(CacheFile Cache)
+                public Subset(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -381,7 +381,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
         new public class BoundingBox : mode.BoundingBox
         {
-            public BoundingBox(CacheFile Cache, int Address)
+            public BoundingBox(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -397,7 +397,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
         new public class NodeIndexGroup : mode.NodeIndexGroup
         {
-            public NodeIndexGroup(CacheFile Cache)
+            public NodeIndexGroup(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -413,7 +413,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
             new public class NodeIndex : mode.NodeIndexGroup.NodeIndex
             {
-                public NodeIndex(CacheFile Cache)
+                public NodeIndex(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 

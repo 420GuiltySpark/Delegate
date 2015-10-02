@@ -15,7 +15,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 {
     public class render_model : mode
     {
-        public render_model(CacheFile Cache, int Address)
+        public render_model(CacheBase Cache, int Address)
         {
             cache = Cache;
             EndianReader Reader = Cache.Reader;
@@ -90,6 +90,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
         {
             var mode = this;
             mode.IndexInfoList = new List<IndexBufferInfo>();
+            mode.VertInfoList = new List<VertexBufferInfo>();
 
             for (int i = 0; i < mode.ModelSections.Count; i++)
             {
@@ -133,6 +134,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 var facetype = 5;
                 if (section.facecount * 3 == section.Indices.Length) facetype = 3;
                 mode.IndexInfoList.Add(new IndexBufferInfo() { FaceFormat = facetype });
+                mode.VertInfoList.Add(new VertexBufferInfo() { VertexCount = section.vertcount });
 
                 #region Get Resource Indices
                 int iIndex = 0, vIndex = 0, uIndex = 0, nIndex = 0, bIndex = 0;
@@ -270,7 +272,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class Region : mode.Region
         {
-            public Region(CacheFile Cache)
+            public Region(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
                 long temp = Reader.BaseStream.Position;
@@ -290,7 +292,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
             new public class Permutation : mode.Region.Permutation
             {
-                public Permutation(CacheFile Cache)
+                public Permutation(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -307,7 +309,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class Node : mode.Node
         {
-            public Node(CacheFile Cache)
+            public Node(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -353,7 +355,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class MarkerGroup : mode.MarkerGroup
         {
-            public MarkerGroup(CacheFile Cache)
+            public MarkerGroup(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
                 long temp = Reader.BaseStream.Position;
@@ -372,7 +374,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
             new public class Marker : mode.MarkerGroup.Marker
             {
-                public Marker(CacheFile Cache)
+                public Marker(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -396,7 +398,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class Shader : mode.Shader
         {
-            public Shader(CacheFile Cache, int Address)
+            public Shader(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -423,7 +425,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             public int type;
             public int bones;
 
-            public ModelSection(CacheFile Cache, int Address)
+            public ModelSection(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -462,7 +464,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class BoundingBox : mode.BoundingBox
         {
-            public BoundingBox(CacheFile Cache, int Address)
+            public BoundingBox(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);

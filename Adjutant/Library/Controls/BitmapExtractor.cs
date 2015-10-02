@@ -18,8 +18,8 @@ namespace Adjutant.Library.Controls
 {
     public partial class BitmapExtractor : UserControl
     {
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
         private bitmap bitm;
         private PakFile pak;
         private PakFile.PakTag item;
@@ -35,7 +35,7 @@ namespace Adjutant.Library.Controls
         }
 
         #region Methods
-        public void LoadBitmapTag(CacheFile Cache, CacheFile.IndexItem Tag)
+        public void LoadBitmapTag(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             exportAllImagesToolStripMenuItem.Visible = true;
 
@@ -131,7 +131,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Index">The index of the BitmapData chunk to use.</param>
         /// <param name="Alpha">Whether to include the alpha channel in the image.</param>
         /// <returns>The image from the bitmap tag as a Bitmap.</returns>
-        public static Bitmap GetBitmapByTag(CacheFile Cache, CacheFile.IndexItem Tag, int Index, PixelFormat PF)
+        public static Bitmap GetBitmapByTag(CacheBase Cache, CacheBase.IndexItem Tag, int Index, PixelFormat PF)
         {
             var bitm = DefinitionsManager.bitm(Cache, Tag);
             return GetBitmapByTag(Cache, bitm, Index, PF);
@@ -151,7 +151,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Index">The index of the BitmapData chunk to use.</param>
         /// <param name="Alpha">Whether to include the alpha channel in the image.</param>
         /// <returns>The image from the bitmap tag as a Bitmap.</returns>
-        public static Bitmap GetBitmapByTag(CacheFile Cache, bitmap bitm, int Index, PixelFormat PF)
+        public static Bitmap GetBitmapByTag(CacheBase Cache, bitmap bitm, int Index, PixelFormat PF)
         {
             try
             {
@@ -160,8 +160,8 @@ namespace Adjutant.Library.Controls
                 byte[] raw;
                 if (Cache.Version <= DefinitionSet.Halo2Vista)
                 {
-                    var sub2 = (Definitions.Halo2Xbox.bitmap.BitmapData)submap;
-                    raw = Cache.GetRawFromID(sub2.LODOffset[0], sub2.RawSize);
+                    //var sub2 = (Definitions.Halo2Xbox.bitmap.BitmapData)submap;
+                    raw = Cache.GetRawFromID(submap.PixelsOffset, submap.RawSize);
                 }
                 else
                 {
@@ -256,7 +256,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Tag">The bitmap tag.</param>
         /// <param name="Alpha">Whether to include the alpha channels in the images.</param>
         /// <returns>A List containing each image as a Bitmap.</returns>
-        public static List<Bitmap> GetBitmapsByTag(CacheFile Cache, CacheFile.IndexItem Tag, PixelFormat PF)
+        public static List<Bitmap> GetBitmapsByTag(CacheBase Cache, CacheBase.IndexItem Tag, PixelFormat PF)
         {
             var bitm = DefinitionsManager.bitm(Cache, Tag);
             return GetBitmapsByTag(Cache, bitm, PF);
@@ -269,7 +269,7 @@ namespace Adjutant.Library.Controls
         /// <param name="bitm">The bitmap tag.</param>
         /// <param name="Alpha">Whether to include the alpha channels in the images.</param>
         /// <returns>A List containing each image as a Bitmap.</returns>
-        public static List<Bitmap> GetBitmapsByTag(CacheFile Cache, bitmap bitm, PixelFormat PF)
+        public static List<Bitmap> GetBitmapsByTag(CacheBase Cache, bitmap bitm, PixelFormat PF)
         {
             List<Bitmap> list = new List<Bitmap>();
 
@@ -290,7 +290,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Index">The index of the BitmapData chunk to use.</param>
         /// <param name="Format">The format to save the image in.</param>
         /// <param name="Alpha">Whether to include the alpha channel in the image. Only applies when saving in TIF format.</param>
-        public static void SaveImage(string Filename, CacheFile Cache, CacheFile.IndexItem Tag, int Index, BitmapFormat Format, bool Alpha)
+        public static void SaveImage(string Filename, CacheBase Cache, CacheBase.IndexItem Tag, int Index, BitmapFormat Format, bool Alpha)
         {
             var bitm = DefinitionsManager.bitm(Cache, Tag);
             SaveImage(Filename, Cache, bitm, Index, Format, Alpha);
@@ -305,7 +305,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Index">The index of the BitmapData chunk to use.</param>
         /// <param name="Format">The format to save the image in.</param>
         /// <param name="Alpha">Whether to include the alpha channel in the image. Only applies when saving in TIF format.</param>
-        public static void SaveImage(string Filename, CacheFile Cache, bitmap bitm, int Index, BitmapFormat Format, bool Alpha)
+        public static void SaveImage(string Filename, CacheBase Cache, bitmap bitm, int Index, BitmapFormat Format, bool Alpha)
         {
             var submap = bitm.Bitmaps[Index];
 
@@ -505,7 +505,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Tag">The bitmap tag.</param>
         /// <param name="Format">The format to save the images in.</param>
         /// <param name="Alpha">Whether to include the alpha channel in the images. Only applies when saving in TIF format.</param>
-        public static void SaveAllImages(string Filename, CacheFile Cache, CacheFile.IndexItem Tag, BitmapFormat Format, bool Alpha)
+        public static void SaveAllImages(string Filename, CacheBase Cache, CacheBase.IndexItem Tag, BitmapFormat Format, bool Alpha)
         {
             var bitm = DefinitionsManager.bitm(Cache, Tag);
             SaveAllImages(Filename, Cache, bitm, Format, Alpha);
@@ -519,7 +519,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Tag">The bitmap tag.</param>
         /// <param name="Format">The format to save the images in.</param>
         /// <param name="Alpha">Whether to include the alpha channel in the images. Only applies when saving in TIF format.</param>
-        public static void SaveAllImages(string Filename, CacheFile Cache, bitmap bitm, BitmapFormat Format, bool Alpha)
+        public static void SaveAllImages(string Filename, CacheBase Cache, bitmap bitm, BitmapFormat Format, bool Alpha)
         {
             string ext;
             switch (Format)

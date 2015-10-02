@@ -19,8 +19,8 @@ namespace Adjutant.Controls
         #region Init
         private Settings settings;
         
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
         private Extractor output;
         private PakFile pak;
         private PakFile.PakTag item;
@@ -85,7 +85,7 @@ namespace Adjutant.Controls
             tabControl1.TabPages.Add(tabMeta);
         }
 
-        public void LoadTag(CacheFile Cache, CacheFile.IndexItem Tag)
+        public void LoadTag(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             if (vMode == null)
             {
@@ -620,9 +620,9 @@ namespace Adjutant.Controls
 
         private void extractor_TagExtracted(object sender, object Tag)
         {
-            if (Tag is CacheFile.IndexItem)
+            if (Tag is CacheBase.IndexItem)
             {
-                var t = (CacheFile.IndexItem)Tag;
+                var t = (CacheBase.IndexItem)Tag;
                 output.AddLine("Extracted " + t.Filename + "." + t.ClassCode + ".");
             }
             else
@@ -634,9 +634,9 @@ namespace Adjutant.Controls
 
         private void extractor_ErrorExtracting(object sender, object Tag, Exception Error)
         {
-            if (Tag is CacheFile.IndexItem)
+            if (Tag is CacheBase.IndexItem)
             {
-                var t = (CacheFile.IndexItem)Tag;
+                var t = (CacheBase.IndexItem)Tag;
                 output.AddLine("Error extracting " + t.Filename + "." + t.ClassCode + ":");
             }
             else
@@ -647,7 +647,7 @@ namespace Adjutant.Controls
             output.AddLine("--" + Error.Message);
         }
 
-        private void eMode_FinishedRecursiveExtract(object sender, CacheFile.IndexItem Tag)
+        private void eMode_FinishedRecursiveExtract(object sender, CacheBase.IndexItem Tag)
         {
             output.AddLine("Bitmap extraction complete.");
         }

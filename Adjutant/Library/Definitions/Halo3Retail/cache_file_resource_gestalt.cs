@@ -12,7 +12,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 {
     public class cache_file_resource_gestalt : zone
     {
-        public cache_file_resource_gestalt(CacheFile Cache, int Address)
+        public cache_file_resource_gestalt(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -43,7 +43,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 
         new public class RawEntry : zone.RawEntry
         {
-            public RawEntry(CacheFile Cache, int Address)
+            public RawEntry(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -80,7 +80,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 
             new public class ResourceFixup : zone.RawEntry.ResourceFixup
             {
-                public ResourceFixup(CacheFile Cache, int Address)
+                public ResourceFixup(CacheBase Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);
@@ -95,7 +95,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 
             new public class ResourceDefinitionFixup : zone.RawEntry.ResourceDefinitionFixup
             {
-                public ResourceDefinitionFixup(CacheFile Cache, int Address)
+                public ResourceDefinitionFixup(CacheBase Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);

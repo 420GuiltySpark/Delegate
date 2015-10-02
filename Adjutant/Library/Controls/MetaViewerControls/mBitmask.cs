@@ -17,7 +17,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
     {
         private bool isLoaded = false;
 
-        public mBitmask(iValue Value, CacheFile Cache)
+        public mBitmask(iValue Value, CacheBase Cache)
         {
             InitializeComponent();
             value = Value;

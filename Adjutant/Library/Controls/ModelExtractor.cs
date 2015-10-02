@@ -15,8 +15,8 @@ namespace Adjutant.Library.Controls
 {    
     public partial class ModelExtractor : UserControl
     {
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
         private render_model mode;
         private bool isWorking = false;
         private string filter = "";
@@ -41,7 +41,7 @@ namespace Adjutant.Library.Controls
         }
 
         #region Methods
-        public void LoadModelTag(CacheFile Cache, CacheFile.IndexItem Tag)
+        public void LoadModelTag(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             cache = Cache;
             tag = Tag;
@@ -69,7 +69,7 @@ namespace Adjutant.Library.Controls
 
         private void RecursiveExtract(object SaveFolder)
         {
-            List<CacheFile.IndexItem> tagsDone = new List<CacheFile.IndexItem>();
+            List<CacheBase.IndexItem> tagsDone = new List<CacheBase.IndexItem>();
 
             foreach (render_model.Shader shader in mode.Shaders)
             {
@@ -137,7 +137,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Format">The format to save the model in.</param>
         /// <param name="SplitMeshes">Whether to split the pieces into individual submeshes. Only applies when saving in EMF format.</param>
         /// <param name="PartIndices">A List containing the indices of the render_model.ModelParts to save.</param>
-        public static void SaveModelParts(string Filename, CacheFile Cache, render_model Model, ModelFormat Format, List<int> PartIndices, bool SplitMeshes)
+        public static void SaveModelParts(string Filename, CacheBase Cache, render_model Model, ModelFormat Format, List<int> PartIndices, bool SplitMeshes)
         {
             switch (Format)
             {
@@ -164,7 +164,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Tag">The render_model tag.</param>
         /// <param name="Format">The format to save the model in.</param>
         /// <param name="SplitMeshes">Whether to split the pieces into individual submeshes. Only applies when saving in EMF format.</param>
-        public static void SaveAllModelParts(string Filename, CacheFile Cache, CacheFile.IndexItem Tag, ModelFormat Format, bool SplitMeshes)
+        public static void SaveAllModelParts(string Filename, CacheBase Cache, CacheBase.IndexItem Tag, ModelFormat Format, bool SplitMeshes)
         {
             var mode = DefinitionsManager.mode(Cache, Tag);
             mode.LoadRaw();

@@ -25,8 +25,8 @@ namespace Adjutant.Library.Controls
     public partial class ModelViewer : UserControl
     {
         #region Init
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
         private render_model mode;
 
         private bool isWorking = false;
@@ -58,7 +58,7 @@ namespace Adjutant.Library.Controls
         #region Methods
 
         #region MAP
-        public void LoadModelTag(CacheFile Cache, CacheFile.IndexItem Tag, bool Specular, bool UserPermFilter, bool Force)
+        public void LoadModelTag(CacheBase Cache, CacheBase.IndexItem Tag, bool Specular, bool UserPermFilter, bool Force)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        private void loadModelTag(CacheFile Cache, CacheFile.IndexItem Tag, bool Specular, bool UserPermFilter, bool Force)
+        private void loadModelTag(CacheBase Cache, CacheBase.IndexItem Tag, bool Specular, bool UserPermFilter, bool Force)
         {
             if (!this.Enabled) this.Enabled = true;
             tvRegions.Nodes.Clear();

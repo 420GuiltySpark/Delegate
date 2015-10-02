@@ -17,9 +17,9 @@ namespace Adjutant.Library.Controls.MetaViewerControls
     {
         private int chunkOffset, chunkCount, chunkSize;
         private bool showInvis, isLoaded, isLoading;
-        private CacheFile.IndexItem tag;
+        private CacheBase.IndexItem tag;
 
-        public mStructure(iValue Value, CacheFile Cache, CacheFile.IndexItem Tag, bool ShowInvisibles)
+        public mStructure(iValue Value, CacheBase Cache, CacheBase.IndexItem Tag, bool ShowInvisibles)
         {
             InitializeComponent();
             value = Value;

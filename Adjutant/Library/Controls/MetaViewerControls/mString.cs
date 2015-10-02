@@ -16,7 +16,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
         public int stringID;
         public string str;
 
-        public mString(iValue Value, CacheFile Cache)
+        public mString(iValue Value, CacheBase Cache)
         {
             InitializeComponent();
             value = Value;

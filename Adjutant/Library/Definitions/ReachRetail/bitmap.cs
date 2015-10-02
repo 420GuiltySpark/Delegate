@@ -12,7 +12,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 {
     public class bitmap : bitm
     {
-        public bitmap(CacheFile Cache, int Offset)
+        public bitmap(CacheBase Cache, int Offset)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Offset);
@@ -68,7 +68,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class Sequence : bitm.Sequence
         {
-            public Sequence(CacheFile Cache)
+            public Sequence(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
                 Name = Reader.ReadNullTerminatedString(32);
@@ -91,7 +91,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
             new public class Sprite : bitm.Sequence.Sprite
             {
-                public Sprite(CacheFile Cache)
+                public Sprite(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -110,7 +110,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class BitmapData : bitm.BitmapData
         {
-            public BitmapData(CacheFile Cache)
+            public BitmapData(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -142,7 +142,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class RawChunkA : bitm.RawChunkA
         {
-            public RawChunkA(CacheFile Cache)
+            public RawChunkA(CacheBase Cache)
             {
                 RawID = Cache.Reader.ReadInt32();
                 Cache.Reader.ReadInt32();
@@ -151,7 +151,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class RawChunkB : bitm.RawChunkB
         {
-            public RawChunkB(CacheFile Cache)
+            public RawChunkB(CacheBase Cache)
             {
                 RawID = Cache.Reader.ReadInt32();
                 Cache.Reader.ReadInt32();

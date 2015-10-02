@@ -14,8 +14,8 @@ namespace Adjutant.Library.Controls
 {
     public partial class StringsViewer : UserControl
     {
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
         private multilingual_unicode_string_list unic;
         private List<string> sList;
 
@@ -25,7 +25,7 @@ namespace Adjutant.Library.Controls
         }
 
         #region Load Strings
-        public void LoadStrings(CacheFile Cache)
+        public void LoadStrings(CacheBase Cache)
         {
             cache = Cache;
             tag = null;
@@ -41,12 +41,12 @@ namespace Adjutant.Library.Controls
         #endregion
 
         #region Load Locales
-        public void LoadLocales(CacheFile Cache)
+        public void LoadLocales(CacheBase Cache)
         {
             LoadLocales(Cache, Language.English);
         }
 
-        public void LoadLocales(CacheFile Cache, Language Language)
+        public void LoadLocales(CacheBase Cache, Language Language)
         {
             cache = Cache;
             tag = null;
@@ -59,12 +59,12 @@ namespace Adjutant.Library.Controls
         #endregion
 
         #region Load Unic Tags
-        public void LoadUnicTag(CacheFile Cache, CacheFile.IndexItem Tag)
+        public void LoadUnicTag(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             LoadUnicTag(Cache, Tag, Language.English);
         }
 
-        public void LoadUnicTag(CacheFile Cache, CacheFile.IndexItem Tag, Language Language)
+        public void LoadUnicTag(CacheBase Cache, CacheBase.IndexItem Tag, Language Language)
         {
             cache = Cache;
             tag = Tag;
@@ -81,7 +81,7 @@ namespace Adjutant.Library.Controls
         #endregion
 
         #region Static Methods
-        public static List<string> GetUnicStrings(CacheFile Cache, CacheFile.IndexItem Tag, Language Language)
+        public static List<string> GetUnicStrings(CacheBase Cache, CacheBase.IndexItem Tag, Language Language)
         {
             List<string> strings = new List<string>();
 
@@ -98,7 +98,7 @@ namespace Adjutant.Library.Controls
             return strings;
         }
 
-        public static void SaveUnicStrings(string Filename, CacheFile Cache, CacheFile.IndexItem Tag, Language Language)
+        public static void SaveUnicStrings(string Filename, CacheBase Cache, CacheBase.IndexItem Tag, Language Language)
         {
             List<string> sList = new List<string>();
 

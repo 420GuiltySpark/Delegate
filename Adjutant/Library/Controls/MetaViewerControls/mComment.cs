@@ -17,7 +17,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             InitializeComponent();
         }
 
-        public mComment(iValue Value, CacheFile Cache)
+        public mComment(iValue Value, CacheBase Cache)
         {
             InitializeComponent();
             value = Value;

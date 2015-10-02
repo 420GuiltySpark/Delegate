@@ -11,7 +11,7 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 {
     public class cache_file_resource_layout_table : play
     {
-        public cache_file_resource_layout_table(CacheFile Cache, int Offset)
+        public cache_file_resource_layout_table(CacheBase Cache, int Offset)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Offset);
@@ -57,7 +57,7 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 
         new public class SharedCache : play.SharedCache
         {
-            public SharedCache(CacheFile Cache)
+            public SharedCache(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -69,7 +69,7 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 
         new public class Page : play.Page
         {
-            public Page(CacheFile Cache)
+            public Page(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -89,7 +89,7 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 
         new public class Segment : play.Segment
         {
-            public Segment(CacheFile Cache)
+            public Segment(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 

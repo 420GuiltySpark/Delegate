@@ -12,7 +12,7 @@ namespace Adjutant.Library.Definitions
         private static string errorMessage = "Supplied definition set does not support \"----\" tags.";
 
         //---, ---, H3R, ODST, HRB, HRR, H4R
-        public static cache_file_resource_layout_table play(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static cache_file_resource_layout_table play(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             switch (Cache.Version)
             {
@@ -32,7 +32,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //---, H3B, H3R, ODST, HRB, HRR, H4R
-        public static cache_file_resource_gestalt zone(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static cache_file_resource_gestalt zone(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             switch (Cache.Version)
             {
@@ -55,7 +55,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //---, ---, H3R, ODST, HRB, HRR, ---
-        public static sound_cache_file_gestalt ugh_(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static sound_cache_file_gestalt ugh_(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)
@@ -78,7 +78,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //H2X, H3B, H3R, ODST, HRB, HRR, H4R
-        public static bitmap bitm(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static bitmap bitm(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             switch (Cache.Version)
             {
@@ -104,7 +104,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //H2X, H3B, H3R, ODST, HRB, HRR, H4R
-        public static render_model mode(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static render_model mode(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             switch (Cache.Version)
             {
@@ -136,7 +136,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //H2X, H3B, H3R, ODST, HRB, HRR, H4R
-        public static scenario_structure_bsp sbsp(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static scenario_structure_bsp sbsp(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             switch (Cache.Version)
             {
@@ -167,7 +167,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //---, H3B, H3R, ODST, HRB, HRR, ---
-        public static render_method_template rmt2(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static render_method_template rmt2(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             switch (Cache.Version)
             {
@@ -184,7 +184,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //H2X, H3B, H3R, ODST, HRB, HRR, H4R
-        public static shader rmsh(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static shader rmsh(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)
@@ -211,7 +211,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //---, ---, H3R, ODST, HRB, HRR, H4R
-        public static sound snd_(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static sound snd_(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)
@@ -233,7 +233,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //---, ---, ---, ----, ---, ---, H4R
-        public static soundbank sbnk(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static soundbank sbnk(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)
@@ -247,7 +247,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //---, ---, ---, ----, ---, ---, H4R
-        public static bink bink(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static bink bink(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             switch (Cache.Version)
             {
@@ -260,7 +260,7 @@ namespace Adjutant.Library.Definitions
         }
 
         //---, H3B, H3R, ODST, HRB, HRR, H4R
-        public static multilingual_unicode_string_list unic(CacheFile Cache, CacheFile.IndexItem Tag)
+        public static multilingual_unicode_string_list unic(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)

@@ -12,7 +12,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 {
     public class render_method_template : rmt2
     {
-        public render_method_template(CacheFile Cache, int Address)
+        public render_method_template(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -42,7 +42,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new public class ArgumentBlock : rmt2.ArgumentBlock
         {
-            public ArgumentBlock(CacheFile Cache, int Address)
+            public ArgumentBlock(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -53,7 +53,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new public class UsageBlock : rmt2.UsageBlock
         {
-            public UsageBlock(CacheFile Cache, int Address)
+            public UsageBlock(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);

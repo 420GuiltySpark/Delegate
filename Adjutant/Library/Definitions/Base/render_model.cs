@@ -13,7 +13,7 @@ namespace Adjutant.Library.Definitions
 {
     public abstract class render_model
     {
-        public CacheFile cache;
+        public CacheBase cache;
 
         public string Name;
         public Bitmask Flags;

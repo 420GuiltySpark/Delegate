@@ -13,7 +13,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 {
     public class sound_cache_file_gestalt : ugh_
     {
-        public sound_cache_file_gestalt(CacheFile Cache)
+        public sound_cache_file_gestalt(CacheBase Cache)
         {
             EndianReader Reader = Cache.Reader;
 
@@ -83,7 +83,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class Codec : ugh_.Codec
         {
-            public Codec(CacheFile Cache)
+            public Codec(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -95,7 +95,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class SoundName : ugh_.SoundName
         {
-            public SoundName(CacheFile Cache)
+            public SoundName(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -105,7 +105,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class Playback : ugh_.Playback
         {
-            public Playback(CacheFile Cache)
+            public Playback(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -121,7 +121,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
         //TODO: finish this
         new public class SoundPermutation : ugh_.SoundPermutation
         {
-            public SoundPermutation(CacheFile Cache)
+            public SoundPermutation(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -139,7 +139,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class RawChunk : ugh_.RawChunk
         {
-            public RawChunk(CacheFile Cache)
+            public RawChunk(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 

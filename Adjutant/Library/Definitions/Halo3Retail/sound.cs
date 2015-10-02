@@ -13,7 +13,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 {
     public class sound : snd_
     {
-        public sound(CacheFile Cache)
+        public sound(CacheBase Cache)
         {
             EndianReader Reader = Cache.Reader;
 

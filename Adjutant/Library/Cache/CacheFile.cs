@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Adjutant.Library.Endian;
-using Adjutant.Library.Definitions;
 using System.IO;
-using System.IO.Compression;
 using System.Xml;
-using System.Runtime.InteropServices;
-using Composer;
-using Composer.Wwise;
+using Adjutant.Library.Definitions;
+using Adjutant.Library.Endian;
+using Adjutant.Properties;
 
 namespace Adjutant.Library.Cache
 {
-    public partial class CacheFile
+    public abstract class CacheBase
     {
         #region Declarations
         public string Filename;
@@ -39,72 +34,25 @@ namespace Adjutant.Library.Cache
         public cache_file_resource_layout_table play;
         public sound_cache_file_gestalt ugh_;
 
-        public List<SoundPackInfo> H4SoundPacks;
-        public Dictionary<uint, List<SoundFileInfo>> H4SoundFiles;
+        public string localesKey, stringsKey, tagsKey, networkKey;
+        public string stringMods;
 
-        private string localesKey, stringsKey, tagsKey, networkKey;
-        private string stringMods;
-
-        internal string version;
-        internal XmlNode buildNode;
-        internal XmlNode versionNode;
-        internal XmlNode vertexNode;
+        public XmlNode buildNode;
+        public XmlNode versionNode;
+        public XmlNode vertexNode;
         #endregion
 
-        public CacheFile(string Filename)
+        public CacheBase(string Filename, string Build)
         {
             this.Filename = Filename;
-            Version = DefinitionSet.Unknown;
-            FileStream fs = new FileStream(Filename, FileMode.Open, FileAccess.Read);
+            this.Build = Build;
+            var fs = new FileStream(Filename, FileMode.Open, FileAccess.Read);
             Reader = new EndianReader((Stream)fs, EndianFormat.BigEndian);
 
-            var head = Reader.ReadInt32();
-            if (head == 1684104552) Reader.EndianType = EndianFormat.LittleEndian;
-
-            var v = Reader.ReadInt16();
-            switch (v)
-            {
-                case 5:   //H1X
-                    throw new NotSupportedException();
-                    Version = DefinitionSet.Halo1Xbox;
-                    Reader.SeekTo(64);
-                    break;
-                case 7:   //HPC
-                    throw new NotSupportedException();
-                    Version = DefinitionSet.Halo1PC;
-                    Reader.SeekTo(64);
-                    break;
-                case 609: //HCE
-                    throw new NotSupportedException();
-                    Version = DefinitionSet.Halo1CE;
-                    Reader.SeekTo(64);
-                    break;
-                case 8:   //H2?
-                    Reader.SeekTo(36);
-                    switch (Reader.ReadInt32())
-                    {
-                        case 0: //H2X
-                            Version = DefinitionSet.Halo2Xbox;
-                            Reader.SeekTo(288);
-                            break;
-                        case -1: //H2V
-                            throw new NotSupportedException();
-                            Version = DefinitionSet.Halo2Vista;
-                            Reader.SeekTo(300);
-                            break;
-                    }
-                    break;
-                default:  //360
-                    Reader.SeekTo(284);
-                    break;
-            }
-
-            Build = Reader.ReadString(32);
-
-            VerifyXML();
-
-            #region Read Build Info
-            version = buildNode.Attributes["version"].Value;
+            #region Read XML
+            buildNode = GetBuildNode(Build);
+            PluginDir = buildNode.Attributes["plugins"].Value;
+            versionNode = GetVersionNode(buildNode.Attributes["version"].Value);
             HeaderSize = int.Parse(buildNode.Attributes["headerSize"].Value);
             stringMods = buildNode.Attributes["stringMods"].Value;
 
@@ -113,72 +61,8 @@ namespace Adjutant.Library.Cache
             localesKey = buildNode.Attributes["localesKey"].Value;
             networkKey = buildNode.Attributes["networkKey"].Value;
 
-            switch (buildNode.Attributes["definitions"].Value)
-            {
-                case "Halo3Beta":
-                    Version = DefinitionSet.Halo3Beta;
-                    break;
-
-                case "Halo3Retail":
-                    Version = DefinitionSet.Halo3Retail;
-                    break;
-
-                case "Halo3ODST":
-                    Version = DefinitionSet.Halo3ODST;
-                    break;
-
-                case "ReachBeta":
-                    Version = DefinitionSet.HaloReachBeta;
-                    break;
-
-                case "ReachRetail":
-                    Version = DefinitionSet.HaloReachRetail;
-                    break;
-
-                case "Halo4Beta":
-                    Version = DefinitionSet.Halo4Beta;
-                    break;
-
-                case "Halo4Retail":
-                    Version = DefinitionSet.Halo4Retail;
-                    break;
-            }
+            vertexNode = GetVertexNode(buildNode.Attributes["vertDef"].Value);
             #endregion
-
-            #region Find Vertex Definitions
-            var xml = new MemoryStream(Adjutant.Properties.Resources.VertexBuffer);
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(xml);
-            XmlElement element = xmlDoc.DocumentElement;
-
-
-            foreach (XmlNode node in element.ChildNodes)
-            {
-                if (node.Attributes["Game"].Value == buildNode.Attributes["vertDef"].Value)
-                {
-                    vertexNode = node;
-                    break;
-                }
-            }
-
-            xml.Close();
-            xml.Dispose();
-            #endregion
-
-            Header = new CacheHeader(this);
-            IndexHeader = new CacheIndexHeader(this);
-            IndexItems = new IndexTable(this);
-            Strings = new StringTable(this);
-
-            LocaleTables = new List<LocaleTable>();
-            try
-            {
-                for (int i = 0; i < int.Parse(buildNode.Attributes["languageCount"].Value); i++)
-                    LocaleTables.Add(new LocaleTable(this, (Language)i));
-            }
-            catch { LocaleTables.Clear(); }
-
-            if (Version >= DefinitionSet.Halo3Beta) LoadPlayZone();
         }
 
         #region Classes
@@ -208,133 +92,8 @@ namespace Adjutant.Library.Cache
             public int rawTableSize;
             public int tagDataAddress;
 
-            private CacheFile cache;
+            protected CacheBase cache;
             #endregion
-
-            public CacheHeader(CacheFile Cache)
-            {
-                cache = Cache;
-                EndianReader Reader = cache.Reader;
-
-                #region Read Values
-                XmlNode headerNode = cache.versionNode.ChildNodes[0];
-                XmlAttribute attr = headerNode.Attributes["fileSize"];
-                int offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                fileSize = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["indexOffset"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                indexOffset = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["tagDataAddress"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                tagDataAddress = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["stringCount"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                stringCount = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["stringTableSize"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                stringTableSize = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["stringTableIndexOffset"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                stringTableIndexOffset = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["stringTableOffset"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                stringTableOffset = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["scenarioName"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                scenarioName = Reader.ReadString(256);
-
-                attr = headerNode.Attributes["fileCount"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                fileCount = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["fileTableOffset"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                fileTableOffset = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["fileTableSize"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                fileTableSize = Reader.ReadInt32();
-
-                attr = headerNode.Attributes["fileTableIndexOffset"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset);
-                fileTableIndexOffset = Reader.ReadInt32();
-
-                if (cache.Version >= DefinitionSet.Halo3Beta)
-                {
-                    attr = headerNode.Attributes["virtualBaseAddress"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset);
-                    virtualBaseAddress = Reader.ReadInt32();
-                }
-
-                if (cache.Version >= DefinitionSet.Halo3Retail)
-                {
-                    attr = headerNode.Attributes["rawTableOffset"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset);
-                    rawTableOffset = Reader.ReadInt32();
-
-                    attr = headerNode.Attributes["localeModifier"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset);
-                    localeModifier = Reader.ReadInt32();
-
-                    attr = headerNode.Attributes["rawTableSize"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset);
-                    rawTableSize = Reader.ReadInt32();
-                }
-
-                #endregion
-
-                #region Modify Offsets
-                if (cache.Version == DefinitionSet.Halo3Beta)
-                {
-                    indexOffset = indexOffset - virtualBaseAddress + tagDataAddress;
-                    cache.Magic = virtualBaseAddress - tagDataAddress;
-                }
-                else if (cache.Version >= DefinitionSet.Halo3Retail)
-                {
-                    if (rawTableOffset == 0)
-                    {
-                        cache.Magic = virtualBaseAddress - tagDataAddress;
-                    }
-                    else
-                    {
-
-                        this.Magic = stringTableIndexOffset - cache.HeaderSize;
-
-                        fileTableOffset -= this.Magic;
-                        fileTableIndexOffset -= this.Magic;
-                        stringTableIndexOffset -= this.Magic;
-                        stringTableOffset -= this.Magic;
-
-                        cache.Magic = virtualBaseAddress - (rawTableOffset + rawTableSize);
-                    }
-                    indexOffset -= cache.Magic;
-                }
-                //else throw new InvalidDataException("Invalid cache version");
-                #endregion
-            }
         }
 
         public class CacheIndexHeader
@@ -351,86 +110,19 @@ namespace Adjutant.Library.Cache
             public int tagInfoHeaderCount2;
             public int tagInfoHeaderOffset2;
 
-            private CacheFile cache;
+            protected CacheBase cache;
             #endregion
-
-            public CacheIndexHeader(CacheFile Cache)
-            {
-                cache = Cache;
-                EndianReader Reader = cache.Reader;
-
-                #region Read Values
-                XmlNode indexHeaderNode = cache.versionNode.ChildNodes[1];
-
-                XmlAttribute attr = indexHeaderNode.Attributes["tagClassCount"];
-                int offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset + cache.Header.indexOffset);
-                tagClassCount = Reader.ReadInt32();
-
-                attr = indexHeaderNode.Attributes["tagInfoOffset"];
-                offset = int.Parse(attr.Value);
-                Reader.SeekTo(offset + cache.Header.indexOffset);
-                tagInfoOffset = Reader.ReadInt32() - cache.Magic;
-
-                if (cache.Version >= DefinitionSet.Halo3Beta)
-                {
-                    attr = indexHeaderNode.Attributes["tagClassIndexOffset"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset + cache.Header.indexOffset);
-                    tagClassIndexOffset = Reader.ReadInt32() - cache.Magic;
-
-                    attr = indexHeaderNode.Attributes["tagCount"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset + cache.Header.indexOffset);
-                    tagCount = Reader.ReadInt32();
-
-                    attr = indexHeaderNode.Attributes["tagInfoHeaderCount"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset + cache.Header.indexOffset);
-                    tagInfoHeaderCount = Reader.ReadInt32();
-
-                    attr = indexHeaderNode.Attributes["tagInfoHeaderOffset"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset + cache.Header.indexOffset);
-                    tagInfoHeaderOffset = Reader.ReadInt32() - cache.Magic;
-
-                    attr = indexHeaderNode.Attributes["tagInfoHeaderCount2"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset + cache.Header.indexOffset);
-                    tagInfoHeaderCount2 = Reader.ReadInt32();
-
-                    attr = indexHeaderNode.Attributes["tagInfoHeaderOffset2"];
-                    offset = int.Parse(attr.Value);
-                    Reader.SeekTo(offset + cache.Header.indexOffset);
-                    tagInfoHeaderOffset2 = Reader.ReadInt32() - cache.Magic;
-                }
-                else
-                {
-                    Reader.SeekTo(cache.Header.indexOffset);
-                    cache.Header.Magic = Reader.ReadInt32() - (cache.Header.indexOffset + 32);
-
-                    tagClassCount = Reader.ReadInt32();
-                    tagInfoOffset = Reader.ReadInt32() - cache.Header.Magic;
-
-                    Reader.SeekTo(tagInfoOffset + 8);
-                    cache.Magic = Reader.ReadInt32() - (cache.Header.indexOffset + cache.Header.tagDataAddress);
-
-                    Reader.SeekTo(cache.Header.indexOffset + 24);
-                    tagCount = Reader.ReadInt32();
-                }
-                #endregion
-            }
         }
 
         public class StringTable : List<string>
         {
-            private CacheFile cache;
+            protected CacheBase cache;
 
-            public StringTable(CacheFile Cache)
+            public StringTable(CacheBase Cache)
             {
                 cache = Cache;
-                EndianReader Reader = cache.Reader;
-                CacheHeader CH = cache.Header;
+                var Reader = cache.Reader;
+                var CH = cache.Header;
 
                 #region Read Indices
                 Reader.SeekTo(CH.stringTableIndexOffset);
@@ -522,9 +214,9 @@ namespace Adjutant.Library.Cache
 
         public class LocaleTable : List<string>
         {
-            private CacheFile cache;
+            protected CacheBase cache;
 
-            public LocaleTable(CacheFile Cache, Language Lang)
+            public LocaleTable(CacheBase Cache, Language Lang)
             {
                 cache = Cache;
                 EndianReader Reader = cache.Reader;
@@ -532,7 +224,7 @@ namespace Adjutant.Library.Cache
 
                 #region Get Info
                 int matgOffset = -1;
-                foreach(IndexItem item in cache.IndexItems)
+                foreach (IndexItem item in cache.IndexItems)
                     if (item.ClassCode == "matg")
                     {
                         matgOffset = item.Offset;
@@ -601,25 +293,51 @@ namespace Adjutant.Library.Cache
 
         public class IndexItem
         {
-            public CacheFile Cache;
+            public CacheBase Cache;
             public string ClassCode
             {
-                get 
-                { 
-                    return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].ClassCode; 
-                }
+                get { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].ClassCode; }
             }
             public string ClassName
             {
-                get 
+                get
                 {
-                    if(Cache.Version >= DefinitionSet.Halo3Beta) return Cache.Strings.GetItemByID(Cache.IndexItems.ClassList[ClassIndex].StringID);
-                    else return ClassCode;
+                    if (Cache.Version >= DefinitionSet.Halo3Beta) return Cache.Strings.GetItemByID(Cache.IndexItems.ClassList[ClassIndex].StringID);
+                    else
+                    {
+                        var xml = new MemoryStream();
+
+                        switch (Cache.Version)
+                        {
+                            case DefinitionSet.Halo2Xbox:
+                            case DefinitionSet.Halo2Vista:
+                                xml = new MemoryStream(Adjutant.Properties.Resources.Classes_H2);
+                                break;
+
+                            default: return ClassCode;
+                        }
+
+                        XmlDocument xmlDoc = new XmlDocument();
+                        xmlDoc.Load(xml);
+                        XmlElement element = xmlDoc.DocumentElement;
+
+                        foreach (XmlNode node in element.ChildNodes)
+                        {
+                            try
+                            {
+                                if (node.Attributes["code"].Value == ClassCode)
+                                    return node.Attributes["name"].Value;
+                            }
+                            catch { }
+                        }
+
+                        return ClassCode;
+                    }
                 }
             }
             public string ParentClass
             {
-                get 
+                get
                 {
                     try { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].Parent; }
                     catch { return ClassCode; }
@@ -627,7 +345,7 @@ namespace Adjutant.Library.Cache
             }
             public string ParentClass2
             {
-                get 
+                get
                 {
                     try { return (ClassIndex == -1) ? "____" : Cache.IndexItems.ClassList[ClassIndex].Parent2; }
                     catch { return ClassCode; }
@@ -648,197 +366,12 @@ namespace Adjutant.Library.Cache
 
         public class IndexTable : List<IndexItem>
         {
-            private CacheFile cache;
+            protected CacheBase cache;
             public List<TagClass> ClassList;
-
-            public IndexTable(CacheFile Cache)
-            {
-                cache = Cache;
-                CacheIndexHeader IH = cache.IndexHeader;
-                CacheHeader CH = cache.Header;
-                EndianReader Reader = cache.Reader;
-
-                ClassList = new List<TagClass>();
-                if (Cache.Version <= DefinitionSet.Halo2Vista)
-                {
-                    #region Halo2X
-                    var classDic = new Dictionary<string, int>();
-                    int[] sbspOffset = new int[0];
-                    int[] sbspID = new int[0];
-                    int[] sbspMagic = new int[0];
-
-                    Reader.SeekTo(IH.tagInfoOffset);
-                    for (int i = 0; i < IH.tagCount; i++)
-                    {
-                        var cname = Reader.ReadString(4);
-                        var tname = cname.ToCharArray();
-                        Array.Reverse(tname);
-                        cname = new string(tname);
-
-                        int index;
-                        if (!classDic.TryGetValue(cname, out index))
-                        {
-                            index = classDic.Count;
-                            classDic.Add(cname, classDic.Count);
-                        }
-
-                        IndexItem item = new IndexItem() { Cache = cache };
-                        item.ClassIndex = index;
-                        item.ID = Reader.ReadInt32();
-                        item.Offset = Reader.ReadInt32();
-                        item.Offset = item.Offset - cache.Magic;
-                        Reader.ReadInt32();
-                        this.Add(item);
-
-                        long tempOffset = Reader.Position;
-
-                        if (cname == "scnr")
-                        {
-                            Reader.SeekTo(item.Offset + 528);
-                            int jCount = Reader.ReadInt32();
-                            int jOffset = Reader.ReadInt32() - cache.Magic;
-
-                            sbspOffset = new int[jCount];
-                            sbspID = new int[jCount];
-                            sbspMagic = new int[jCount];
-
-                            for (int j = 0; j < jCount; j++)
-                            {
-                                Reader.SeekTo(jOffset + j * 68);
-                                sbspOffset[j] = Reader.ReadInt32();
-                                Reader.ReadInt32();
-                                sbspMagic[j] = Reader.ReadInt32() - sbspOffset[j];
-                                Reader.SeekTo(jOffset + j * 68 + 20);
-                                sbspID[j] = Reader.ReadInt32();
-                            }
-                        }
-
-                        Reader.SeekTo(tempOffset);
-                    }
-
-                    for (int i = 0; i < sbspID.Length; i++)
-                    {
-                        var id = sbspID[i];
-                        foreach (var item in this)
-                        {
-                            if (item.ID == id)
-                            {
-                                item.Offset = sbspOffset[i];
-                                item.Magic = sbspMagic[i];
-                            }
-                        }
-                    }
-
-                    foreach (var pair in classDic)
-                    {
-                        TagClass tc = new TagClass();
-                        tc.ClassCode = pair.Key;
-                        ClassList.Add(tc);
-                    }
-                    #endregion
-                }
-                else
-                {
-                    #region Read Class List
-
-                    Reader.SeekTo(IH.tagClassIndexOffset);
-                    for (int i = 0; i < IH.tagClassCount; i++)
-                    {
-                        TagClass tc = new TagClass();
-                        tc.ClassCode = Reader.ReadString(4);
-                        tc.Parent = Reader.ReadString(4);
-                        tc.Parent2 = Reader.ReadString(4);
-                        tc.StringID = Reader.ReadInt32();
-                        ClassList.Add(tc);
-                    }
-                    #endregion
-
-                    #region Read Tags' Info
-                    Reader.SeekTo(IH.tagInfoOffset);
-                    for (int i = 0; i < IH.tagCount; i++)
-                    {
-                        IndexItem item = new IndexItem() { Cache = cache };
-                        item.ClassIndex = Reader.ReadInt16();
-                        item.ID = (Reader.ReadInt16() << 16) | i;
-                        item.Offset = Reader.ReadInt32() - cache.Magic;
-                        item.metaIndex = i;
-                        this.Add(item);
-                    }
-                    #endregion
-                }
-
-                #region Read Indices
-                Reader.SeekTo(CH.fileTableIndexOffset);
-                int[] indices = new int[IH.tagCount];
-                for (int i = 0; i < IH.tagCount; i++)
-                    indices[i] = Reader.ReadInt32();
-                #endregion
-
-                #region Read Names
-                Reader.SeekTo(CH.fileTableOffset);
-                EndianReader newReader = (cache.tagsKey == "" || cache.tagsKey == null)
-                    ? new EndianReader(new MemoryStream(Reader.ReadBytes(CH.fileTableSize)), EndianFormat.BigEndian)
-                    : AES.DecryptSegment(Reader, CH.fileTableOffset, CH.fileTableSize, cache.tagsKey);
-
-                for (int i = 0; i < indices.Length; i++)
-                {
-                    if (indices[i] == -1)
-                    {
-                        this[i].Filename = "<null>";
-                        continue;
-                    }
-
-                    newReader.SeekTo(indices[i]);
-
-                    int length;
-                    if (i == indices.Length - 1)
-                        length = CH.fileTableSize - indices[i];
-                    else
-                    {
-                        if (indices[i + 1] == -1)
-                        {
-                            int index = -1;
-
-                            for (int j = i + 1; j < indices.Length; j++)
-                            {
-                                if (indices[j] != -1)
-                                {
-                                    index = j;
-                                    break;
-                                }
-                            }
-
-                            length = (index == -1) ? CH.fileTableSize - indices[i] : indices[index] - indices[i];
-                        }
-                        else
-                            length = indices[i + 1] - indices[i];
-                    }
-
-                    if (length == 1)
-                    {
-                        this[i].Filename = "<blank>";
-                        continue;
-                    }
-
-                    if (length < 0)
-                    {
-                        int i0 = indices[i];
-                        int i1 = indices[i + 1];
-                        int i2 = indices[i + 2];
-                        int i3 = indices[i + 3];
-                    }
-
-                    this[i].Filename = newReader.ReadString(length);
-                }
-
-                newReader.Close();
-                newReader.Dispose();
-                #endregion
-            }
 
             public IndexItem GetItemByID(int ID)
             {
-                if (ID == -1)  
+                if (ID == -1)
                     return null;
                 return this[ID & 0xFFFF];
             }
@@ -856,11 +389,9 @@ namespace Adjutant.Library.Cache
                 return ClassCode;
             }
         }
-
         #endregion
 
-        #region Methods
-        public void Close()
+        public virtual void Close()
         {
             Reader.Close();
             Reader.Dispose();
@@ -877,77 +408,11 @@ namespace Adjutant.Library.Cache
             IndexHeader = null;
         }
 
-        private void VerifyXML()
+        public void LoadPlayZone()
         {
-            /* Originally meant to be used to verify that external
-             * XML files had no errors and contained all needed data.
-             * But XMLs ended up internal only, and now this just
-             * loads the required build node and version node. */
-             
-            #region Find Build
-            var xml = new MemoryStream(Adjutant.Properties.Resources.Builds);
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(xml);
-            XmlElement element = xmlDoc.DocumentElement;
+            if (Version <= DefinitionSet.Halo2Vista) return;
 
-            for (int i = 0; i < element.ChildNodes.Count; i++)
-            {
-                if (element.ChildNodes[i].Name.ToLower() != "build")
-                    continue;
-
-                if (element.ChildNodes[i].Attributes["string"].Value == Build)
-                {
-                    if (element.ChildNodes[i].Attributes["inherits"].Value != "")
-                    {
-                        Build = element.ChildNodes[i].Attributes["inherits"].Value;
-                        VerifyXML();
-                        return;
-                    }
-
-                    buildNode = element.ChildNodes[i];
-                    version = buildNode.Attributes["version"].Value;
-                    PluginDir = buildNode.Attributes["plugins"].Value;
-                    break;
-                }
-            }
-
-            if (buildNode == null)
-                throw new Exception("Build " + "\"" + Build + "\"" + " was not found!");
-
-            xml.Close();
-            xml.Dispose();
-            #endregion
-
-            #region Find Version
-            xml = new MemoryStream(Adjutant.Properties.Resources.Versions);
-            xmlDoc = new XmlDocument();
-            xmlDoc.Load(xml);
-            element = xmlDoc.DocumentElement;
-
-            for (int i = 0; i < element.ChildNodes.Count; i++)
-            {
-                if (element.ChildNodes[i].Name.ToLower() != "version")
-                    continue;
-
-                if (element.ChildNodes[i].Attributes["name"].Value == version)
-                {
-                    versionNode = element.ChildNodes[i];
-                    break;
-                }
-            }
-
-            if (versionNode == null)
-                throw new Exception("Version " + "\"" + version + "\"" + " was not found!");
-
-            xml.Close();
-            xml.Dispose();
-            #endregion
-
-        }
-
-        private void LoadPlayZone()
-        {
-            foreach(IndexItem item in IndexItems)
+            foreach (IndexItem item in IndexItems)
                 if (item.ClassCode == "play")
                 {
                     if (item.Offset > Reader.Length)
@@ -987,268 +452,93 @@ namespace Adjutant.Library.Cache
             return GetRawFromID(ID, -1);
         }
 
-        public byte[] GetRawFromID(int ID, int DataLength)
+        public virtual byte[] GetRawFromID(int ID, int DataLength)
         {
-            if (Version <= DefinitionSet.Halo2Vista)
-                return GetH2XRaw(ID, DataLength);
-
-            if (Version == DefinitionSet.Halo3Beta)
-                return GetH3BRaw(ID, DataLength);
-
-            EndianReader er;
-            string fName = "";
-
-            var Entry = zone.RawEntries[ID & ushort.MaxValue];
-
-            if (Entry.SegmentIndex == -1) throw new InvalidDataException("Raw data not found.");
-
-            var Loc = play.Segments[Entry.SegmentIndex];
-
-            //if (Loc.SoundRawIndex != -1)
-            //    return GetSoundRaw(ID);
-
-            int index = (Loc.OptionalPageIndex2 != -1) ? Loc.OptionalPageIndex2 : (Loc.OptionalPageIndex != -1) ? Loc.OptionalPageIndex : Loc.RequiredPageIndex;
-            int locOffset = (Loc.OptionalPageOffset2 != -1) ? Loc.OptionalPageOffset2 : (Loc.OptionalPageOffset != -1) ? Loc.OptionalPageOffset : Loc.RequiredPageOffset;
-
-            if (index == -1 || locOffset == -1) throw new InvalidDataException("Raw data not found.");
-            
-            if (play.Pages[index].RawOffset == -1)
-            {
-                index = Loc.RequiredPageIndex;
-                locOffset = Loc.RequiredPageOffset;
-            }
-
-            var Pool = play.Pages[index];
-
-            if (Pool.CacheIndex != -1)
-            {
-                fName = play.SharedCaches[Pool.CacheIndex].FileName;
-                fName = fName.Substring(fName.LastIndexOf('\\'));
-                fName = FilePath + fName;
-
-                if (fName == Filename)
-                    er = Reader;
-                else
-                {
-                    FileStream fs = new FileStream(fName, FileMode.Open, FileAccess.Read);
-                    er = new EndianReader(fs, EndianFormat.BigEndian);
-                }
-            }
-            else
-                er = Reader;
-
-            er.SeekTo(int.Parse(versionNode.ChildNodes[0].Attributes["rawTableOffset"].Value));
-            int offset = Pool.RawOffset + er.ReadInt32();
-            er.SeekTo(offset);
-            byte[] compressed = er.ReadBytes(Pool.CompressedSize);
-            byte[] decompressed = new byte[Pool.DecompressedSize];
-
-            if (Version >= DefinitionSet.Halo4Retail)
-            {
-                int decompressionContext = 0;
-                XMemCreateDecompressionContext(XMemCodecType.LZX, 0, 0, ref decompressionContext);
-                XMemResetDecompressionContext(decompressionContext);
-                XMemDecompressStream(decompressionContext, decompressed, ref Pool.DecompressedSize, compressed, ref Pool.CompressedSize);
-                XMemDestroyDecompressionContext(decompressionContext);
-            }
-            else
-            {
-                BinaryReader BR = new BinaryReader(new DeflateStream(new MemoryStream(compressed), CompressionMode.Decompress));
-                decompressed = BR.ReadBytes(Pool.DecompressedSize);
-                BR.Close();
-                BR.Dispose();
-            }
-
-            byte[] data = new byte[(DataLength != -1) ? DataLength : (Pool.DecompressedSize - locOffset)];
-            int length = data.Length;
-            if (length > decompressed.Length) length = decompressed.Length;
-            Array.Copy(decompressed, locOffset, data, 0, length);
-
-            if (er != Reader)
-            {
-                er.Close();
-                er.Dispose();
-            }
-
-            return data;
+            throw new NotImplementedException();
         }
 
-        private byte[] GetH2XRaw(int ID, int DataLength)
+        public virtual byte[] GetSoundRaw(int ID, int size)
         {
-            EndianReader er;
-            string fName = "";
+            throw new NotImplementedException();
+        }
 
-            long cIndex = (ID & 0xC0000000) >> 30;
-            int offset = ID & 0x3FFFFFFF;
-
-            if (cIndex != 0)
+        public static XmlNode GetBuildNode(string build)
+        {
+            XmlNode retNode = null;
+            using (var xml = new MemoryStream(Adjutant.Properties.Resources.Builds))
             {
-                switch (cIndex)
+                var xmlDoc = new XmlDocument();
+                xmlDoc.Load(xml);
+                var element = xmlDoc.DocumentElement;
+
+                for (int i = 0; i < element.ChildNodes.Count; i++)
                 {
-                    case 1:
-                        fName = FilePath + "\\mainmenu.map";
+                    if (element.ChildNodes[i].Name.ToLower() != "build") continue;
+
+                    if (element.ChildNodes[i].Attributes["string"].Value == build)
+                    {
+                        if (element.ChildNodes[i].Attributes["inherits"].Value != "")
+                            return GetBuildNode(element.ChildNodes[i].Attributes["inherits"].Value);
+
+                        retNode = element.ChildNodes[i];
                         break;
-                    case 2:
-                        fName = FilePath + "\\shared.map";
-                        break;
-                    case 3:
-                        fName = FilePath + "\\single_player_shared.map";
-                        break;
+                    }
                 }
-                FileStream fs = new FileStream(fName, FileMode.Open, FileAccess.Read);
-                er = new EndianReader(fs, EndianFormat.LittleEndian);
-            }
-            else er = Reader;
-
-            er.SeekTo(offset);
-
-            var data = er.ReadBytes(DataLength);
-
-            if (er != Reader)
-            {
-                er.Close();
-                er.Dispose();
             }
 
-            return data;
+            if (retNode == null)
+                throw new Exception("Build " + "\"" + build + "\"" + " was not found!");
+
+            return retNode;
         }
 
-        private byte[] GetH3BRaw(int ID, int DataLength)
+        public static XmlNode GetVersionNode(string ver)
         {
-            EndianReader er;
-            string fName = "";
-
-            var Entry = zone.RawEntries[ID & ushort.MaxValue];
-
-            var offset = (Entry.OptionalOffset > 0) ? Entry.OptionalOffset : Entry.RequiredOffset;
-            var size = (Entry.OptionalSize > 0) ? Entry.OptionalSize : Entry.RequiredSize;
-
-            if (DataLength > size)
-                size = DataLength;
-
-            if (Entry.CacheIndex != -1)
+            XmlNode retNode = null;
+            using (var xml = new MemoryStream(Adjutant.Properties.Resources.Versions))
             {
-                fName = FilePath + "\\shared.map";
-                FileStream fs = new FileStream(fName, FileMode.Open, FileAccess.Read);
-                er = new EndianReader(fs, EndianFormat.BigEndian);
-            }
-            else
-                er = Reader;
+                var xmlDoc = new XmlDocument();
+                xmlDoc.Load(xml);
+                var element = xmlDoc.DocumentElement;
 
-            er.SeekTo(offset);
-            var data = er.ReadBytes(size);
+                for (int i = 0; i < element.ChildNodes.Count; i++)
+                {
+                    if (element.ChildNodes[i].Name.ToLower() != "version") continue;
 
-            if (er != Reader)
-            {
-                er.Close();
-                er.Dispose();
+                    if (element.ChildNodes[i].Attributes["name"].Value == ver)
+                    {
+                        retNode = element.ChildNodes[i];
+                        break;
+                    }
+                }
             }
 
-            return data;
+            if (retNode == null)
+                throw new Exception("Version " + "\"" + ver + "\"" + " was not found!");
+
+            return retNode;
         }
 
-        public byte[] GetSoundRaw(int ID, int size)
+        public static XmlNode GetVertexNode(string ver)
         {
-            var Entry = zone.RawEntries[ID & ushort.MaxValue];
-
-            if (Entry.SegmentIndex == -1) throw new InvalidDataException("Raw data not found.");
-
-            var segment = play.Segments[Entry.SegmentIndex];
-            var sRaw = play.SoundRawChunks[segment.SoundRawIndex];
-            var reqPage = play.Pages[segment.RequiredPageIndex];
-            var optPage = play.Pages[segment.OptionalPageIndex];
-
-            if (size == 0) size = (reqPage.CompressedSize != 0) ? reqPage.CompressedSize : optPage.CompressedSize;
-
-            var reqSize = size - sRaw.RawSize;
-            var optSize = size - reqSize;
-
-#if DEBUG
-            //if (reqPage.CompressedSize != reqPage.DecompressedSize || optPage.CompressedSize != optPage.DecompressedSize)
-            //    throw new Exception("COMPRESSED DATA");
-
-            //if (sRaw.Sizes.Count > 1)
-            //    throw new Exception("MULTIPLE SEGMENTS");
-#endif
-
-            byte[] buffer;
-            byte[] data = new byte[size];
-            int offset;
-            EndianReader er;
-            string fName = "";
-
-            #region REQUIRED
-            if (reqSize > 0)
+            XmlNode retNode = null;
+            using (var xml = new MemoryStream(Adjutant.Properties.Resources.VertexBuffer))
             {
-                if (reqPage.CacheIndex != -1)
+                var xmlDoc = new XmlDocument();
+                xmlDoc.Load(xml);
+                var element = xmlDoc.DocumentElement;
+
+                foreach (XmlNode node in element.ChildNodes)
                 {
-                    fName = play.SharedCaches[reqPage.CacheIndex].FileName;
-                    fName = fName.Substring(fName.LastIndexOf('\\'));
-                    fName = FilePath + fName;
-
-                    if (fName == Filename)
-                        er = Reader;
-                    else
-                        er = new EndianReader(new FileStream(fName, FileMode.Open, FileAccess.Read), EndianFormat.BigEndian);
-                }
-                else
-                    er = Reader;
-
-                er.SeekTo(1136);
-                offset = reqPage.RawOffset + er.ReadInt32();
-
-                er.SeekTo(offset);
-                buffer = er.ReadBytes(reqPage.CompressedSize);
-
-                Array.Copy(buffer, segment.RequiredPageOffset, data, 0, reqSize);
-
-                if (er != Reader)
-                {
-                    er.Close();
-                    er.Dispose();
+                    if (node.Attributes["Game"].Value == ver)
+                    {
+                        retNode = node;
+                        break;
+                    }
                 }
             }
-            #endregion
 
-            #region OPTIONAL
-            if (segment.OptionalPageIndex != -1 && optSize > 0)
-            {
-                if (optPage.CacheIndex != -1)
-                {
-                    fName = play.SharedCaches[optPage.CacheIndex].FileName;
-                    fName = fName.Substring(fName.LastIndexOf('\\'));
-                    fName = FilePath + fName;
-
-                    if (fName == Filename)
-                        er = Reader;
-                    else
-                        er = new EndianReader(new FileStream(fName, FileMode.Open, FileAccess.Read), EndianFormat.BigEndian);
-                }
-                else
-                    er = Reader;
-
-                er.SeekTo(1136);
-                offset = optPage.RawOffset + er.ReadInt32();
-
-                er.SeekTo(offset);
-                buffer = er.ReadBytes(optPage.CompressedSize);
-
-                if (buffer.Length > data.Length)
-                    data = buffer;
-                else
-                    Array.Copy(buffer, segment.OptionalPageOffset, data, reqSize, optSize);
-               
-
-                if (er != Reader)
-                {
-                    er.Close();
-                    er.Dispose();
-                }
-            }
-            #endregion
-
-            return data;
+            return retNode;
         }
-        #endregion
     }
 }

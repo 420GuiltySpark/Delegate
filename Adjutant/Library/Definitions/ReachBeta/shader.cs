@@ -11,7 +11,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 {
     public class shader : rmsh
     {
-        public shader(CacheFile Cache)
+        public shader(CacheBase Cache)
         {
             EndianReader Reader = Cache.Reader;
 
@@ -37,7 +37,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
         new public class ShaderProperties : rmsh.ShaderProperties
         {
-            public ShaderProperties(CacheFile Cache)
+            public ShaderProperties(CacheBase Cache)
             {
                 EndianReader Reader = Cache.Reader;
 
@@ -72,7 +72,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
             new public class ShaderMap : rmsh.ShaderProperties.ShaderMap
             {
-                public ShaderMap(CacheFile Cache)
+                public ShaderMap(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 
@@ -87,7 +87,7 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
             new public class Tiling : rmsh.ShaderProperties.Tiling
             {
-                public Tiling(CacheFile Cache)
+                public Tiling(CacheBase Cache)
                 {
                     EndianReader Reader = Cache.Reader;
 

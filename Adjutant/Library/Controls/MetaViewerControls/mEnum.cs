@@ -15,7 +15,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
     {
         private int index;
 
-        public mEnum(iValue Value, CacheFile Cache)
+        public mEnum(iValue Value, CacheBase Cache)
         {
             InitializeComponent();
             value = Value;

@@ -11,7 +11,7 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 {
     public class bink : bik
     {
-        public bink(CacheFile Cache, int Address)
+        public bink(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);

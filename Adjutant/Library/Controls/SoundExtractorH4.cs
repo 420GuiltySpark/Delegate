@@ -7,6 +7,7 @@ using Adjutant.Library.Endian;
 using System.IO;
 using Composer;
 using Composer.Wwise;
+using CacheH4R = Adjutant.Library.Definitions.Halo4Retail.CacheFile;
 
 /**************************************************************
  * Please note this sound extractor is integrated with Composer
@@ -23,8 +24,8 @@ namespace Adjutant.Library.Controls
             InitializeComponent();
         }
 
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheH4R cache;
+        private CacheBase.IndexItem tag;
         private sound snd;
         private soundbank sbnk;
         private SoundScanner scanner;
@@ -36,44 +37,18 @@ namespace Adjutant.Library.Controls
         private List<SoundBank> _soundbanks = new List<SoundBank>();
         private List<SoundFileInfo> _perms = new List<SoundFileInfo>();
 
-        #region Footers
-        private static byte[] monoFooter = new byte[]
-                {
-			        0x58, 0x4D, 0x41, 0x32, 0x2C, 0x00, 0x00, 0x00, 0x04, 
-			        0x01, 0x00, 0xFF, 0x00, 0x00, 0x01, 0x80, 0x00, 0x00, 
-			        0x8A, 0x00, 0x00, 0x00, 0xAB, 0xD2, 0x00, 0x00, 0x10, 
-			        0xD6, 0x00, 0x00, 0x3D, 0x14, 0x00, 0x01, 0x00, 0x00, 
-			        0x00, 0x00, 0x8A, 0x00, 0x00, 0x00, 0x88, 0x80, 0x00, 
-			        0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x73, 0x65, 
-			        0x65, 0x6B, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8A, 
-			        0x00
-		        };
-
-        private static byte[] stereoFooter = new byte[]
-                {
-			        0x58, 0x4D, 0x41, 0x32, 0x2C, 0x00, 0x00, 0x00, 0x04, 
-			        0x01, 0x00, 0xFF, 0x00, 0x00, 0x01, 0x80, 0x00, 0x01, 
-			        0x0F, 0x80, 0x00, 0x00, 0xAC, 0x44, 0x00, 0x00, 0x10, 
-			        0xD6, 0x00, 0x00, 0x3D, 0x14, 0x00, 0x01, 0x00, 0x00, 
-			        0x00, 0x01, 0x10, 0x00, 0x00, 0x01, 0x0E, 0x00, 0x00, 
-			        0x00, 0x00, 0x01, 0x02, 0x00, 0x02, 0x01, 0x73, 0x65, 
-			        0x65, 0x6B, 0x04, 0x00, 0x00, 0x00, 0x00, 0x01, 0x10, 
-			        0x00
-		        };
-        #endregion
-
         public SoundFormat DefaultSnd_Format = SoundFormat.WAV;
 
-        public void LoadSoundTag(CacheFile Cache, CacheFile.IndexItem Tag)
+        public void LoadSoundTag(CacheBase Cache, CacheBase.IndexItem Tag)
         {
-            cache = Cache;
+            if (Cache.Version != DefinitionSet.Halo4Retail) throw new Exception("This is for H4 ONLY");
+
+            cache = (CacheH4R)Cache;
             tag = Tag;
 
             snd = DefinitionsManager.snd_(cache, tag);
             if (snd.SoundBankTagID != -1) sbnk = DefinitionsManager.sbnk(cache, cache.IndexItems.GetItemByID(snd.SoundBankTagID));
             else sbnk = null;
-
-            if (Cache.Version != DefinitionSet.Halo4Retail) throw new Exception("This is for H4 ONLY");
 
             LoadCacheSoundPacks(cache);
 
@@ -249,9 +224,10 @@ namespace Adjutant.Library.Controls
         /// <param name="Cache">The CacheFile containing the tag.</param>
         /// <param name="Tag">The sound tag.</param>
         /// <param name="Format">The format in which to save the data.</param>
-        public void SaveAllAsSeparate(string Folder, CacheFile Cache, CacheFile.IndexItem Tag, SoundFormat Format, bool Overwrite)
+        public void SaveAllAsSeparate(string Folder, CacheBase Cache, CacheBase.IndexItem Tag, SoundFormat Format, bool Overwrite)
         {
             if (Format != SoundFormat.WAV) throw new NotSupportedException("Halo4Retail only supports WAV.");
+            if (Cache.Version != DefinitionSet.Halo4Retail) throw new Exception("This is for H4 ONLY");
 
             if (scanner == null)
             {
@@ -260,27 +236,25 @@ namespace Adjutant.Library.Controls
                 scanner.FoundSoundPackFile += FoundSoundPackFile;
             }
 
-            cache = Cache;
+            cache = (CacheH4R)Cache;
             tag = Tag;
 
             snd = DefinitionsManager.snd_(cache, tag);
             if (snd.SoundBankTagID != -1) sbnk = DefinitionsManager.sbnk(cache, cache.IndexItems.GetItemByID(snd.SoundBankTagID));
             else sbnk = null;
 
-            if (Cache.Version != DefinitionSet.Halo4Retail) throw new Exception("This is for H4 ONLY");
-
             LoadCacheSoundPacks(cache);
 
-            if (cache.H4SoundFiles == null)
+            if (cache.SoundFiles == null)
             {
-                cache.H4SoundFiles = new Dictionary<uint, List<SoundFileInfo>>();
+                cache.SoundFiles = new Dictionary<uint, List<SoundFileInfo>>();
                 ObjectLoadWorker();
             }
 
             bool s1, s2;
             List<SoundFileInfo> sfi1, sfi2, sfi3;
-            s1 = cache.H4SoundFiles.TryGetValue(snd.SoundAddress1, out sfi1);
-            s2 = cache.H4SoundFiles.TryGetValue(snd.SoundAddress2, out sfi2);
+            s1 = cache.SoundFiles.TryGetValue(snd.SoundAddress1, out sfi1);
+            s2 = cache.SoundFiles.TryGetValue(snd.SoundAddress2, out sfi2);
 
             if (!s1 && !s2) throw new Exception("No permutations found.");
 
@@ -318,23 +292,23 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        private static void LoadCacheSoundPacks(CacheFile Cache)
+        private static void LoadCacheSoundPacks(CacheH4R Cache)
         {
-            if (Cache.H4SoundPacks == null)
+            if (Cache.SoundPacks == null)
             {
-                Cache.H4SoundPacks = new List<Composer.SoundPackInfo>();
+                Cache.SoundPacks = new List<Composer.SoundPackInfo>();
 
                 var bank = new SoundPackInfo();
                 bank.Name = "SoundBank";
                 bank.Reader = new EndianReader(File.OpenRead(Cache.FilePath + @"\soundbank.pck"), EndianFormat.BigEndian);
                 bank.Pack = new SoundPack(bank.Reader);
-                Cache.H4SoundPacks.Add(bank);
+                Cache.SoundPacks.Add(bank);
 
                 var stream = new SoundPackInfo();
                 stream.Name = "SoundStream";
                 stream.Reader = new EndianReader(File.OpenRead(Cache.FilePath + @"\soundstream.pck"), EndianFormat.BigEndian);
                 stream.Pack = new SoundPack(stream.Reader);
-                Cache.H4SoundPacks.Add(stream);
+                Cache.SoundPacks.Add(stream);
             }
         }
 
@@ -342,7 +316,7 @@ namespace Adjutant.Library.Controls
         private void ObjectLoadWorker()
         {
             // Load everything from the packs into the scanner
-            foreach (SoundPackInfo pack in cache.H4SoundPacks)
+            foreach (SoundPackInfo pack in cache.SoundPacks)
                 LoadObjects(pack.Pack, pack.Reader, scanner);
 
             // Clear the TreeView and scan everything
@@ -368,7 +342,7 @@ namespace Adjutant.Library.Controls
             uint bankId = e.File.ParentBank.ID;
             SoundPackInfo packInfo = null;
             SoundPackFile packFile = null;
-            foreach (SoundPackInfo pack in cache.H4SoundPacks)
+            foreach (SoundPackInfo pack in cache.SoundPacks)
             {
                 packFile = pack.Pack.FindFileByID(bankId);
                 if (packFile != null)
@@ -393,7 +367,7 @@ namespace Adjutant.Library.Controls
             //if (e.SourceEvent.ID != snd.SoundAddress1 && e.SourceEvent.ID != snd.SoundAddress2) return;
 
             EndianReader reader = null;
-            foreach (SoundPackInfo pack in cache.H4SoundPacks)
+            foreach (SoundPackInfo pack in cache.SoundPacks)
             {
                 if (pack.Pack.FindFileByID(e.File.ID) != null)
                 {
@@ -424,10 +398,10 @@ namespace Adjutant.Library.Controls
             if (!isDisplay)
             {
                 List<SoundFileInfo> sfi;
-                if (cache.H4SoundFiles.TryGetValue(sourceID, out sfi))
+                if (cache.SoundFiles.TryGetValue(sourceID, out sfi))
                     sfi.Add(info);
                 else
-                    cache.H4SoundFiles.Add(sourceID, new List<SoundFileInfo>() { info });
+                    cache.SoundFiles.Add(sourceID, new List<SoundFileInfo>() { info });
 
                 return;
             }

@@ -12,7 +12,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 {
     public class bitmap : bitm
     {
-        public bitmap(CacheFile Cache, int Address)
+        public bitmap(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -40,7 +40,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class Sequence : bitm.Sequence
         {
-            public Sequence(CacheFile Cache, int Address)
+            public Sequence(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -63,7 +63,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
             new public class Sprite : bitm.Sequence.Sprite
             {
-                public Sprite(CacheFile Cache, int Address)
+                public Sprite(CacheBase Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);
@@ -86,7 +86,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             public int[] LODOffset;
             public int[] LODSize;
 
-            public BitmapData(CacheFile Cache, int Address)
+            public BitmapData(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -102,7 +102,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 RegX = Reader.ReadUInt16();
                 RegY = Reader.ReadUInt16();
                 MipmapCount = Reader.ReadUInt16();
-                PixelsOffset = Reader.ReadUInt16();
+                Reader.ReadUInt16();
                 Reader.ReadInt32();
 
                 LODOffset = new int[3];
@@ -117,6 +117,9 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 LODSize[0] = Reader.ReadInt32();
                 LODSize[1] = Reader.ReadInt32();
                 LODSize[2] = Reader.ReadInt32();
+
+                PixelsOffset = LODOffset[0];
+                PixelsSize = LODSize[0];
 
                 Reader.SeekTo(Address + 116);
             }

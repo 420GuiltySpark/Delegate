@@ -48,7 +48,7 @@ namespace Adjutant.Controls
             });
         }
         
-        public void BeginExtraction(CacheFile Cache, List<TreeNode> Parents, Settings Settings, string Destination)
+        public void BeginExtraction(CacheBase Cache, List<TreeNode> Parents, Settings Settings, string Destination)
         {
             if (backgroundWorker1.IsBusy)
             {
@@ -83,7 +83,7 @@ namespace Adjutant.Controls
             backgroundWorker1.RunWorkerAsync(args);
         }
 
-        private void BatchExtract(CacheFile cache, List<TreeNode> parents, Settings settings, string dest, BackgroundWorker worker)
+        private void BatchExtract(CacheBase cache, List<TreeNode> parents, Settings settings, string dest, BackgroundWorker worker)
         {
             foreach (TreeNode parent in parents)
             {
@@ -97,7 +97,7 @@ namespace Adjutant.Controls
                         continue;
                     }
 
-                    var tag = child.Tag as CacheFile.IndexItem;
+                    var tag = child.Tag as CacheBase.IndexItem;
                     var fName = dest + /*"\\" + tag.ClassName +*/ "\\" + tag.Filename;
                     var tName = tag.Filename + "." + tag.ClassCode;
 
@@ -427,7 +427,7 @@ namespace Adjutant.Controls
 
         private class ExtractionArgs
         {
-            public CacheFile cache;
+            public CacheBase cache;
             public PakFile pak;
             public List<TreeNode> parents;
             public Settings settings;

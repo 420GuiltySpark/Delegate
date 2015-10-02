@@ -15,8 +15,8 @@ namespace Adjutant.Library.Controls
 {
     public partial class MetaViewer : UserControl
     {
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
         private XmlElement element;
         private bool showInvis, isWorking;
         private string pluginDir;
@@ -26,7 +26,7 @@ namespace Adjutant.Library.Controls
             InitializeComponent();
         }
 
-        public void LoadTagMeta(CacheFile Cache, CacheFile.IndexItem Tag, bool ShowInvisibles, string PluginsFolder)
+        public void LoadTagMeta(CacheBase Cache, CacheBase.IndexItem Tag, bool ShowInvisibles, string PluginsFolder)
         {
             cache = Cache;
             tag = Tag;

@@ -25,8 +25,8 @@ namespace Adjutant.Library.Controls
     public partial class BSPViewer : UserControl
     {
         #region Init
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
         private scenario_structure_bsp sbsp;
 
         private bool isWorking = false;
@@ -58,7 +58,7 @@ namespace Adjutant.Library.Controls
         #region Methods
 
         #region Map
-        public void LoadBSPTag(CacheFile Cache, CacheFile.IndexItem Tag, bool Force)
+        public void LoadBSPTag(CacheBase Cache, CacheBase.IndexItem Tag, bool Force)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        private void loadBspTag(CacheFile Cache, CacheFile.IndexItem Tag, bool Specular, bool Force)
+        private void loadBspTag(CacheBase Cache, CacheBase.IndexItem Tag, bool Specular, bool Force)
         {
             if (!this.Enabled) this.Enabled = true;
             tvRegions.Nodes.Clear();
@@ -715,6 +715,12 @@ namespace Adjutant.Library.Controls
                     var mat3 = new Matrix3D(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
                     var mat4 = new Matrix3D(600, 0, 0, 0, 0, 600, 0, 0, 0, 0, 600, 0, 0, 0, 0, 1);
 
+                    var matX = Matrix3D.Identity;
+                    matX.M11 = matX.M22 = matX.M33 = pak.SceneCDT.sets[0].unkf0;
+                    //matX.OffsetX = pak.SceneCDT.sets[0].MinBound.x;
+                    //matX.OffsetY = pak.SceneCDT.sets[0].MinBound.y;
+                    //matX.OffsetZ = pak.SceneCDT.sets[0].MinBound.z;
+
                     var dmat = new Matrix3D(
                         1f / 0xFFFF, 0, 0, 0,
                         0, 1f / 0xFFFF, 0, 0,
@@ -723,7 +729,7 @@ namespace Adjutant.Library.Controls
                         );
 
                     if (pObj.Vertices.Data[0].FormatName == "S3D_World")
-                        dmat = mat0 = mat1 = mat4 = Matrix3D.Identity;
+                        dmat = mat0 = mat1 = mat4 = matX = Matrix3D.Identity;
 
                     mGroup.Children.Add(new MatrixTransform3D(dmat * mat4 * mat3));
                     group.Transform = mGroup;

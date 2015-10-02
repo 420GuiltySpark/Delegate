@@ -14,7 +14,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 {
     public class scenario_structure_bsp : sbsp
     {
-        public scenario_structure_bsp(CacheFile Cache, int Address)
+        public scenario_structure_bsp(CacheBase Cache, int Address)
         {
             cache = Cache;
             EndianReader Reader = Cache.Reader;
@@ -175,7 +175,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class Cluster : sbsp.Cluster
         {
-            public Cluster(CacheFile Cache, int Address)
+            public Cluster(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -191,7 +191,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class Shader : sbsp.Shader
         {
-            public Shader(CacheFile Cache, int Address)
+            public Shader(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -206,7 +206,7 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
         new public class InstancedGeometry : sbsp.InstancedGeometry
         {
-            public InstancedGeometry(CacheFile Cache, int Address)
+            public InstancedGeometry(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);

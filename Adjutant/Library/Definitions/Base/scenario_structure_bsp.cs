@@ -14,7 +14,7 @@ namespace Adjutant.Library.Definitions
 {
     public abstract class scenario_structure_bsp
     {
-        public CacheFile cache;
+        public CacheBase cache;
         public int geomRawID;
         public string BSPName;
 

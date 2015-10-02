@@ -17,7 +17,7 @@ namespace Adjutant.Controls
     public partial class MapViewer : UserControl
     {
         private PakFile pak;
-        private CacheFile cache;
+        private CacheBase cache;
         private TagViewer tv;
         private Settings settings;
         public List<string> ClassFilter = new List<string>();
@@ -43,7 +43,7 @@ namespace Adjutant.Controls
             this.Filename = Filename;
             HierarchyMode = Hierarchy;
 
-            cache = new CacheFile(Filename);
+            cache = CacheManager.GetCache(Filename);
             tv = new TagViewer(settings, extractor1);
 
             tvTags.Nodes.Clear();
@@ -178,7 +178,7 @@ namespace Adjutant.Controls
             var nList = new List<TreeNode>();
             var dic = new Dictionary<string, TreeNode>();
 
-            foreach (CacheFile.IndexItem tag in cache.IndexItems)
+            foreach (CacheBase.IndexItem tag in cache.IndexItems)
             {
                 if (settings.Flags.HasFlag(SettingsFlags.UseClassFilter) && ClassFilter.Count > 0)
                 {
@@ -214,7 +214,7 @@ namespace Adjutant.Controls
             var nList = new List<TreeNode>();
             var dic = new Dictionary<string, TreeNode>();
 
-            foreach (CacheFile.IndexItem tag in cache.IndexItems)
+            foreach (CacheBase.IndexItem tag in cache.IndexItems)
             {
                 if (settings.Flags.HasFlag(SettingsFlags.UseClassFilter) && ClassFilter.Count > 0)
                 {
@@ -281,7 +281,7 @@ namespace Adjutant.Controls
             var nList = new List<TreeNode>();
             var dic = new Dictionary<string, TreeNode>();
 
-            foreach (CacheFile.IndexItem tag in cache.IndexItems)
+            foreach (CacheBase.IndexItem tag in cache.IndexItems)
             {
                 if (settings.Flags.HasFlag(SettingsFlags.UseClassFilter) && ClassFilter.Count > 0)
                 {
@@ -333,7 +333,7 @@ namespace Adjutant.Controls
             List<TreeNode> nList = new List<TreeNode>();
             Dictionary<string, TreeNode> dic = new Dictionary<string, TreeNode>();
 
-            foreach (CacheFile.IndexItem tag in cache.IndexItems)
+            foreach (CacheBase.IndexItem tag in cache.IndexItems)
             {
                 if (settings.Flags.HasFlag(SettingsFlags.UseClassFilter) && ClassFilter.Count > 0)
                 {
@@ -456,7 +456,7 @@ namespace Adjutant.Controls
 
             if (tvTags.SelectedNode.Nodes.Count > 0) return;
 
-            var tag = tvTags.SelectedNode.Tag as CacheFile.IndexItem;
+            var tag = tvTags.SelectedNode.Tag as CacheBase.IndexItem;
             var item = tvTags.SelectedNode.Tag as PakFile.PakTag;
 
             if (!splitContainer2.Panel2.Controls.Contains(tv))

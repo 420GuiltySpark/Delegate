@@ -326,7 +326,7 @@ namespace Adjutant.Library.Controls
         #endregion
 
         #region Write to file
-        public static void WriteEMF3(string Filename, CacheFile Cache, render_model Model, bool SplitMeshes, List<int> PartIndices)
+        public static void WriteEMF3(string Filename, CacheBase Cache, render_model Model, bool SplitMeshes, List<int> PartIndices)
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
             if (!Filename.EndsWith(".emf")) Filename += ".emf";
@@ -621,7 +621,7 @@ namespace Adjutant.Library.Controls
             bw.Dispose();
         }
 
-        public static void WriteOBJ(string Filename, CacheFile Cache, render_model Model, List<int> PartIndices)
+        public static void WriteOBJ(string Filename, CacheBase Cache, render_model Model, List<int> PartIndices)
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
@@ -703,7 +703,7 @@ namespace Adjutant.Library.Controls
             sw.Dispose();
         }
 
-        public static void WriteJMS(string Filename, CacheFile Cache, render_model Model, List<int> PartIndices)
+        public static void WriteJMS(string Filename, CacheBase Cache, render_model Model, List<int> PartIndices)
         {
             var safeName = Filename.Substring(Filename.LastIndexOf("\\") + 1);
             if (safeName.EndsWith(".jms")) safeName = safeName.Remove(safeName.Length - 4);
@@ -871,7 +871,7 @@ namespace Adjutant.Library.Controls
             }
         }
 
-        public static void WriteAMF(string Filename, CacheFile Cache, render_model Model, List<int> PartIndices)
+        public static void WriteAMF(string Filename, CacheBase Cache, render_model Model, List<int> PartIndices)
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
             if (!Filename.EndsWith(".amf")) Filename += ".amf";
@@ -1397,7 +1397,7 @@ namespace Adjutant.Library.Controls
             bw.Dispose();
         }
 
-        public static void WriteEMF3(string Filename, CacheFile Cache, scenario_structure_bsp BSP, List<int> ClusterIndices, List<int> InstanceIndices)
+        public static void WriteEMF3(string Filename, CacheBase Cache, scenario_structure_bsp BSP, List<int> ClusterIndices, List<int> InstanceIndices)
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
             if (!Filename.EndsWith(".emf")) Filename += ".emf";
@@ -1676,7 +1676,7 @@ namespace Adjutant.Library.Controls
             bw.Dispose();
         }
 
-        public static void WriteOBJ(string Filename, CacheFile Cache, scenario_structure_bsp BSP, List<int> ClusterIndices, List<int> InstanceIndices)
+        public static void WriteOBJ(string Filename, CacheBase Cache, scenario_structure_bsp BSP, List<int> ClusterIndices, List<int> InstanceIndices)
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
 
@@ -1811,7 +1811,7 @@ namespace Adjutant.Library.Controls
             sw.Dispose();
         }
 
-        public static void WriteAMF(string Filename, CacheFile Cache, scenario_structure_bsp BSP, List<int> ClusterIndices, List<int> InstanceIndices)
+        public static void WriteAMF(string Filename, CacheBase Cache, scenario_structure_bsp BSP, List<int> ClusterIndices, List<int> InstanceIndices)
         {
             if (!Directory.GetParent(Filename).Exists) Directory.GetParent(Filename).Create();
             if (!Filename.EndsWith(".amf")) Filename += ".amf";

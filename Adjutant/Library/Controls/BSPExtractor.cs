@@ -15,8 +15,8 @@ namespace Adjutant.Library.Controls
 {    
     public partial class BSPExtractor : UserControl
     {
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
         private scenario_structure_bsp sbsp;
         private bool isWorking = false;
 
@@ -31,7 +31,7 @@ namespace Adjutant.Library.Controls
         }
 
         #region Methods
-        public void LoadBSPTag(CacheFile Cache, CacheFile.IndexItem Tag)
+        public void LoadBSPTag(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             cache = Cache;
             tag = Tag;
@@ -68,7 +68,7 @@ namespace Adjutant.Library.Controls
 
         private void RecursiveExtract(object SaveFolder)
         {
-            List<CacheFile.IndexItem> tagsDone = new List<CacheFile.IndexItem>();
+            List<CacheBase.IndexItem> tagsDone = new List<CacheBase.IndexItem>();
 
             foreach (var shader in sbsp.Shaders)
             {
@@ -112,7 +112,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Format">The format to save the model in.</param>
         /// <param name="ClusterIndices">A List containing the indices of the scenario_structure_bsp.Clusters to save.</param>
         /// <param name="InstanceIndices">A List containing the indices of the scenario_structure_bsp.GeomInstances to save.</param>
-        public static void SaveBSPParts(string Filename, CacheFile Cache, scenario_structure_bsp BSP, ModelFormat Format, List<int> ClusterIndices, List<int> InstanceIndices)
+        public static void SaveBSPParts(string Filename, CacheBase Cache, scenario_structure_bsp BSP, ModelFormat Format, List<int> ClusterIndices, List<int> InstanceIndices)
         {
             switch (Format)
             {
@@ -135,7 +135,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Cache">The CacheFile containing the scenario_structure_bsp tag.</param>
         /// <param name="Tag">The scenario_structure_bsp tag.</param>
         /// <param name="Format">The format to save the model in.</param>
-        public static void SaveAllBSPParts(string Filename, CacheFile Cache, CacheFile.IndexItem Tag, ModelFormat Format)
+        public static void SaveAllBSPParts(string Filename, CacheBase Cache, CacheBase.IndexItem Tag, ModelFormat Format)
         {
             var sbsp = DefinitionsManager.sbsp(Cache, Tag);
             sbsp.LoadRaw();

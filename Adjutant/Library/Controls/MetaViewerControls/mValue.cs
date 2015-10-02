@@ -15,7 +15,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
     {
         public int val = -1;
         public int size = -1;
-        public mValue(iValue Value, CacheFile Cache)
+        public mValue(iValue Value, CacheBase Cache)
         {
             InitializeComponent();
             value = Value;

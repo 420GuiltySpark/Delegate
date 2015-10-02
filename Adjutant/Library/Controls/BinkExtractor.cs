@@ -20,15 +20,15 @@ namespace Adjutant.Library.Controls
 {
     public partial class BinkExtractor : UserControl
     {
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
 
         public BinkExtractor()
         {
             InitializeComponent();
         }
 
-        public void LoadBinkTag(CacheFile Cache, CacheFile.IndexItem Tag)
+        public void LoadBinkTag(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             cache = Cache;
             tag = Tag;
@@ -58,7 +58,7 @@ namespace Adjutant.Library.Controls
 
         }
 
-        public static void SaveBink(string Filename, CacheFile Cache, CacheFile.IndexItem Tag)
+        public static void SaveBink(string Filename, CacheBase Cache, CacheBase.IndexItem Tag)
         {
             var bik = DefinitionsManager.bink(Cache, Tag);
             var raw = Cache.GetRawFromID(bik.RawID);

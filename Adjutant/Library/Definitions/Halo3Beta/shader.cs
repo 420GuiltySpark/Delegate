@@ -11,7 +11,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 {
     public class shader : rmsh
     {
-        public shader(CacheFile Cache, int Address)
+        public shader(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -35,7 +35,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new public class ShaderProperties : rmsh.ShaderProperties
         {
-            public ShaderProperties(CacheFile Cache, int Address)
+            public ShaderProperties(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -67,7 +67,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
             new public class ShaderMap : rmsh.ShaderProperties.ShaderMap
             {
-                public ShaderMap(CacheFile Cache, int Address)
+                public ShaderMap(CacheBase Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);
@@ -83,7 +83,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
             new public class Tiling : rmsh.ShaderProperties.Tiling
             {
-                public Tiling(CacheFile Cache, int Address)
+                public Tiling(CacheBase Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);

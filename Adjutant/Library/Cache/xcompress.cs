@@ -8,7 +8,7 @@ using System.IO.Compression;
 
 namespace Adjutant.Library.Cache
 {
-    public partial class CacheFile
+    public static class xcompress
     {
         public enum XMemCodecType
         {

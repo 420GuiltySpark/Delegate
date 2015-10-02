@@ -12,7 +12,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 {
     public class bitmap : bitm
     {
-        public bitmap(CacheFile Cache, int Address)
+        public bitmap(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -60,7 +60,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new public class Sequence : bitm.Sequence
         {
-            public Sequence(CacheFile Cache, int Address)
+            public Sequence(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -83,7 +83,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
             new public class Sprite : bitm.Sequence.Sprite
             {
-                public Sprite(CacheFile Cache, int Address)
+                public Sprite(CacheBase Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Address);
@@ -103,7 +103,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new public class BitmapData : bitm.BitmapData
         {
-            public BitmapData(CacheFile Cache, int Address)
+            public BitmapData(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
@@ -131,7 +131,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new public class RawChunkA : bitm.RawChunkA
         {
-            public RawChunkA(CacheFile Cache, int Address)
+            public RawChunkA(CacheBase Cache, int Address)
             {
                 Cache.Reader.SeekTo(Address);
                 RawID = Cache.Reader.ReadInt32();
@@ -141,7 +141,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new public class RawChunkB : bitm.RawChunkB
         {
-            public RawChunkB(CacheFile Cache, int Address)
+            public RawChunkB(CacheBase Cache, int Address)
             {
                 Cache.Reader.SeekTo(Address);
                 RawID = Cache.Reader.ReadInt32();

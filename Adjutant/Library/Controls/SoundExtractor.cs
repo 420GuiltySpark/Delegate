@@ -27,8 +27,8 @@ namespace Adjutant.Library.Controls
 
         private static string towav = "Helpers\\towav.exe";
 
-        private CacheFile cache;
-        private CacheFile.IndexItem tag;
+        private CacheBase cache;
+        private CacheBase.IndexItem tag;
         private ugh_ ugh;
         private sound snd;
         private ugh_.Playback playback;
@@ -37,7 +37,7 @@ namespace Adjutant.Library.Controls
 
         public SoundFormat DefaultSnd_Format = SoundFormat.WAV;
 
-        public void LoadSoundTag(CacheFile Cache, CacheFile.IndexItem Tag)
+        public void LoadSoundTag(CacheBase Cache, CacheBase.IndexItem Tag)
         {
             cache = Cache;
             tag = Tag;
@@ -196,7 +196,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Tag">The sound tag.</param>
         /// <param name="Format">The format in which to save the data.</param>
         /// <param name="Indices">The indices of the permutations to extract.</param>
-        public static void SaveSelected(string Folder, CacheFile Cache, CacheFile.IndexItem Tag, SoundFormat Format, List<int> Indices, bool Overwrite)
+        public static void SaveSelected(string Folder, CacheBase Cache, CacheBase.IndexItem Tag, SoundFormat Format, List<int> Indices, bool Overwrite)
         {
             var snd_ = DefinitionsManager.snd_(Cache, Tag);
             List<byte[]> perms = new List<byte[]>();
@@ -316,7 +316,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Cache">The CacheFile containing the tag.</param>
         /// <param name="Tag">The sound tag.</param>
         /// <param name="Format">The format in which to save the data.</param>
-        public static void SaveAllAsSingle(string Filename, CacheFile Cache, CacheFile.IndexItem Tag, SoundFormat Format)
+        public static void SaveAllAsSingle(string Filename, CacheBase Cache, CacheBase.IndexItem Tag, SoundFormat Format)
         {
             var snd_ = DefinitionsManager.snd_(Cache, Tag);
 
@@ -392,7 +392,7 @@ namespace Adjutant.Library.Controls
         /// <param name="Cache">The CacheFile containing the tag.</param>
         /// <param name="Tag">The sound tag.</param>
         /// <param name="Format">The format in which to save the data.</param>
-        public static void SaveAllAsSeparate(string Folder, CacheFile Cache, CacheFile.IndexItem Tag, SoundFormat Format, bool Overwrite)
+        public static void SaveAllAsSeparate(string Folder, CacheBase Cache, CacheBase.IndexItem Tag, SoundFormat Format, bool Overwrite)
         {
             var snd_ = DefinitionsManager.snd_(Cache, Tag);
             var ugh_ = Cache.ugh_;

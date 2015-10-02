@@ -11,7 +11,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 {
     public class cache_file_resource_layout_table : play
     {
-        public cache_file_resource_layout_table(CacheFile Cache, int Offset)
+        public cache_file_resource_layout_table(CacheBase Cache, int Offset)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Offset);
@@ -57,7 +57,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 
         new public class SharedCache : play.SharedCache
         {
-            public SharedCache(CacheFile Cache, int Offset)
+            public SharedCache(CacheBase Cache, int Offset)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Offset);
@@ -70,7 +70,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 
         new public class Page : play.Page
         {
-            public Page(CacheFile Cache, int Offset)
+            public Page(CacheBase Cache, int Offset)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Offset);
@@ -91,7 +91,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 
         new public class SoundRawChunk : play.SoundRawChunk
         {
-            public SoundRawChunk(CacheFile Cache, int Offset)
+            public SoundRawChunk(CacheBase Cache, int Offset)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Offset);
@@ -110,7 +110,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 
             new public class Size : play.SoundRawChunk.Size
             {
-                public Size(CacheFile Cache, int Offset)
+                public Size(CacheBase Cache, int Offset)
                 {
                     EndianReader Reader = Cache.Reader;
                     Reader.SeekTo(Offset);
@@ -125,7 +125,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 
         new public class Segment : play.Segment
         {
-            public Segment(CacheFile Cache, int Offset)
+            public Segment(CacheBase Cache, int Offset)
             {
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Offset);
