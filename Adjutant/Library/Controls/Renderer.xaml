@@ -7,7 +7,7 @@
     <Grid>
         <Viewport3D Name="viewport" IsHitTestVisible="False" ClipToBounds="False">
             <Viewport3D.Camera>
-                <PerspectiveCamera ProjectionCamera.FarPlaneDistance="500" ProjectionCamera.LookDirection="-90,0,0" ProjectionCamera.UpDirection="0,0,1" ProjectionCamera.NearPlaneDistance="0.1" ProjectionCamera.Position="0.5,0,0" PerspectiveCamera.FieldOfView="70">
+                <PerspectiveCamera ProjectionCamera.FarPlaneDistance="500" ProjectionCamera.LookDirection="-90,0,0" ProjectionCamera.UpDirection="0,0,1" ProjectionCamera.NearPlaneDistance="0.01" ProjectionCamera.Position="0.5,0,0" PerspectiveCamera.FieldOfView="70">
                     <Camera.Transform>
                         <MatrixTransform3D />
                     </Camera.Transform>

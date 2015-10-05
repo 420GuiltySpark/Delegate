@@ -21,6 +21,11 @@ namespace Adjutant.Library.S3D
         public Block_2102 _2102;
         public Block_2202 _2202;
         public unkBlock_XXXX _8404;
+        public unkBlock_XXXX _EA01;
+        public unkBlock_XXXX _B801;
+        public unkBlock_XXXX _8002;
+        public unkBlock_XXXX _2504;
+        public unkBlock_XXXX _1D02;
 
         public RealQuat unkCoords0;
 
@@ -86,8 +91,38 @@ namespace Adjutant.Library.S3D
             count = reader.ReadInt32();
             Objects = new List<Node>();
             for (int i = 0; i < count; i++)
-                Objects.Add(new Node(Pak.Reader, loadMesh)); 
+                Objects.Add(new Node(Pak.Reader, loadMesh));
             #endregion
+
+            reader.ReadInt16(); //0100
+            reader.ReadInt32(); //address
+
+            //additional geometry, mainly sky objects
+            _EA01 = new unkBlock_XXXX(reader, 0xEA01);
+
+            reader.ReadInt16(); //0100
+            reader.ReadInt32(); //address
+
+            //additional objects, no geometry, lighting related
+            _B801 = new unkBlock_XXXX(reader, 0xB801);
+
+            reader.ReadInt16(); //0100
+            reader.ReadInt32(); //address
+
+            //additional objects, no geometry, lighting related
+            _8002 = new unkBlock_XXXX(reader, 0x8002);
+
+            reader.ReadInt16(); //0100
+            reader.ReadInt32(); //address
+
+            //6x int32
+            _2504 = new unkBlock_XXXX(reader, 0x2504);
+
+            reader.ReadInt16(); //0100
+            reader.ReadInt32(); //address
+
+            //empty?
+            _1D02 = new unkBlock_XXXX(reader, 0x1D02);
 
             foreach (var obj in Objects)
                 if (obj.isInheritor)

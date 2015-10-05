@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -23,9 +24,13 @@ namespace Adjutant.Library.Controls
     /// <summary>
     /// Interaction logic for Renderer.xaml
     /// </summary>
-    public partial class Renderer : UserControl
+    public partial class Renderer : System.Windows.Controls.UserControl
     {
         #region Init
+        private const double RAD_089 = 1.5706217940;
+        private const double RAD_090 = 1.5707963268;
+        private const double RAD_360 = 6.2831853072;
+
         private bool mouseDown;
         private DispatcherTimer timer = new DispatcherTimer();
         private double forwardEx;
@@ -39,6 +44,7 @@ namespace Adjutant.Library.Controls
         private double downEx;
         private double aSpeed = 0.1;
         private double bSpeed = 0.1;
+
 
         public double CameraSpeed = 0.015;
         public Viewport3D Viewport
@@ -177,13 +183,14 @@ namespace Adjutant.Library.Controls
         private void SetDebugInfo(PerspectiveCamera Camera)
         {
             lblStats.Content = string.Format(
-                "{0:0.00}\x00b0, {1:0.00}\x00b0 X:{2:0.00} Y:{3:0.00} Z:{4:0.00} FOV: {5:0} Speed: {6:0}",
-                (360.0 * yaw) / 6.2831853071795862,
-                (360.0 * pitch) / 6.2831853071795862,
+                "{0,6:0.00}\x00b0, {1,6:0.00}\x00b0 X:{2:0.00} Y:{3:0.00} Z:{4:0.00} FOV: {5:0}, FPD: {6:0}, Speed: {7:0}",
+                (360.0 * yaw) / RAD_360,
+                (360.0 * pitch) / RAD_360,
                 Camera.Position.X,
                 Camera.Position.Y,
                 Camera.Position.Z,
                 Camera.FieldOfView,
+                Camera.FarPlaneDistance,
                 CameraSpeed * 1000);
         }
 
@@ -192,16 +199,17 @@ namespace Adjutant.Library.Controls
             PerspectiveCamera camera = (PerspectiveCamera)viewport.Camera;
             NormalizeCamera(camera);
             //lblHelp.Visibility = CheckKeyState(Keys.F1) ? Visibility.Visible : Visibility.Hidden;
-            
+
             #region Set FOV
-            if (CheckKeyState(Keys.NumPlus))
-                camera.FieldOfView += (((double)1f) * camera.FieldOfView) / 100.0;
-            if (CheckKeyState(Keys.NumMinus))
-                camera.FieldOfView -= (((double)1f) * camera.FieldOfView) / 100.0;
-            if (camera.FieldOfView > 100.0)
-                camera.FieldOfView = 100.0;
-            if (camera.FieldOfView < 40.0)
-                camera.FieldOfView = 40.0;
+            if (CheckKeyState(Keys.NumPad6)) camera.FieldOfView += camera.FieldOfView / 100.0;
+            if (CheckKeyState(Keys.NumPad4)) camera.FieldOfView -= camera.FieldOfView / 100.0;
+            camera.FieldOfView = ClipValue(camera.FieldOfView, 40, 120);
+            #endregion
+
+            #region Set FPD
+            if (CheckKeyState(Keys.NumPad8)) camera.FarPlaneDistance += 10;
+            if (CheckKeyState(Keys.NumPad2)) camera.FarPlaneDistance -= 10;
+            camera.FarPlaneDistance = ClipValue(camera.FarPlaneDistance, 200, 5000);
             #endregion
 
             #region Check WASD
@@ -212,10 +220,11 @@ namespace Adjutant.Library.Controls
                 else
                     forwardEx = 0.0;
             }
-            else if (forwardEx < (CameraSpeed * ((double)1f)))
-                forwardEx += (CameraSpeed * aSpeed) * ((double)1f);
+            else if (forwardEx < CameraSpeed)
+                forwardEx += CameraSpeed * aSpeed;
             else
-                forwardEx = CameraSpeed * ((double)1f);
+                forwardEx = CameraSpeed;
+
             if (forwardEx != 0.0)
                 camera.Position = new Point3D(camera.Position.X + (camera.LookDirection.X * forwardEx), camera.Position.Y + (camera.LookDirection.Y * forwardEx), camera.Position.Z + (camera.LookDirection.Z * forwardEx));
 
@@ -226,13 +235,13 @@ namespace Adjutant.Library.Controls
                 else
                     leftEx = 0.0;
             }
-            else if (leftEx < (CameraSpeed * ((double)1f)))
-                leftEx += (CameraSpeed * aSpeed) * ((double)1f);
+            else if (leftEx < CameraSpeed)
+                leftEx += CameraSpeed * aSpeed;
             else
-                leftEx = CameraSpeed * ((double)1f);
+                leftEx = CameraSpeed;
 
             if (leftEx != 0.0)
-                camera.Position = new Point3D(camera.Position.X - (Math.Sin(yaw + 1.5707963267948966) * leftEx), camera.Position.Y - (Math.Cos(yaw + 1.5707963267948966) * leftEx), camera.Position.Z);
+                camera.Position = new Point3D(camera.Position.X - (Math.Sin(yaw + RAD_090) * leftEx), camera.Position.Y - (Math.Cos(yaw + RAD_090) * leftEx), camera.Position.Z);
 
             if (!CheckKeyState(Keys.S))
             {
@@ -241,10 +250,11 @@ namespace Adjutant.Library.Controls
                 else
                     backEx = 0.0;
             }
-            else if (backEx < (CameraSpeed * ((double)1f)))
-                backEx += (CameraSpeed * aSpeed) * ((double)1f);
+            else if (backEx < CameraSpeed)
+                backEx += CameraSpeed * aSpeed;
             else
-                backEx = CameraSpeed * ((double)1f);
+                backEx = CameraSpeed;
+
             if (backEx != 0.0)
                 camera.Position = new Point3D(camera.Position.X - (camera.LookDirection.X * backEx), camera.Position.Y - (camera.LookDirection.Y * backEx), camera.Position.Z - (camera.LookDirection.Z * backEx));
 
@@ -255,12 +265,12 @@ namespace Adjutant.Library.Controls
                 else
                     rightEx = 0.0;
             }
-            else if (rightEx < (CameraSpeed * ((double)1f)))
-                rightEx += (CameraSpeed * aSpeed) * ((double)1f);
+            else if (rightEx < CameraSpeed)
+                rightEx += CameraSpeed * aSpeed;
             else
-                rightEx = CameraSpeed * ((double)1f);
+                rightEx = CameraSpeed;
             if (rightEx != 0.0)
-                camera.Position = new Point3D(camera.Position.X + (Math.Sin(yaw + 1.5707963267948966) * rightEx), camera.Position.Y + (Math.Cos(yaw + 1.5707963267948966) * rightEx), camera.Position.Z);
+                camera.Position = new Point3D(camera.Position.X + (Math.Sin(yaw + RAD_090) * rightEx), camera.Position.Y + (Math.Cos(yaw + RAD_090) * rightEx), camera.Position.Z);
             #endregion
 
             #region Check RF
@@ -293,7 +303,6 @@ namespace Adjutant.Library.Controls
                 downEx += CameraSpeed * aSpeed;
             else
                 downEx = CameraSpeed;
-            #endregion
 
             if (downEx != 0.0)
             {
@@ -301,15 +310,12 @@ namespace Adjutant.Library.Controls
                 vectord2.Normalize();
                 camera.Position = new Point3D(camera.Position.X + (vectord2.X * downEx), camera.Position.Y + (vectord2.Y * downEx), camera.Position.Z + (vectord2.Z * downEx));
             }
+            #endregion
 
-            //test max coords
-            camera.Position = (camera.Position.X > MaxPosition.X) ? new Point3D(MaxPosition.X, camera.Position.Y, camera.Position.Z) : camera.Position;
-            camera.Position = (camera.Position.Y > MaxPosition.Y) ? new Point3D(camera.Position.X, MaxPosition.Y, camera.Position.Z) : camera.Position;
-            camera.Position = (camera.Position.Z > MaxPosition.Z) ? new Point3D(camera.Position.X, camera.Position.Y, MaxPosition.Z) : camera.Position;
-            //test min coords
-            camera.Position = (camera.Position.X < MinPosition.X) ? new Point3D(MinPosition.X, camera.Position.Y, camera.Position.Z) : camera.Position;
-            camera.Position = (camera.Position.Y < MinPosition.Y) ? new Point3D(camera.Position.X, MinPosition.Y, camera.Position.Z) : camera.Position;
-            camera.Position = (camera.Position.Z < MinPosition.Z) ? new Point3D(camera.Position.X, camera.Position.Y, MinPosition.Z) : camera.Position;
+            camera.Position = new Point3D(
+                ClipValue(camera.Position.X, MinPosition.X, MaxPosition.X),
+                ClipValue(camera.Position.Y, MinPosition.Y, MaxPosition.Y),
+                ClipValue(camera.Position.Z, MinPosition.Z, MaxPosition.Z));
 
             SetDebugInfo(camera);
         }
@@ -343,26 +349,26 @@ namespace Adjutant.Library.Controls
                 }
 
                 if (lastPos.X > point.X)
-                    yaw -= (((lastPos.X - point.X) * 6.2831853071795862) / 54321.0) * camera.FieldOfView;
+                    yaw -= (((lastPos.X - point.X) * RAD_360) / 54321.0) * camera.FieldOfView;
                 else if (lastPos.X < point.X)
-                    yaw += (((point.X - lastPos.X) * 6.2831853071795862) / 54321.0) * camera.FieldOfView;
+                    yaw += (((point.X - lastPos.X) * RAD_360) / 54321.0) * camera.FieldOfView;
                 if (lastPos.Y > point.Y)
-                    pitch += (((lastPos.Y - point.Y) * 6.2831853071795862) / 54321.0) * camera.FieldOfView;
+                    pitch += (((lastPos.Y - point.Y) * RAD_360) / 54321.0) * camera.FieldOfView;
                 else if (lastPos.Y < point.Y)
-                    pitch -= (((point.Y - lastPos.Y) * 6.2831853071795862) / 54321.0) * camera.FieldOfView;
+                    pitch -= (((point.Y - lastPos.Y) * RAD_360) / 54321.0) * camera.FieldOfView;
             }
 
-            yaw = yaw % 6.2831853071795862;
-            pitch = pitch % 6.2831853071795862;
-
-            if (pitch > 1.5707863267948965)
-                pitch = 1.5707863267948965;
-            if (pitch < -1.5707863267948965)
-                pitch = -1.5707863267948965;
+            yaw %= RAD_360;
+            pitch = ClipValue(pitch, -RAD_089, RAD_089);
 
             SetDebugInfo(camera);
             camera.LookDirection = new Vector3D((camera.Position.X + Math.Sin(yaw)) - camera.Position.X, (camera.Position.Y + Math.Cos(yaw)) - camera.Position.Y, (camera.Position.Z + Math.Tan(pitch)) - camera.Position.Z);
             lastPos = point;
+        }
+
+        private double ClipValue(double val, double min, double max)
+        {
+            return Math.Min(Math.Max(min, val), max);
         }
         #endregion
 
@@ -377,25 +383,6 @@ namespace Adjutant.Library.Controls
         private static bool CheckKeyState(Keys keys)
         {
             return ((GetAsyncKeyState((int)keys) & 32768) != 0);
-        }
-
-        private enum Keys
-        {
-            F1 = 112,
-            NumPlus = 107,
-            NumMinus = 109,
-            Ctrl = 17,
-            Shift = 16,
-            LeftArrow = 37,
-            UpArrow = 38,
-            RightArrow = 39,
-            DownArrow = 40,
-            W = 87,
-            A = 65,
-            S = 83,
-            D = 68,
-            R = 82,
-            F = 70,
         }
         #endregion
     }

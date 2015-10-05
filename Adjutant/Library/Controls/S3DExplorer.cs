@@ -118,6 +118,7 @@ namespace Adjutant.Library.Controls
             reader.SeekTo(baseAddress);
             richTextBox1.Clear();
             splitContainer1.Panel1Collapsed = true;
+            richTextBox1.Text += "base address:\t" + baseAddress.ToString() + "\r\n";
 
             switch (item.Class)
             {
@@ -307,14 +308,15 @@ namespace Adjutant.Library.Controls
             else if (obj is Scene)
             {
                 var bsp = (Scene)obj;
+                richTextBox1.Text += string.Format("BaseAddress:\t{0}\r\n", baseAddress);
                 richTextBox1.Text += string.Format("Name:\t\t{0}\r\n", bsp.Name);
                 richTextBox1.Text += string.Format("Mat Count:\t{0:d3}\r\n", bsp.Materials.Count);
                 richTextBox1.Text += string.Format("Obj Count:\t{0:d3}\r\n", bsp.Objects.Count);
                 richTextBox1.Text += "\r\n";
 
-                richTextBox1.Text += "=======2002=======\r\n";
+                richTextBox1.Text += "=======2002=======\t" + bsp._2002.BaseAddress + "\r\n";
                 richTextBox1.Text += string.Format("unk0:\t\t{0}\r\nunk1:\t\t{1}\r\nunk2:\t\t{2}\r\n", bsp._2002.unk0, bsp._2002.unk1, bsp._2002.unk2);
-                richTextBox1.Text += "bounds:\r\n";
+                richTextBox1.Text += "\r\nbounds:\r\n";
                 richTextBox1.Text += string.Format("{0,11:F6}\t{1,11:F6}\t{2,11:F6}\r\n{3,11:F6}\t{4,11:F6}\t{5,11:F6}\r\n",
                     bsp._2002.Bounds.XBounds.Min, bsp._2002.Bounds.YBounds.Min, bsp._2002.Bounds.ZBounds.Min,
                     bsp._2002.Bounds.XBounds.Max, bsp._2002.Bounds.YBounds.Max, bsp._2002.Bounds.ZBounds.Max);
@@ -323,18 +325,18 @@ namespace Adjutant.Library.Controls
                 richTextBox1.Text += "\r\n";
 
                 richTextBox1.Text += "=======2102=======\r\n";
-                richTextBox1.Text += string.Format("count\t\t{0}\r\n", bsp._2102.unk0);
-                richTextBox1.Text += string.Format("size\t\t{0}\r\n", bsp._2102.BlockSize);
+                richTextBox1.Text += string.Format("count:\t\t{0}\r\n", bsp._2102.unk0);
+                richTextBox1.Text += string.Format("blocksize:\t{0}\r\n", bsp._2102.BlockSize);
                 richTextBox1.Text += "\r\n";
 
 
                 richTextBox1.Text += "=======2202=======\r\n";
-                richTextBox1.Text += string.Format("unk0\t\t{0}\r\n", bsp._2202.unk0);
+                richTextBox1.Text += string.Format("Face Total:\t{0}\r\n", bsp._2202.unk0);
                 richTextBox1.Text += string.Format("unk1:\t\t{0}\r\nunk2:\t\t{1}\r\nunk3:\t\t{2}\r\n", bsp._2202.unk1, bsp._2202.unk2, bsp._2202.unk3);
-                richTextBox1.Text += "list:\r\n";
+                //richTextBox1.Text += "list:\r\n";
 
-                for (int i = 0; i < Math.Min(bsp._2202.unkList.Length, 1000); i++)
-                    richTextBox1.Text += bsp._2202.unkList[i].ToString("d7") + ((i % 10 == 9) ? "\r\n" : " ");
+                //for (int i = 0; i < Math.Min(bsp._2202.unkList.Length, 1000); i++)
+                //    richTextBox1.Text += bsp._2202.unkList[i].ToString("d7") + ((i % 10 == 9) ? "\r\n" : " ");
                 
             }
             #endregion
@@ -457,7 +459,7 @@ namespace Adjutant.Library.Controls
 
                 if (node.BoundingBox != null)
                 {
-                    richTextBox1.Text += "=======Bounds=======\r\n";
+                    richTextBox1.Text += "=======Bounds=======\t" + node.BoundingBox.BaseAddress + "\r\n";
                     richTextBox1.Text += string.Format("{0,11:F6}\t{1,11:F6}\t{2,11:F6}\r\n{3,11:F6}\t{4,11:F6}\t{5,11:F6}\r\n",
                         node.BoundingBox.Data.XBounds.Min, node.BoundingBox.Data.YBounds.Min, node.BoundingBox.Data.ZBounds.Min,
                         node.BoundingBox.Data.XBounds.Max, node.BoundingBox.Data.YBounds.Max, node.BoundingBox.Data.ZBounds.Max);
