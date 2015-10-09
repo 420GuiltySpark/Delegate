@@ -273,6 +273,7 @@ fn readRegions = (
 					vFormat = bit.and vTemp 15
 					cFormat = bit.shift (bit.and vTemp 240) -4
 					
+					trnsfm = matrix3 1
 					if version >= 0.1 do (
 						mult = readFloat inFile
 						if not bit.isNAN mult do (

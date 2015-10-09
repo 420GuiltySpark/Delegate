@@ -10,109 +10,58 @@ using bitm = Adjutant.Library.Definitions.bitmap;
 
 namespace Adjutant.Library.Definitions.ReachBeta
 {
-    public class bitmap : bitm
+    public class bitmap : Halo3Beta.bitmap
     {
-        public bitmap(CacheBase Cache, int Offset)
+        protected bitmap() { }
+
+        public bitmap(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
-            Reader.SeekTo(Offset);
-
-            Reader.BaseStream.Position += 96; //96
+            Reader.SeekTo(Address);
 
             #region Sequence Chunk
-            long temp = Reader.BaseStream.Position;
-            int sCount = Reader.ReadInt32();
-            int sOffset = Reader.ReadInt32() - Cache.Magic;
+            Reader.SeekTo(Address + 96);
+            int iCount = Reader.ReadInt32();
+            int iOffset = Reader.ReadInt32() - Cache.Magic;
             Sequences = new List<bitm.Sequence>();
-            Reader.BaseStream.Position = sOffset;
-            for (int i = 0; i < sCount; i++)
-                Sequences.Add(new Sequence(Cache));
-            Reader.BaseStream.Position = temp + 12;
+            for (int i = 0; i < iCount; i++)
+                Sequences.Add(new Sequence(Cache, iOffset + 64 * i));
             #endregion
 
             #region BitmapData Chunk
-            temp = Reader.BaseStream.Position;
-            sCount = Reader.ReadInt32();
-            sOffset = Reader.ReadInt32() - Cache.Magic;
+            Reader.SeekTo(Address + 108);
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             Bitmaps = new List<bitm.BitmapData>();
-            Reader.BaseStream.Position = sOffset;
-            for (int i = 0; i < sCount; i++)
-                Bitmaps.Add(new BitmapData(Cache));
-            Reader.BaseStream.Position = temp + 12;
+            for (int i = 0; i < iCount; i++)
+                Bitmaps.Add(new BitmapData(Cache, iOffset + 48 * i));
             #endregion
 
-            Reader.BaseStream.Position += 32; //152
-
             #region Raw Chunk A
-            temp = Reader.BaseStream.Position;
-            int rCount = Reader.ReadInt32();
-            int rOffset = Reader.ReadInt32() - Cache.Magic;
+            Reader.SeekTo(Address + 152);
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             RawChunkAs = new List<bitm.RawChunkA>();
-            Reader.BaseStream.Position = rOffset;
-            for (int i = 0; i < rCount; i++)
-                RawChunkAs.Add(new RawChunkA(Cache));
-            Reader.BaseStream.Position = temp + 12;
+            for (int i = 0; i < iCount; i++)
+                RawChunkAs.Add(new RawChunkA(Cache, iOffset + 8 * i));
             #endregion
 
             #region Raw Chunk B
-            temp = Reader.BaseStream.Position;
-            rCount = Reader.ReadInt32();
-            rOffset = Reader.ReadInt32() - Cache.Magic;
+            Reader.SeekTo(Address + 164);
+            iCount = Reader.ReadInt32();
+            iOffset = Reader.ReadInt32() - Cache.Magic;
             RawChunkBs = new List<bitm.RawChunkB>();
-            Reader.BaseStream.Position = rOffset;
-            for (int i = 0; i < rCount; i++)
-                RawChunkBs.Add(new RawChunkB(Cache));
-            Reader.BaseStream.Position = temp + 12;
+            for (int i = 0; i < iCount; i++)
+                RawChunkBs.Add(new RawChunkB(Cache, iOffset + 8 * i));
             #endregion
-        }
-
-        new public class Sequence : bitm.Sequence
-        {
-            public Sequence(CacheBase Cache)
-            {
-                EndianReader Reader = Cache.Reader;
-                Name = Reader.ReadNullTerminatedString(32);
-                FirstSubmapIndex = Reader.ReadInt16();
-                BitmapCount = Reader.ReadInt16();
-
-                Reader.BaseStream.Position += 16; //52
-
-                #region Sprite Chunk
-                long temp = Reader.BaseStream.Position;
-                int sCount = Reader.ReadInt32();
-                int sOffset = Reader.ReadInt32() - Cache.Magic;
-                Sprites = new List<bitm.Sequence.Sprite>();
-                Reader.BaseStream.Position = sOffset;
-                for (int i = 0; i < sCount; i++)
-                    Sprites.Add(new Sprite(Cache));
-                Reader.BaseStream.Position = temp + 12;
-                #endregion
-            }
-
-            new public class Sprite : bitm.Sequence.Sprite
-            {
-                public Sprite(CacheBase Cache)
-                {
-                    EndianReader Reader = Cache.Reader;
-
-                    SubmapIndex = Reader.ReadInt32();
-                    Reader.ReadInt32();
-                    Left = Reader.ReadSingle();
-                    Right = Reader.ReadSingle();
-                    Top = Reader.ReadSingle();
-                    Bottom = Reader.ReadSingle();
-                    RegPoint = new RealQuat(
-                        Reader.ReadSingle(),
-                        Reader.ReadSingle());
-                }
-            }
         }
 
         new public class BitmapData : bitm.BitmapData
         {
-            public BitmapData(CacheBase Cache)
+            public BitmapData(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
+                Reader.SeekTo(Address);
 
                 Class = Reader.ReadString(4);
                 Width = Reader.ReadInt16();
@@ -135,26 +84,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 Index2 = Reader.ReadByte();
                 PixelsOffset = Reader.ReadInt32();
                 PixelsSize = Reader.ReadInt32();
-
-                Reader.BaseStream.Position += 16; //48
-            }
-        }
-
-        new public class RawChunkA : bitm.RawChunkA
-        {
-            public RawChunkA(CacheBase Cache)
-            {
-                RawID = Cache.Reader.ReadInt32();
-                Cache.Reader.ReadInt32();
-            }
-        }
-
-        new public class RawChunkB : bitm.RawChunkB
-        {
-            public RawChunkB(CacheBase Cache)
-            {
-                RawID = Cache.Reader.ReadInt32();
-                Cache.Reader.ReadInt32();
             }
         }
     }

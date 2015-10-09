@@ -35,12 +35,12 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             try { offset = int.Parse(value.Node.Attributes["offset"].Value); }
             catch { offset = Convert.ToInt32(value.Node.Attributes["offset"].Value, 16); }
 
-            reader.BaseStream.Position = ParentAddress + offset;
+            reader.SeekTo(ParentAddress + offset);
 
             switch (value.Type)
             {
                 case iValue.ValueType.TagRef:
-                    reader.BaseStream.Position += (cache.Version >= DefinitionSet.Halo3Beta) ? 12 : 4; //doesn't always work from here, use the tag class instead
+                    reader.Skip((cache.Version >= DefinitionSet.Halo3Beta) ? 12 : 4); //doesn't always work from here, use the tag class instead
 
                     try
                     {

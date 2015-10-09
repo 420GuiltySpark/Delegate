@@ -11,27 +11,27 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 {
     public class cache_file_resource_gestalt : zone
     {
+        protected cache_file_resource_gestalt() { }
+
         public cache_file_resource_gestalt(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
-
-            Reader.SeekTo(Address + 36);
+            Reader.SeekTo(Address);
 
             #region Raw Entries
+            Reader.SeekTo(Address + 36);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
             RawEntries = new List<zone.RawEntry>();
             for (int i = 0; i < iCount; i++)
                 RawEntries.Add(new RawEntry(Cache, iOffset + 96 * i));
-            Reader.SeekTo(Address + 48);
             #endregion
 
-            Reader.SeekTo(Address + 132);
-
             #region Fixup Data
+            Reader.SeekTo(Address + 132);
             iCount = Reader.ReadInt32();
-            int a = Reader.ReadInt32();
-            int b = Reader.ReadInt32();
+            Reader.ReadInt32();
+            Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             Reader.SeekTo(iOffset);
             FixupData = Reader.ReadBytes(iCount);
@@ -79,16 +79,15 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 Fixups = new List<zone.RawEntry.ResourceFixup>();
                 for (int i = 0; i < iCount; i++)
                     Fixups.Add(new ResourceFixup(Cache, iOffset + 8 * i));
-                Reader.SeekTo(Address + 84);
                 #endregion
 
                 #region Resource Definition Fixups
+                Reader.SeekTo(Address + 84);
                 iCount = Reader.ReadInt32();
                 iOffset = Reader.ReadInt32() - Cache.Magic;
                 DefinitionFixups = new List<zone.RawEntry.ResourceDefinitionFixup>();
                 for (int i = 0; i < iCount; i++)
                     DefinitionFixups.Add(new ResourceDefinitionFixup(Cache, iOffset + 8 * i));
-                Reader.SeekTo(Address + 96);
                 #endregion
             }
 

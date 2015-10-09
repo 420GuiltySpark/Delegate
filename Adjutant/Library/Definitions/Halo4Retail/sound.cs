@@ -13,21 +13,21 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 {
     public class sound : snd_
     {
-        public sound(CacheBase Cache)
+        public uint SoundAddress1;
+        public uint SoundAddress2;
+        public int SoundBankTagID;
+
+        public sound(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Address);
 
-            Reader.BaseStream.Position += 12; //12
-            
+            Reader.SeekTo(Address + 12);
             SoundAddress1 = Reader.ReadUInt32();
             SoundAddress2 = Reader.ReadUInt32();
 
-            Reader.BaseStream.Position += 20; //40
-
-            Reader.BaseStream.Position += 12; //52
+            Reader.SeekTo(Address + 52);
             SoundBankTagID = Reader.ReadInt32();
-
-            Reader.BaseStream.Position += 20;
         }
     }
 }

@@ -24,28 +24,26 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Name = Cache.Strings.GetItemByID(Reader.ReadInt16());
             //Flags = new Bitmask(Reader.ReadInt32());
 
-            Reader.SeekTo(Address + 20);
-
             #region BoundingBox Block
+            Reader.SeekTo(Address + 20);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
             BoundingBoxes = new List<mode.BoundingBox>();
             for (int i = 0; i < iCount; i++)
                 BoundingBoxes.Add(new BoundingBox(Cache, iOffset + 56 * i));
-            Reader.SeekTo(Address + 28);
             #endregion
 
             #region Regions Block
+            Reader.SeekTo(Address + 28);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             Regions = new List<mode.Region>();
-            Reader.BaseStream.Position = iOffset;
             for (int i = 0; i < iCount; i++)
-                Regions.Add(new Region(Cache));
-            Reader.SeekTo(Address + 36);
+                Regions.Add(new Region(Cache, iOffset + 16 * i));
             #endregion
 
             #region ModelParts Block
+            Reader.SeekTo(Address + 36);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             ModelSections = new List<mode.ModelSection>();
@@ -58,31 +56,26 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             Nodes = new List<mode.Node>();
-            try { Reader.BaseStream.Position = iOffset; }
-            catch { }
             for (int i = 0; i < iCount; i++)
-                Nodes.Add(new Node(Cache));
-            Reader.SeekTo(Address + 88);
+                Nodes.Add(new Node(Cache, iOffset + 96 * i));
             #endregion
 
             #region MarkerGroups Block
+            Reader.SeekTo(Address + 88);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             MarkerGroups = new List<mode.MarkerGroup>();
-            try { Reader.BaseStream.Position = iOffset; }
-            catch { }
             for (int i = 0; i < iCount; i++)
-                MarkerGroups.Add(new MarkerGroup(Cache));
-            Reader.SeekTo(Address + 96);
+                MarkerGroups.Add(new MarkerGroup(Cache, iOffset + 12 * i));
             #endregion
 
             #region Shaders Block
+            Reader.SeekTo(Address + 96);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
                 Shaders.Add(new Shader(Cache, iOffset + 32 * i));
-            Reader.SeekTo(Address + 84);
             #endregion
         }
 
@@ -272,10 +265,10 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class Region : mode.Region
         {
-            public Region(CacheBase Cache)
+            public Region(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
-                long temp = Reader.BaseStream.Position;
+                Reader.SeekTo(Address);
 
                 Name = Cache.Strings.GetItemByID(Reader.ReadInt16());
                 Reader.ReadInt16();
@@ -283,24 +276,23 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Reader.BaseStream.Position = iOffset;
                 Permutations = new List<mode.Region.Permutation>();
                 for (int i = 0; i < iCount; i++)
-                    Permutations.Add(new Permutation(Cache));
-                Reader.BaseStream.Position = temp + 16;
+                    Permutations.Add(new Permutation(Cache, iOffset + 16 * i));
             }
 
             new public class Permutation : mode.Region.Permutation
             {
-                public Permutation(CacheBase Cache)
+                public Permutation(CacheBase Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
+                    Reader.SeekTo(Address);
 
                     Name = Cache.Strings.GetItemByID(Reader.ReadInt16());
                     Reader.ReadInt16();
                     
-                    Reader.BaseStream.Position += 4;
-                    Reader.BaseStream.Position += 6;
+                    Reader.Skip(4);
+                    Reader.Skip(6);
                     PieceIndex = Reader.ReadInt16();
                     PieceCount = 1;
                 }
@@ -309,9 +301,10 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class Node : mode.Node
         {
-            public Node(CacheBase Cache)
+            public Node(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
+                Reader.SeekTo(Address);
 
                 Name = Cache.Strings.GetItemByID(Reader.ReadInt16());
                 Reader.ReadInt16();
@@ -355,28 +348,27 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class MarkerGroup : mode.MarkerGroup
         {
-            public MarkerGroup(CacheBase Cache)
+            public MarkerGroup(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
-                long temp = Reader.BaseStream.Position;
+                Reader.SeekTo(Address);
 
                 Name = Cache.Strings.GetItemByID(Reader.ReadInt16());
                 Reader.ReadInt16();
 
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Reader.BaseStream.Position = iOffset;
                 Markers = new List<mode.MarkerGroup.Marker>();
                 for (int i = 0; i < iCount; i++)
-                    Markers.Add(new Marker(Cache));
-                Reader.BaseStream.Position = temp + 12;
+                    Markers.Add(new Marker(Cache, iOffset + 36 * i));
             }
 
             new public class Marker : mode.MarkerGroup.Marker
             {
-                public Marker(CacheBase Cache)
+                public Marker(CacheBase Cache, int Address)
                 {
                     EndianReader Reader = Cache.Reader;
+                    Reader.SeekTo(Address);
 
                     RegionIndex = Reader.ReadByte();
                     PermutationIndex = Reader.ReadByte();
@@ -474,10 +466,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 ZBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
                 UBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
                 VBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
-
-                Reader.ReadInt32();
-
-                Reader.BaseStream.Position += 12; //56
             }
         }
     }

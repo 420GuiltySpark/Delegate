@@ -44,7 +44,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             try { offset = int.Parse(value.Node.Attributes["offset"].Value); }
             catch { offset = Convert.ToInt32(value.Node.Attributes["offset"].Value, 16); }
 
-            reader.BaseStream.Position = ParentAddress + offset;
+            reader.SeekTo(ParentAddress + offset);
             chunkCount = reader.ReadInt32();
 
             if (chunkCount <= 0)
@@ -121,7 +121,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
 
                     for (int i = 0; i < chunkCount; i++)
                     {
-                        reader.BaseStream.Position = chunkOffset + i * chunkSize + offset;
+                        reader.SeekTo(chunkOffset + i * chunkSize + offset);
                         string s = "";
                         switch (n.Name.ToLower())
                         {
@@ -129,7 +129,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
                                 s = cache.Strings.GetItemByID(reader.ReadInt32());
                                 break;
                             case "tagref":
-                                reader.BaseStream.Position += 12;
+                                reader.Skip(12);
                                 s = cache.IndexItems.GetItemByID(reader.ReadInt32()).Filename;
                                 s = s.Substring(s.LastIndexOf('\\') + 1);
                                 break;

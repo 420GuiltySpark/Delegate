@@ -11,26 +11,24 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 {
     public class shader : rmsh
     {
+        protected shader() { }
+
         public shader(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
 
             Reader.SeekTo(Address + 12);
-
             BaseShaderTagID = Reader.ReadInt32();
 
-            Reader.SeekTo(Address + 40);
-
             #region ShaderProperties Chunk
+            Reader.SeekTo(Address + 40);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
             Properties = new List<rmsh.ShaderProperties>();
             for (int i = 0; i < iCount; i++)
                 Properties.Add(new ShaderProperties(Cache, iOffset + 132 * i));
             #endregion
-
-            Reader.SeekTo(Address + 68);
         }
 
         new public class ShaderProperties : rmsh.ShaderProperties
@@ -41,28 +39,25 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 Reader.SeekTo(Address);
 
                 Reader.SeekTo(Address + 12);
-
                 TemplateTagID = Reader.ReadInt32();
 
                 #region ShaderProperties Chunk
+                Reader.SeekTo(Address + 16);
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
                 ShaderMaps = new List<rmsh.ShaderProperties.ShaderMap>();
                 for (int i = 0; i < iCount; i++)
                     ShaderMaps.Add(new ShaderMap(Cache, iOffset + 24 * i));
                 #endregion
-
-                Reader.SeekTo(Address + 28);
-                
+          
                 #region Tiling Chunk
+                Reader.SeekTo(Address + 28);
                 iCount = Reader.ReadInt32();
                 iOffset = Reader.ReadInt32() - Cache.Magic;
                 Tilings = new List<rmsh.ShaderProperties.Tiling>();
                 for (int i = 0; i < iCount; i++)
                     Tilings.Add(new Tiling(Cache, iOffset + 16 * i));
                 #endregion
-
-                Reader.SeekTo(Address + 132);
             }
 
             new public class ShaderMap : rmsh.ShaderProperties.ShaderMap
@@ -73,7 +68,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                     Reader.SeekTo(Address);
 
                     Reader.SeekTo(Address + 12);
-
                     BitmapTagID = Reader.ReadInt32();
                     Type = Reader.ReadInt32();
                     TilingIndex = Reader.ReadInt16();

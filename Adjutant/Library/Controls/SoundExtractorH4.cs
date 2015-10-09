@@ -8,6 +8,7 @@ using System.IO;
 using Composer;
 using Composer.Wwise;
 using CacheH4R = Adjutant.Library.Definitions.Halo4Retail.CacheFile;
+using SoundH4R = Adjutant.Library.Definitions.Halo4Retail.sound;
 
 /**************************************************************
  * Please note this sound extractor is integrated with Composer
@@ -26,8 +27,7 @@ namespace Adjutant.Library.Controls
 
         private CacheH4R cache;
         private CacheBase.IndexItem tag;
-        private sound snd;
-        private soundbank sbnk;
+        private SoundH4R snd;
         private SoundScanner scanner;
 
         bool isDisplay = false;
@@ -46,9 +46,7 @@ namespace Adjutant.Library.Controls
             cache = (CacheH4R)Cache;
             tag = Tag;
 
-            snd = DefinitionsManager.snd_(cache, tag);
-            if (snd.SoundBankTagID != -1) sbnk = DefinitionsManager.sbnk(cache, cache.IndexItems.GetItemByID(snd.SoundBankTagID));
-            else sbnk = null;
+            snd = (SoundH4R)DefinitionsManager.snd_(cache, tag);
 
             LoadCacheSoundPacks(cache);
 
@@ -239,9 +237,7 @@ namespace Adjutant.Library.Controls
             cache = (CacheH4R)Cache;
             tag = Tag;
 
-            snd = DefinitionsManager.snd_(cache, tag);
-            if (snd.SoundBankTagID != -1) sbnk = DefinitionsManager.sbnk(cache, cache.IndexItems.GetItemByID(snd.SoundBankTagID));
-            else sbnk = null;
+            snd = (SoundH4R)DefinitionsManager.snd_(cache, tag);
 
             LoadCacheSoundPacks(cache);
 

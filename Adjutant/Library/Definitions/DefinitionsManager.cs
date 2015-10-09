@@ -24,7 +24,7 @@ namespace Adjutant.Library.Definitions
 
                 case DefinitionSet.Halo4Beta:
                 case DefinitionSet.Halo4Retail:
-                    return new Halo4Retail.cache_file_resource_layout_table(Cache, Tag.Offset);
+                    return new Halo4Beta.cache_file_resource_layout_table(Cache, Tag.Offset);
 
                 default:
                     return null; //this tag is required for map loading, so return null if not supported
@@ -57,20 +57,19 @@ namespace Adjutant.Library.Definitions
         //---, ---, H3R, ODST, HRB, HRR, ---
         public static sound_cache_file_gestalt ugh_(CacheBase Cache, CacheBase.IndexItem Tag)
         {
-            Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)
             {
                 case DefinitionSet.Halo3Retail:
-                    return new Halo3Retail.sound_cache_file_gestalt(Cache);
+                    return new Halo3Retail.sound_cache_file_gestalt(Cache, Tag.Offset);
 
                 case DefinitionSet.Halo3ODST:
-                    return new Halo3ODST.sound_cache_file_gestalt(Cache);
+                    return new Halo3ODST.sound_cache_file_gestalt(Cache, Tag.Offset);
 
                 case DefinitionSet.HaloReachBeta:
-                    return new ReachBeta.sound_cache_file_gestalt(Cache);
+                    return new ReachBeta.sound_cache_file_gestalt(Cache, Tag.Offset);
 
                 case DefinitionSet.HaloReachRetail:
-                    return new ReachRetail.sound_cache_file_gestalt(Cache);
+                    return new ReachRetail.sound_cache_file_gestalt(Cache, Tag.Offset);
 
                 default:
                     return null; //this tag is required for map loading, so return null if not supported
@@ -186,7 +185,6 @@ namespace Adjutant.Library.Definitions
         //H2X, H3B, H3R, ODST, HRB, HRR, H4R
         public static shader rmsh(CacheBase Cache, CacheBase.IndexItem Tag)
         {
-            Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)
             {
                 case DefinitionSet.Halo2Xbox:
@@ -199,11 +197,13 @@ namespace Adjutant.Library.Definitions
 
                 case DefinitionSet.HaloReachBeta:
                 case DefinitionSet.HaloReachRetail:
-                    return new ReachBeta.shader(Cache);
+                    return new ReachBeta.shader(Cache, Tag.Offset);
 
                 case DefinitionSet.Halo4Beta:
+                    return new Halo4Beta.material(Cache, Tag.Offset);
+
                 case DefinitionSet.Halo4Retail:
-                    return new Halo4Retail.material(Cache);
+                    return new Halo4Retail.material(Cache, Tag.Offset);
 
                 default:
                     throw new NotSupportedException(errorMessage.Replace("----", "mode"));
@@ -213,36 +213,21 @@ namespace Adjutant.Library.Definitions
         //---, ---, H3R, ODST, HRB, HRR, H4R
         public static sound snd_(CacheBase Cache, CacheBase.IndexItem Tag)
         {
-            Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)
             {
                 case DefinitionSet.Halo3Retail:
                 case DefinitionSet.Halo3ODST:
-                    return new Halo3Retail.sound(Cache);
+                    return new Halo3Retail.sound(Cache, Tag.Offset);
 
                 case DefinitionSet.HaloReachBeta:
                 case DefinitionSet.HaloReachRetail:
-                    return new ReachBeta.sound(Cache);
+                    return new ReachBeta.sound(Cache, Tag.Offset);
 
                 case DefinitionSet.Halo4Retail:
-                    return new Halo4Retail.sound(Cache);
+                    return new Halo4Retail.sound(Cache, Tag.Offset);
 
                 default:
                     throw new NotSupportedException(errorMessage.Replace("----", "snd!"));
-            }
-        }
-
-        //---, ---, ---, ----, ---, ---, H4R
-        public static soundbank sbnk(CacheBase Cache, CacheBase.IndexItem Tag)
-        {
-            Cache.Reader.BaseStream.Position = Tag.Offset;
-            switch (Cache.Version)
-            {
-                case DefinitionSet.Halo4Retail:
-                    return new Halo4Retail.soundbank(Cache);
-
-                default:
-                    throw new NotSupportedException(errorMessage.Replace("----", "sbnk"));
             }
         }
 
@@ -262,19 +247,18 @@ namespace Adjutant.Library.Definitions
         //---, H3B, H3R, ODST, HRB, HRR, H4R
         public static multilingual_unicode_string_list unic(CacheBase Cache, CacheBase.IndexItem Tag)
         {
-            Cache.Reader.BaseStream.Position = Tag.Offset;
             switch (Cache.Version)
             {
                 case DefinitionSet.Halo3Beta:
                 case DefinitionSet.Halo3Retail:
                 case DefinitionSet.Halo3ODST:
-                    return new Halo3Beta.multilingual_unicode_string_list(Cache);
+                    return new Halo3Beta.multilingual_unicode_string_list(Cache, Tag.Offset);
 
                 case DefinitionSet.HaloReachBeta:
                 case DefinitionSet.HaloReachRetail:
                 case DefinitionSet.Halo4Beta:
                 case DefinitionSet.Halo4Retail:
-                    return new ReachBeta.multilingual_unicode_string_list(Cache);
+                    return new ReachBeta.multilingual_unicode_string_list(Cache, Tag.Offset);
 
                 default:
                     throw new NotSupportedException(errorMessage.Replace("----", "unic"));

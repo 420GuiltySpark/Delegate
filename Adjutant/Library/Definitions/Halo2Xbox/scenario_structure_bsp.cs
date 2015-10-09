@@ -24,14 +24,12 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address);
 
             Reader.SeekTo(Address + 68);
-
             XBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
             YBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
             ZBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
 
-            Reader.SeekTo(Address + 172);
-
             #region Clusters Block
+            Reader.SeekTo(Address + 172);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Tag.Magic;
             ModelSections = new List<mode.ModelSection>();
@@ -44,28 +42,25 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             }
             #endregion
 
-            Reader.SeekTo(Address + 180);
-
             #region Shaders Block
+            Reader.SeekTo(Address + 180);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Tag.Magic;
-            Shaders = new List<sbsp.Shader>();
+            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
-                Shaders.Add(new Shader(Cache, iOffset + 32 * i));
+                Shaders.Add(new Halo2Xbox.render_model.Shader(Cache, iOffset + 32 * i));
             #endregion
 
-            Reader.SeekTo(Address + 328);
-
             #region ModelParts Block
+            Reader.SeekTo(Address + 328);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Tag.Magic;
             for (int i = 0; i < iCount; i++)
                 ModelSections.Add(new ModelSection(Cache, Tag, iOffset + 200 * i, BoundingBoxes) { FacesIndex = i + Clusters.Count, VertsIndex = i + Clusters.Count, NodeIndex = 255 });
             #endregion
 
-            Reader.SeekTo(Address + 336);
-
             #region GeometryInstances Block
+            Reader.SeekTo(Address + 336);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Tag.Magic;
             GeomInstances = new List<sbsp.InstancedGeometry>();
@@ -315,19 +310,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 XBounds = new RealBounds();
                 YBounds = new RealBounds();
                 ZBounds = new RealBounds();
-            }
-        }
-
-        new public class Shader : sbsp.Shader
-        {
-            public Shader(CacheBase Cache, int Address)
-            {
-                EndianReader Reader = Cache.Reader;
-                Reader.SeekTo(Address);
-
-                Reader.Skip(12);
-
-                tagID = Reader.ReadInt32();
             }
         }
 

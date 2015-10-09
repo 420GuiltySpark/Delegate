@@ -37,7 +37,7 @@ namespace Adjutant.Library.Controls.MetaViewerControls
             try { offset = int.Parse(value.Node.Attributes["offset"].Value); }
             catch { offset = Convert.ToInt32(value.Node.Attributes["offset"].Value, 16); }
 
-            reader.BaseStream.Position = ParentAddress + offset;
+            reader.SeekTo(ParentAddress + offset);
 
             switch (value.Type)
             {

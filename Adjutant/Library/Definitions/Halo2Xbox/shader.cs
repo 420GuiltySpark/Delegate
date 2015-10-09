@@ -30,9 +30,8 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 20);
             Type = Reader.ReadInt16();
 
-            Reader.SeekTo(Address + 32);
-
             #region ShaderProperties Chunk
+            Reader.SeekTo(Address + 32);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             Properties = new List<rmsh.ShaderProperties>();
@@ -41,7 +40,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             #endregion
 
             Reader.SeekTo(Address + 44);
-
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             Reader.SeekTo(iOffset);

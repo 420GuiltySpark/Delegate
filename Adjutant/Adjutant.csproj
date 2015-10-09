@@ -92,6 +92,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Library\Definitions\CacheManager.cs" />
+    <Compile Include="Library\Definitions\Halo4Beta\cache_file_resource_gestalt.cs" />
+    <Compile Include="Library\Definitions\Halo4Beta\material.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\CacheFile.cs" />
     <Compile Include="Library\Definitions\Halo2Xbox\CacheFile.cs" />
     <Compile Include="Library\Definitions\Halo3Beta\CacheFile.cs" />
@@ -269,12 +271,11 @@
     <Compile Include="Library\Definitions\Halo4Beta\render_model.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\bink.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\cache_file_resource_gestalt.cs" />
-    <Compile Include="Library\Definitions\Halo4Retail\cache_file_resource_layout_table.cs" />
+    <Compile Include="Library\Definitions\Halo4Beta\cache_file_resource_layout_table.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\material.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\render_model.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\scenario_structure_bsp.cs" />
     <Compile Include="Library\Definitions\Halo4Retail\sound.cs" />
-    <Compile Include="Library\Definitions\Halo4Retail\soundbank.cs" />
     <Compile Include="Library\Definitions\ReachBeta\bitmap.cs" />
     <Compile Include="Library\Definitions\ReachBeta\multilingual_unicode_string_list.cs" />
     <Compile Include="Library\Definitions\ReachBeta\render_model.cs" />

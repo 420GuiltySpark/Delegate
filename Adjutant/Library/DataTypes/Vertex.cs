@@ -26,10 +26,10 @@ namespace Adjutant.Library.DataTypes
             if (!formatNode.HasChildNodes) throw new NotSupportedException(formatNode.Attributes["type"].Value + ":" + formatNode.Attributes["name"].Value + " has an empty definition.");
 
             Values = new List<VertexValue>();
-            int origin = (int)reader.BaseStream.Position;
+            int origin = (int)reader.Position;
             foreach (XmlNode val in formatNode.ChildNodes)
             {
-                reader.BaseStream.Position = origin + Convert.ToInt32(val.Attributes["offset"].Value, 16);
+                reader.SeekTo(origin + Convert.ToInt32(val.Attributes["offset"].Value, 16));
                 Values.Add(new VertexValue(val, reader));
             }
 

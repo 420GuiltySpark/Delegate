@@ -7,13 +7,13 @@ using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using rmsh = Adjutant.Library.Definitions.shader;
 
-namespace Adjutant.Library.Definitions.ReachBeta
+namespace Adjutant.Library.Definitions.Halo4Beta
 {
-    public class shader : Halo3Beta.shader
+    public class material : ReachBeta.shader
     {
-        protected shader() { }
+        protected material() { }
 
-        public shader(CacheBase Cache, int Address)
+        public material(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Address);
@@ -21,15 +21,13 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 12);
             BaseShaderTagID = Reader.ReadInt32();
 
-            //(reach doesn't use predicted bitmaps)
-
             #region ShaderProperties Chunk
-            Reader.SeekTo(Address + 56);
-            int pCount = Reader.ReadInt32();
-            int pOffset = Reader.ReadInt32() - Cache.Magic;
+            Reader.SeekTo(Address + 28);
+            int iCount = Reader.ReadInt32();
+            int iOffset = Reader.ReadInt32() - Cache.Magic;
             Properties = new List<rmsh.ShaderProperties>();
-            for (int i = 0; i < pCount; i++)
-                Properties.Add(new ShaderProperties(Cache, pOffset + 172 * i));
+            for (int i = 0; i < iCount; i++)
+                Properties.Add(new ShaderProperties(Cache, iOffset + 140 * i));
             #endregion
         }
 
@@ -40,20 +38,16 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
 
-                Reader.SeekTo(Address + 12);
-                TemplateTagID = Reader.ReadInt32();
-
                 #region ShaderProperties Chunk
-                Reader.SeekTo(Address + 16);
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
                 ShaderMaps = new List<rmsh.ShaderProperties.ShaderMap>();
                 for (int i = 0; i < iCount; i++)
-                    ShaderMaps.Add(new ShaderMap(Cache, iOffset + 24 * i));
+                    ShaderMaps.Add(new ShaderMap(Cache, iOffset + 20 * i));
                 #endregion
 
                 #region Tiling Chunk
-                Reader.SeekTo(Address + 28);
+                Reader.SeekTo(Address + 12);
                 iCount = Reader.ReadInt32();
                 iOffset = Reader.ReadInt32() - Cache.Magic;
                 Tilings = new List<rmsh.ShaderProperties.Tiling>();
@@ -71,9 +65,9 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
                     Reader.SeekTo(Address + 12);
                     BitmapTagID = Reader.ReadInt32();
-                    Type = Reader.ReadInt32();
-                    TilingIndex = Reader.ReadInt16();
-                    Reader.ReadInt16();
+                    Type = Reader.ReadInt16();
+                    Reader.ReadByte();
+                    TilingIndex = Reader.ReadByte();
                 }
             }
 

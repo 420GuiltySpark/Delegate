@@ -12,8 +12,10 @@ using mode = Adjutant.Library.Definitions.render_model;
 
 namespace Adjutant.Library.Definitions.ReachRetail
 {
-    public class scenario_structure_bsp : sbsp
+    public class scenario_structure_bsp : ReachBeta.scenario_structure_bsp
     {
+        protected scenario_structure_bsp() { }
+
         public scenario_structure_bsp(CacheBase Cache, int Address)
         {
             cache = Cache;
@@ -68,14 +70,12 @@ namespace Adjutant.Library.Definitions.ReachRetail
             #endregion
 
             Reader.SeekTo(Address + 236);
-
             XBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
             YBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
             ZBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
 
-            Reader.SeekTo(Address + 308);
-
             #region Clusters Block
+            Reader.SeekTo(Address + 308);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
             Clusters = new List<sbsp.Cluster>();
@@ -83,26 +83,24 @@ namespace Adjutant.Library.Definitions.ReachRetail
                 Clusters.Add(new Cluster(Cache, iOffset + 140 * i));
             #endregion
 
-            Reader.SeekTo(Address + 320);
-
             #region Shaders Block
+            Reader.SeekTo(Address + 320);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Shaders = new List<sbsp.Shader>();
+            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
-                Shaders.Add(new Shader(Cache, iOffset + 44 * i));
+                Shaders.Add(new ReachRetail.render_model.Shader(Cache, iOffset + 44 * i));
             #endregion
 
-            Reader.SeekTo(Address + 608);
-
             #region GeometryInstances Block
+            Reader.SeekTo(Address + 608);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             GeomInstances = new List<sbsp.InstancedGeometry>();
-
             for (int i = 0; i < iCount; i++)
                 GeomInstances.Add(new InstancedGeometry(Cache, iOffset + 4 * i));
 
+            #region Load Fixup Data
             Reader.SeekTo(Address + 1298);
             int id = Reader.ReadUInt16();
             var entry = Cache.zone.RawEntries[id];
@@ -138,8 +136,8 @@ namespace Adjutant.Library.Definitions.ReachRetail
                 geom.SectionIndex = er.ReadUInt16();
             }
             er.Close();
-            er.Dispose();
-
+            er.Dispose(); 
+            #endregion
             #endregion
 
             Reader.SeekTo(Address + 796);
@@ -148,20 +146,18 @@ namespace Adjutant.Library.Definitions.ReachRetail
             Reader.SeekTo(Address + 976);
             RawID2 = Reader.ReadInt32();
 
-            Reader.SeekTo(Address + 1100);
-
             #region ModelParts Block
+            Reader.SeekTo(Address + 1100);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            if (sectionAddress == -Cache.Magic)  sectionAddress = iOffset; //null address in lbsp
+            if (sectionAddress == -Cache.Magic) sectionAddress = iOffset; //null address in lbsp
             ModelSections = new List<mode.ModelSection>();
             for (int i = 0; i < iCount; i++)
                 ModelSections.Add(new ReachRetail.render_model.ModelSection(Cache, sectionAddress + 92 * i));
             #endregion
 
-            Reader.SeekTo(Address + 1112);
-
             #region Bounding Boxes Block
+            Reader.SeekTo(Address + 1112);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             BoundingBoxes = new List<mode.BoundingBox>();
@@ -186,21 +182,6 @@ namespace Adjutant.Library.Definitions.ReachRetail
 
                 Reader.SeekTo(Address + 64);
                 SectionIndex = Reader.ReadInt16();
-            }
-        }
-
-        new public class Shader : sbsp.Shader
-        {
-            public Shader(CacheBase Cache, int Address)
-            {
-                EndianReader Reader = Cache.Reader;
-                Reader.SeekTo(Address);
-
-                Reader.SeekTo(Address + 12);
-
-                tagID = Reader.ReadInt32();
-
-                Reader.SeekTo(Address + 44);
             }
         }
 

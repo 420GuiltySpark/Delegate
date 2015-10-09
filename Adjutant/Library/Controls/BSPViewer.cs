@@ -224,7 +224,7 @@ namespace Adjutant.Library.Controls
                 return;
             }
 
-            foreach (scenario_structure_bsp.Shader s in sbsp.Shaders)
+            foreach (var s in sbsp.Shaders)
             {
                 #region Skip Unused
                 bool found = false;

@@ -11,12 +11,12 @@ using snd_ = Adjutant.Library.Definitions.sound;
 
 namespace Adjutant.Library.Definitions.ReachBeta
 {
-    //TODO: finish this
     public class sound : snd_
     {
-        public sound(CacheBase Cache)
+        public sound(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Address);
 
             Flags = new Bitmask(Reader.ReadInt16());
             SoundClass = Reader.ReadByte();
@@ -26,11 +26,8 @@ namespace Adjutant.Library.Definitions.ReachBeta
             PlaybackIndex = Reader.ReadInt16();
             DialogueUnknown = Reader.ReadInt16();
 
-            Reader.BaseStream.Position += 18; //28
-
+            Reader.SeekTo(Address + 28);
             RawID = Reader.ReadInt32();
-            
-            Reader.ReadInt32();
         }
     }
 }

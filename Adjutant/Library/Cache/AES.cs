@@ -20,7 +20,7 @@ namespace Adjutant.Library.Cache
         /// <returns>A new EndianReader stream containing only the decrypted segment.</returns>
         public static EndianReader DecryptSegment(EndianReader Reader, int StartPosition, int Length, string Key)
         {
-            Reader.BaseStream.Position = StartPosition;
+            Reader.SeekTo(StartPosition);
             if (Length % 16 != 0) Length += 16 - Length % 16;
             byte[] data = Reader.ReadBytes(Length);
             byte[] bKey = System.Text.Encoding.ASCII.GetBytes(Key);

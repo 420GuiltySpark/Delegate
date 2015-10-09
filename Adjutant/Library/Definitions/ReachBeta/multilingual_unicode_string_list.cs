@@ -11,12 +11,12 @@ namespace Adjutant.Library.Definitions.ReachBeta
 {
     public class multilingual_unicode_string_list : unic
     {
-        public multilingual_unicode_string_list(CacheBase Cache)
+        public multilingual_unicode_string_list(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Address);
 
-            Reader.BaseStream.Position += 44; //44
-
+            Reader.SeekTo(Address + 44);
             Indices = new List<int>();
             Lengths = new List<int>();
             for (int i = 0; i < 12; i++)

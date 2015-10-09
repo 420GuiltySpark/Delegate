@@ -12,7 +12,7 @@ using mode = Adjutant.Library.Definitions.render_model;
 
 namespace Adjutant.Library.Definitions.Halo4Retail
 {
-    public class scenario_structure_bsp : sbsp
+    public class scenario_structure_bsp : ReachRetail.scenario_structure_bsp
     {
         public scenario_structure_bsp(CacheBase Cache, int Address)
         {
@@ -71,14 +71,12 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             #endregion
 
             Reader.SeekTo(Address + 268);
-
             XBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
             YBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
             ZBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
 
-            Reader.SeekTo(Address + 340);
-
             #region Clusters Block
+            Reader.SeekTo(Address + 340);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
             Clusters = new List<sbsp.Cluster>();
@@ -86,26 +84,24 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 Clusters.Add(new Cluster(Cache, iOffset + 140 * i));
             #endregion
 
-            Reader.SeekTo(Address + 352);
-
             #region Shaders Block
+            Reader.SeekTo(Address + 352);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Shaders = new List<sbsp.Shader>();
+            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
-                Shaders.Add(new Shader(Cache, iOffset + 44 * i));
+                Shaders.Add(new Halo4Retail.render_model.Shader(Cache, iOffset + 44 * i));
             #endregion
 
-            Reader.SeekTo(Address + 640);
-
             #region GeometryInstances Block
+            Reader.SeekTo(Address + 640);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             GeomInstances = new List<sbsp.InstancedGeometry>();
-
             for (int i = 0; i < iCount; i++)
                 GeomInstances.Add(new InstancedGeometry(Cache, iOffset + 4 * i));
 
+            #region Load Fixup Data
             Reader.SeekTo(Address + 1364);
             int id = Reader.ReadInt32();
             var entry = Cache.zone.RawEntries[id & 0xFFFF];
@@ -142,7 +138,8 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 geom.SectionIndex = er.ReadUInt16();
             }
             er.Close();
-            er.Dispose();
+            er.Dispose(); 
+            #endregion
             #endregion
 
             Reader.SeekTo(Address + 844);
@@ -151,9 +148,8 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             Reader.SeekTo(Address + 1048);
             RawID2 = Reader.ReadInt32();
 
-            Reader.SeekTo(Address + 1144);
-
             #region ModelSections Block
+            Reader.SeekTo(Address + 1144);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             if (sectionAddress == -Cache.Magic) sectionAddress = iOffset; //null address in lbsp
@@ -162,9 +158,8 @@ namespace Adjutant.Library.Definitions.Halo4Retail
                 ModelSections.Add(new Halo4Retail.render_model.ModelSection(Cache, sectionAddress + 112 * i));
             #endregion
 
-            Reader.SeekTo(Address + 1168);
-
             #region Bounding Boxes Block
+            Reader.SeekTo(Address + 1168);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             BoundingBoxes = new List<mode.BoundingBox>();
@@ -174,93 +169,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
 
             Reader.SeekTo(Address + 1288);
             RawID3 = Reader.ReadInt32();
-
-            Reader.SeekTo(Address + 1388);
-
-            #region Prefabs
-            //iCount = Reader.ReadInt32();
-            //iOffset = Reader.ReadInt32() - Cache.Magic;
-            //Prefabs = new List<sbsp.Prefab>();
-            //for (int i = 0; i < iCount; i++)
-            //    Prefabs.Add(new Prefab(Cache, iOffset + 112 * i));
-            #endregion
-        }
-
-        new public class Cluster : sbsp.Cluster
-        {
-            public Cluster(CacheBase Cache, int Address)
-            {
-                EndianReader Reader = Cache.Reader;
-                Reader.SeekTo(Address);
-
-                XBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
-                YBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
-                ZBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
-
-                Reader.SeekTo(Address + 64);
-                SectionIndex = Reader.ReadInt16();
-            }
-        }
-
-        new public class Shader : sbsp.Shader
-        {
-            public Shader(CacheBase Cache, int Address)
-            {
-                EndianReader Reader = Cache.Reader;
-                Reader.SeekTo(Address);
-
-                Reader.SeekTo(Address + 12);
-
-                tagID = Reader.ReadInt32();
-
-                Reader.SeekTo(Address + 44);
-            }
-        }
-
-        new public class InstancedGeometry : sbsp.InstancedGeometry
-        {
-            public InstancedGeometry(CacheBase Cache, int Address)
-            {
-                EndianReader Reader = Cache.Reader;
-                Reader.SeekTo(Address);
-
-                Name = Cache.Strings.GetItemByID(Reader.ReadInt32());
-            }
-        }
-
-        new public class Prefab : sbsp.Prefab
-        {
-            public Prefab(CacheBase Cache, int Address)
-            {
-                EndianReader Reader = Cache.Reader;
-                Reader.SeekTo(Address);
-
-                Reader.Skip(16);
-                Name = Cache.Strings.GetItemByID(Reader.ReadInt32());
-
-                TransformScale = Reader.ReadSingle();
-
-                TransformMatrix = new Matrix();
-
-                TransformMatrix.m11 = Reader.ReadSingle();
-                TransformMatrix.m12 = Reader.ReadSingle();
-                TransformMatrix.m13 = Reader.ReadSingle();
-
-                TransformMatrix.m21 = Reader.ReadSingle();
-                TransformMatrix.m22 = Reader.ReadSingle();
-                TransformMatrix.m23 = Reader.ReadSingle();
-
-                TransformMatrix.m31 = Reader.ReadSingle();
-                TransformMatrix.m32 = Reader.ReadSingle();
-                TransformMatrix.m33 = Reader.ReadSingle();
-
-                TransformMatrix.m41 = Reader.ReadSingle();
-                TransformMatrix.m42 = Reader.ReadSingle();
-                TransformMatrix.m43 = Reader.ReadSingle();
-
-                InstanceCount = Reader.ReadUInt16();
-                InstanceIndex = Reader.ReadUInt16();
-            }
         }
     }
 }

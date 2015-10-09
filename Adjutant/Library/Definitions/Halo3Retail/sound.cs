@@ -13,9 +13,10 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 {
     public class sound : snd_
     {
-        public sound(CacheBase Cache)
+        public sound(CacheBase Cache, int Address)
         {
             EndianReader Reader = Cache.Reader;
+            Reader.SeekTo(Address);
 
             Flags = new Bitmask(Reader.ReadInt16());
             SoundClass = Reader.ReadByte();

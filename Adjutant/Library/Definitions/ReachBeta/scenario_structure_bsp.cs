@@ -12,8 +12,10 @@ using mode = Adjutant.Library.Definitions.render_model;
 
 namespace Adjutant.Library.Definitions.ReachBeta
 {
-    public class scenario_structure_bsp : sbsp
+    public class scenario_structure_bsp : Halo3ODST.scenario_structure_bsp
     {
+        protected scenario_structure_bsp() { }
+
         public scenario_structure_bsp(CacheBase Cache, int Address)
         {
             cache = Cache;
@@ -68,14 +70,12 @@ namespace Adjutant.Library.Definitions.ReachBeta
             #endregion
 
             Reader.SeekTo(Address + 236);
-
             XBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
             YBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
             ZBounds = new RealBounds(Reader.ReadSingle(), Reader.ReadSingle());
 
-            Reader.SeekTo(Address + 308);
-
             #region Clusters Block
+            Reader.SeekTo(Address + 308);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
             Clusters = new List<sbsp.Cluster>();
@@ -83,61 +83,22 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 Clusters.Add(new Cluster(Cache, iOffset + 288 * i));
             #endregion
 
-            Reader.SeekTo(Address + 320);
-
             #region Shaders Block
+            Reader.SeekTo(Address + 320);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Shaders = new List<sbsp.Shader>();
+            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
-                Shaders.Add(new Shader(Cache, iOffset + 44 * i));
+                Shaders.Add(new ReachBeta.render_model.Shader(Cache, iOffset + 44 * i));
             #endregion
 
-            Reader.SeekTo(Address + 620);
-
             #region GeometryInstances Block
+            Reader.SeekTo(Address + 620);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             GeomInstances = new List<sbsp.InstancedGeometry>();
             for (int i = 0; i < iCount; i++)
                 GeomInstances.Add(new InstancedGeometry(Cache, iOffset + 168 * i));
-
-            //Reader.SeekTo(Address + 1298);
-            //int id = Reader.ReadUInt16();
-            //var entry = Cache.zone.RawEntries[id];
-            //var er = new EndianReader(new MemoryStream(Cache.zone.FixupData), EndianFormat.BigEndian);
-            //int addr = entry.Fixups[entry.Fixups.Count - 10].Offset;
-
-            //er.SeekTo(entry.FixupOffset + addr);
-            //for (int i = 0; i < GeomInstances.Count; i++)
-            //{
-            //    var geom = GeomInstances[i];
-
-            //    geom.TransformScale = er.ReadSingle();
-
-            //    geom.TransformMatrix.m11 = er.ReadSingle();
-            //    geom.TransformMatrix.m12 = er.ReadSingle();
-            //    geom.TransformMatrix.m13 = er.ReadSingle();
-
-            //    geom.TransformMatrix.m21 = er.ReadSingle();
-            //    geom.TransformMatrix.m22 = er.ReadSingle();
-            //    geom.TransformMatrix.m23 = er.ReadSingle();
-
-            //    geom.TransformMatrix.m31 = er.ReadSingle();
-            //    geom.TransformMatrix.m32 = er.ReadSingle();
-            //    geom.TransformMatrix.m33 = er.ReadSingle();
-
-            //    geom.TransformMatrix.m41 = er.ReadSingle();
-            //    geom.TransformMatrix.m42 = er.ReadSingle();
-            //    geom.TransformMatrix.m43 = er.ReadSingle();
-
-            //    geom.SectionIndex = er.ReadUInt16();
-
-            //    er.Skip(102);
-            //}
-            //er.Close();
-            //er.Dispose();
-
             #endregion
 
             Reader.SeekTo(Address + 796);
@@ -146,9 +107,8 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 976);
             RawID2 = Reader.ReadInt32();
 
-            Reader.SeekTo(Address + 1112);
-
             #region ModelParts Block
+            Reader.SeekTo(Address + 1112);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             ModelSections = new List<mode.ModelSection>();
@@ -156,9 +116,8 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 ModelSections.Add(new ReachBeta.render_model.ModelSection(Cache, sectionAddress + 92 * i));
             #endregion
 
-            Reader.SeekTo(Address + 1124);
-
             #region Bounding Boxes Block
+            Reader.SeekTo(Address + 1124);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             BoundingBoxes = new List<mode.BoundingBox>();
@@ -183,21 +142,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
                 Reader.SeekTo(Address + 208);
                 SectionIndex = Reader.ReadInt16();
-            }
-        }
-
-        new public class Shader : sbsp.Shader
-        {
-            public Shader(CacheBase Cache, int Address)
-            {
-                EndianReader Reader = Cache.Reader;
-                Reader.SeekTo(Address);
-
-                Reader.SeekTo(Address + 12);
-
-                tagID = Reader.ReadInt32();
-
-                Reader.SeekTo(Address + 44);
             }
         }
 
@@ -232,8 +176,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
                 Reader.SeekTo(Address + 124);
                 Name = Cache.Strings.GetItemByID(Reader.ReadInt32());
-
-                Reader.SeekTo(Address + 168);
             }
         }
     }

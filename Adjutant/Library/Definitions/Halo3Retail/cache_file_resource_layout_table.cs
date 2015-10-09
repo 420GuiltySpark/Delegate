@@ -11,69 +11,67 @@ namespace Adjutant.Library.Definitions.Halo3Retail
 {
     public class cache_file_resource_layout_table : play
     {
+        protected cache_file_resource_layout_table() { }
+
         public cache_file_resource_layout_table(CacheBase Cache, int Offset)
         {
             EndianReader Reader = Cache.Reader;
             Reader.SeekTo(Offset);
 
-            Reader.SeekTo(Offset + 12);
-
             #region Shared Cache Block
+            Reader.SeekTo(Offset + 12);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
             SharedCaches = new List<play.SharedCache>();
             for (int i = 0; i < iCount; i++)
                 SharedCaches.Add(new SharedCache(Cache, iOffset + 264 * i));
-            Reader.SeekTo(Offset + 24);
             #endregion
 
-            #region RawPool Block
+            #region Page Block
+            Reader.SeekTo(Offset + 24);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             Pages = new List<play.Page>();
             for (int i = 0; i < iCount; i++)
                 Pages.Add(new Page(Cache, iOffset + 88 * i));
-            Reader.SeekTo(Offset + 36);
             #endregion
 
             #region SoundRawChunk Block
+            Reader.SeekTo(Offset + 36);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             SoundRawChunks = new List<play.SoundRawChunk>();
             for (int i = 0; i < iCount; i++)
                 SoundRawChunks.Add(new SoundRawChunk(Cache, iOffset + 16 * i));
-            Reader.SeekTo(Offset + 48);
             #endregion
 
             #region RawLocation Block
+            Reader.SeekTo(Offset + 48);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             Segments = new List<play.Segment>();
             for (int i = 0; i < iCount; i++)
                 Segments.Add(new Segment(Cache, iOffset + 16 * i));
-            Reader.SeekTo(Offset + 60);
             #endregion
         }
 
         new public class SharedCache : play.SharedCache
         {
-            public SharedCache(CacheBase Cache, int Offset)
+            public SharedCache(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
-                Reader.SeekTo(Offset);
+                Reader.SeekTo(Address);
 
                 FileName = Reader.ReadNullTerminatedString(32);
-
-                Reader.SeekTo(Offset + 264);
             }
         }
 
         new public class Page : play.Page
         {
-            public Page(CacheBase Cache, int Offset)
+            public Page(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
-                Reader.SeekTo(Offset);
+                Reader.SeekTo(Address);
 
                 Reader.ReadInt32();
                 CacheIndex = Reader.ReadInt16();
@@ -82,7 +80,7 @@ namespace Adjutant.Library.Definitions.Halo3Retail
                 CompressedSize = Reader.ReadInt32();
                 DecompressedSize = Reader.ReadInt32();
 
-                Reader.SeekTo(Offset + 84);
+                Reader.SeekTo(Address + 84);
 
                 RawChunkCount = Reader.ReadInt16();
                 Reader.ReadInt16();
