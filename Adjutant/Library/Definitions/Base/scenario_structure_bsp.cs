@@ -38,6 +38,15 @@ namespace Adjutant.Library.Definitions
 
         public bool RawLoaded = false;
 
+        public scenario_structure_bsp()
+        {
+            Clusters = new List<Cluster>();
+            GeomInstances = new List<InstancedGeometry>();
+            Shaders = new List<render_model.Shader>();
+            ModelSections = new List<render_model.ModelSection>();
+            BoundingBoxes = new List<render_model.BoundingBox>();
+        }
+
         public virtual void LoadRaw()
         {
             throw new NotImplementedException();

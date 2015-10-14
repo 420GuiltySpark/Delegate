@@ -164,6 +164,9 @@ namespace Adjutant.Library.Controls
                 bb.XBounds.Min - pythagoras3d * 3,
                 bb.YBounds.Min - pythagoras3d * 3,
                 bb.ZBounds.Min - pythagoras3d * 3);
+            renderer1.FarPlaneMin = 100;
+            renderer1.FarPlane = 1000;
+            renderer1.FarPlaneMax = 5000;
             #endregion
 
             RenderSelected();
@@ -505,6 +508,9 @@ namespace Adjutant.Library.Controls
                 bb.XBounds.Min - bb.Length * 3,
                 bb.YBounds.Min - bb.Length * 3,
                 bb.ZBounds.Min - bb.Length * 3);
+            renderer1.FarPlaneMin = 100;
+            renderer1.FarPlane = 1000;
+            renderer1.FarPlaneMax = 5000;
             #endregion
 
             RenderSelected();

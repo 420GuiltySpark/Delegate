@@ -22,7 +22,6 @@ namespace Adjutant.Library.Definitions.Halo4Beta
             Reader.SeekTo(Address + 12);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            SharedCaches = new List<play.SharedCache>();
             for (int i = 0; i < iCount; i++)
                 SharedCaches.Add(new SharedCache(Cache, iOffset + 264 * i));
             #endregion
@@ -31,19 +30,14 @@ namespace Adjutant.Library.Definitions.Halo4Beta
             Reader.SeekTo(Address + 24);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Pages = new List<play.Page>();
             for (int i = 0; i < iCount; i++)
                 Pages.Add(new Page(Cache, iOffset + 88 * i));
             #endregion
-
-            SoundRawChunks = new List<play.SoundRawChunk>();
-            //(sound blocks unused afaik)
 
             #region Segment Block
             Reader.SeekTo(Address + 48);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Segments = new List<play.Segment>();
             for (int i = 0; i < iCount; i++)
                 Segments.Add(new Segment(Cache, iOffset + 24 * i));
             #endregion

@@ -32,13 +32,10 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 172);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Tag.Magic;
-            ModelSections = new List<mode.ModelSection>();
-            BoundingBoxes = new List<mode.BoundingBox>();
-            Clusters = new List<sbsp.Cluster>();
             for (int i = 0; i < iCount; i++)
             {
                 ModelSections.Add(new ModelSection(Cache, Tag, iOffset + 176 * i, null) { FacesIndex = i, VertsIndex = i, NodeIndex = 255 });
-                Clusters.Add(new Cluster() { SectionIndex = i });
+                Clusters.Add(new Cluster(i));
             }
             #endregion
 
@@ -46,7 +43,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 180);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Tag.Magic;
-            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
                 Shaders.Add(new Halo2Xbox.render_model.Shader(Cache, iOffset + 32 * i));
             #endregion
@@ -63,7 +59,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 336);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Tag.Magic;
-            GeomInstances = new List<sbsp.InstancedGeometry>();
             for (int i = 0; i < iCount; i++)
                 GeomInstances.Add(new InstancedGeometry(Cache, iOffset + 88 * i, Clusters.Count));
             #endregion
@@ -305,11 +300,13 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         new public class Cluster : sbsp.Cluster
         {
-            public Cluster()
+            public Cluster(int Index)
             {
                 XBounds = new RealBounds();
                 YBounds = new RealBounds();
                 ZBounds = new RealBounds();
+
+                SectionIndex = Index;
             }
         }
 

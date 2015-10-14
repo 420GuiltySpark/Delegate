@@ -10,6 +10,12 @@ namespace Adjutant.Library.Definitions
         public List<ArgumentBlock> ArgumentBlocks;
         public List<UsageBlock> UsageBlocks;
 
+        public render_method_template()
+        {
+            ArgumentBlocks = new List<ArgumentBlock>();
+            UsageBlocks = new List<UsageBlock>();
+        }
+
         public abstract class ArgumentBlock
         {
             public string Argument;

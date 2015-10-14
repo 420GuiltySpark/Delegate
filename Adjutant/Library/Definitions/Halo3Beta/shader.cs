@@ -25,7 +25,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 40);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            Properties = new List<rmsh.ShaderProperties>();
             for (int i = 0; i < iCount; i++)
                 Properties.Add(new ShaderProperties(Cache, iOffset + 132 * i));
             #endregion
@@ -45,7 +44,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 Reader.SeekTo(Address + 16);
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                ShaderMaps = new List<rmsh.ShaderProperties.ShaderMap>();
                 for (int i = 0; i < iCount; i++)
                     ShaderMaps.Add(new ShaderMap(Cache, iOffset + 24 * i));
                 #endregion
@@ -54,7 +52,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 Reader.SeekTo(Address + 28);
                 iCount = Reader.ReadInt32();
                 iOffset = Reader.ReadInt32() - Cache.Magic;
-                Tilings = new List<rmsh.ShaderProperties.Tiling>();
                 for (int i = 0; i < iCount; i++)
                     Tilings.Add(new Tiling(Cache, iOffset + 16 * i));
                 #endregion

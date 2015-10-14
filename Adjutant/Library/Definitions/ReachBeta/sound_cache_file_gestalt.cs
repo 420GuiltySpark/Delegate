@@ -23,7 +23,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             #region Codec Chunk
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            Codecs = new List<ugh_.Codec>();
             for (int i = 0; i < iCount; i++)
                 Codecs.Add(new Codec(Cache, iOffset + 3 * i));
             #endregion
@@ -32,7 +31,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 36);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            SoundNames = new List<ugh_.SoundName>();
             for (int i = 0; i < iCount; i++)
                 SoundNames.Add(new SoundName(Cache, iOffset + 4 * i));
             #endregion
@@ -41,7 +39,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 72);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            PlayBacks = new List<ugh_.Playback>();
             for (int i = 0; i < iCount; i++)
                 PlayBacks.Add(new Playback(Cache, iOffset + 12 * i));
             #endregion
@@ -50,7 +47,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 84);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            SoundPermutations = new List<ugh_.SoundPermutation>();
             for (int i = 0; i < iCount; i++)
                 SoundPermutations.Add(new SoundPermutation(Cache, iOffset + 16 * i));
             #endregion
@@ -59,7 +55,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 172);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            RawChunks = new List<ugh_.RawChunk>();
             for (int i = 0; i < iCount; i++)
                 RawChunks.Add(new RawChunk(Cache, iOffset + 20 * i));
             #endregion

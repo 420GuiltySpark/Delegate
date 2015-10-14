@@ -21,13 +21,10 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 12);
             BaseShaderTagID = Reader.ReadInt32();
 
-            //(reach doesn't use predicted bitmaps)
-
             #region ShaderProperties Chunk
             Reader.SeekTo(Address + 56);
             int pCount = Reader.ReadInt32();
             int pOffset = Reader.ReadInt32() - Cache.Magic;
-            Properties = new List<rmsh.ShaderProperties>();
             for (int i = 0; i < pCount; i++)
                 Properties.Add(new ShaderProperties(Cache, pOffset + 172 * i));
             #endregion

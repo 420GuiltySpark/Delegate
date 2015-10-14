@@ -206,6 +206,9 @@ namespace Adjutant.Library.Controls
                 sbsp.XBounds.Min - pythagoras3d * 2,
                 sbsp.YBounds.Min - pythagoras3d * 2,
                 sbsp.ZBounds.Min - pythagoras3d * 2);
+            renderer1.FarPlaneMin = pythagoras3d * 0.1;
+            renderer1.FarPlane = pythagoras3d;
+            renderer1.FarPlaneMax = pythagoras3d;
             #endregion
 
             renderer1.Start();
@@ -619,6 +622,9 @@ namespace Adjutant.Library.Controls
                 atpl.RenderBounds.XBounds.Min - pythagoras3d * 2,
                 atpl.RenderBounds.YBounds.Min - pythagoras3d * 2,
                 atpl.RenderBounds.ZBounds.Min - pythagoras3d * 2);
+            renderer1.FarPlaneMin = 100;
+            renderer1.FarPlane = 1000;
+            renderer1.FarPlaneMax = 5000;
             #endregion
 
             renderer1.Start();

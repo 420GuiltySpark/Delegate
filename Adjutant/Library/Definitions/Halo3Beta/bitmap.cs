@@ -23,7 +23,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 84);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            Sequences = new List<bitm.Sequence>();
             for (int i = 0; i < iCount; i++)
                 Sequences.Add(new Sequence(Cache, iOffset + 64 * i));
             #endregion
@@ -32,7 +31,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 96);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Bitmaps = new List<bitm.BitmapData>();
             for (int i = 0; i < iCount; i++)
                 Bitmaps.Add(new BitmapData(Cache, iOffset + 48 * i));
             #endregion
@@ -41,7 +39,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 140);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            RawChunkAs = new List<bitm.RawChunkA>();
             for (int i = 0; i < iCount; i++)
                 RawChunkAs.Add(new RawChunkA(Cache, iOffset + 8 * i));
             #endregion
@@ -50,7 +47,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 152);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            RawChunkBs = new List<bitm.RawChunkB>();
             for (int i = 0; i < iCount; i++)
                 RawChunkBs.Add(new RawChunkB(Cache, iOffset + 8 * i));
             Reader.SeekTo(Address + 164);
@@ -72,7 +68,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 Reader.SeekTo(Address + 52);
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Sprites = new List<bitm.Sequence.Sprite>();
                 for (int i = 0; i < iCount; i++)
                     Sprites.Add(new Sprite(Cache, iOffset + 32 * i));
                 Reader.SeekTo(Address + 64);

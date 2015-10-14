@@ -28,7 +28,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 20);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            BoundingBoxes = new List<mode.BoundingBox>();
             for (int i = 0; i < iCount; i++)
                 BoundingBoxes.Add(new BoundingBox(Cache, iOffset + 56 * i));
             #endregion
@@ -37,7 +36,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 28);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Regions = new List<mode.Region>();
             for (int i = 0; i < iCount; i++)
                 Regions.Add(new Region(Cache, iOffset + 16 * i));
             #endregion
@@ -46,7 +44,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 36);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            ModelSections = new List<mode.ModelSection>();
             for (int i = 0; i < iCount; i++)
                 ModelSections.Add(new ModelSection(Cache, iOffset + 92 * i) { FacesIndex = i, VertsIndex = i, NodeIndex = 255 });
             Reader.SeekTo(Address + 72);
@@ -55,7 +52,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             #region Nodes Block
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Nodes = new List<mode.Node>();
             for (int i = 0; i < iCount; i++)
                 Nodes.Add(new Node(Cache, iOffset + 96 * i));
             #endregion
@@ -64,7 +60,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 88);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            MarkerGroups = new List<mode.MarkerGroup>();
             for (int i = 0; i < iCount; i++)
                 MarkerGroups.Add(new MarkerGroup(Cache, iOffset + 12 * i));
             #endregion
@@ -73,7 +68,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 96);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
                 Shaders.Add(new Shader(Cache, iOffset + 32 * i));
             #endregion
@@ -276,7 +270,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Permutations = new List<mode.Region.Permutation>();
                 for (int i = 0; i < iCount; i++)
                     Permutations.Add(new Permutation(Cache, iOffset + 16 * i));
             }
@@ -358,7 +351,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Markers = new List<mode.MarkerGroup.Marker>();
                 for (int i = 0; i < iCount; i++)
                     Markers.Add(new Marker(Cache, iOffset + 36 * i));
             }
@@ -422,9 +414,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 EndianReader Reader = Cache.Reader;
                 Reader.SeekTo(Address);
                     
-                Submeshes = new List<mode.ModelSection.Submesh>();
-                Subsets = new List<mode.ModelSection.Subset>();
-
                 type = Reader.ReadInt16();
                 Reader.ReadUInt16();
                 vertcount = Reader.ReadUInt16();

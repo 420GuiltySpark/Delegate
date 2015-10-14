@@ -79,7 +79,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             Reader.SeekTo(Address + 340);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            Clusters = new List<sbsp.Cluster>();
             for (int i = 0; i < 1; i++)
                 Clusters.Add(new Cluster(Cache, iOffset + 140 * i));
             #endregion
@@ -88,7 +87,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             Reader.SeekTo(Address + 352);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
                 Shaders.Add(new Halo4Retail.render_model.Shader(Cache, iOffset + 44 * i));
             #endregion
@@ -97,7 +95,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             Reader.SeekTo(Address + 640);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            GeomInstances = new List<sbsp.InstancedGeometry>();
             for (int i = 0; i < iCount; i++)
                 GeomInstances.Add(new InstancedGeometry(Cache, iOffset + 4 * i));
 
@@ -153,7 +150,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             if (sectionAddress == -Cache.Magic) sectionAddress = iOffset; //null address in lbsp
-            ModelSections = new List<mode.ModelSection>();
             for (int i = 0; i < sectCount; i++)
                 ModelSections.Add(new Halo4Retail.render_model.ModelSection(Cache, sectionAddress + 112 * i));
             #endregion
@@ -162,7 +158,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             Reader.SeekTo(Address + 1168);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            BoundingBoxes = new List<mode.BoundingBox>();
             for (int i = 0; i < bbCount; i++)
                 BoundingBoxes.Add(new Halo4Retail.render_model.BoundingBox(Cache, bbAddr + 52 * i));
             #endregion

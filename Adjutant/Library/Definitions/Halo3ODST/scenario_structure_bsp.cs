@@ -75,7 +75,6 @@ namespace Adjutant.Library.Definitions.Halo3ODST
             Reader.SeekTo(Address + 184);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            Clusters = new List<sbsp.Cluster>();
             for (int i = 0; i < iCount; i++)
                 Clusters.Add(new Cluster(Cache, iOffset + 220 * i));
             #endregion
@@ -84,7 +83,6 @@ namespace Adjutant.Library.Definitions.Halo3ODST
             Reader.SeekTo(Address + 196);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
                 Shaders.Add(new Halo3ODST.render_model.Shader(Cache, iOffset + 36 * i));
             #endregion
@@ -93,7 +91,6 @@ namespace Adjutant.Library.Definitions.Halo3ODST
             Reader.SeekTo(Address + 436);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            GeomInstances = new List<sbsp.InstancedGeometry>();
             for (int i = 0; i < iCount; i++)
                 GeomInstances.Add(new InstancedGeometry(Cache, iOffset + 120 * i));
             #endregion
@@ -105,7 +102,6 @@ namespace Adjutant.Library.Definitions.Halo3ODST
             Reader.SeekTo(Address + 744);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            ModelSections = new List<mode.ModelSection>();
             for (int i = 0; i < iCount; i++)
                 ModelSections.Add(new Halo3ODST.render_model.ModelSection(Cache, sectionAddress + 76 * i));
             #endregion
@@ -114,7 +110,6 @@ namespace Adjutant.Library.Definitions.Halo3ODST
             Reader.SeekTo(Address + 756);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            BoundingBoxes = new List<mode.BoundingBox>();
             for (int i = 0; i < iCount; i++)
                 BoundingBoxes.Add(new Halo3ODST.render_model.BoundingBox(Cache, iOffset + 44 * i));
             #endregion

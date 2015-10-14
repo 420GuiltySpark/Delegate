@@ -14,6 +14,15 @@ namespace Adjutant.Library.Definitions
         public List<SoundPermutation> SoundPermutations;
         public List<RawChunk> RawChunks;
 
+        public sound_cache_file_gestalt()
+        {
+            Codecs = new List<Codec>();
+            SoundNames = new List<SoundName>();
+            PlayBacks = new List<Playback>();
+            SoundPermutations = new List<SoundPermutation>();
+            RawChunks = new List<RawChunk>();
+        }
+
         public abstract class Codec
         {
             public int Unknown;

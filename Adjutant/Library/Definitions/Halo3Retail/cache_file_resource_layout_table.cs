@@ -22,7 +22,6 @@ namespace Adjutant.Library.Definitions.Halo3Retail
             Reader.SeekTo(Offset + 12);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            SharedCaches = new List<play.SharedCache>();
             for (int i = 0; i < iCount; i++)
                 SharedCaches.Add(new SharedCache(Cache, iOffset + 264 * i));
             #endregion
@@ -31,7 +30,6 @@ namespace Adjutant.Library.Definitions.Halo3Retail
             Reader.SeekTo(Offset + 24);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Pages = new List<play.Page>();
             for (int i = 0; i < iCount; i++)
                 Pages.Add(new Page(Cache, iOffset + 88 * i));
             #endregion
@@ -40,7 +38,6 @@ namespace Adjutant.Library.Definitions.Halo3Retail
             Reader.SeekTo(Offset + 36);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            SoundRawChunks = new List<play.SoundRawChunk>();
             for (int i = 0; i < iCount; i++)
                 SoundRawChunks.Add(new SoundRawChunk(Cache, iOffset + 16 * i));
             #endregion
@@ -49,7 +46,6 @@ namespace Adjutant.Library.Definitions.Halo3Retail
             Reader.SeekTo(Offset + 48);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Segments = new List<play.Segment>();
             for (int i = 0; i < iCount; i++)
                 Segments.Add(new Segment(Cache, iOffset + 16 * i));
             #endregion
@@ -99,7 +95,6 @@ namespace Adjutant.Library.Definitions.Halo3Retail
                 #region Size Chunk
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Sizes = new List<play.SoundRawChunk.Size>();
                 for (int i = 0; i < iCount; i++)
                     Sizes.Add(new Size(Cache, iOffset + 16 * i));
                 Reader.SeekTo(Offset + 16);

@@ -30,7 +30,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 12);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            Regions = new List<mode.Region>();
             for (int i = 0; i < iCount; i++)
                 Regions.Add(new Region(Cache, iOffset + 16 * i));
             #endregion
@@ -42,7 +41,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 32);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            GeomInstances = new List<mode.InstancedGeometry>();
             for (int i = 0; i < iCount; i++)
                 GeomInstances.Add(new InstancedGeometry(Cache, iOffset + 60 * i));
             #endregion
@@ -51,7 +49,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 48);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Nodes = new List<mode.Node>();
             for (int i = 0; i < iCount; i++)
                 Nodes.Add(new Node(Cache, iOffset + 96 * i));
             #endregion
@@ -60,7 +57,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 60);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            MarkerGroups = new List<mode.MarkerGroup>();
             for (int i = 0; i < iCount; i++)
                 MarkerGroups.Add(new MarkerGroup(Cache, iOffset + 16 * i));
             #endregion
@@ -69,7 +65,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 72);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
                 Shaders.Add(new Shader(Cache, iOffset + 36 * i));
             #endregion
@@ -78,7 +73,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 104);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            ModelSections = new List<mode.ModelSection>();
             for (int i = 0; i < iCount; i++)
                 ModelSections.Add(new ModelSection(Cache, iOffset + 76 * i));
             #endregion
@@ -87,7 +81,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 116);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            BoundingBoxes = new List<mode.BoundingBox>();
             for (int i = 0; i < iCount; i++)
                 BoundingBoxes.Add(new BoundingBox(Cache, iOffset + 56 * i));
             Reader.SeekTo(Address + 128);
@@ -97,7 +90,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 176);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            NodeIndexGroups = new List<mode.NodeIndexGroup>();
             for (int i = 0; i < iCount; i++)
                 NodeIndexGroups.Add(new NodeIndexGroup(Cache, iOffset + 12 * i));
             Reader.SeekTo(Address + 188);
@@ -249,12 +241,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         protected void LoadFixups()
         {
-            VertInfoList = new List<mode.VertexBufferInfo>();
-            Unknown1List = new List<mode.UnknownInfo1>();
-            IndexInfoList = new List<mode.IndexBufferInfo>();
-            Unknown2List = new List<mode.UnknownInfo2>();
-            Unknown3List = new List<mode.UnknownInfo3>();
-
             var Entry = cache.zone.RawEntries[RawID & ushort.MaxValue];
             var reader = new EndianReader(new MemoryStream(cache.zone.FixupData), EndianFormat.BigEndian);
 
@@ -526,7 +512,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Permutations = new List<mode.Region.Permutation>();
                 for (int i = 0; i < iCount; i++)
                     Permutations.Add(new Permutation(Cache, iOffset + 16 * i));
             }
@@ -634,7 +619,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Markers = new List<mode.MarkerGroup.Marker>();
                 for (int i = 0; i < iCount; i++)
                     Markers.Add(new Marker(Cache, iOffset + 36 * i));
             }
@@ -686,7 +670,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 #region Submesh Block
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Submeshes = new List<mode.ModelSection.Submesh>();
                 for (int i = 0; i < iCount; i++)
                     Submeshes.Add(new Submesh(Cache, iOffset + 16 * i));
                 #endregion
@@ -695,7 +678,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 Reader.SeekTo(Address + 12);
                 iCount = Reader.ReadInt32();
                 iOffset = Reader.ReadInt32() - Cache.Magic;
-                Subsets = new List<mode.ModelSection.Subset>();
                 for (int i = 0; i < iCount; i++)
                     Subsets.Add(new Subset(Cache, iOffset + 8 * i));
                 #endregion
@@ -775,7 +757,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                NodeIndices = new List<mode.NodeIndexGroup.NodeIndex>();
                 for (int i = 0; i < iCount; i++)
                     NodeIndices.Add(new NodeIndex(Cache, iOffset + 1 * i));
             }

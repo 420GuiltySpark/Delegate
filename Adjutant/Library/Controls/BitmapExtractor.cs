@@ -159,10 +159,7 @@ namespace Adjutant.Library.Controls
 
                 byte[] raw;
                 if (Cache.Version <= DefinitionSet.Halo2Vista)
-                {
-                    //var sub2 = (Definitions.Halo2Xbox.bitmap.BitmapData)submap;
                     raw = Cache.GetRawFromID(submap.PixelsOffset, submap.RawSize);
-                }
                 else
                 {
                     if (bitm.RawChunkBs.Count > 0)
@@ -312,10 +309,7 @@ namespace Adjutant.Library.Controls
             byte[] raw;
 
             if (Cache.Version <= DefinitionSet.Halo2Vista)
-            {
-                var sub2 = (Definitions.Halo2Xbox.bitmap.BitmapData)submap;
-                raw = Cache.GetRawFromID(sub2.LODOffset[0], sub2.RawSize);
-            }
+                raw = Cache.GetRawFromID(submap.PixelsOffset, submap.RawSize);
             else
             {
                 if (bitm.RawChunkBs.Count > 0)

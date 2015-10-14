@@ -10,11 +10,22 @@ namespace Adjutant.Library.Definitions
         public int BaseShaderTagID;
         public List<ShaderProperties> Properties;
 
+        public shader()
+        {
+            Properties = new List<ShaderProperties>();
+        }
+
         public abstract class ShaderProperties
         {
             public int TemplateTagID;
             public List<ShaderMap> ShaderMaps;
             public List<Tiling> Tilings;
+
+            public ShaderProperties()
+            {
+                ShaderMaps = new List<ShaderMap>();
+                Tilings = new List<Tiling>();
+            }
 
             public abstract class ShaderMap
             {

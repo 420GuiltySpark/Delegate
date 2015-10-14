@@ -1134,7 +1134,14 @@ namespace Adjutant.Library.Controls
                             count++;
                         }
 
-                        if (count == 0) throw new Exception("no weights on a weighted node. report this.");
+                        if (count == 0)
+                        {
+                            bw.Write((byte)0);
+                            bw.Write((byte)255);
+                            bw.Write(0);
+                            continue;
+                            //throw new Exception("no weights on a weighted node. report this.");
+                        }
 
                         if (count != 4) bw.Write((byte)255);
 

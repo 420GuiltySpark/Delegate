@@ -12,6 +12,14 @@ namespace Adjutant.Library.Definitions
         public List<SoundRawChunk> SoundRawChunks;
         public List<Segment> Segments;
 
+        public cache_file_resource_layout_table()
+        {
+            SharedCaches = new List<SharedCache>();
+            Pages = new List<Page>();
+            SoundRawChunks = new List<SoundRawChunk>();
+            Segments = new List<Segment>();
+        }
+
         public abstract class SharedCache
         {
             public string FileName;
@@ -35,6 +43,11 @@ namespace Adjutant.Library.Definitions
         {
             public int RawSize;
             public List<Size> Sizes;
+
+            public SoundRawChunk()
+            {
+                Sizes = new List<Size>();
+            }
 
             public abstract class Size
             {

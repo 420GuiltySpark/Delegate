@@ -27,7 +27,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 12);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            Regions = new List<mode.Region>();
             for (int i = 0; i < iCount; i++)
                 Regions.Add(new Region(Cache, iOffset + 16 * i));
             #endregion
@@ -39,7 +38,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 32);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            GeomInstances = new List<mode.InstancedGeometry>();
             for (int i = 0; i < iCount; i++)
                 GeomInstances.Add(new InstancedGeometry(Cache, iOffset + 60 * i));
             #endregion
@@ -48,7 +46,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 48);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Nodes = new List<mode.Node>();
             for (int i = 0; i < iCount; i++)
                 Nodes.Add(new Node(Cache, iOffset + 96 * i));
             #endregion
@@ -57,7 +54,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 60);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            MarkerGroups = new List<mode.MarkerGroup>();
             for (int i = 0; i < iCount; i++)
                 MarkerGroups.Add(new MarkerGroup(Cache, iOffset + 16 * i));
             #endregion
@@ -66,7 +62,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 72);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
                 Shaders.Add(new Shader(Cache, iOffset + 44 * i));
             #endregion
@@ -75,7 +70,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 104);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            ModelSections = new List<mode.ModelSection>();
             for (int i = 0; i < iCount; i++)
                 ModelSections.Add(new ModelSection(Cache, iOffset + 92 * i));
             #endregion
@@ -84,7 +78,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 116);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            BoundingBoxes = new List<mode.BoundingBox>();
             for (int i = 0; i < iCount; i++)
                 BoundingBoxes.Add(new BoundingBox(Cache, iOffset + 52 * i));
             #endregion
@@ -93,7 +86,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
             Reader.SeekTo(Address + 176);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            NodeIndexGroups = new List<mode.NodeIndexGroup>();
             for (int i = 0; i < iCount; i++)
                 NodeIndexGroups.Add(new NodeIndexGroup(Cache, iOffset + 12 * i));
             #endregion
@@ -113,7 +105,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
 
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Markers = new List<mode.MarkerGroup.Marker>();
                 for (int i = 0; i < iCount; i++)
                     Markers.Add(new Marker(Cache, iOffset + 48 * i));
             }
@@ -165,7 +156,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 #region Submesh Block
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Submeshes = new List<mode.ModelSection.Submesh>();
                 for (int i = 0; i < iCount; i++)
                     Submeshes.Add(new Submesh(Cache, iOffset + 24 * i));
                 #endregion
@@ -174,7 +164,6 @@ namespace Adjutant.Library.Definitions.ReachBeta
                 Reader.SeekTo(Address + 12);
                 iCount = Reader.ReadInt32();
                 iOffset = Reader.ReadInt32() - Cache.Magic;
-                Subsets = new List<mode.ModelSection.Subset>();
                 for (int i = 0; i < iCount; i++)
                     Subsets.Add(new Subset(Cache, iOffset + 16 * i));
                 #endregion

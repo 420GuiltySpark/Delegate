@@ -78,7 +78,6 @@ namespace Adjutant.Library.Definitions.ReachRetail
             Reader.SeekTo(Address + 308);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            Clusters = new List<sbsp.Cluster>();
             for (int i = 0; i < iCount; i++)
                 Clusters.Add(new Cluster(Cache, iOffset + 140 * i));
             #endregion
@@ -87,7 +86,6 @@ namespace Adjutant.Library.Definitions.ReachRetail
             Reader.SeekTo(Address + 320);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Shaders = new List<mode.Shader>();
             for (int i = 0; i < iCount; i++)
                 Shaders.Add(new ReachRetail.render_model.Shader(Cache, iOffset + 44 * i));
             #endregion
@@ -96,7 +94,6 @@ namespace Adjutant.Library.Definitions.ReachRetail
             Reader.SeekTo(Address + 608);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            GeomInstances = new List<sbsp.InstancedGeometry>();
             for (int i = 0; i < iCount; i++)
                 GeomInstances.Add(new InstancedGeometry(Cache, iOffset + 4 * i));
 
@@ -151,7 +148,6 @@ namespace Adjutant.Library.Definitions.ReachRetail
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
             if (sectionAddress == -Cache.Magic) sectionAddress = iOffset; //null address in lbsp
-            ModelSections = new List<mode.ModelSection>();
             for (int i = 0; i < iCount; i++)
                 ModelSections.Add(new ReachRetail.render_model.ModelSection(Cache, sectionAddress + 92 * i));
             #endregion
@@ -160,7 +156,6 @@ namespace Adjutant.Library.Definitions.ReachRetail
             Reader.SeekTo(Address + 1112);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            BoundingBoxes = new List<mode.BoundingBox>();
             for (int i = 0; i < iCount; i++)
                 BoundingBoxes.Add(new ReachRetail.render_model.BoundingBox(Cache, iOffset + 52 * i));
             #endregion

@@ -17,8 +17,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address);
 
             Reader.SeekTo(Address + 32);
-            Indices = new List<int>();
-            Lengths = new List<int>();
             for (int i = 0; i < 12; i++)
             {
                 Indices.Add(Reader.ReadUInt16());

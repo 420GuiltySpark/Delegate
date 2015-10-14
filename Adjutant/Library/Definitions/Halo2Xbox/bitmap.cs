@@ -21,7 +21,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 60);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            Sequences = new List<bitm.Sequence>();
             for (int i = 0; i < iCount; i++)
                 Sequences.Add(new Sequence(Cache, iOffset + 60 * i));
             #endregion
@@ -30,7 +29,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 68);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Bitmaps = new List<bitm.BitmapData>();
             for (int i = 0; i < iCount; i++)
                 Bitmaps.Add(new BitmapData(Cache, iOffset + 116 * i));
             #endregion
@@ -51,7 +49,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 Reader.SeekTo(Address + 52);
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Sprites = new List<bitm.Sequence.Sprite>();
                 for (int i = 0; i < iCount; i++)
                     Sprites.Add(new Sprite(Cache, iOffset + 32 * i));
                 #endregion

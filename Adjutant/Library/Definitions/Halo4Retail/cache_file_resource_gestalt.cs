@@ -22,7 +22,6 @@ namespace Adjutant.Library.Definitions.Halo4Retail
             Reader.SeekTo(Address + 88);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            RawEntries = new List<zone.RawEntry>();
             for (int i = 0; i < iCount; i++)
                 RawEntries.Add(new RawEntry(Cache, iOffset + 68 * i));
             #endregion

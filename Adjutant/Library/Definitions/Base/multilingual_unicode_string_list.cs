@@ -11,5 +11,11 @@ namespace Adjutant.Library.Definitions
         //to access a specific language (just use language index)
         public List<int> Indices;
         public List<int> Lengths;
+
+        public multilingual_unicode_string_list()
+        {
+            Indices = new List<int>();
+            Lengths = new List<int>();
+        }
     }
 }

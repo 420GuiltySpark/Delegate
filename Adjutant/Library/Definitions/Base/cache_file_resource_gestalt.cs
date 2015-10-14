@@ -10,6 +10,11 @@ namespace Adjutant.Library.Definitions
     {
         public List<RawEntry> RawEntries;
 
+        public cache_file_resource_gestalt()
+        {
+            RawEntries = new List<RawEntry>();
+        }
+
         public abstract class RawEntry
         {
             public int TagID;
@@ -29,6 +34,12 @@ namespace Adjutant.Library.Definitions
 
             public List<ResourceFixup> Fixups;
             public List<ResourceDefinitionFixup> DefinitionFixups;
+
+            public RawEntry()
+            {
+                Fixups = new List<ResourceFixup>();
+                DefinitionFixups = new List<ResourceDefinitionFixup>();
+            }
 
             public abstract class ResourceFixup
             {

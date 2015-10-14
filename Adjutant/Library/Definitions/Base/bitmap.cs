@@ -13,12 +13,25 @@ namespace Adjutant.Library.Definitions
         public List<RawChunkA> RawChunkAs;
         public List<RawChunkB> RawChunkBs;
 
+        public bitmap()
+        {
+            Sequences = new List<Sequence>();
+            Bitmaps = new List<BitmapData>();
+            RawChunkAs = new List<RawChunkA>();
+            RawChunkBs = new List<RawChunkB>();
+        }
+
         public abstract class Sequence
         {
             public string Name;
             public int FirstSubmapIndex;
             public int BitmapCount;
             public List<Sprite> Sprites;
+
+            public Sequence()
+            {
+                Sprites = new List<Sprite>();
+            }
 
             public abstract class Sprite
             {

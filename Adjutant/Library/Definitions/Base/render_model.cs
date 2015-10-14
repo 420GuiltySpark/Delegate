@@ -36,6 +36,24 @@ namespace Adjutant.Library.Definitions
 
         public bool RawLoaded = false;
 
+        public render_model()
+        {
+            Regions = new List<Region>();
+            GeomInstances = new List<InstancedGeometry>();
+            Nodes = new List<Node>();
+            MarkerGroups = new List<MarkerGroup>();
+            Shaders = new List<Shader>();
+            ModelSections = new List<ModelSection>();
+            BoundingBoxes = new List<BoundingBox>();
+            NodeIndexGroups = new List<NodeIndexGroup>();
+
+            VertInfoList = new List<VertexBufferInfo>();
+            Unknown1List = new List<UnknownInfo1>();
+            IndexInfoList = new List<IndexBufferInfo>();
+            Unknown2List = new List<UnknownInfo2>();
+            Unknown3List = new List<UnknownInfo3>();
+        }
+
         public virtual void LoadRaw()
         {
             throw new NotImplementedException();
@@ -45,6 +63,11 @@ namespace Adjutant.Library.Definitions
         {
             public string Name;
             public List<Permutation> Permutations;
+
+            public Region()
+            {
+                Permutations = new List<Permutation>();
+            }
 
             public class Permutation
             {
@@ -100,6 +123,11 @@ namespace Adjutant.Library.Definitions
             public string Name;
             public List<Marker> Markers;
 
+            public MarkerGroup()
+            {
+                Markers = new List<Marker>();
+            }
+
             public abstract class Marker
             {
                 public int RegionIndex;
@@ -124,8 +152,16 @@ namespace Adjutant.Library.Definitions
         public class ModelSection
         {
             public List<Submesh> Submeshes;
+            public List<Subset> Subsets;
+
             public Vertex[] Vertices;
             public int[] Indices;
+
+            public ModelSection()
+            {
+                Submeshes = new List<Submesh>();
+                Subsets = new List<Subset>();
+            }
             
             public class Submesh
             {
@@ -136,8 +172,6 @@ namespace Adjutant.Library.Definitions
                 public int SubsetCount;
                 public int VertexCount;
             }
-
-            public List<Subset> Subsets;
 
             public class Subset
             {
@@ -205,6 +239,11 @@ namespace Adjutant.Library.Definitions
         public abstract class NodeIndexGroup
         {
             public List<NodeIndex> NodeIndices;
+
+            public NodeIndexGroup()
+            {
+                NodeIndices = new List<NodeIndex>();
+            }
 
             public abstract class NodeIndex
             {

@@ -490,29 +490,6 @@ namespace Adjutant.Library.DataTypes
             a = (float)(UByteN4 >> 24)          / (float)0xFF;
             return new RealQuat(a, b, c, d);
         }
-
-
-        // 11/11/10/00
-        public static RealQuat From11101100(uint HenDN3)
-        {
-            float a, b, c;
-            uint[] SignExtendXZ = { 0x00000000, 0xFFFFF800 };
-            uint[] SignExtendY = { 0x00000000, 0xFFFFFC00 };
-            uint temp;
-
-            temp = HenDN3 & 0x7FF;
-            a = (float)(short)(temp | SignExtendXZ[temp >> 10]) / (float)0x3FF;
-
-            temp = (HenDN3 >> 10) & 0x3FF;
-            b = (float)(short)(temp | SignExtendY[temp >> 9]) / (float)0x1FF;
-
-            temp = (HenDN3 >> 21) & 0x7FF;
-            c = (float)(short)(temp | SignExtendXZ[temp >> 10]) / (float)0x3FF;
-
-            //q.d = 0;
-
-            return new RealQuat(a, b, c);
-        }
         #endregion
     }
 }

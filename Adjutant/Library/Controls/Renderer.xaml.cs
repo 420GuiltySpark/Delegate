@@ -54,6 +54,9 @@ namespace Adjutant.Library.Controls
         public double MaxCameraSpeed = 1.5;
         public Point3D MaxPosition = new Point3D(500, 500, 500);
         public Point3D MinPosition = new Point3D(-500, -500, -500);
+        public double FarPlane { get { return ((PerspectiveCamera)viewport.Camera).FarPlaneDistance; } set { ((PerspectiveCamera)viewport.Camera).FarPlaneDistance = value; } }
+        public double FarPlaneMin = 200;
+        public double FarPlaneMax = 5000;
         public bool Running
         {
             get { return timer.IsEnabled; }
@@ -207,9 +210,9 @@ namespace Adjutant.Library.Controls
             #endregion
 
             #region Set FPD
-            if (CheckKeyState(Keys.NumPad8)) camera.FarPlaneDistance += 10;
-            if (CheckKeyState(Keys.NumPad2)) camera.FarPlaneDistance -= 10;
-            camera.FarPlaneDistance = ClipValue(camera.FarPlaneDistance, 200, 5000);
+            if (CheckKeyState(Keys.NumPad8)) camera.FarPlaneDistance *= 1.01;
+            if (CheckKeyState(Keys.NumPad2)) camera.FarPlaneDistance *= 0.99;
+            camera.FarPlaneDistance = ClipValue(camera.FarPlaneDistance, FarPlaneMin, FarPlaneMax);
             #endregion
 
             #region Check WASD

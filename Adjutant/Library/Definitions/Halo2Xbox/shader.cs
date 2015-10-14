@@ -34,9 +34,8 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
             Reader.SeekTo(Address + 32);
             iCount = Reader.ReadInt32();
             iOffset = Reader.ReadInt32() - Cache.Magic;
-            Properties = new List<rmsh.ShaderProperties>();
             for (int i = 0; i < iCount; i++)
-                Properties.Add(new ShaderProperties(Cache, iOffset + 124 * i) { ShaderMaps = new List<rmsh.ShaderProperties.ShaderMap>() { sMap } });
+                Properties.Add(new ShaderProperties(Cache, iOffset + 124 * i) { ShaderMaps = { sMap } });
             #endregion
 
             Reader.SeekTo(Address + 44);
@@ -66,7 +65,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 #region Tiling Chunk
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Tilings = new List<rmsh.ShaderProperties.Tiling>();
                 for (int i = 0; i < iCount; i++)
                     Tilings.Add(new Tiling(Cache, iOffset + 16 * i));
                 #endregion

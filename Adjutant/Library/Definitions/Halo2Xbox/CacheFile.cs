@@ -147,8 +147,8 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 #region Read Tags' Info
                 var classDic = new Dictionary<string, int>();
                 int[] sbspOffset = new int[0];
-                int[] sbspID = new int[0];
                 int[] sbspMagic = new int[0];
+                int[] sbspID = new int[0];
 
                 Reader.SeekTo(IH.tagInfoOffset);
                 for (int i = 0; i < IH.tagCount; i++)
@@ -172,17 +172,17 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                     Reader.ReadInt32(); //meta size
                     this.Add(item);
 
-                    long tempOffset = Reader.Position;
-
                     if (cname == "scnr")
                     {
+                        long tempOffset = Reader.Position;
+
                         Reader.SeekTo(item.Offset + 528);
                         int jCount = Reader.ReadInt32();
                         int jOffset = Reader.ReadInt32() - cache.Magic;
 
                         sbspOffset = new int[jCount];
-                        sbspID = new int[jCount];
                         sbspMagic = new int[jCount];
+                        sbspID = new int[jCount];
 
                         for (int j = 0; j < jCount; j++)
                         {
@@ -193,22 +193,15 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                             Reader.SeekTo(jOffset + j * 68 + 20);
                             sbspID[j] = Reader.ReadInt32();
                         }
+                        Reader.SeekTo(tempOffset);
                     }
-
-                    Reader.SeekTo(tempOffset);
                 }
 
                 for (int i = 0; i < sbspID.Length; i++)
                 {
-                    var id = sbspID[i];
-                    foreach (var item in this)
-                    {
-                        if (item.ID == id)
-                        {
-                            item.Offset = sbspOffset[i];
-                            item.Magic = sbspMagic[i];
-                        }
-                    }
+                    var tag = GetItemByID(sbspID[i]);
+                    tag.Offset = sbspOffset[i];
+                    tag.Magic = sbspMagic[i];
                 }
 
                 foreach (var pair in classDic)

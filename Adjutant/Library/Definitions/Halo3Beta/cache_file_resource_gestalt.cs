@@ -22,7 +22,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             Reader.SeekTo(Address + 36);
             int iCount = Reader.ReadInt32();
             int iOffset = Reader.ReadInt32() - Cache.Magic;
-            RawEntries = new List<zone.RawEntry>();
             for (int i = 0; i < iCount; i++)
                 RawEntries.Add(new RawEntry(Cache, iOffset + 96 * i));
             #endregion
@@ -76,7 +75,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 #region Resource Fixups
                 int iCount = Reader.ReadInt32();
                 int iOffset = Reader.ReadInt32() - Cache.Magic;
-                Fixups = new List<zone.RawEntry.ResourceFixup>();
                 for (int i = 0; i < iCount; i++)
                     Fixups.Add(new ResourceFixup(Cache, iOffset + 8 * i));
                 #endregion
@@ -85,7 +83,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 Reader.SeekTo(Address + 84);
                 iCount = Reader.ReadInt32();
                 iOffset = Reader.ReadInt32() - Cache.Magic;
-                DefinitionFixups = new List<zone.RawEntry.ResourceDefinitionFixup>();
                 for (int i = 0; i < iCount; i++)
                     DefinitionFixups.Add(new ResourceDefinitionFixup(Cache, iOffset + 8 * i));
                 #endregion
