@@ -6,7 +6,7 @@ using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using Adjutant.Properties;
 
-namespace Adjutant.Library.Cache
+namespace Adjutant.Library.Definitions
 {
     public abstract class CacheBase
     {

@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using Adjutant.Library.Endian;
 using System.IO;
 
-namespace Adjutant.Library.Cache
+namespace Adjutant.Library.Definitions
 {
     public static class AES
     {

@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Adjutant.Library;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using Adjutant.Library.DataTypes;
 
 namespace Adjutant.Library.Controls.MetaViewerControls

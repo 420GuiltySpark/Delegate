@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Adjutant.Library;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using Adjutant.Library.Controls;
 using Adjutant.Library.DataTypes;
@@ -66,39 +66,22 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         public override void LoadRaw()
         {
-            var sbsp = this;
-            sbsp.IndexInfoList = new List<mode.IndexBufferInfo>();
+            if (RawLoaded) return;
 
             #region Clusters
-            for (int i = 0; i < sbsp.Clusters.Count; i++)
+            for (int i = 0; i < Clusters.Count; i++)
             {
-                var section = (Halo2Xbox.scenario_structure_bsp.ModelSection)sbsp.ModelSections[i];
+                var section = (Halo2Xbox.scenario_structure_bsp.ModelSection)ModelSections[i];
 
                 if (section.rSize.Length == 0 || section.vertcount == 0)
                 {
-                    sbsp.IndexInfoList.Add(new mode.IndexBufferInfo());
+                    IndexInfoList.Add(new mode.IndexBufferInfo());
                     continue;
                 }
 
                 var data = cache.GetRawFromID(section.rawOffset, section.rawSize);
                 var ms = new MemoryStream(data);
                 var reader = new EndianReader(ms, Endian.EndianFormat.LittleEndian);
-
-                if (cache.vertexNode == null) throw new NotSupportedException("No vertex definitions found for " + cache.Version.ToString());
-
-                #region Get Vertex Definition
-                XmlNode formatNode = null;
-                foreach (XmlNode node in cache.vertexNode.ChildNodes)
-                {
-                    if (Convert.ToInt32(node.Attributes["type"].Value, 16) == 0)
-                    {
-                        formatNode = node;
-                        break;
-                    }
-                }
-
-                if (formatNode == null) throw new NotSupportedException("Format " + section.VertexFormat.ToString() + " not found in definition for " + cache.Version.ToString());
-                #endregion
 
                 #region Read Submeshes
                 for (int j = 0; j < section.rSize[0] / 72; j++)
@@ -144,9 +127,10 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 for (int j = 0; j < section.vertcount; j++)
                 {
                     reader.SeekTo(section.hSize + section.rOffset[vIndex] + ((section.rSize[vIndex] / section.vertcount) * j));
-                    var v = new Vertex(reader, formatNode);
+                    var v = new Vertex();
+                    var p = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
-                    //v.FormatName = "Halo2X format " + section.VertexFormat.ToString();
+                    v.Values.Add(new VertexValue(p, 0, "position", 0));
                     section.Vertices[j] = v;
                 }
 
@@ -157,7 +141,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                     var v = section.Vertices[j];
                     var uv = new RealQuat(reader.ReadSingle(), 1 - reader.ReadSingle());
                     v.Values.Add(new VertexValue(uv, 0, "texcoords", 0));
-                    //DecompressVertex(ref v, sbsp.BoundingBoxes[0]);
                 }
 
                 for (int j = 0; j < section.vertcount; j++)
@@ -177,42 +160,26 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
                 var facetype = 5;
                 if (section.facecount * 3 == section.Indices.Length) facetype = 3;
-                sbsp.IndexInfoList.Add(new mode.IndexBufferInfo() { FaceFormat = facetype });
+                IndexInfoList.Add(new mode.IndexBufferInfo() { FaceFormat = facetype });
             }
             #endregion
 
             #region Instances
-            if (sbsp.GeomInstances.Count == 0) { sbsp.RawLoaded = true; return; }
-            for (int i = sbsp.GeomInstances[0].SectionIndex; i < sbsp.ModelSections.Count; i++)
+            if (GeomInstances.Count == 0) { RawLoaded = true; return; }
+            for (int i = GeomInstances[0].SectionIndex; i < ModelSections.Count; i++)
             {
-                var section = (Halo2Xbox.scenario_structure_bsp.ModelSection)sbsp.ModelSections[i];
-                var geomIndex = i - sbsp.Clusters.Count;
+                var section = (Halo2Xbox.scenario_structure_bsp.ModelSection)ModelSections[i];
+                var geomIndex = i - Clusters.Count;
 
                 if (section.rSize.Length == 0 || section.vertcount == 0)
                 {
-                    sbsp.IndexInfoList.Add(new mode.IndexBufferInfo());
+                    IndexInfoList.Add(new mode.IndexBufferInfo());
                     continue;
                 }
 
                 var data = cache.GetRawFromID(section.rawOffset, section.rawSize);
                 var ms = new MemoryStream(data);
                 var reader = new EndianReader(ms, Endian.EndianFormat.LittleEndian);
-
-                if (cache.vertexNode == null) throw new NotSupportedException("No vertex definitions found for " + cache.Version.ToString());
-
-                #region Get Vertex Definition
-                XmlNode formatNode = null;
-                foreach (XmlNode node in cache.vertexNode.ChildNodes)
-                {
-                    if (Convert.ToInt32(node.Attributes["type"].Value, 16) == 0)
-                    {
-                        formatNode = node;
-                        break;
-                    }
-                }
-
-                if (formatNode == null) throw new NotSupportedException("Format " + section.VertexFormat.ToString() + " not found in definition for " + cache.Version.ToString());
-                #endregion
 
                 #region Read Submeshes
                 for (int j = 0; j < section.rSize[0] / 72; j++)
@@ -258,9 +225,10 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 for (int j = 0; j < section.vertcount; j++)
                 {
                     reader.SeekTo(section.hSize + section.rOffset[vIndex] + ((section.rSize[vIndex] / section.vertcount) * j));
-                    var v = new Vertex(reader, formatNode);
+                    var v = new Vertex();
+                    var p = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
-                    //v.FormatName = "Halo2X format " + section.VertexFormat.ToString();
+                    v.Values.Add(new VertexValue(p, 0, "position", 0));
                     section.Vertices[j] = v;
                 }
 
@@ -271,7 +239,7 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                     var v = section.Vertices[j];
                     var uv = new RealQuat(reader.ReadSingle(), 1 - reader.ReadSingle());
                     v.Values.Add(new VertexValue(uv, 0, "texcoords", 0));
-                    //DecompressVertex(ref v, sbsp.BoundingBoxes[geomIndex]);
+                    //DecompressVertex(ref v, BoundingBoxes[geomIndex]);
                 }
 
                 for (int j = 0; j < section.vertcount; j++)
@@ -291,11 +259,11 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
                 var facetype = 5;
                 if (section.facecount * 3 == section.Indices.Length) facetype = 3;
-                sbsp.IndexInfoList.Add(new mode.IndexBufferInfo() { FaceFormat = facetype });
+                IndexInfoList.Add(new mode.IndexBufferInfo() { FaceFormat = facetype });
             }
             #endregion
 
-            sbsp.RawLoaded = true;
+            RawLoaded = true;
         }
 
         new public class Cluster : sbsp.Cluster

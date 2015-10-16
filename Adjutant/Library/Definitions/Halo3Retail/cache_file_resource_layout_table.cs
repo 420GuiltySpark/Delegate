@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Adjutant.Library;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using play = Adjutant.Library.Definitions.cache_file_resource_layout_table;
 

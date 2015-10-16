@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Adjutant.Library;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using Adjutant.Library.Controls;
 using Adjutant.Library.DataTypes;
@@ -130,8 +130,9 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         public override void LoadRaw()
         {
-            var sbsp = this;
-            var data = cache.GetRawFromID(sbsp.geomRawID);
+            if (RawLoaded) return;
+
+            var data = cache.GetRawFromID(geomRawID);
 
             var ms = new MemoryStream(data);
             var reader = new EndianReader(ms, EndianFormat.BigEndian);
@@ -141,12 +142,12 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             LoadFixups();
 
             #region Read Vertices
-            for (int i = 0; i < sbsp.ModelSections.Count; i++)
+            for (int i = 0; i < ModelSections.Count; i++)
             {
-                var section = sbsp.ModelSections[i];
+                var section = ModelSections[i];
                 if (section.Submeshes.Count == 0) continue;
 
-                if (section.VertsIndex >= 0 && section.VertsIndex < sbsp.VertInfoList.Count) reader.SeekTo(sbsp.VertInfoList[section.VertsIndex].Offset);
+                if (section.VertsIndex >= 0 && section.VertsIndex < VertInfoList.Count) reader.SeekTo(VertInfoList[section.VertsIndex].Offset);
 
                 if (cache.vertexNode == null) throw new NotSupportedException("No vertex definitions found for " + cache.Version.ToString());
 
@@ -173,21 +174,21 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 else
                     validParts.Add(section.VertsIndex, section);
 
-                section.Vertices = new Vertex[sbsp.VertInfoList[section.VertsIndex].VertexCount];
+                section.Vertices = new Vertex[VertInfoList[section.VertsIndex].VertexCount];
 
                 #region Get Vertices
-                for (int j = 0; j < sbsp.VertInfoList[section.VertsIndex].VertexCount; j++)
+                for (int j = 0; j < VertInfoList[section.VertsIndex].VertexCount; j++)
                 {
                     mode.BoundingBox bb;
                     section.Vertices[j] = new Vertex(reader, formatNode);
-                    if (i >= sbsp.BoundingBoxes.Count)
+                    if (i >= BoundingBoxes.Count)
                     {
                         bb = new mode.BoundingBox();
                         bb.XBounds = bb.YBounds = bb.ZBounds =
                         bb.UBounds = bb.VBounds = new RealBounds(0, 0);
                     }
                     else
-                        bb = sbsp.BoundingBoxes[i];
+                        bb = BoundingBoxes[i];
 
                     ModelFunctions.DecompressVertex(ref section.Vertices[j], bb);
                 }
@@ -198,12 +199,12 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             validParts.Clear();
 
             #region Read Indices
-            for (int i = 0; i < sbsp.ModelSections.Count; i++)
+            for (int i = 0; i < ModelSections.Count; i++)
             {
-                var section = sbsp.ModelSections[i];
+                var section = ModelSections[i];
                 if (section.Submeshes.Count == 0) continue;
 
-                if (section.FacesIndex >= 0 && section.FacesIndex < sbsp.IndexInfoList.Count) reader.SeekTo(sbsp.IndexInfoList[section.FacesIndex].Offset);
+                if (section.FacesIndex >= 0 && section.FacesIndex < IndexInfoList.Count) reader.SeekTo(IndexInfoList[section.FacesIndex].Offset);
 
                 mode.ModelSection validPart;
                 if (validParts.TryGetValue(section.FacesIndex, out validPart))
@@ -216,23 +217,16 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
                 section.Indices = new int[section.TotalFaceCount];
                 for (int j = 0; j < section.TotalFaceCount; j++)
-                    section.Indices[j] = (sbsp.VertInfoList[section.VertsIndex].VertexCount > 0xFFFF) ? reader.ReadInt32() : reader.ReadUInt16();
+                    section.Indices[j] = (VertInfoList[section.VertsIndex].VertexCount > 0xFFFF) ? reader.ReadInt32() : reader.ReadUInt16();
             }
             #endregion
 
-            sbsp.RawLoaded = true;
+            RawLoaded = true;
         }
 
         protected void LoadFixups()
         {
-            var sbsp = this;
-            sbsp.VertInfoList = new List<render_model.VertexBufferInfo>();
-            sbsp.Unknown1List = new List<render_model.UnknownInfo1>();
-            sbsp.IndexInfoList = new List<render_model.IndexBufferInfo>();
-            sbsp.Unknown2List = new List<render_model.UnknownInfo2>();
-            sbsp.Unknown3List = new List<render_model.UnknownInfo3>();
-
-            var Entry = cache.zone.RawEntries[sbsp.geomRawID & ushort.MaxValue];
+            var Entry = cache.zone.RawEntries[geomRawID & ushort.MaxValue];
             var reader = new EndianReader(new MemoryStream(cache.zone.FixupData), EndianFormat.BigEndian);
 
             reader.SeekTo(Entry.FixupOffset + (Entry.FixupSize - 24));
@@ -244,7 +238,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
             for (int i = 0; i < vCount; i++)
             {
-                sbsp.VertInfoList.Add(new mode.VertexBufferInfo()
+                VertInfoList.Add(new mode.VertexBufferInfo()
                 {
                     Offset = Entry.Fixups[i].Offset,
                     VertexCount = reader.ReadInt32(),
@@ -260,7 +254,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             for (int i = 0; i < vCount; i++)
             {
                 //assumed to be vertex related
-                sbsp.Unknown1List.Add(new mode.UnknownInfo1()
+                Unknown1List.Add(new mode.UnknownInfo1()
                 {
                     Unknown1 = reader.ReadInt32(), //always 0 so far
                     Unknown2 = reader.ReadInt32(), //always 0 so far
@@ -284,13 +278,13 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 data.Unknown2 = reader.ReadInt32();
                 data.Unknown3 = reader.ReadInt32();
 
-                sbsp.IndexInfoList.Add(data);
+                IndexInfoList.Add(data);
             }
 
             for (int i = 0; i < iCount; i++)
             {
                 //assumed to be index related
-                sbsp.Unknown2List.Add(new mode.UnknownInfo2()
+                Unknown2List.Add(new mode.UnknownInfo2()
                 {
                     Unknown1 = reader.ReadInt32(), //always 0 so far
                     Unknown2 = reader.ReadInt32(), //always 0 so far
@@ -300,7 +294,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
             for (int i = 0; i < 4; i++)
             {
-                sbsp.Unknown3List.Add(new mode.UnknownInfo3()
+                Unknown3List.Add(new mode.UnknownInfo3()
                 {
                     Unknown1 = reader.ReadInt32(), //vCount in 3rd, iCount in 4th
                     Unknown2 = reader.ReadInt32(), //always 0 so far

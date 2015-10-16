@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 
 namespace Adjutant.Library.Definitions.Halo2Xbox
 {

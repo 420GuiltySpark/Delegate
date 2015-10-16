@@ -103,9 +103,9 @@
     <Compile Include="Library\Definitions\ReachRetail\CacheFile.cs" />
     <Compile Include="Library\Definitions\Halo2Vista\CacheFile.cs" />
     <Compile Include="Library\Definitions\Halo4Beta\CacheFile.cs" />
-    <Compile Include="Library\Cache\AES.cs" />
-    <Compile Include="Library\Cache\CacheFile.cs" />
-    <Compile Include="Library\Cache\xcompress.cs" />
+    <Compile Include="Library\Definitions\AES.cs" />
+    <Compile Include="Library\Definitions\Base\CacheFile.cs" />
+    <Compile Include="Library\Definitions\xcompress.cs" />
     <Compile Include="Library\Controls\BinkExtractor.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 
 namespace Adjutant.Library.Controls.MetaViewerControls
 {

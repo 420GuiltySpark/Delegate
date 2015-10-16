@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
-using Adjutant.Library.Cache;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 

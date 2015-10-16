@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Adjutant.Library.Endian;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 
 namespace Adjutant.Library.Definitions
 {

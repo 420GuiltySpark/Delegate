@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Adjutant.Library;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using Adjutant.Library.DataTypes;
 using rmt2 = Adjutant.Library.Definitions.render_method_template;

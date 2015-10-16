@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Xml;
 using Adjutant.Library.Endian;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 
 namespace Adjutant.Library.Definitions
 {

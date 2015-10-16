@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Adjutant.Library;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using Adjutant.Library.Controls;
 using Adjutant.Library.DataTypes;
@@ -101,6 +101,8 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         public override void LoadRaw()
         {
+            if (RawLoaded) return;
+
             var mode = this;
             var data = cache.GetRawFromID(mode.RawID);
             var ms = new MemoryStream(data);

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Adjutant.Library;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using Adjutant.Library.Controls;
 using Adjutant.Library.DataTypes;
@@ -45,6 +45,12 @@ namespace Adjutant.Library.Definitions
             Shaders = new List<render_model.Shader>();
             ModelSections = new List<render_model.ModelSection>();
             BoundingBoxes = new List<render_model.BoundingBox>();
+
+            VertInfoList = new List<render_model.VertexBufferInfo>();
+            Unknown1List = new List<render_model.UnknownInfo1>();
+            IndexInfoList = new List<render_model.IndexBufferInfo>();
+            Unknown2List = new List<render_model.UnknownInfo2>();
+            Unknown3List = new List<render_model.UnknownInfo3>();
         }
 
         public virtual void LoadRaw()

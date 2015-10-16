@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Adjutant.Library;
 using Adjutant.Library.Endian;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using zone = Adjutant.Library.Definitions.cache_file_resource_gestalt;
 
 namespace Adjutant.Library.Definitions.Halo4Retail

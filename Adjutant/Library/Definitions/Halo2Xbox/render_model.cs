@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Adjutant.Library;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using Adjutant.Library.Controls;
 using Adjutant.Library.DataTypes;
@@ -75,37 +75,19 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
         public override void LoadRaw()
         {
-            var mode = this;
-            mode.IndexInfoList = new List<IndexBufferInfo>();
-            mode.VertInfoList = new List<VertexBufferInfo>();
+            if (RawLoaded) return;
 
-            for (int i = 0; i < mode.ModelSections.Count; i++)
+            for (int i = 0; i < ModelSections.Count; i++)
             {
-                var section = (Halo2Xbox.render_model.ModelSection)mode.ModelSections[i];
+                var section = (Halo2Xbox.render_model.ModelSection)ModelSections[i];
                 var data = cache.GetRawFromID(section.rawOffset, section.rawSize);
                 var ms = new MemoryStream(data);
                 var reader = new EndianReader(ms, Endian.EndianFormat.LittleEndian);
 
-                if (cache.vertexNode == null) throw new NotSupportedException("No vertex definitions found for " + cache.Version.ToString());
-
-                #region Get Vertex Definition
-                XmlNode formatNode = null;
-                foreach (XmlNode node in cache.vertexNode.ChildNodes)
-                {
-                    if (Convert.ToInt32(node.Attributes["type"].Value, 16) == 1)
-                    {
-                        formatNode = node;
-                        break;
-                    }
-                }
-
-                if (formatNode == null) throw new NotSupportedException("Format " + section.VertexFormat.ToString() + " not found in definition for " + cache.Version.ToString());
-                #endregion
-
                 #region Read Submeshes
                 for (int j = 0; j < section.rSize[0] / 72; j++)
                 {
-                    var mesh = new mode.ModelSection.Submesh();
+                    var mesh = new ModelSection.Submesh();
                     reader.SeekTo(section.hSize + section.rOffset[0] + j * 72 + 4);
                     mesh.ShaderIndex = reader.ReadUInt16();
                     mesh.FaceIndex = reader.ReadUInt16();
@@ -120,8 +102,8 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
 
                 var facetype = 5;
                 if (section.facecount * 3 == section.Indices.Length) facetype = 3;
-                mode.IndexInfoList.Add(new IndexBufferInfo() { FaceFormat = facetype });
-                mode.VertInfoList.Add(new VertexBufferInfo() { VertexCount = section.vertcount });
+                IndexInfoList.Add(new IndexBufferInfo() { FaceFormat = facetype });
+                VertInfoList.Add(new VertexBufferInfo() { VertexCount = section.vertcount });
 
                 #region Get Resource Indices
                 int iIndex = 0, vIndex = 0, uIndex = 0, nIndex = 0, bIndex = 0;
@@ -165,7 +147,11 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 for (int j = 0; j < section.vertcount; j++)
                 {
                     reader.SeekTo(section.hSize + section.rOffset[vIndex] + ((section.rSize[vIndex] / section.vertcount) * j));
-                    var v = new Vertex(reader, formatNode);
+                    var v = new Vertex();
+                    var p = new RealQuat(
+                        ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 
+                        ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 
+                        ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 0);
                     var b = new RealQuat();
                     var w = new RealQuat();
 
@@ -221,10 +207,10 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                         b.d = (w.d == 0) ? 0 : bArr[(int)b.d];
                     }
 
+                    v.Values.Add(new VertexValue(p, 0, "position", 0));
                     v.Values.Add(new VertexValue(b, 0, "blendindices", 0));
                     v.Values.Add(new VertexValue(w, 0, "blendweight", 0));
 
-                    //v.FormatName = "Halo2X format " + section.VertexFormat.ToString();
                     section.Vertices[j] = v;
                 }
                 #endregion
@@ -247,14 +233,14 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 }
                 #endregion
 
-                ModelFunctions.DecompressVertex(ref section.Vertices, mode.BoundingBoxes[0]);
+                ModelFunctions.DecompressVertex(ref section.Vertices, BoundingBoxes[0]);
 
                 reader.SeekTo(section.hSize + section.rOffset[iIndex]);
                 for (int j = 0; j < section.Indices.Length; j++)
                     section.Indices[j] = reader.ReadUInt16();
             }
 
-            mode.RawLoaded = true;
+            RawLoaded = true;
         }
 
         new public class Region : mode.Region

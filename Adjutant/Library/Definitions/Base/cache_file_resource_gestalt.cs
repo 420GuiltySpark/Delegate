@@ -24,14 +24,6 @@ namespace Adjutant.Library.Definitions
             public int LocationType;
             public int SegmentIndex;
 
-            //H3B
-            public int CacheIndex;
-            public int RequiredOffset;
-            public int RequiredSize;
-            public int CacheIndex2;
-            public int OptionalOffset;
-            public int OptionalSize;
-
             public List<ResourceFixup> Fixups;
             public List<ResourceDefinitionFixup> DefinitionFixups;
 

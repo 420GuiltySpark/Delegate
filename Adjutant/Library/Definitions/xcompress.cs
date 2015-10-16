@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.IO.Compression;
 
-namespace Adjutant.Library.Cache
+namespace Adjutant.Library.Definitions
 {
     public static class xcompress
     {

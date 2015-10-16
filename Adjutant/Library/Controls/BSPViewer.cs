@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Adjutant.Library.S3D;
-using Adjutant.Library.Cache;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.DataTypes;
 using Adjutant.Library.Controls;

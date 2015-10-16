@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Adjutant.Library.Cache;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 
@@ -275,7 +274,7 @@ namespace Adjutant.Library.Definitions.Halo3Beta
             EndianReader er;
             string fName = "";
 
-            var Entry = zone.RawEntries[ID & ushort.MaxValue];
+            var Entry = (Halo3Beta.cache_file_resource_gestalt.RawEntry)zone.RawEntries[ID & ushort.MaxValue];
 
             var offset = (Entry.OptionalOffset > 0) ? Entry.OptionalOffset : Entry.RequiredOffset;
             var size = (Entry.OptionalSize > 0) ? Entry.OptionalSize : Entry.RequiredSize;

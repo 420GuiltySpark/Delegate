@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Adjutant.Library;
 using Adjutant.Library.Endian;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using zone = Adjutant.Library.Definitions.cache_file_resource_gestalt;
 
 namespace Adjutant.Library.Definitions.Halo3Beta
@@ -39,6 +39,13 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
         new public class RawEntry : zone.RawEntry
         {
+            public int CacheIndex;
+            public int RequiredOffset;
+            public int RequiredSize;
+            public int CacheIndex2;
+            public int OptionalOffset;
+            public int OptionalSize;
+
             public RawEntry(CacheBase Cache, int Address)
             {
                 EndianReader Reader = Cache.Reader;
@@ -56,7 +63,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
 
                 Reader.ReadInt32();
 
-                #region H3B only
                 CacheIndex = Reader.ReadInt32();
                 RequiredOffset = Reader.ReadInt32();
                 RequiredSize = Reader.ReadInt32();
@@ -68,8 +74,6 @@ namespace Adjutant.Library.Definitions.Halo3Beta
                 OptionalSize = Reader.ReadInt32();
 
                 Reader.ReadInt32();
-                #endregion
-
                 Reader.ReadInt32();
 
                 #region Resource Fixups

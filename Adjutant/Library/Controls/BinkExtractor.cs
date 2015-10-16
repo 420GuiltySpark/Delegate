@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Adjutant.Library;
-using Adjutant.Library.Cache;
 using Adjutant.Library.Definitions;
 using Adjutant.Library.Endian;
 using System.IO;

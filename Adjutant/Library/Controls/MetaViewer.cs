@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Adjutant.Library.Controls.MetaViewerControls;
-using Adjutant.Library.Cache;
+using Adjutant.Library.Definitions;
 using System.IO;
 using System.Xml;
 
