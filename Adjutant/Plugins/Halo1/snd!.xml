@@ -1,0 +1,114 @@
+<plugin>
+  <revisions />
+  <bitmask16 name="Flags" offset="0x00" visible="True">
+    <option name="Fit to ADPCM Block Size" value="15" />
+    <option name="Split Long Sound Into Permutations" value="14" />
+  </bitmask16>
+  <enum16 name="Class" offset="0x04" visible="True">
+    <option name="projectile_impact" value="00" />
+    <option name="projectile_detonation" value="01" />
+    <option name="" value="02" />
+    <option name="" value="03" />
+    <option name="weapon_fire" value="04" />
+    <option name="weapon_ready" value="05" />
+    <option name="weapon_reload" value="06" />
+    <option name="weapon_empty" value="07" />
+    <option name="weapon_charge" value="08" />
+    <option name="weapon_overheat" value="09" />
+    <option name="weapon_idle" value="10" />
+    <option name="" value="11" />
+    <option name="" value="12" />
+    <option name="object_impacts" value="13" />
+    <option name="particle_impacts" value="14" />
+    <option name="slow_particle_impacts" value="15" />
+    <option name="" value="16" />
+    <option name="" value="17" />
+    <option name="unit_footsteps" value="18" />
+    <option name="unit_dialog" value="19" />
+    <option name="" value="20" />
+    <option name="" value="21" />
+    <option name="vehicle_collision" value="22" />
+    <option name="vehicle_engine" value="23" />
+    <option name="" value="24" />
+    <option name="" value="25" />
+    <option name="device_door" value="26" />
+    <option name="device_force_field" value="27" />
+    <option name="device_machinery" value="28" />
+    <option name="device_nature" value="29" />
+    <option name="device_computers" value="30" />
+    <option name="" value="31" />
+    <option name="music" value="32" />
+    <option name="ambient_nature" value="33" />
+    <option name="ambient_machinery" value="34" />
+    <option name="ambient_computers" value="35" />
+    <option name="" value="36" />
+    <option name="" value="37" />
+    <option name="" value="38" />
+    <option name="first_person_damage" value="39" />
+    <option name="" value="40" />
+    <option name="" value="41" />
+    <option name="" value="42" />
+    <option name="" value="43" />
+    <option name="scripted_dialog_player" value="44" />
+    <option name="scripted_effect" value="45" />
+    <option name="scripted_dialog_other" value="46" />
+    <option name="scripted_dialog_force_unspatialized" value="47" />
+    <option name="" value="48" />
+    <option name="" value="49" />
+    <option name="game_event" value="50" />
+  </enum16>
+  <enum16 name="Sample Rate" offset="0x06" visible="True">
+    <option name="22 kHz" value="00" />
+    <option name="44 kHz" value="01" />
+  </enum16>
+  <float32 name="Minimum Distance" offset="0x08" visible="True" />
+  <float32 name="Maximum Distance" offset="0x0C" visible="True" />
+  <float32 name="Skip Fraction" offset="0x10" visible="True" />
+  <float32 name="Randomization.Random Pitch Bounds: from" offset="0x14" visible="True" />
+  <float32 name="Randomization.Random Pitch Bounds: to" offset="0x18" visible="True" />
+  <float32 name="Randomization.Inner Cone Angle" offset="0x1C" visible="True" />
+  <float32 name="Randomization.Outer Cone Angle" offset="0x20" visible="True" />
+  <float32 name="Randomization.Outer Cone Gain" offset="0x24" visible="True" />
+  <float32 name="Randomization.Gain Modifier" offset="0x28" visible="True" />
+  <int32 name="Randomization.Maximum Bend per Second" offset="0x2C" visible="True" />
+  <float32 name="While Scale is Zero.Skip Fraction Modifier" offset="0x3C" visible="True" />
+  <float32 name="While Scale is Zero.Gain Modifier" offset="0x40" visible="True" />
+  <float32 name="While Scale is Zero.Pitch Modifier" offset="0x44" visible="True" />
+  <float32 name="While Scale is One.Skip Fraction Modifier" offset="0x54" visible="True" />
+  <float32 name="While Scale is One.Gain Modifier" offset="0x58" visible="True" />
+  <float32 name="While Scale is One.Pitch Modifier" offset="0x5C" visible="True" />
+  <enum16 name="Import Properties.Encoding" offset="0x6C" visible="True">
+    <option name="Mono" value="00" />
+    <option name="Stereo" value="01" />
+  </enum16>
+  <enum16 name="Import Properties.Compression" offset="0x6E" visible="True">
+    <option name="None" value="00" />
+    <option name="Xbox ADPCM" value="01" />
+    <option name="IMA ADPCM" value="02" />
+    <option name="Ogg" value="03" />
+  </enum16>
+  <int16 name="Import Properties.Promotion Count" offset="0x80" visible="True" />
+  <struct name="Pitch Ranges" offset="0x98" visible="True" size="72">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <float32 name="Pitch Control.Natural Pitch" offset="0x20" visible="True" />
+    <float32 name="Pitch Control.Bend Bounds: from" offset="0x24" visible="True" />
+    <float32 name="Pitch Control.Bend Bounds: to" offset="0x28" visible="True" />
+    <int16 name="Pitch Control.Actual Permutation Count" offset="0x2C" visible="True" />
+    <float32 name="Playback Rate Multiplier" offset="0x30" visible="True" />
+    <struct name="Permutations" offset="0x3C" visible="True" size="124">
+      <string name="Name" offset="0x00" visible="True" length="32" />
+      <float32 name="Skip Fraction" offset="0x20" visible="True" />
+      <float32 name="Gain" offset="0x24" visible="True" />
+      <enum16 name="Import Properties.Compression" offset="0x28" visible="True">
+        <option name="None" value="00" />
+        <option name="Xbox ADPCM" value="01" />
+        <option name="IMA ADPCM" value="02" />
+        <option name="Ogg" value="03" />
+      </enum16>
+      <int16 name="Next Permutation Index" offset="0x2A" visible="True" />
+      <int32 name="Samples" offset="0x40" visible="True" />
+      <int32 name="Mouth Data" offset="0x54" visible="True" />
+      <int32 name="Subtitle Data" offset="0x68" visible="True" />
+    </struct>
+  </struct>
+</plugin>

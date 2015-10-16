@@ -1,0 +1,71 @@
+<plugin>
+  <revisions />
+  <int16 name="Lightning.Count" offset="0x02" visible="True" />
+  <float32 name="Lightning.Near Fade Distance" offset="0x14" visible="True" />
+  <float32 name="Lightning.Far Fade Distance" offset="0x18" visible="True" />
+  <enum16 name="Lightning.Jitter Scale Source" offset="0x2C" visible="True">
+    <option name="None" value="00" />
+    <option name="A out" value="01" />
+    <option name="B out" value="02" />
+    <option name="C out" value="03" />
+    <option name="D out" value="04" />
+  </enum16>
+  <enum16 name="Lightning.Thickness Scale Source" offset="0x2E" visible="True">
+    <option name="None" value="00" />
+    <option name="A out" value="01" />
+    <option name="B out" value="02" />
+    <option name="C out" value="03" />
+    <option name="D out" value="04" />
+  </enum16>
+  <enum16 name="Lightning.Tint Modulation Source" offset="0x30" visible="True">
+    <option name="None" value="00" />
+    <option name="A" value="01" />
+    <option name="B" value="02" />
+    <option name="C" value="03" />
+    <option name="D" value="04" />
+  </enum16>
+  <enum16 name="Lightning.Brightness Scale Source" offset="0x32" visible="True">
+    <option name="None" value="00" />
+    <option name="A out" value="01" />
+    <option name="B out" value="02" />
+    <option name="C out" value="03" />
+    <option name="D out" value="04" />
+  </enum16>
+  <struct name="Markers" offset="0x98" visible="True" size="228">
+    <string name="Attachment Marker" offset="0x00" visible="True" length="32" />
+    <bitmask8 name="Flags" offset="0x20" visible="True">
+      <option name="Not Connected To Next Marker" value="07" />
+    </bitmask8>
+    <int16 name="Octaves to Next Marker" offset="0x24" visible="True" />
+    <float32 name="Random Position Bounds: i (1)" offset="0x74" visible="True" />
+    <float32 name="Random Position Bounds: i (2)" offset="0x78" visible="True" />
+    <float32 name="Random Position Bounds: k" offset="0x7C" visible="True" />
+    <float32 name="Random Jitter" offset="0x80" visible="True" />
+    <float32 name="Thickness" offset="0x84" visible="True" />
+  </struct>
+  <struct name="Shader" offset="0xA4" visible="True" size="32">
+    <bitmask16 name="Shader Flags" offset="0x28" visible="True">
+      <option name="Sort Bias" value="15" />
+      <option name="Nonlinear Tint" value="14" />
+      <option name="Don't Overdraw First-Person Weapon" value="13" />
+    </bitmask16>
+    <enum16 name="Framebuffer Blend Function" offset="0x2A" visible="True">
+      <option name="Alpha Blend" value="00" />
+      <option name="Multiply" value="01" />
+      <option name="Double Multiply" value="02" />
+      <option name="Add" value="03" />
+      <option name="Subtract" value="04" />
+      <option name="Component Minimum" value="05" />
+      <option name="Component Maximum" value="06" />
+      <option name="Alpha-Multiply Add" value="07" />
+    </enum16>
+    <enum16 name="Framebuffer Fade Mode" offset="0x2C" visible="True">
+      <option name="None" value="00" />
+      <option name="Fade When Perpendicular" value="01" />
+      <option name="Fade When Parallel" value="02" />
+    </enum16>
+    <bitmask8 name="Map Flags" offset="0x2E" visible="True">
+      <option name="Unfiltered" value="07" />
+    </bitmask8>
+  </struct>
+</plugin>

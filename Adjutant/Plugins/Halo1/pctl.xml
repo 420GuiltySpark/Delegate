@@ -1,0 +1,196 @@
+<plugin>
+  <revisions />
+  <enum16 name="System Behavior.System Update Physics" offset="0x48" visible="True">
+    <option name="Default" value="00" />
+    <option name="Explosion" value="01" />
+  </enum16>
+  <struct name="Physics Constants" offset="0x50" visible="True" size="4">
+    <float32 name="K" offset="0x00" visible="True" />
+  </struct>
+  <struct name="Particle Types" offset="0x5C" visible="True" size="128">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <bitmask32 name="Flags" offset="0x20" visible="True">
+      <option name="Type States Loop" value="31" />
+      <option name="... Forward/Backward" value="30" />
+      <option name="Particle States Loop" value="29" />
+      <option name="... Forward/Backward" value="28" />
+      <option name="Particles Die in Water" value="27" />
+      <option name="Particles Die in Air" value="26" />
+      <option name="Particles Die on Ground" value="25" />
+      <option name="Rotational Sprites Animate Sideways" value="24" />
+      <option name="Disabled" value="23" />
+      <option name="Tint by Effect Color" value="22" />
+      <option name="Initial Count Scales with Effect" value="21" />
+      <option name="Minimum Count Scales with Effect" value="20" />
+      <option name="Creation Rate Scales with Effect" value="19" />
+      <option name="Scale Scales with Effect" value="18" />
+      <option name="Animation Rate Scales with Effect" value="17" />
+      <option name="Rotation Rate Scales with Effect" value="16" />
+      <option name="Don't Draw in First Person" value="15" />
+      <option name="Don't Draw in Third Person" value="14" />
+    </bitmask32>
+    <int16 name="Initial Particle Count" offset="0x24" visible="True" />
+    <enum16 name="Complex Sprite Render Modes" offset="0x28" visible="True">
+      <option name="Simple" value="00" />
+      <option name="Rotational" value="01" />
+    </enum16>
+    <float32 name="Radius" offset="0x2C" visible="True" />
+    <enum16 name="Particle Creation Physics" offset="0x54" visible="True">
+      <option name="Default" value="00" />
+      <option name="Explosion" value="01" />
+      <option name="Jet" value="02" />
+    </enum16>
+    <struct name="Physics Constants" offset="0x5C" visible="True" size="4">
+      <float32 name="K" offset="0x00" visible="True" />
+    </struct>
+    <struct name="States" offset="0x68" visible="True" size="192">
+      <string name="Name" offset="0x00" visible="True" length="32" />
+      <float32 name="Duration Bounds: from" offset="0x20" visible="True" />
+      <float32 name="Duration Bounds: to" offset="0x24" visible="True" />
+      <float32 name="Transition Time Bounds: from" offset="0x28" visible="True" />
+      <float32 name="Transition Time Bounds: to" offset="0x2C" visible="True" />
+      <float32 name="Scale Multiplier" offset="0x34" visible="True" />
+      <float32 name="Animation_Rate_Multiplier" offset="0x38" visible="True" />
+      <float32 name="Rotation Rate Multiplier" offset="0x3C" visible="True" />
+      <float32 name="Radius Multiplier" offset="0x50" visible="True" />
+      <float32 name="Minimum Particle Count" offset="0x54" visible="True" />
+      <float32 name="Particle Creation Rate" offset="0x58" visible="True" />
+      <enum16 name="Particle Creation Physics" offset="0xB0" visible="True">
+        <option name="Default" value="00" />
+        <option name="Explosion" value="01" />
+        <option name="Jet" value="02" />
+      </enum16>
+      <enum16 name="Particle Update Physics" offset="0xB2" visible="True">
+        <option name="Default" value="00" />
+      </enum16>
+      <struct name="Physics Constants" offset="0xB4" visible="True" size="4">
+        <float32 name="K" offset="0x00" visible="True" />
+      </struct>
+    </struct>
+    <struct name="Particle States" offset="0x74" visible="True" size="376">
+      <string name="Name" offset="0x00" visible="True" length="32" />
+      <float32 name="Duration Bounds: from" offset="0x20" visible="True" />
+      <float32 name="Duration Bounds: to" offset="0x24" visible="True" />
+      <float32 name="Transition Time Bounds: from" offset="0x28" visible="True" />
+      <float32 name="Transition Time Bounds: to" offset="0x2C" visible="True" />
+      <int16 name="Sequence Index" offset="0x40" visible="True" />
+      <float32 name="Scale: from" offset="0x48" visible="True" />
+      <float32 name="Scale: to" offset="0x4C" visible="True" />
+      <float32 name="Animation Rate: from" offset="0x50" visible="True" />
+      <float32 name="Animation Rate: to" offset="0x54" visible="True" />
+      <float32 name="Rotation Rate: from" offset="0x58" visible="True" />
+      <float32 name="Rotation Rate: to" offset="0x5C" visible="True" />
+      <float32 name="Radius Multiplier" offset="0x80" visible="True" />
+      <int32 name="Unknown Usage (1)" offset="0xDC" visible="True" />
+      <bitmask16 name="Shader Flags" offset="0xE0" visible="True">
+        <option name="Sort Bias" value="15" />
+        <option name="Nonlinear Tint" value="14" />
+        <option name="Don't Overdraw First-Person Weapon" value="13" />
+      </bitmask16>
+      <enum16 name="Framebuffer Blend Function" offset="0xE2" visible="True">
+        <option name="Alpha Blend" value="00" />
+        <option name="Multiply" value="01" />
+        <option name="Double Multiply" value="02" />
+        <option name="Add" value="03" />
+        <option name="Subtract" value="04" />
+        <option name="Component Minimum" value="05" />
+        <option name="Component Maximum" value="06" />
+        <option name="Alpha-Multiply Add" value="07" />
+      </enum16>
+      <enum16 name="Framebuffer Fade Mode" offset="0xE4" visible="True">
+        <option name="None" value="00" />
+        <option name="Fade when Perpendicular" value="01" />
+        <option name="Fade when Parallel" value="02" />
+      </enum16>
+      <bitmask16 name="Map Flags" offset="0xE6" visible="True">
+        <option name="Unfiltered" value="07" />
+      </bitmask16>
+      <enum16 name="Secondary Map.Anchor" offset="0x114" visible="True">
+        <option name="With Primary" value="00" />
+        <option name="With Screen Space" value="01" />
+        <option name="Z Sprite" value="02" />
+      </enum16>
+      <bitmask32 name="Secondary Map.Flags" offset="0x116" visible="True">
+        <option name="Unfiltered" value="31" />
+      </bitmask32>
+      <enum16 name="Secondary Map.U-Animation Source" offset="0x118" visible="True">
+        <option name="None" value="00" />
+        <option name="A out" value="01" />
+        <option name="B out" value="02" />
+        <option name="C out" value="03" />
+        <option name="D out" value="04" />
+      </enum16>
+      <enum16 name="Secondary Map.U-Animation Function" offset="0x11A" visible="True">
+        <option name="One" value="00" />
+        <option name="Zero" value="01" />
+        <option name="Cosine" value="02" />
+        <option name="Cosine (variable period)" value="03" />
+        <option name="Diagonal Wave" value="04" />
+        <option name="Diagonal Wave (variable period)" value="05" />
+        <option name="Slide" value="06" />
+        <option name="Slide (variable period)" value="07" />
+        <option name="Noise" value="08" />
+        <option name="Jitter" value="09" />
+        <option name="Wander" value="10" />
+        <option name="Spark" value="11" />
+      </enum16>
+      <float32 name="Secondary Map.U-Animation Period" offset="0x11C" visible="True" />
+      <float32 name="Secondary Map.U-Animation Phase" offset="0x120" visible="True" />
+      <float32 name="Secondary Map.U-Animation Scale" offset="0x124" visible="True" />
+      <enum16 name="Secondary Map.V-Animation Source" offset="0x128" visible="True">
+        <option name="None" value="00" />
+        <option name="A out" value="01" />
+        <option name="B out" value="02" />
+        <option name="C out" value="03" />
+        <option name="D out" value="04" />
+      </enum16>
+      <enum16 name="Secondary Map.V-Animation Function" offset="0x12A" visible="True">
+        <option name="One" value="00" />
+        <option name="Zero" value="01" />
+        <option name="Cosine" value="02" />
+        <option name="Cosine (variable period)" value="03" />
+        <option name="Diagonal Wave" value="04" />
+        <option name="Diagonal Wave (variable period)" value="05" />
+        <option name="Slide" value="06" />
+        <option name="Slide (variable period)" value="07" />
+        <option name="Noise" value="08" />
+        <option name="Jitter" value="09" />
+        <option name="Wander" value="10" />
+        <option name="Spark" value="11" />
+      </enum16>
+      <float32 name="Secondary Map.V-Animation Period" offset="0x12C" visible="True" />
+      <float32 name="Secondary Map.V-Animation Phase" offset="0x130" visible="True" />
+      <float32 name="Secondary Map.V-Animation Scale" offset="0x134" visible="True" />
+      <enum16 name="Secondary Map.Rotation-Animation Source" offset="0x138" visible="True">
+        <option name="None" value="00" />
+        <option name="A out" value="01" />
+        <option name="B out" value="02" />
+        <option name="C out" value="03" />
+        <option name="D out" value="04" />
+      </enum16>
+      <enum16 name="Secondary Map.Rotation-Animation Function" offset="0x13A" visible="True">
+        <option name="One" value="00" />
+        <option name="Zero" value="01" />
+        <option name="Cosine" value="02" />
+        <option name="Cosine (variable period)" value="03" />
+        <option name="Diagonal Wave" value="04" />
+        <option name="Diagonal Wave (variable period)" value="05" />
+        <option name="Slide" value="06" />
+        <option name="Slide (variable period)" value="07" />
+        <option name="Noise" value="08" />
+        <option name="Jitter" value="09" />
+        <option name="Wander" value="10" />
+        <option name="Spark" value="11" />
+      </enum16>
+      <float32 name="Secondary Map.Rotation-Animation Period" offset="0x13C" visible="True" />
+      <float32 name="Secondary Map.Rotation-Animation Phase" offset="0x140" visible="True" />
+      <float32 name="Secondary Map.Rotation-Animation Scale" offset="0x144" visible="True" />
+      <float32 name="Secondary Map.Rotation-Animation Center: x" offset="0x148" visible="True" />
+      <float32 name="Secondary Map.Rotation-Animation Center: y" offset="0x14C" visible="True" />
+      <float32 name="Secondary Map.Zsprite Radius Scale" offset="0x154" visible="True" />
+      <struct name="Physics Constants" offset="0x16C" visible="True" size="4">
+        <float32 name="K" offset="0x00" visible="True" />
+      </struct>
+    </struct>
+  </struct>
+</plugin>

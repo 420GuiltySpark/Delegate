@@ -1,0 +1,114 @@
+<plugin>
+  <revisions />
+  <enum16 name="Type" offset="0x00" visible="True">
+    <option name="2D Textures" value="00" />
+    <option name="3D Textures" value="01" />
+    <option name="Cube Maps" value="02" />
+    <option name="Sprites" value="03" />
+    <option name="Interface Bitmaps" value="04" />
+  </enum16>
+  <enum16 name="Format" offset="0x02" visible="True">
+    <option name="Compressed with Color-Key Transparency" value="00" />
+    <option name="Compressed with Explicit Alpha" value="01" />
+    <option name="Compressed with Interpolated Alpha" value="02" />
+    <option name="16-bit Color" value="03" />
+    <option name="32-bit Color" value="04" />
+    <option name="Monochrome" value="05" />
+  </enum16>
+  <enum16 name="Usage" offset="0x04" visible="True">
+    <option name="Alpha-Blend" value="00" />
+    <option name="Default" value="01" />
+    <option name="Height Map" value="02" />
+    <option name="Detail Map" value="03" />
+    <option name="Light Map" value="04" />
+    <option name="Vector Map" value="05" />
+  </enum16>
+  <bitmask16 name="Usage.Flags" offset="0x06" visible="True">
+    <option name="Enable Diffusion Dithering" value="15" />
+    <option name="Disable Height Map Compression" value="14" />
+    <option name="Uniform Sprite Sequences" value="13" />
+    <option name="Filthy Sprite Bug Fix" value="12" />
+  </bitmask16>
+  <float32 name="Post-Processing.Detail Fade Factor" offset="0x08" visible="True" />
+  <float32 name="Post-Processing.Sharpen Amount" offset="0x0C" visible="True" />
+  <float32 name="Post-Processing.Bump Height" offset="0x10" visible="True" />
+  <enum16 name="Sprite Processing.Sprite Budget Size" offset="0x14" visible="True">
+    <option name="32x32" value="00" />
+    <option name="64x64" value="01" />
+    <option name="128x128" value="02" />
+    <option name="256x256" value="03" />
+    <option name="512x512" value="04" />
+  </enum16>
+  <int16 name="Sprite Processing.Sprite Budget Count" offset="0x16" visible="True" />
+  <int16 name="Color Plate.Color Plate Width" offset="0x18" visible="True" />
+  <int16 name="Color Plate.Color Plate Height" offset="0x1A" visible="True" />
+  <int32 name="Color Plate.Compressed Color Plate Data" offset="0x1C" visible="True" />
+  <int32 name="Processed Pixel Data" offset="0x38" visible="True" />
+  <float32 name="Miscellaneous.Blur Filter Size" offset="0x44" visible="True" />
+  <float32 name="Miscellaneous.Alpha Bias" offset="0x48" visible="True" />
+  <int16 name="Miscellaneous.Mipmap Count" offset="0x4C" visible="True" />
+  <enum16 name="...More Sprite Processing.Sprite Usage" offset="0x4E" visible="True">
+    <option name="Blend/Add/Subtract/Max" value="00" />
+    <option name="Multiply/Min" value="01" />
+    <option name="Double Multiply" value="02" />
+  </enum16>
+  <int16 name="...More Sprite Processing.Sprite Spacing" offset="0x50" visible="True" />
+  <struct name="Sequences" offset="0x54" visible="True" size="64">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <struct name="Sequences" offset="0x34" visible="True" size="32">
+      <int16 name="Bitmap Index" offset="0x00" visible="True" />
+      <float32 name="Left" offset="0x08" visible="True" />
+      <float32 name="Right" offset="0x0C" visible="True" />
+      <float32 name="Top" offset="0x10" visible="True" />
+      <float32 name="Bottom" offset="0x14" visible="True" />
+      <float32 name="Registration Point: x" offset="0x18" visible="True" />
+      <float32 name="Registration Point: y" offset="0x1C" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Bitmaps" offset="0x60" visible="True" size="48">
+    <int16 name="Width" offset="0x04" visible="True" />
+    <int16 name="Height" offset="0x06" visible="True" />
+    <enum16 name="Type" offset="0x0A" visible="True">
+      <option name="2D Texture" value="00" />
+      <option name="3D Texture" value="01" />
+      <option name="Cube Map" value="02" />
+      <option name="White" value="03" />
+    </enum16>
+    <enum16 name="Format" offset="0x0C" visible="True">
+      <option name="a8" value="00" />
+      <option name="y8" value="01" />
+      <option name="ay8" value="02" />
+      <option name="a8y8" value="03" />
+      <option name="unused1" value="04" />
+      <option name="unused2" value="05" />
+      <option name="r5g6b5" value="06" />
+      <option name="unused3" value="07" />
+      <option name="a1r5g5b5" value="08" />
+      <option name="a4r4g4b4" value="09" />
+      <option name="x8r8g8b8" value="10" />
+      <option name="a8r8g8b8" value="11" />
+      <option name="unused4" value="12" />
+      <option name="unused5" value="13" />
+      <option name="dxt1" value="14" />
+      <option name="dxt3" value="15" />
+      <option name="dxt5" value="16" />
+      <option name="p8-bump" value="17" />
+      <option name="R2D2" value="18" />
+      <option name="C3P0" value="19" />
+      <option name="OB1" value="20" />
+    </enum16>
+    <bitmask16 name="Flags" offset="0x0E" visible="True">
+      <option name="Power of Two Dimensions" value="15" />
+      <option name="Compressed" value="14" />
+      <option name="Palettized" value="13" />
+      <option name="Swizzled" value="12" />
+      <option name="Linear" value="11" />
+      <option name="v16u16" value="10" />
+    </bitmask16>
+    <int16 name="Registration Point: x" offset="0x10" visible="True" />
+    <int16 name="Registration Point: y" offset="0x12" visible="True" />
+    <int16 name="Mipmap Count" offset="0x14" visible="True" />
+    <int32 name="Pixels Offset" offset="0x18" visible="True" />
+    <int32 name="Pixel Count" offset="0x1C" visible="True" />
+  </struct>
+</plugin>

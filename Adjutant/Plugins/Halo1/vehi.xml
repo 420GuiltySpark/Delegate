@@ -1,0 +1,656 @@
+<plugin>
+  <revisions />
+  <bitmask16 name="Flags" offset="0x02" visible="True">
+    <option name="Does Not Cast Shadow" value="15" />
+    <option name="Transparent Self-Occlusion" value="14" />
+    <option name="Brighter Than It Should Be" value="13" />
+    <option name="Not a Pathfinding Obstacle" value="12" />
+  </bitmask16>
+  <float32 name="Bounding Radius" offset="0x04" visible="True" />
+  <float32 name="Bounding Offset: x" offset="0x08" visible="True" />
+  <float32 name="Bounding Offset: y" offset="0x0C" visible="True" />
+  <float32 name="Bounding Offset: z" offset="0x10" visible="True" />
+  <float32 name="Origin Offset: x" offset="0x14" visible="True" />
+  <float32 name="Origin Offset: y" offset="0x18" visible="True" />
+  <float32 name="Origin Offset: z" offset="0x1C" visible="True" />
+  <float32 name="Acceleration Scale" offset="0x20" visible="True" />
+  <float32 name="Render Bounding Radius" offset="0x104" visible="True" />
+  <enum16 name="Export to Functions.A in" offset="0x108" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <enum16 name="Export to Functions.B in" offset="0x10A" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <enum16 name="Export to Functions.C in" offset="0x10C" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <enum16 name="Export to Functions.D in" offset="0x10E" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <int16 name="Export to Functions.HUD Text Message Index" offset="0x13C" visible="True" />
+  <int16 name="Export to Functions.Forced Shader Permutation Index" offset="0x13E" visible="True" />
+  <struct name="Attachments" offset="0x140" visible="True" size="72">
+    <string name="Marker" offset="0x10" visible="True" length="32" />
+    <enum16 name="Primary Scale" offset="0x30" visible="True">
+      <option name="None" value="00" />
+      <option name="A out" value="01" />
+      <option name="B out" value="02" />
+      <option name="C out" value="03" />
+      <option name="D out" value="04" />
+    </enum16>
+    <enum16 name="Secondary Scale" offset="0x32" visible="True">
+      <option name="None" value="00" />
+      <option name="A out" value="01" />
+      <option name="B out" value="02" />
+      <option name="C out" value="03" />
+      <option name="D out" value="04" />
+    </enum16>
+    <enum16 name="Change Color" offset="0x34" visible="True">
+      <option name="None" value="00" />
+      <option name="A" value="01" />
+      <option name="B" value="02" />
+      <option name="C" value="03" />
+      <option name="D" value="04" />
+    </enum16>
+  </struct>
+  <struct name="Widgets" offset="0x14C" visible="True" size="32" />
+  <struct name="Functions" offset="0x158" visible="True" size="360">
+    <bitmask32 name="Flags" offset="0x0" visible="True">
+      <option name="Invert" value="31" />
+      <option name="Additive" value="30" />
+      <option name="Always Active" value="29" />
+    </bitmask32>
+    <float32 name="Period" offset="0x04" visible="True" />
+    <enum16 name="Scale Period By" offset="0x08" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Function" offset="0x0A" visible="True">
+      <option name="One" value="00" />
+      <option name="Zero" value="01" />
+      <option name="Cosine" value="02" />
+      <option name="Cosine (variable period)" value="03" />
+      <option name="Diagonal Wave" value="04" />
+      <option name="Diagonal Wave (variable period)" value="05" />
+      <option name="Slide" value="06" />
+      <option name="Slide (variable period)" value="07" />
+      <option name="Noise" value="08" />
+      <option name="Jitter" value="09" />
+      <option name="Wander" value="10" />
+      <option name="Spark" value="11" />
+    </enum16>
+    <enum16 name="Scale Function By" offset="0x0C" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Wobble Function" offset="0x0E" visible="True">
+      <option name="One" value="00" />
+      <option name="Zero" value="01" />
+      <option name="Cosine" value="02" />
+      <option name="Cosine (variable period)" value="03" />
+      <option name="Diagonal Wave" value="04" />
+      <option name="Diagonal Wave (variable period)" value="05" />
+      <option name="Slide" value="06" />
+      <option name="Slide (variable period)" value="07" />
+      <option name="Noise" value="08" />
+      <option name="Jitter" value="09" />
+      <option name="Wander" value="10" />
+      <option name="Spark" value="11" />
+    </enum16>
+    <float32 name="Wobble Period" offset="0x10" visible="True" />
+    <float32 name="Wobble Magnitude" offset="0x14" visible="True" />
+    <float32 name="Square Wave Threshold" offset="0x18" visible="True" />
+    <int16 name="Step Count" offset="0x1C" visible="True" />
+    <enum16 name="Map to" offset="0x1E" visible="True">
+      <option name="Linear" value="00" />
+      <option name="Early" value="01" />
+      <option name="Very Early" value="02" />
+      <option name="Late" value="03" />
+      <option name="Very Late" value="04" />
+      <option name="Cosine" value="05" />
+    </enum16>
+    <int16 name="Sawtooth Count" offset="0x20" visible="True" />
+    <enum16 name="Add" offset="0x22" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Scale Result by" offset="0x24" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Bounds Mode" offset="0x26" visible="True">
+      <option name="Clip" value="00" />
+      <option name="Clip and Normalize" value="01" />
+      <option name="Scale to Fit" value="02" />
+    </enum16>
+    <float32 name="Bounds: from" offset="0x28" visible="True" />
+    <float32 name="Bounds: to" offset="0x2C" visible="True" />
+    <enum16 name="Turn off with" offset="0x36" visible="True">
+      <option name="None" value="65535" />
+      <option name="A out (Function 1)" value="00" />
+      <option name="B out (Function 2)" value="01" />
+      <option name="C out (Function 3)" value="02" />
+      <option name="D out (Function 4)" value="03" />
+    </enum16>
+    <float32 name="Scale by" offset="0x38" visible="True" />
+    <float32 name="Function Acceleration Scale" offset="0x138" visible="True" />
+    <string name="Usage" offset="0x148" visible="True" length="32" />
+  </struct>
+  <struct name="Change Colors" offset="0x164" visible="True" size="44">
+    <enum16 name="Darken by" offset="0x00" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Scale by" offset="0x02" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <bitmask32 name="Scale Flags" offset="0x04" visible="True">
+      <option name="Blend in HSV" value="31" />
+      <option name="...More Colors" value="30" />
+    </bitmask32>
+    <struct name="Permutations" offset="0x20" visible="True" size="28">
+      <float32 name="Weight" offset="0x00" visible="True" />
+    </struct>
+  </struct>
+  <bitmask32 name="Unit.Flags" offset="0x17C" visible="True">
+    <option name="Circular Aiming" value="31" />
+    <option name="Destroyed After Dying" value="30" />
+    <option name="Half-Speed Interpolation" value="29" />
+    <option name="Fires From Camera" value="28" />
+    <option name="Entrance Inside Bounding Sphere" value="27" />
+    <option name="Unused" value="26" />
+    <option name="Causes Passenger Dialogue" value="25" />
+    <option name="Resists Pings" value="24" />
+    <option name="Melee Attack is Fatal" value="23" />
+    <option name="Don't Reface During Pings" value="22" />
+    <option name="Has No Aiming" value="21" />
+    <option name="Simple Creature" value="20" />
+    <option name="Impact Melee Attaches to Unit" value="19" />
+    <option name="Impact Melee Dies on Shields" value="18" />
+    <option name="Cannot Open Doors Automatically" value="17" />
+    <option name="Melee Attackers Cannot Attach" value="16" />
+    <option name="Not Instantly Killed by Melee" value="15" />
+    <option name="Shield Sapping" value="14" />
+    <option name="Runs Around Flaming" value="13" />
+    <option name="Inconsequential" value="12" />
+    <option name="Special Cinematic Unit" value="11" />
+    <option name="Ignored by Autoaiming" value="10" />
+    <option name="Shields Fry Infection Forms" value="09" />
+    <option name="Integrated Light Controls Weapon" value="08" />
+    <option name="Integrated Light Lasts Forever" value="07" />
+  </bitmask32>
+  <enum16 name="Unit.Default Team" offset="0x180" visible="True">
+    <option name="None" value="00" />
+    <option name="Player" value="01" />
+    <option name="Human" value="02" />
+    <option name="Covenant" value="03" />
+    <option name="Flood" value="04" />
+    <option name="Sentinel" value="05" />
+    <option name="Unused (6)" value="06" />
+    <option name="Unused (7)" value="07" />
+    <option name="Unused (8)" value="08" />
+    <option name="Unused (9)" value="09" />
+  </enum16>
+  <enum16 name="Unit.Constant Sound Volume" offset="0x182" visible="True">
+    <option name="Silent" value="00" />
+    <option name="Medium" value="01" />
+    <option name="Loud" value="02" />
+    <option name="Shout" value="03" />
+    <option name="Quiet" value="04" />
+  </enum16>
+  <float32 name="Unit.Rider Damage Fraction" offset="0x184" visible="True" />
+  <enum16 name="Unit.A in" offset="0x198" visible="True">
+    <option name="none" value="00" />
+    <option name="Driver Seat Power" value="01" />
+    <option name="Gunner Seat Power" value="02" />
+    <option name="Aiming Change" value="03" />
+    <option name="Mouth Aperture" value="04" />
+    <option name="Integrated Light Power" value="05" />
+    <option name="Can Blink" value="06" />
+    <option name="Shield Sapping" value="07" />
+  </enum16>
+  <enum16 name="Unit.B in" offset="0x19A" visible="True">
+    <option name="none" value="00" />
+    <option name="Driver Seat Power" value="01" />
+    <option name="Gunner Seat Power" value="02" />
+    <option name="Aiming Change" value="03" />
+    <option name="Mouth Aperture" value="04" />
+    <option name="Integrated Light Power" value="05" />
+    <option name="Can Blink" value="06" />
+    <option name="Shield Sapping" value="07" />
+  </enum16>
+  <enum16 name="Unit.C in" offset="0x19C" visible="True">
+    <option name="none" value="00" />
+    <option name="Driver Seat Power" value="01" />
+    <option name="Gunner Seat Power" value="02" />
+    <option name="Aiming Change" value="03" />
+    <option name="Mouth Aperture" value="04" />
+    <option name="Integrated Light Power" value="05" />
+    <option name="Can Blink" value="06" />
+    <option name="Shield Sapping" value="07" />
+  </enum16>
+  <enum16 name="Unit.D in" offset="0x19E" visible="True">
+    <option name="none" value="00" />
+    <option name="Driver Seat Power" value="01" />
+    <option name="Gunner Seat Power" value="02" />
+    <option name="Aiming Change" value="03" />
+    <option name="Mouth Aperture" value="04" />
+    <option name="Integrated Light Power" value="05" />
+    <option name="Can Blink" value="06" />
+    <option name="Shield Sapping" value="07" />
+  </enum16>
+  <float32 name="Unit.Camera Field of View" offset="0x1A0" visible="True" />
+  <float32 name="Unit.Camera Stiffness" offset="0x1A4" visible="True" />
+  <string name="Unit.Camera Marker Name" offset="0x1A8" visible="True" length="32" />
+  <string name="Unit.Camera Submerged Marker Name" offset="0x1C8" visible="True" length="32" />
+  <float32 name="Unit.Pitch Auto-Level" offset="0x1E8" visible="True" />
+  <float32 name="Unit.Pitch Range: from" offset="0x1EC" visible="True" />
+  <float32 name="Unit.Pitch Range: to" offset="0x1F0" visible="True" />
+  <struct name="Unit.Camera Tracks" offset="0x1F4" visible="True" size="28" />
+  <float32 name="Unit.Seat Acceleration Scale: i" offset="0x200" visible="True" />
+  <float32 name="Unit.Seat Acceleration Scale: i" offset="0x204" visible="True" />
+  <float32 name="Unit.Seat Acceleration Scale: k" offset="0x208" visible="True" />
+  <float32 name="Unit.Soft Ping Threshold" offset="0x218" visible="True" />
+  <float32 name="Unit.Soft Ping Interrupt Time" offset="0x21C" visible="True" />
+  <float32 name="Unit.Hard Ping Threshold" offset="0x220" visible="True" />
+  <float32 name="Unit.Hard Ping Interrupt Time" offset="0x224" visible="True" />
+  <float32 name="Unit.Hard Death Threshold" offset="0x228" visible="True" />
+  <float32 name="Unit.Feign Death Threshold" offset="0x22C" visible="True" />
+  <float32 name="Unit.Feign Death Time" offset="0x230" visible="True" />
+  <float32 name="Unit.Distance of Evade Animation" offset="0x234" visible="True" />
+  <float32 name="Unit.Distance of Dive Animation" offset="0x238" visible="True" />
+  <float32 name="Unit.Stunned Movement Threshold" offset="0x240" visible="True" />
+  <float32 name="Unit.Feign Death Chance" offset="0x244" visible="True" />
+  <float32 name="Unit.Feign Repeat Chance" offset="0x248" visible="True" />
+  <int16 name="Unit.Spawned Actor Count: from" offset="0x25C" visible="True" />
+  <int16 name="Unit.Spawned Actor Count: to" offset="0x25E" visible="True" />
+  <float32 name="Unit.Spawned Velocity" offset="0x260" visible="True" />
+  <float32 name="Unit.Aiming Velocity Maximum" offset="0x264" visible="True" />
+  <float32 name="Unit.Aiming Acceleration Maximum" offset="0x268" visible="True" />
+  <float32 name="Unit.Casual Aiming Modifier" offset="0x26C" visible="True" />
+  <float32 name="Unit.Looking Velocity Maximum" offset="0x270" visible="True" />
+  <float32 name="Unit.Looking Acceleration Maximum" offset="0x274" visible="True" />
+  <float32 name="Unit.AI Vehicle Radius" offset="0x280" visible="True" />
+  <float32 name="Unit.AI Danger Radius" offset="0x284" visible="True" />
+  <enum16 name="Unit.Motion Sensor Blip Size" offset="0x298" visible="True">
+    <option name="Medium" value="00" />
+    <option name="Small" value="01" />
+    <option name="Large" value="02" />
+  </enum16>
+  <struct name="Unit.New HUD Interfaces" offset="0x2A8" visible="True" size="48" />
+  <struct name="Unit.Dialogue Variants" offset="0x2B4" visible="True" size="24">
+    <int16 name="Variant Number" offset="0x00" visible="True" />
+  </struct>
+  <float32 name="Unit.Grenade Velocity" offset="0x2C0" visible="True" />
+  <enum16 name="Unit.Grenade Type" offset="0x2C4" visible="True">
+    <option name="Human Fragmentation" value="00" />
+    <option name="Covenant Plasma" value="01" />
+  </enum16>
+  <int16 name="Unit.Grenade Count" offset="0x2C6" visible="True" />
+  <struct name="Unit.Powered Seats" offset="0x2CC" visible="True" size="68">
+    <float32 name="Driver Powerup Time" offset="0x04" visible="True" />
+    <float32 name="Driver Powerdown Time" offset="0x08" visible="True" />
+  </struct>
+  <struct name="Unit.Weapons" offset="0x2D8" visible="True" size="36" />
+  <struct name="Unit.Seats" offset="0x2E4" visible="True" size="284">
+    <bitmask32 name="Flags" offset="0x00" visible="True">
+      <option name="Invisible" value="31" />
+      <option name="Locked" value="30" />
+      <option name="Driver" value="29" />
+      <option name="Gunner" value="28" />
+      <option name="Third Person Camera" value="27" />
+      <option name="Allows Weapons" value="26" />
+      <option name="Third Person on Enter" value="25" />
+      <option name="First Person Camera Slaved to Gun" value="24" />
+      <option name="Allow Vehicle Communication Animations" value="23" />
+      <option name="Not Valid Without Driver" value="22" />
+      <option name="Allow AI Noncombatants" value="21" />
+    </bitmask32>
+    <string name="Unit.Seats.Label" offset="0x04" visible="True" length="32" />
+    <string name="Unit.Seats.Marker Name" offset="0x24" visible="True" length="32" />
+    <float32 name="Unit.Seats.Acceleration Scale: i" offset="0x64" visible="True" />
+    <float32 name="Unit.Seats.Acceleration Scale: i" offset="0x68" visible="True" />
+    <float32 name="Unit.Seats.Acceleration Scale: k" offset="0x6C" visible="True" />
+    <float32 name="Unit.Seats.Yaw Rate" offset="0x7C" visible="True" />
+    <float32 name="Unit.Seats.Pitch Rate" offset="0x80" visible="True" />
+    <string name="Unit.Seats.Camera Marker Name" offset="0x84" visible="True" length="32" />
+    <string name="Unit.Seats.Camera Submerged Marker Name" offset="0xA4" visible="True" length="32" />
+    <float32 name="Unit.Seats.Pitch Auto-Level" offset="0xC4" visible="True" />
+    <float32 name="Unit.Seats.Pitch Range: from" offset="0xC8" visible="True" />
+    <float32 name="Unit.Seats.Pitch Range: to" offset="0xCC" visible="True" />
+    <struct name="Camera Tracks" offset="0xD0" visible="True" size="28" />
+    <struct name="Unit HUD Interface" offset="0xDC" visible="True" size="48" />
+    <int16 name="Unit.Seats.HUD Text Message Index" offset="0xEC" visible="True" />
+    <float32 name="Unit.Seats.Yaw Minimum" offset="0xF0" visible="True" />
+    <float32 name="Unit.Seats.Yaw Maximum" offset="0xF4" visible="True" />
+  </struct>
+  <bitmask32 name="Vehicle.Flags" offset="0x2F0" visible="True">
+    <option name="Speed Wakes Physics" value="31" />
+    <option name="Turn Wakes Physics" value="30" />
+    <option name="Driver Power Wakes Physics" value="29" />
+    <option name="Gunner Power Wakes Physics" value="28" />
+    <option name="Control Opposite Speed Sets Brake" value="27" />
+    <option name="Slide Wakes Physics" value="26" />
+    <option name="Kills Riders at Terminal Velocity" value="25" />
+    <option name="Causes Collision Damage" value="24" />
+    <option name="AI Weapon Cannot Rotate" value="23" />
+    <option name="AI Does Not Require Driver" value="22" />
+    <option name="AI Unused" value="21" />
+    <option name="AI Driver Enable" value="20" />
+    <option name="AI Driver Flying" value="19" />
+    <option name="AI Driver Can Sidestep" value="18" />
+    <option name="AI Driver Hovering" value="17" />
+  </bitmask32>
+  <enum16 name="Vehicle.Type" offset="0x2F4" visible="True">
+    <option name="Human Tank" value="00" />
+    <option name="Human Jeep" value="01" />
+    <option name="Human Boat" value="02" />
+    <option name="Human Plane" value="03" />
+    <option name="Alien Scout" value="04" />
+    <option name="Alien Fighter" value="05" />
+    <option name="Turret" value="06" />
+  </enum16>
+  <float32 name="Vehicle.Maximum Forward Speed" offset="0x2F8" visible="True" />
+  <float32 name="Vehicle.Maximum Reverse Speed" offset="0x2FC" visible="True" />
+  <float32 name="Vehicle.Speed Acceleration" offset="0x300" visible="True" />
+  <float32 name="Vehicle.Speed Deceleration" offset="0x304" visible="True" />
+  <float32 name="Vehicle.Maximum Left Turn" offset="0x308" visible="True" />
+  <float32 name="Vehicle.Maximum Right Turn" offset="0x30C" visible="True" />
+  <float32 name="Vehicle.Wheel Circumference" offset="0x310" visible="True" />
+  <float32 name="Vehicle.Turn Rate" offset="0x314" visible="True" />
+  <float32 name="Vehicle.Blur Speed" offset="0x318" visible="True" />
+  <enum16 name="Vehicle.A in" offset="0x31C" visible="True">
+    <option name="None" value="00" />
+    <option name="Speed Absolute" value="01" />
+    <option name="Speed Forward" value="02" />
+    <option name="Speed Backward" value="03" />
+    <option name="Slide Absolute" value="04" />
+    <option name="Slide Left" value="05" />
+    <option name="Slide Right" value="06" />
+    <option name="Speed Slide Maximum" value="07" />
+    <option name="Turn Absolute" value="08" />
+    <option name="Turn Left" value="09" />
+    <option name="Turn Right" value="10" />
+    <option name="Crouch" value="11" />
+    <option name="Jump" value="12" />
+    <option name="Walk" value="13" />
+    <option name="Velocity Air" value="14" />
+    <option name="Velocity Water" value="15" />
+    <option name="Velocity Ground" value="16" />
+    <option name="Velocity Forward" value="17" />
+    <option name="Velocity Left" value="18" />
+    <option name="Velocity Up" value="19" />
+    <option name="Left Tread Position" value="20" />
+    <option name="Right Tread Position" value="21" />
+    <option name="Left Tread Velocity" value="22" />
+    <option name="Right Tread Velocity" value="23" />
+    <option name="Front Left Tire Position" value="24" />
+    <option name="Front Right Tire Position" value="25" />
+    <option name="Back Left Tire Position" value="26" />
+    <option name="Back Right Tire Position" value="27" />
+    <option name="Front Left Tire Velocity" value="28" />
+    <option name="Front Right Tire Velocity" value="29" />
+    <option name="Back Left Tire Velocity" value="30" />
+    <option name="Back Right Tire Velocity" value="31" />
+    <option name="Wingtip Contrail" value="32" />
+    <option name="Hover" value="33" />
+    <option name="Thrust" value="34" />
+    <option name="Engine Hack (Sparky says, 'Engine RPM')" value="35" />
+    <option name="Wingtip Contrail New" value="36" />
+  </enum16>
+  <enum16 name="Vehicle.B in" offset="0x31E" visible="True">
+    <option name="None" value="00" />
+    <option name="Speed Absolute" value="01" />
+    <option name="Speed Forward" value="02" />
+    <option name="Speed Backward" value="03" />
+    <option name="Slide Absolute" value="04" />
+    <option name="Slide Left" value="05" />
+    <option name="Slide Right" value="06" />
+    <option name="Speed Slide Maximum" value="07" />
+    <option name="Turn Absolute" value="08" />
+    <option name="Turn Left" value="09" />
+    <option name="Turn Right" value="10" />
+    <option name="Crouch" value="11" />
+    <option name="Jump" value="12" />
+    <option name="Walk" value="13" />
+    <option name="Velocity Air" value="14" />
+    <option name="Velocity Water" value="15" />
+    <option name="Velocity Ground" value="16" />
+    <option name="Velocity Forward" value="17" />
+    <option name="Velocity Left" value="18" />
+    <option name="Velocity Up" value="19" />
+    <option name="Left Tread Position" value="20" />
+    <option name="Right Tread Position" value="21" />
+    <option name="Left Tread Velocity" value="22" />
+    <option name="Right Tread Velocity" value="23" />
+    <option name="Front Left Tire Position" value="24" />
+    <option name="Front Right Tire Position" value="25" />
+    <option name="Back Left Tire Position" value="26" />
+    <option name="Back Right Tire Position" value="27" />
+    <option name="Front Left Tire Velocity" value="28" />
+    <option name="Front Right Tire Velocity" value="29" />
+    <option name="Back Left Tire Velocity" value="30" />
+    <option name="Back Right Tire Velocity" value="31" />
+    <option name="Wingtip Contrail" value="32" />
+    <option name="Hover" value="33" />
+    <option name="Thrust" value="34" />
+    <option name="Engine Hack (Sparky says, 'Engine RPM')" value="35" />
+    <option name="Wingtip Contrail New" value="36" />
+  </enum16>
+  <enum16 name="Vehicle.C in" offset="0x320" visible="True">
+    <option name="None" value="00" />
+    <option name="Speed Absolute" value="01" />
+    <option name="Speed Forward" value="02" />
+    <option name="Speed Backward" value="03" />
+    <option name="Slide Absolute" value="04" />
+    <option name="Slide Left" value="05" />
+    <option name="Slide Right" value="06" />
+    <option name="Speed Slide Maximum" value="07" />
+    <option name="Turn Absolute" value="08" />
+    <option name="Turn Left" value="09" />
+    <option name="Turn Right" value="10" />
+    <option name="Crouch" value="11" />
+    <option name="Jump" value="12" />
+    <option name="Walk" value="13" />
+    <option name="Velocity Air" value="14" />
+    <option name="Velocity Water" value="15" />
+    <option name="Velocity Ground" value="16" />
+    <option name="Velocity Forward" value="17" />
+    <option name="Velocity Left" value="18" />
+    <option name="Velocity Up" value="19" />
+    <option name="Left Tread Position" value="20" />
+    <option name="Right Tread Position" value="21" />
+    <option name="Left Tread Velocity" value="22" />
+    <option name="Right Tread Velocity" value="23" />
+    <option name="Front Left Tire Position" value="24" />
+    <option name="Front Right Tire Position" value="25" />
+    <option name="Back Left Tire Position" value="26" />
+    <option name="Back Right Tire Position" value="27" />
+    <option name="Front Left Tire Velocity" value="28" />
+    <option name="Front Right Tire Velocity" value="29" />
+    <option name="Back Left Tire Velocity" value="30" />
+    <option name="Back Right Tire Velocity" value="31" />
+    <option name="Wingtip Contrail" value="32" />
+    <option name="Hover" value="33" />
+    <option name="Thrust" value="34" />
+    <option name="Engine Hack (Sparky says, 'Engine RPM')" value="35" />
+    <option name="Wingtip Contrail New" value="36" />
+  </enum16>
+  <enum16 name="Vehicle.D in" offset="0x322" visible="True">
+    <option name="None" value="00" />
+    <option name="Speed Absolute" value="01" />
+    <option name="Speed Forward" value="02" />
+    <option name="Speed Backward" value="03" />
+    <option name="Slide Absolute" value="04" />
+    <option name="Slide Left" value="05" />
+    <option name="Slide Right" value="06" />
+    <option name="Speed Slide Maximum" value="07" />
+    <option name="Turn Absolute" value="08" />
+    <option name="Turn Left" value="09" />
+    <option name="Turn Right" value="10" />
+    <option name="Crouch" value="11" />
+    <option name="Jump" value="12" />
+    <option name="Walk" value="13" />
+    <option name="Velocity Air" value="14" />
+    <option name="Velocity Water" value="15" />
+    <option name="Velocity Ground" value="16" />
+    <option name="Velocity Forward" value="17" />
+    <option name="Velocity Left" value="18" />
+    <option name="Velocity Up" value="19" />
+    <option name="Left Tread Position" value="20" />
+    <option name="Right Tread Position" value="21" />
+    <option name="Left Tread Velocity" value="22" />
+    <option name="Right Tread Velocity" value="23" />
+    <option name="Front Left Tire Position" value="24" />
+    <option name="Front Right Tire Position" value="25" />
+    <option name="Back Left Tire Position" value="26" />
+    <option name="Back Right Tire Position" value="27" />
+    <option name="Front Left Tire Velocity" value="28" />
+    <option name="Front Right Tire Velocity" value="29" />
+    <option name="Back Left Tire Velocity" value="30" />
+    <option name="Back Right Tire Velocity" value="31" />
+    <option name="Wingtip Contrail" value="32" />
+    <option name="Hover" value="33" />
+    <option name="Thrust" value="34" />
+    <option name="Engine Hack (Sparky says, 'Engine RPM')" value="35" />
+    <option name="Wingtip Contrail New" value="36" />
+  </enum16>
+  <float32 name="Vehicle.Maximum Left Slide" offset="0x330" visible="True" />
+  <float32 name="Vehicle.Maximum Right Slide" offset="0x334" visible="True" />
+  <float32 name="Vehicle.Slide Acceleration" offset="0x338" visible="True" />
+  <float32 name="Vehicle.Slide Deceleration" offset="0x33C" visible="True" />
+  <float32 name="Vehicle.Minimum Flipping Angular Velocity" offset="0x340" visible="True" />
+  <float32 name="Vehicle.Maximum Flipping Angular Velocity" offset="0x344" visible="True" />
+  <float32 name="Vehicle.Fixed Gun Yaw" offset="0x360" visible="True" />
+  <float32 name="Vehicle.Fixed Gun Pitch" offset="0x364" visible="True" />
+  <float32 name="Vehicle.AI Sideslip Distance" offset="0x380" visible="True" />
+  <float32 name="Vehicle.AI Destination Radius" offset="0x384" visible="True" />
+  <float32 name="Vehicle.AI Avoidance Distance" offset="0x388" visible="True" />
+  <float32 name="Vehicle.AI Pathfinding Radius" offset="0x38C" visible="True" />
+  <float32 name="Vehicle.AI Charge Repeat Timeout" offset="0x390" visible="True" />
+  <float32 name="Vehicle.AI Strafing Abort Range" offset="0x394" visible="True" />
+  <float32 name="Vehicle.AI Oversteering Bounds: from" offset="0x398" visible="True" />
+  <float32 name="Vehicle.AI Oversteering Bounds: to" offset="0x39C" visible="True" />
+  <float32 name="Vehicle.AI Steering Maximum" offset="0x3A0" visible="True" />
+  <float32 name="Vehicle.AI Throttle Maximum" offset="0x3A4" visible="True" />
+  <float32 name="Vehicle.AI Move-Position Time" offset="0x3A8" visible="True" />
+</plugin>

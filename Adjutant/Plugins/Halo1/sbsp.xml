@@ -1,0 +1,304 @@
+<plugin>
+  <revisions />
+  <int32 name="TEST: SBSP size / checksum" offset="0x00" visible="True" />
+  <float32 name="Vehicle Floor" offset="0x28" visible="True" />
+  <float32 name="Vehicle Ceiling" offset="0x2C" visible="True" />
+  <float32 name="Default Distant Light 0 Direction: i (1)" offset="0x60" visible="True" />
+  <float32 name="Default Distant Light 0 Direction: i (2)" offset="0x64" visible="True" />
+  <float32 name="Default Distant Light 0 Direction: k" offset="0x68" visible="True" />
+  <float32 name="Default Distant Light 1 Direction: i (1)" offset="0x78" visible="True" />
+  <float32 name="Default Distant Light 1 Direction: i (2)" offset="0x7C" visible="True" />
+  <float32 name="Default Distant Light 1 Direction: k" offset="0x80" visible="True" />
+  <float32 name="Default Shadow Vector: i (1)" offset="0xA0" visible="True" />
+  <float32 name="Default Shadow Vector: i (2)" offset="0xA4" visible="True" />
+  <float32 name="Default Shadow Vector: k" offset="0xA8" visible="True" />
+  <struct name="Collision Materials" offset="0xBC" visible="True" size="20">
+    <enum16 name="Material Type" offset="0x12" visible="True">
+      <option name="Dirt" value="00" />
+      <option name="Sand" value="01" />
+      <option name="Stone" value="02" />
+      <option name="Snow" value="03" />
+      <option name="Wood" value="04" />
+      <option name="Metal (hollow)" value="05" />
+      <option name="Metal (thin)" value="06" />
+      <option name="Metal (thick)" value="07" />
+      <option name="Rubber" value="08" />
+      <option name="Glass" value="09" />
+      <option name="Force Field" value="10" />
+      <option name="Grunt" value="11" />
+      <option name="Hunter Armor" value="12" />
+      <option name="Hunter Skin" value="13" />
+      <option name="Elite" value="14" />
+      <option name="Jackal" value="15" />
+      <option name="Jackal Energy Shield" value="16" />
+      <option name="Engineer Skin" value="17" />
+      <option name="Engineer Force Field" value="18" />
+      <option name="Flood Combat Form" value="19" />
+      <option name="Flood Carrier Form" value="20" />
+      <option name="Cyborg Armor" value="21" />
+      <option name="Cyborg Energy Shield" value="22" />
+      <option name="Human Armor" value="23" />
+      <option name="Human Skin" value="24" />
+      <option name="Sentinel" value="25" />
+      <option name="Monitor" value="26" />
+      <option name="Plastic" value="27" />
+      <option name="Water" value="28" />
+      <option name="Leaves" value="29" />
+      <option name="Elite Energy Shield" value="30" />
+      <option name="Ice" value="31" />
+      <option name="Hunter Shield" value="32" />
+    </enum16>
+  </struct>
+  <struct name="Collision BSP" offset="0xC8" visible="False" size="96">
+    <struct name="BSP3D Nodes" offset="0x00" visible="True" size="12">
+      <int16 name="Plane" offset="0x00" visible="True" />
+      <int16 name="Back Child" offset="0x04" visible="True" />
+      <int16 name="Front Child" offset="0x08" visible="True" />
+    </struct>
+    <int32 name="Planes: Reflexive Count" offset="0x0C" visible="True" />
+    <struct name="Planes" offset="0x0C" visible="True" size="16">
+      <float32 name="Plane: i (1)" offset="0x00" visible="True" />
+      <float32 name="Plane: i (2)" offset="0x04" visible="True" />
+      <float32 name="Plane: k" offset="0x08" visible="True" />
+      <float32 name="Plane: d" offset="0x0C" visible="True" />
+    </struct>
+    <struct name="Leaves" offset="0x18" visible="True" size="8">
+      <bitmask8 name="Flags" offset="0x00" visible="True">
+        <option name="Contains Double-Sided Surfaces" value="07" />
+      </bitmask8>
+      <int32 name="First BSP2D Reference" offset="0x04" visible="True" />
+    </struct>
+    <int32 name="BSP2D References: Reflexive Count" offset="0x24" visible="True" />
+    <struct name="BSP2D References" offset="0x24" visible="True" size="8">
+      <int32 name="Plane" offset="0x00" visible="True" />
+      <int32 name="BSP2D Node" offset="0x04" visible="True" />
+    </struct>
+    <struct name="BSP2D Nodes" offset="0x30" visible="True" size="20">
+      <float32 name="Plane: i (1)" offset="0x00" visible="True" />
+      <float32 name="Plane: i (2)" offset="0x04" visible="True" />
+      <float32 name="Plane: d" offset="0x08" visible="True" />
+      <int32 name="Left Child" offset="0x0C" visible="True" />
+      <int32 name="Right Child" offset="0x10" visible="True" />
+    </struct>
+    <struct name="Surfaces" offset="0x3C" visible="True" size="12">
+      <int32 name="Plane" offset="0x00" visible="True" />
+      <int32 name="First Edge" offset="0x04" visible="True" />
+      <bitmask16 name="Flags" offset="0x08" visible="True">
+        <option name="Two Sided" value="15" />
+        <option name="Invisible" value="14" />
+        <option name="Climbable" value="13" />
+        <option name="Breakable" value="12" />
+      </bitmask16>
+      <int16 name="Material" offset="0x0A" visible="True" />
+    </struct>
+    <struct name="Edges" offset="0x48" visible="True" size="24">
+      <int32 name="Start Vertex" offset="0x00" visible="True" />
+      <int32 name="End Vertex" offset="0x04" visible="True" />
+      <int32 name="Forward Edge" offset="0x08" visible="True" />
+      <int32 name="Reverse Edge" offset="0x0C" visible="True" />
+      <int32 name="Left Surface" offset="0x10" visible="True" />
+      <int32 name="Right Surface" offset="0x14" visible="True" />
+    </struct>
+    <struct name="Vertices" offset="0x54" visible="True" size="16">
+      <float32 name="Point: x" offset="0x00" visible="True" />
+      <float32 name="Point: y" offset="0x04" visible="True" />
+      <float32 name="Point: z" offset="0x08" visible="True" />
+      <int32 name="First Edge" offset="0x0C" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Nodes" offset="0xD4" visible="False" size="6">
+    <int16 name="(?) Compressed Vertices.Node0 Index (x3)" offset="0x00" visible="True" />
+    <int16 name="(?) Compressed Vertices.Node1 Index (x3)" offset="0x02" visible="True" />
+    <int16 name="(?) Compressed Vertices.Node0 Weight (16-bit)" offset="0x04" visible="True" />
+  </struct>
+  <float32 name="World Bounds X: from" offset="0xE0" visible="True" />
+  <float32 name="World Bounds X: to" offset="0xE4" visible="True" />
+  <float32 name="World Bounds Y: from" offset="0xE8" visible="True" />
+  <float32 name="World Bounds Y: to" offset="0xEC" visible="True" />
+  <float32 name="World Bounds Z: from" offset="0xF0" visible="True" />
+  <float32 name="World Bounds Z: to" offset="0xF4" visible="True" />
+  <struct name="Leaves" offset="0xF8" visible="False" size="16">
+    <int16 name="(?) Vertex 0" offset="0x00" visible="True" />
+    <int16 name="(?) Vertex 1" offset="0x02" visible="True" />
+    <int16 name="(?) Vertex 2" offset="0x04" visible="True" />
+    <int16 name="Cluster" offset="0x08" visible="True" />
+    <int16 name="Surface Reference Count" offset="0x0A" visible="True" />
+  </struct>
+  <struct name="Leaf Surfaces" offset="0x104" visible="False" size="8" />
+  <int32 name="Surfaces: Reflexive Count" offset="0x110" visible="True" />
+  <struct name="Surfaces" offset="0x110" visible="True" size="6">
+    <int16 name="a (1)" offset="0x00" visible="True" />
+    <int16 name="a (2)" offset="0x02" visible="True" />
+    <int16 name="a (3)" offset="0x04" visible="True" />
+  </struct>
+  <struct name="Lightmaps" offset="0x11C" visible="True" size="32">
+    <int16 name="Bitmap" offset="0x00" visible="True" />
+    <struct name="Materials" offset="0x14" visible="True" size="256">
+      <int16 name="Shader Permutation" offset="0x10" visible="True" />
+      <bitmask16 name="Flags" offset="0x12" visible="True">
+        <option name="Coplanar" value="15" />
+        <option name="Fog Plane" value="14" />
+      </bitmask16>
+      <int32 name="Surface Count" offset="0x18" visible="True" />
+      <float32 name="Centroid: x" offset="0x1C" visible="True" />
+      <float32 name="Centroid: y" offset="0x20" visible="True" />
+      <float32 name="Centroid: z" offset="0x24" visible="True" />
+      <int16 name="Distant Light Count" offset="0x34" visible="True" />
+      <float32 name="Distant Light 0 Direction: i (1)" offset="0x44" visible="True" />
+      <float32 name="Distant Light 0 Direction: i (2)" offset="0x48" visible="True" />
+      <float32 name="Distant Light 0 Direction: k" offset="0x4C" visible="True" />
+      <float32 name="Distant Light 1 Direction: i (1)" offset="0x5C" visible="True" />
+      <float32 name="Distant Light 1 Direction: i (2)" offset="0x60" visible="True" />
+      <float32 name="Distant Light 1 Direction: k" offset="0x64" visible="True" />
+      <float32 name="Shadow Vector: i (1)" offset="0x84" visible="True" />
+      <float32 name="Shadow Vector: i (2)" offset="0x88" visible="True" />
+      <float32 name="Shadow Vector: k" offset="0x8C" visible="True" />
+      <float32 name="Plane: i (1)" offset="0x9C" visible="True" />
+      <float32 name="Plane: i (2)" offset="0xA0" visible="True" />
+      <float32 name="Plane: k" offset="0xA4" visible="True" />
+      <float32 name="Plane: d" offset="0xA8" visible="True" />
+      <int16 name="Breakable Surface" offset="0xAC" visible="True" />
+      <int32 name="Count (1)" offset="0xB4" visible="True" />
+      <int32 name="Offset (1)" offset="0xB8" visible="True" />
+      <int32 name="Count (2)" offset="0xC8" visible="True" />
+      <int32 name="Offset (2)" offset="0xCC" visible="True" />
+      <int32 name="Uncompressed Vertices" offset="0xD8" visible="True" />
+      <int32 name="Compressed Vertices" offset="0xE4" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Lens Flares" offset="0x134" visible="False" size="16" />
+  <struct name="Lens Flare Markers" offset="0x140" visible="True" size="16">
+    <float32 name="Position: x" offset="0x00" visible="True" />
+    <float32 name="Position: y" offset="0x04" visible="True" />
+    <float32 name="Position: z" offset="0x08" visible="True" />
+  </struct>
+  <struct name="Clusters" offset="0x14C" visible="False" size="104">
+    <int16 name="Sky" offset="0x00" visible="True" />
+    <int16 name="Fog" offset="0x02" visible="True" />
+    <int16 name="Transition Structure BSP" offset="0x0A" visible="True" />
+    <struct name="Predicted Resources" offset="0x0C" visible="True" size="6">
+      <enum16 name="Type" offset="0x00" visible="True">
+        <option name="Bitmap" value="00" />
+        <option name="Sound" value="01" />
+      </enum16>
+      <int16 name="Resource Index" offset="0x02" visible="True" />
+      <int16 name="Tag Index" offset="0x04" visible="True" />
+    </struct>
+    <struct name="Lightmaps / Shaders Palette" offset="0x28" visible="True" size="8">
+      <int16 name="Bitmap Sequence Index" offset="0x02" visible="True" />
+    </struct>
+    <struct name="Subclusters" offset="0x34" visible="True" size="36">
+      <float32 name="World Bounds X: from" offset="0x00" visible="True" />
+      <float32 name="World Bounds X: to" offset="0x04" visible="True" />
+      <float32 name="World Bounds Y: from" offset="0x08" visible="True" />
+      <float32 name="World Bounds Y: to" offset="0x0C" visible="True" />
+      <float32 name="World Bounds Z: from" offset="0x10" visible="True" />
+      <float32 name="World Bounds Z: to" offset="0x14" visible="True" />
+      <struct name="Surface Indices" offset="0x18" visible="True" size="4">
+        <int16 name="Index" offset="0x00" visible="True" />
+      </struct>
+    </struct>
+    <int16 name="First Lens Flare Marker Index" offset="0x40" visible="True" />
+    <int16 name="Lens Flare Marker Count" offset="0x42" visible="True" />
+    <struct name="Surface Indices" offset="0x44" visible="True" size="4">
+      <int32 name="Index" offset="0x00" visible="True" />
+    </struct>
+    <struct name="Mirrors" offset="0x50" visible="True" size="64">
+      <float32 name="Plane: i (1)" offset="0x00" visible="True" />
+      <float32 name="Plane: i (2)" offset="0x04" visible="True" />
+      <float32 name="Plane: k" offset="0x08" visible="True" />
+      <float32 name="Plane: d" offset="0x0C" visible="True" />
+      <struct name="Vertices" offset="0x34" visible="True" size="12">
+        <float32 name="Point: x" offset="0x00" visible="True" />
+        <float32 name="Point: y" offset="0x04" visible="True" />
+        <float32 name="Point: z" offset="0x08" visible="True" />
+      </struct>
+    </struct>
+    <struct name="Portals" offset="0x5C" visible="True" size="2">
+      <int16 name="Portal" offset="0x00" visible="True" />
+    </struct>
+  </struct>
+  <int32 name="Cluster Data" offset="0x158" visible="True" />
+  <struct name="Cluster Portals" offset="0x16C" visible="True" size="64">
+    <int16 name="Front Cluster" offset="0x00" visible="True" />
+    <int16 name="Back Cluster" offset="0x02" visible="True" />
+    <int32 name="Plane Index" offset="0x04" visible="True" />
+    <float32 name="Centroid: x" offset="0x08" visible="True" />
+    <float32 name="Centroid: y" offset="0x0C" visible="True" />
+    <float32 name="Centroid: z" offset="0x10" visible="True" />
+    <float32 name="Bounding Radius" offset="0x14" visible="True" />
+    <bitmask8 name="Flags" offset="0x18" visible="True">
+      <option name="AI Can't Hear Through This" value="07" />
+    </bitmask8>
+    <struct name="Vertices" offset="0x34" visible="True" size="12">
+      <float32 name="Point: x" offset="0x00" visible="True" />
+      <float32 name="Point: y" offset="0x04" visible="True" />
+      <float32 name="Point: z" offset="0x08" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Breakable Surfaces" offset="0x184" visible="False" size="48">
+    <float32 name="Centroid: x" offset="0x00" visible="True" />
+    <float32 name="Centroid: y" offset="0x04" visible="True" />
+    <float32 name="Centroid: z" offset="0x08" visible="True" />
+    <float32 name="Radius" offset="0x0C" visible="True" />
+    <int32 name="Collision Surface Index" offset="0x10" visible="True" />
+  </struct>
+  <struct name="Fog Planes" offset="0x190" visible="False" size="32">
+    <float32 name="Plane: i (1)" offset="0x04" visible="True" />
+    <float32 name="Plane: i (2)" offset="0x08" visible="True" />
+    <float32 name="Plane: k" offset="0x0C" visible="True" />
+    <float32 name="Plane: d" offset="0x10" visible="True" />
+    <struct name="Vertices" offset="0x14" visible="True" size="12">
+      <float32 name="Point: x" offset="0x00" visible="True" />
+      <float32 name="Point: y" offset="0x04" visible="True" />
+      <float32 name="Point: z" offset="0x08" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Fog Regions" offset="0x19C" visible="False" size="40" />
+  <struct name="Fog Palette" offset="0x1A8" visible="False" size="136">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <string name="Fog Scale Function" offset="0x34" visible="True" length="32" />
+  </struct>
+  <struct name="Weather Palette" offset="0x1CC" visible="False" size="240">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <string name="Particle System Function" offset="0x34" visible="True" length="32" />
+    <float32 name="Wind Direction: i (1)" offset="0x90" visible="True" />
+    <float32 name="Wind Direction: i (2)" offset="0x94" visible="True" />
+    <float32 name="Wind Direction: k" offset="0x98" visible="True" />
+    <float32 name="Wind Magnitude" offset="0x9C" visible="True" />
+    <string name="Wind Scale Function" offset="0xA4" visible="True" length="32" />
+  </struct>
+  <struct name="Weather Polyhedra" offset="0x1D8" visible="False" size="32">
+    <float32 name="Bounding Sphere Center: x" offset="0x00" visible="True" />
+    <float32 name="Bounding Sphere Center: y" offset="0x04" visible="True" />
+    <float32 name="Bounding Sphere Center: z" offset="0x08" visible="True" />
+    <float32 name="Bounding Sphere Radius" offset="0x0C" visible="True" />
+    <struct name="Planes" offset="0x14" visible="True" size="16">
+      <float32 name="Plane: i (1)" offset="0x00" visible="True" />
+      <float32 name="Plane: i (2)" offset="0x04" visible="True" />
+      <float32 name="Plane: k" offset="0x08" visible="True" />
+      <float32 name="Plane: d" offset="0x0C" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Pathfinding Surfaces" offset="0x1FC" visible="False" size="1" />
+  <struct name="Pathfinding Edges" offset="0x208" visible="False" size="1" />
+  <struct name="Background Sound Palette" offset="0x214" visible="False" size="116">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <string name="Scale Function" offset="0x34" visible="True" length="32" />
+  </struct>
+  <struct name="Sound Environment Palette" offset="0x220" visible="False" size="80">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+  </struct>
+  <int32 name="Sound PAS Data" offset="0x22C" visible="True" />
+  <struct name="Markers" offset="0x258" visible="True" size="60">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <float32 name="Rotation: i (1)" offset="0x20" visible="True" />
+    <float32 name="Rotation: i (2)" offset="0x24" visible="True" />
+    <float32 name="Rotation: k" offset="0x28" visible="True" />
+    <float32 name="Rotation: w" offset="0x2C" visible="True" />
+    <float32 name="Position: x" offset="0x30" visible="True" />
+    <float32 name="Position: y" offset="0x34" visible="True" />
+    <float32 name="Position: z" offset="0x38" visible="True" />
+  </struct>
+  <struct name="Runtime Decals" offset="0x270" visible="False" size="32" />
+</plugin>

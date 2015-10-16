@@ -1,0 +1,6 @@
+<plugin>
+  <revisions />
+  <struct name="Multiplayer Scenarios" offset="0x00" visible="True" size="68">
+    <string name="Scenario Tag Directory Path" offset="0x20" visible="True" length="32" />
+  </struct>
+</plugin>

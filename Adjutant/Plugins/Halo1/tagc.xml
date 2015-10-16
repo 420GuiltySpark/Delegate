@@ -1,0 +1,4 @@
+<plugin>
+  <revisions />
+  <struct name="Tag References" offset="0x00" visible="True" size="16" />
+</plugin>

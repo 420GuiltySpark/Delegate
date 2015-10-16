@@ -1,0 +1,126 @@
+<plugin>
+  <revisions />
+  <bitmask32 name="Flags" offset="0x00" visible="True">
+    <option name="Can Shoot While Flying" value="31" />
+    <option name="Interpolate Color in HSV" value="30" />
+    <option name="Has Unlimited Grenades" value="29" />
+    <option name="Moveswitch Stay w/ Friends" value="28" />
+    <option name="Active Camouflage" value="27" />
+    <option name="Super Active Camouflage" value="26" />
+    <option name="Cannot Use Ranged Weapons" value="25" />
+    <option name="Prefer Passenger Seat" value="24" />
+  </bitmask32>
+  <enum16 name="Movement Switching.Movement Type" offset="0x4C" visible="True">
+    <option name="Always Run" value="00" />
+    <option name="Always Crouch" value="01" />
+    <option name="Switch Types" value="02" />
+  </enum16>
+  <float32 name="Movement Switching.Initial Crouch Chance" offset="0x50" visible="True" />
+  <float32 name="Movement Switching.Crouch Time: from" offset="0x54" visible="True" />
+  <float32 name="Movement Switching.Crouch Time: to" offset="0x58" visible="True" />
+  <float32 name="Movement Switching.Run Time: from" offset="0x5C" visible="True" />
+  <float32 name="Movement Switching.Run Time: to" offset="0x60" visible="True" />
+  <float32 name="Ranged Combat.Maximum Firing Distance" offset="0x74" visible="True" />
+  <float32 name="Ranged Combat.Rate of Fire" offset="0x78" visible="True" />
+  <float32 name="Ranged Combat.Projectile Error" offset="0x7C" visible="True" />
+  <float32 name="Ranged Combat.Fire Burst Delay Time: from" offset="0x80" visible="True" />
+  <float32 name="Ranged Combat.Fire Burst Delay Time: to" offset="0x84" visible="True" />
+  <float32 name="Ranged Combat.New-Target Firing Pattern Time" offset="0x88" visible="True" />
+  <float32 name="Ranged Combat.Surprise Delay Time" offset="0x8C" visible="True" />
+  <float32 name="Ranged Combat.Surprise Fire-Wildly Time" offset="0x90" visible="True" />
+  <float32 name="Ranged Combat.Death Fire-Wildly Chance" offset="0x94" visible="True" />
+  <float32 name="Ranged Combat.Death Fire-Wildly Time" offset="0x98" visible="True" />
+  <float32 name="Ranged Combat.Desired Combat Range: from" offset="0x9C" visible="True" />
+  <float32 name="Ranged Combat.Desired Combat Range: to" offset="0xA0" visible="True" />
+  <float32 name="Ranged Combat.Custom Stand Gun Offset: i" offset="0xA4" visible="True" />
+  <float32 name="Ranged Combat.Custom Stand Gun Offset: i" offset="0xA8" visible="True" />
+  <float32 name="Ranged Combat.Custom Stand Gun Offset: k" offset="0xAC" visible="True" />
+  <float32 name="Ranged Combat.Custom Crouch Gun Offset: i" offset="0xB0" visible="True" />
+  <float32 name="Ranged Combat.Custom Crouch Gun Offset: i" offset="0xB4" visible="True" />
+  <float32 name="Ranged Combat.Custom Crouch Gun Offset: k" offset="0xB8" visible="True" />
+  <float32 name="Ranged Combat.Target Tracking" offset="0xBC" visible="True" />
+  <float32 name="Ranged Combat.Target Leading" offset="0xC0" visible="True" />
+  <float32 name="Ranged Combat.Weapon Damage Modifier" offset="0xC4" visible="True" />
+  <float32 name="Ranged Combat.Damage Per Second" offset="0xC8" visible="True" />
+  <float32 name="Burst Geometry.Burst Origin Radius" offset="0xCC" visible="True" />
+  <float32 name="Burst Geometry.Burst Origin Angle" offset="0xD0" visible="True" />
+  <float32 name="Burst Geometry.Burst Return Length: from" offset="0xD4" visible="True" />
+  <float32 name="Burst Geometry.Burst Return Length: to" offset="0xD8" visible="True" />
+  <float32 name="Burst Geometry.Burst Return Angle" offset="0xDC" visible="True" />
+  <float32 name="Burst Geometry.Burst Duration: from" offset="0xE0" visible="True" />
+  <float32 name="Burst Geometry.Burst Duration: to" offset="0xE4" visible="True" />
+  <float32 name="Burst Geometry.Burst Separation: from" offset="0xE8" visible="True" />
+  <float32 name="Burst Geometry.Burst Separation: to" offset="0xEC" visible="True" />
+  <float32 name="Burst Geometry.Burst Angular Velocity" offset="0xF0" visible="True" />
+  <float32 name="Burst Geometry.Special Damage Modifier" offset="0xF8" visible="True" />
+  <float32 name="Burst Geometry.Special Projectile Error" offset="0xFC" visible="True" />
+  <float32 name="Firing Patterns.New-Target Burst Duration" offset="0x100" visible="True" />
+  <float32 name="Firing Patterns.New-Target Burst Separation" offset="0x104" visible="True" />
+  <float32 name="Firing Patterns.New-Target Rate of Fire" offset="0x108" visible="True" />
+  <float32 name="Firing Patterns.New-Target Projectile Error" offset="0x10C" visible="True" />
+  <float32 name="Firing Patterns.Moving Burst Duration" offset="0x118" visible="True" />
+  <float32 name="Firing Patterns.Moving Burst Separation" offset="0x11C" visible="True" />
+  <float32 name="Firing Patterns.Moving Rate of Fire" offset="0x120" visible="True" />
+  <float32 name="Firing Patterns.Moving Projectile Error" offset="0x124" visible="True" />
+  <float32 name="Firing Patterns.Berserk Burst Duration" offset="0x130" visible="True" />
+  <float32 name="Firing Patterns.Berserk Burst Separation" offset="0x134" visible="True" />
+  <float32 name="Firing Patterns.Berserk Rate of Fire" offset="0x138" visible="True" />
+  <float32 name="Firing Patterns.Berserk Projectile Error" offset="0x13C" visible="True" />
+  <float32 name="Special-Case Firing Properties.Super-Ballistic Range" offset="0x148" visible="True" />
+  <float32 name="Special-Case Firing Properties.Bombardment Range" offset="0x14C" visible="True" />
+  <float32 name="Special-Case Firing Properties.Modified Vision Range" offset="0x150" visible="True" />
+  <enum16 name="Special-Case Firing Properties.Special-Fire Mode" offset="0x154" visible="True">
+    <option name="None" value="00" />
+    <option name="Overcharge" value="01" />
+    <option name="Secondary Trigger" value="02" />
+  </enum16>
+  <enum16 name="Special-Case Firing Properties.Special-Fire Situation" offset="0x156" visible="True">
+    <option name="Never" value="00" />
+    <option name="Enemy Visible" value="01" />
+    <option name="Enemy Out of Sight" value="02" />
+    <option name="Strafing" value="03" />
+  </enum16>
+  <float32 name="Special-Case Firing Properties.Special-Fire Chance" offset="0x158" visible="True" />
+  <float32 name="Special-Case Firing Properties.Special-Fire Delay" offset="0x15C" visible="True" />
+  <float32 name="Berserking and Melee.Melee Range" offset="0x160" visible="True" />
+  <float32 name="Berserking and Melee.Melee Abort Range" offset="0x164" visible="True" />
+  <float32 name="Berserking and Melee.Berserk Firing Range: from" offset="0x168" visible="True" />
+  <float32 name="Berserking and Melee.Berserk Firing Range: to" offset="0x16C" visible="True" />
+  <float32 name="Berserking and Melee.Berserk Melee Range" offset="0x170" visible="True" />
+  <float32 name="Berserking and Melee.Berserk Melee Abort Range" offset="0x174" visible="True" />
+  <enum16 name="Grenades.Grenade Type" offset="0x180" visible="True">
+    <option name="Human Fragmentation" value="00" />
+    <option name="Covenant Plasma" value="01" />
+  </enum16>
+  <enum16 name="Grenades.Trajectory Type" offset="0x182" visible="True">
+    <option name="Toss" value="00" />
+    <option name="Lob" value="01" />
+    <option name="Bounce" value="02" />
+  </enum16>
+  <enum16 name="Grenade.Grenade Stimulus" offset="0x184" visible="True">
+    <option name="Never" value="00" />
+    <option name="Visible Target" value="01" />
+    <option name="Seek Cover" value="02" />
+  </enum16>
+  <int16 name="Grenades.Minimum Enemy Count" offset="0x186" visible="True" />
+  <float32 name="Grenades.Enemy Radius" offset="0x188" visible="True" />
+  <float32 name="Grenades.Grenade Velocity" offset="0x190" visible="True" />
+  <float32 name="Grenades.Grenade Ranges: from" offset="0x194" visible="True" />
+  <float32 name="Grenades.Grenade Ranges: to" offset="0x198" visible="True" />
+  <float32 name="Grenades.Collateral Damage Radius" offset="0x19C" visible="True" />
+  <float32 name="Grenades.Grenade Chance" offset="0x1A0" visible="True" />
+  <float32 name="Grenades.Grenade Check Time" offset="0x1A4" visible="True" />
+  <float32 name="Grenades.Encounter Grenade Timeout" offset="0x1A8" visible="True" />
+  <int16 name="Items.Grenade Count: from" offset="0x1D0" visible="True" />
+  <int16 name="Items.Grenade Count: to" offset="0x1D2" visible="True" />
+  <float32 name="Items.Don't Drop Grenades Chance" offset="0x1D4" visible="True" />
+  <float32 name="Items.Drop Weapon Loaded: from" offset="0x1D8" visible="True" />
+  <float32 name="Items.Drop Weapon Loaded: to () ()" offset="0x1DC" visible="True" />
+  <int16 name="Items.Drop Weapon Ammo: from ()" offset="0x1E0" visible="True" />
+  <int16 name="Items.Drop Weapon Ammo: to ()" offset="0x1E2" visible="True" />
+  <float32 name="Unit.Body Vitality ()" offset="0x200" visible="True" />
+  <float32 name="Unit.Shield Vitality ()" offset="0x204" visible="True" />
+  <float32 name="Unit.Shield Sapping Radius () ()" offset="0x208" visible="True" />
+  <int16 name="Unit.Force Shader Permutation ()" offset="0x20C" visible="True" />
+  <struct name="Change Colors" offset="0x22C" visible="True" size="32" />
+</plugin>

@@ -1,0 +1,21 @@
+<plugin>
+  <revisions />
+  <enum16 name="Collection Type" offset="0x00" visible="True">
+    <option name="Screen-Facing" value="00" />
+    <option name="Viewer-Facing" value="01" />
+  </enum16>
+  <float32 name="Global Z Offset" offset="0x04" visible="True" />
+  <struct name="Types" offset="0x44" visible="True" size="96">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <bitmask8 name="Type Flags" offset="0x21" visible="True">
+      <option name="Unused" value="7" />
+      <option name="Unused" value="6" />
+      <option name="Interpolate Color in HSV" value="5" />
+      <option name="...More Colors" value="4" />
+    </bitmask8>
+    <float32 name="Color Override Factor" offset="0x24" visible="True" />
+    <float32 name="Near Fade Distance" offset="0x30" visible="True" />
+    <float32 name="Far Fade Distance" offset="0x34" visible="True" />
+    <float32 name="Size" offset="0x38" visible="True" />
+  </struct>
+</plugin>

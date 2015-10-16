@@ -11,15 +11,16 @@ namespace Adjutant.Library.Definitions
         Halo1Xbox = 0,
         Halo1PC = 1,
         Halo1CE = 2,
-        Halo2Xbox = 3,
-        Halo2Vista = 4,
-        Halo3Beta = 5,
-        Halo3Retail = 6,
-        Halo3ODST = 7,
-        HaloReachBeta = 8,
-        HaloReachRetail = 9,
-        Halo4Beta = 10,
-        Halo4Retail = 11
+        Halo1AE = 3,
+        Halo2Xbox = 4,
+        Halo2Vista = 5,
+        Halo3Beta = 6,
+        Halo3Retail = 7,
+        Halo3ODST = 8,
+        HaloReachBeta = 9,
+        HaloReachRetail = 10,
+        Halo4Beta = 11,
+        Halo4Retail = 12
     }
 
     public enum Language

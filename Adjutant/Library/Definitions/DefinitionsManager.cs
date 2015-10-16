@@ -81,6 +81,12 @@ namespace Adjutant.Library.Definitions
         {
             switch (Cache.Version)
             {
+                case DefinitionSet.Halo1PC:
+                    return new Halo1PC.bitmap(Cache, Tag.Offset);
+
+                case DefinitionSet.Halo1CE:
+                    return new Halo1CE.bitmap(Cache, Tag.Offset);
+
                 case DefinitionSet.Halo2Xbox:
                     return new Halo2Xbox.bitmap(Cache, Tag.Offset);
 
@@ -107,6 +113,11 @@ namespace Adjutant.Library.Definitions
         {
             switch (Cache.Version)
             {
+                case DefinitionSet.Halo1PC:
+                case DefinitionSet.Halo1CE:
+                case DefinitionSet.Halo1AE:
+                    return new Halo1PC.gbxmodel(Cache, Tag.Offset);
+
                 case DefinitionSet.Halo2Xbox:
                     return new Halo2Xbox.render_model(Cache, Tag.Offset);
 
@@ -139,6 +150,10 @@ namespace Adjutant.Library.Definitions
         {
             switch (Cache.Version)
             {
+                case DefinitionSet.Halo1PC:
+                case DefinitionSet.Halo1CE:
+                    return new Halo1PC.scenario_structure_bsp(Cache, Tag);
+
                 case DefinitionSet.Halo2Xbox:
                     return new Halo2Xbox.scenario_structure_bsp(Cache, Tag);
 
@@ -187,6 +202,10 @@ namespace Adjutant.Library.Definitions
         {
             switch (Cache.Version)
             {
+                case DefinitionSet.Halo1PC:
+                case DefinitionSet.Halo1CE:
+                    return new Halo1PC.shader_model(Cache, Tag);
+
                 case DefinitionSet.Halo2Xbox:
                     return new Halo2Xbox.shader(Cache, Tag.Offset);
 

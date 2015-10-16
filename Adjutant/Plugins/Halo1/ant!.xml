@@ -1,0 +1,17 @@
+<plugin>
+  <revisions />
+  <string name="Attachment Marker Name" offset="0x0" visible="True" length="32" />
+  <float32 name="Spring Strength Coefficient" offset="0x90" visible="True" />
+  <float32 name="Falloff Pixels" offset="0x94" visible="True" />
+  <float32 name="Cutoff Pixels" offset="0x98" visible="True" />
+  <struct name="Vertices" offset="0xC4" visible="True" size="128">
+    <float32 name="Spring Strength Coefficient" offset="0x00" visible="True" />
+    <float32 name="Angles: y" offset="0x1C" visible="True" />
+    <float32 name="Angles: p" offset="0x20" visible="True" />
+    <float32 name="Length" offset="0x24" visible="True" />
+    <int16 name="Sequence Index" offset="0x28" visible="True" />
+    <float32 name="Origin Offset: x" offset="0x74" visible="True" />
+    <float32 name="Origin Offset: y" offset="0x78" visible="True" />
+    <float32 name="Origin Offset: z" offset="0x7C" visible="True" />
+  </struct>
+</plugin>

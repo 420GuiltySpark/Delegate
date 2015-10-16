@@ -1,0 +1,10 @@
+<plugin>
+  <revisions />
+  <float32 name="Velocity: from" offset="0x00" visible="True" />
+  <float32 name="Velocity: to" offset="0x04" visible="True" />
+  <float32 name="Variation Area: yaw" offset="0x08" visible="True" />
+  <float32 name="Variation Area: pitch" offset="0x0C" visible="True" />
+  <float32 name="Local Variation Weight" offset="0x10" visible="True" />
+  <float32 name="Local Variation Rate" offset="0x14" visible="True" />
+  <float32 name="Damping" offset="0x18" visible="True" />
+</plugin>

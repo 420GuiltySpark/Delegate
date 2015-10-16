@@ -1,0 +1,7 @@
+<plugin>
+  <revisions />
+  <struct name="String References" offset="0x00" visible="True" size="20">
+    <int32 name="String Length" offset="0x00" visible="True" />
+    <struct name="String" offset="0x08" visible="True" size="128" />
+  </struct>
+</plugin>

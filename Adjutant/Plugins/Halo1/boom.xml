@@ -1,0 +1,5 @@
+<plugin>
+  <revisions />
+  <int16 name="From Velocity" offset="0x00" visible="True" />
+  <int16 name="From Acceleration" offset="0x02" visible="True" />
+</plugin>

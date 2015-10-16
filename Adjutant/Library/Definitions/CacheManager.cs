@@ -50,6 +50,9 @@ namespace Adjutant.Library.Definitions
                 var node = CacheBase.GetBuildNode(build);
                 switch (node.Attributes["definitions"].Value)
                 {
+                    case "Halo1PC":     retCache = new Halo1PC.CacheFile(Filename, build); break;
+                    case "Halo1CE":     retCache = new Halo1CE.CacheFile(Filename, build); break;
+                    case "Halo1AE":     retCache = new Halo1AE.CacheFile(Filename, build); break;
                     case "Halo2Xbox":   retCache = new Halo2Xbox.CacheFile(Filename, build); break;
                     case "Halo2Vista":  retCache = new Halo2Vista.CacheFile(Filename, build); break;
                     case "Halo3Beta":   retCache = new Halo3Beta.CacheFile(Filename, build); break;
@@ -71,4 +74,3 @@ namespace Adjutant.Library.Definitions
         }
     }
 }
-

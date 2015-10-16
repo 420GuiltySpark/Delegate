@@ -1,0 +1,295 @@
+<plugin>
+  <revisions />
+  <struct name="Objects" offset="0x00" visible="True" size="20">
+    <enum16 name="Function" offset="0x02" visible="True">
+      <option name="A out" value="00" />
+      <option name="B out" value="01" />
+      <option name="C out" value="02" />
+      <option name="D out" value="03" />
+    </enum16>
+    <enum16 name="Function Controls" offset="0x04" visible="True">
+      <option name="Frame" value="00" />
+      <option name="Scale" value="01" />
+    </enum16>
+  </struct>
+  <struct name="Units" offset="0x0C" visible="True" size="100">
+    <string name="Label" offset="0x00" visible="True" length="32" />
+    <float32 name="Looking Screen Bounds.Right Yaw per Frame" offset="0x20" visible="True" />
+    <float32 name="Looking Screen Bounds.Left Yaw per Frame" offset="0x24" visible="True" />
+    <int16 name="Looking Screen Bounds.Right Yaw Frame Count" offset="0x28" visible="True" />
+    <int16 name="Looking Screen Bounds.Left Yaw Frame Count" offset="0x2A" visible="True" />
+    <float32 name="Looking Screen Bounds.Down Pitch per Frame" offset="0x2C" visible="True" />
+    <float32 name="Looking Screen Bounds.Up Pitch per Frame" offset="0x30" visible="True" />
+    <int16 name="Looking Screen Bounds.Down Pitch Frame Count" offset="0x34" visible="True" />
+    <int16 name="Looking Screen Bounds.Up Pitch Frame Count" offset="0x36" visible="True" />
+    <struct name="Animations" offset="0x40" visible="True" size="2" />
+    <struct name="IK Points" offset="0x4C" visible="True" size="64">
+      <string name="Marker" offset="0x00" visible="True" length="32" />
+      <string name="Attach to Marker" offset="0x20" visible="True" length="32" />
+    </struct>
+    <struct name="Weapons" offset="0x58" visible="True" size="188">
+      <string name="Name" offset="0x00" visible="True" length="32" />
+      <string name="Grip Marker" offset="0x20" visible="True" length="32" />
+      <string name="Hand Marker" offset="0x40" visible="True" length="32" />
+      <float32 name="Aiming Screen Bounds.Right Yaw per Frame" offset="0x60" visible="True" />
+      <float32 name="Aiming Screen Bounds.Left Yaw per Frame" offset="0x64" visible="True" />
+      <int16 name="Aiming Screen Bounds.Right Yaw Frame Count" offset="0x68" visible="True" />
+      <int16 name="Aiming Screen Bounds.Left Yaw Frame Count" offset="0x6A" visible="True" />
+      <float32 name="Aiming Screen Bounds.Down Pitch per Frame" offset="0x6C" visible="True" />
+      <float32 name="Aiming Screen Bounds.Up Pitch per Frame" offset="0x70" visible="True" />
+      <int16 name="Aiming Screen Bounds.Down Pitch Frame Count" offset="0x74" visible="True" />
+      <int16 name="Aiming Screen Bounds.Up Pitch Frame Count" offset="0x76" visible="True" />
+      <struct name="Animations" offset="0x98" visible="True" size="2">
+        <bitmask32 name="Animations Chunk Guide 1" offset="0x00" visible="True">
+          <option name="DO NOT TOUCH THESE FLAGS" value="31" />
+          <option name="THIS IS FOR YOUR INFORMATION ONLY" value="30" />
+          <option name="All the animations under" value="29" />
+          <option name="Weapons -&gt; Reflexives -&gt; Animations" value="28" />
+          <option name="are numbered and used as follows:" value="27" />
+          <option name="01. idle" value="26" />
+          <option name="02. gesture" value="25" />
+          <option name="03. turn-left" value="24" />
+          <option name="04. turn-right" value="23" />
+          <option name="05. drive-front" value="22" />
+          <option name="06. drive-back" value="21" />
+          <option name="07. drive-left" value="20" />
+          <option name="08. drive-right" value="19" />
+          <option name="09. move-front" value="18" />
+          <option name="10. move-back" value="17" />
+          <option name="11. move-left" value="16" />
+          <option name="12. move-right" value="15" />
+          <option name="13. slide-front" value="14" />
+          <option name="14. slide-back" value="13" />
+          <option name="15. slide-left" value="12" />
+          <option name="16. slide-right" value="11" />
+          <option name="17. airborne" value="10" />
+          <option name="18. land-soft" value="09" />
+          <option name="19. land-hard" value="08" />
+          <option name="20. unused" value="07" />
+          <option name="21. throw-grenade" value="06" />
+          <option name="22. disarm" value="05" />
+          <option name="23. drop" value="04" />
+          <option name="24. ready" value="03" />
+          <option name="25. put-away" value="02" />
+          <option name="26. aim-still" value="01" />
+          <option name="27. aim-move" value="01" />
+          <option name="28. surprise-front" value="01" />
+          <option name="29. surprise-back" value="01" />
+          <option name="30. berserk" value="01" />
+          <option name="31. evade-left" value="01" />
+          <option name="32. evade-right" value="01" />
+          <option name="33. signal-move" value="01" />
+          <option name="34. signal-attack" value="01" />
+          <option name="35. warn" value="01" />
+          <option name="36. stunned-front" value="01" />
+          <option name="37. stunned-back" value="01" />
+          <option name="38. stunned-left" value="01" />
+          <option name="39. stunned-right" value="01" />
+          <option name="40. melee" value="01" />
+          <option name="41. celebrate" value="01" />
+          <option name="42. panic" value="01" />
+          <option name="43. melee-airborne" value="01" />
+          <option name="44. flaming" value="01" />
+          <option name="45. resurrect-front" value="01" />
+          <option name="46. resurrect-back" value="01" />
+          <option name="47. melee-continuous" value="01" />
+          <option name="48. feeding" value="01" />
+          <option name="49. leap-start" value="01" />
+          <option name="50. leap-airborne" value="01" />
+          <option name="51. leap-melee" value="01" />
+          <option name="52. zapping" value="01" />
+          <option name="53. unused" value="01" />
+          <option name="54. unused" value="01" />
+          <option name="55. unused" value="01" />
+        </bitmask32>
+      </struct>
+      <struct name="IK Points" offset="0xA4" visible="True" size="64">
+        <string name="Marker" offset="0x00" visible="True" length="32" />
+        <string name="Attach to Marker" offset="0x20" visible="True" length="32" />
+      </struct>
+      <struct name="Weapon Types" offset="0xB0" visible="True" size="60">
+        <string name="Label" offset="0x00" visible="True" length="32" />
+        <struct name="Animations" offset="0x30" visible="True" size="2">
+          <bitmask32 name="Animations Chunk Guide 2" offset="0x00" visible="True">
+            <option name="Do Not Touch These Flags;" value="31" />
+            <option name="They are for reference info only!" value="30" />
+            <option name="Again, DO NOT TOUCH THESE FLAGS." value="29" />
+            <option name="All the numbered Animations chunks listed under" value="28" />
+            <option name="Weapon Types -&gt; Reflexives -&gt; Animations" value="27" />
+            <option name="are used as follows:" value="26" />
+            <option name="1. reload-1" value="25" />
+            <option name="2. reload-2" value="24" />
+            <option name="3. chamber-1" value="23" />
+            <option name="4. chamber-2" value="22" />
+            <option name="5. fire-1" value="21" />
+            <option name="6. fire-2" value="20" />
+            <option name="7. charged-1" value="19" />
+            <option name="8. charged-2" value="18" />
+            <option name="9. melee" value="17" />
+            <option name="10. overheat" value="16" />
+            <option name="" value="15" />
+            <option name="ie. Animations 1 = 'reload-1'" value="14" />
+          </bitmask32>
+        </struct>
+      </struct>
+    </struct>
+  </struct>
+  <struct name="Weapons" offset="0x18" visible="True" size="28">
+    <struct name="Animations" offset="0x10" visible="True" size="2">
+      <bitmask32 name="Animations Chunk Guide 3" offset="0x00" visible="True">
+        <option name="Do Not Touch These Flags;" value="31" />
+        <option name="They are for reference info only!" value="30" />
+        <option name="Again, DO NOT TOUCH THESE FLAGS." value="29" />
+        <option name="All the numbered Animations chunks listed under" value="28" />
+        <option name="Weapons -&gt; Reflexives -&gt; Animations" value="27" />
+        <option name="are used as follows:" value="26" />
+        <option name="1. idle" value="25" />
+        <option name="2. ready" value="24" />
+        <option name="3. put-away" value="23" />
+        <option name="4. reload-1" value="22" />
+        <option name="5. reload-2" value="21" />
+        <option name="6. chamber-1" value="20" />
+        <option name="7. chamber-2" value="19" />
+        <option name="8. charged-1" value="18" />
+        <option name="9. charged-2" value="17" />
+        <option name="10. fire-1" value="16" />
+        <option name="11. fire-2" value="16" />
+        <option name="" value="15" />
+        <option name="ie. Animations 01 = 'idle'" value="14" />
+      </bitmask32>
+    </struct>
+  </struct>
+  <struct name="Vehicles" offset="0x24" visible="True" size="116">
+    <float32 name="Steering Screen.Right Yaw per Frame" offset="0x00" visible="True" />
+    <float32 name="Steering Screen.Left Yaw per Frame" offset="0x04" visible="True" />
+    <int16 name="Steering Screen.Right Yaw Frame Count" offset="0x08" visible="True" />
+    <int16 name="Steering Screen.Left Yaw Frame Count" offset="0x0A" visible="True" />
+    <float32 name="Steering Screen.Down Pitch per Frame" offset="0x0C" visible="True" />
+    <float32 name="Steering Screen.Up Pitch per Frame" offset="0x10" visible="True" />
+    <int16 name="Steering Screen.Down Pitch Frame Count" offset="0x14" visible="True" />
+    <int16 name="Steering Screen.Up Pitch Frame Count" offset="0x16" visible="True" />
+    <struct name="Animations" offset="0x5C" visible="True" size="2">
+      <bitmask32 name="Animations Reference Guide 4" offset="0x00" visible="True">
+        <option name="DO NOT TOUCH THESE FLAGS" value="31" />
+        <option name="THIS IS FOR YOUR INFORMATION ONLY" value="30" />
+        <option name="" value="29" />
+        <option name="All the Animation chunks under" value="28" />
+        <option name="Vehicles -&gt; Reflexives -&gt; Animations" value="27" />
+        <option name="are used as such:" value="26" />
+        <option name="" value="25" />
+        <option name="1. steering" value="24" />
+        <option name="2. roll" value="23" />
+        <option name="3. throttle" value="22" />
+        <option name="4. velocity" value="21" />
+        <option name="5. braking" value="20" />
+        <option name="6. ground-speed" value="19" />
+        <option name="7. occupied" value="18" />
+        <option name="8. unoccupied" value="17" />
+        <option name="" value="16" />
+        <option name="ie. Animations 1 = 'steering'" value="15" />
+      </bitmask32>
+    </struct>
+    <struct name="Suspension Animations" offset="0x68" visible="True" size="20">
+      <int16 name="Mass Point Index" offset="0x00" visible="True" />
+      <float32 name="Full Extension Ground_Depth" offset="0x04" visible="True" />
+      <float32 name="Full Compression Ground_Depth" offset="0x08" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Devices" offset="0x30" visible="True" size="96">
+    <struct name="Animations (1 = 'position'; 2 = 'power')" offset="0x54" visible="True" size="2" />
+  </struct>
+  <struct name="Unit Damage" offset="0x3C" visible="True" size="2" />
+  <struct name="First Person Weapons" offset="0x48" visible="True" size="28">
+    <struct name="Animations" offset="0x10" visible="True" size="2">
+      <bitmask32 name="Animations Reference Guide 5" offset="0x00" visible="True">
+        <option name="DON'T TOUCH THESE FLAGS" value="31" />
+        <option name="FOR YOUR INFORMATION ONLY" value="31" />
+        <option name="First Person Weapons -&gt; Reflexives -&gt; Animations #" value="31" />
+        <option name="01. idle" value="31" />
+        <option name="02. posing" value="30" />
+        <option name="03. fire-1" value="29" />
+        <option name="04. moving" value="28" />
+        <option name="05. overlays" value="27" />
+        <option name="06. light-off" value="26" />
+        <option name="07. light-on" value="25" />
+        <option name="08. reload-empty" value="24" />
+        <option name="09. reload-full" value="23" />
+        <option name="10. overheated" value="22" />
+        <option name="11. ready" value="21" />
+        <option name="12. put-away" value="20" />
+        <option name="13. overcharged" value="19" />
+        <option name="14. melee" value="18" />
+        <option name="15. fire-2" value="17" />
+        <option name="16. overcharged-jitter" value="16" />
+        <option name="17. throw-grenade" value="15" />
+        <option name="18. ammunition" value="14" />
+        <option name="19. misfire-1" value="13" />
+        <option name="20. misfire-2" value="12" />
+        <option name="21. throw-overheated" value="11" />
+        <option name="22. overheating" value="10" />
+        <option name="23. overheating-again" value="09" />
+        <option name="24. enter" value="08" />
+        <option name="25. exit-empty" value="07" />
+        <option name="26. exit-full" value="06" />
+        <option name="27. o-h-exit" value="05" />
+        <option name="28. o-h-s-enter" value="04" />
+      </bitmask32>
+    </struct>
+  </struct>
+  <struct name="Sound References" offset="0x54" visible="True" size="20" />
+  <float32 name="Limp Body Node Radius" offset="0x60" visible="True" />
+  <bitmask16 name="Flags" offset="0x64" visible="True">
+    <option name="Compress All Animations" value="15" />
+    <option name="Force Idle Compression" value="14" />
+  </bitmask16>
+  <struct name="Nodes" offset="0x68" visible="True" size="64">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <bitmask16 name="Node Joint Flags" offset="0x28" visible="True">
+      <option name="Ball-Socket" value="15" />
+      <option name="Hinge" value="14" />
+      <option name="No Movement" value="13" />
+    </bitmask16>
+    <float32 name="Base Vector: i (1)" offset="0x2C" visible="True" />
+    <float32 name="Base Vector: i (2)" offset="0x30" visible="True" />
+    <float32 name="Base Vector: k" offset="0x34" visible="True" />
+    <float32 name="Vector Range" offset="0x38" visible="True" />
+  </struct>
+  <struct name="Animations" offset="0x74" visible="True" size="180">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <enum16 name="Type" offset="0x20" visible="True">
+      <option name="Base" value="00" />
+      <option name="Overlay" value="01" />
+      <option name="Replacement" value="02" />
+    </enum16>
+    <int16 name="Frame Count" offset="0x22" visible="True" />
+    <int16 name="Frame Size" offset="0x24" visible="True" />
+    <enum16 name="Frame Info Type" offset="0x26" visible="True">
+      <option name="None" value="00" />
+      <option name="Dx, Dy" value="01" />
+      <option name="Dx, Dy, Dyaw" value="02" />
+      <option name="Dx, Dy, Dz, Dyaw" value="03" />
+    </enum16>
+    <int32 name="Node List Checksum" offset="0x28" visible="True" />
+    <int16 name="Node Count" offset="0x2C" visible="True" />
+    <int16 name="Loop Frame Index" offset="0x2E" visible="True" />
+    <float32 name="Weight" offset="0x30" visible="True" />
+    <int16 name="Key Frame Index" offset="0x34" visible="True" />
+    <int16 name="Second Key Frame Index" offset="0x36" visible="True" />
+    <bitmask16 name="Flags" offset="0x3A" visible="True">
+      <option name="Compressed Data" value="15" />
+      <option name="World Relative" value="14" />
+      <option name="25Hz (PAL)" value="13" />
+    </bitmask16>
+    <int16 name="Sound Frame Index" offset="0x3E" visible="True" />
+    <int32 name="Frame Info" offset="0x48" visible="True" />
+    <int32 name="Node Translation Flag Data (1)" offset="0x5C" visible="True" />
+    <int32 name="Node Translation Flag Data (2)" offset="0x60" visible="True" />
+    <int32 name="Node Rotation Flag Data (1)" offset="0x6C" visible="True" />
+    <int32 name="Node Rotation Flag Data (2)" offset="0x70" visible="True" />
+    <int32 name="Node Scale Flag Data (1) UNCONFIRMED OFFSET" offset="0x7C" visible="True" />
+    <int32 name="Node Scale Flag Data (2) UNCONFIRMED OFFSET" offset="0x80" visible="True" />
+    <int32 name="Offset to Compressed Data (bytes) UNCONFIRMED OFFSET" offset="0x84" visible="True" />
+    <int32 name="Default Data" offset="0x8C" visible="True" />
+    <int32 name="Frame Data" offset="0xA0" visible="True" />
+  </struct>
+</plugin>

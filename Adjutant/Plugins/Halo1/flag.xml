@@ -1,0 +1,24 @@
+<plugin>
+  <revisions />
+  <enum16 name="Trailing Edge Shape" offset="0x04" visible="True">
+    <option name="Flat" value="00" />
+    <option name="Concave Triangular" value="01" />
+    <option name="Convex Triangular" value="02" />
+    <option name="Trapezoid, Short Top" value="03" />
+    <option name="Trapezoid, Short Bottom" value="04" />
+  </enum16>
+  <int16 name="Trailing Edge Shape Offset" offset="0x06" visible="True" />
+  <enum16 name="Attached Edge Shape" offset="0x08" visible="True">
+    <option name="Flat" value="00" />
+    <option name="Concave Triangular" value="01" />
+  </enum16>
+  <int16 name="Width" offset="0x0C" visible="True" />
+  <int16 name="Height" offset="0x0E" visible="True" />
+  <float32 name="Cell Width" offset="0x10" visible="True" />
+  <float32 name="Cell Height" offset="0x14" visible="True" />
+  <float32 name="Wind Noise" offset="0x38" visible="True" />
+  <struct name="Attachment Points" offset="0x54" visible="True" size="52">
+    <int16 name="Height to Next Attachment" offset="0x00" visible="True" />
+    <string name="Marker Name" offset="0x14" visible="True" length="32" />
+  </struct>
+</plugin>

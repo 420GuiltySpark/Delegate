@@ -93,6 +93,16 @@ namespace Adjutant.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] Classes_H1 {
+            get {
+                object obj = ResourceManager.GetObject("Classes_H1", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Classes_H2 {
             get {
                 object obj = ResourceManager.GetObject("Classes_H2", resourceCulture);

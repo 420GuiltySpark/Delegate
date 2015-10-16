@@ -1,0 +1,94 @@
+<plugin>
+  <revisions />
+  <bitmask16 name="Flags" offset="0x00" visible="True">
+    <option name="Blend Shared Normals" value="15" />
+    <option name="Parts Have Local Nodes" value="14" />
+    <option name="Ignore Skinning" value="13" />
+  </bitmask16>
+  <int32 name="Node List Checksum" offset="0x04" visible="True" />
+  <float32 name="Super-High Detail Cutoff" offset="0x18" visible="True" />
+  <float32 name="High Detail Cutoff" offset="0x14" visible="True" />
+  <float32 name="Medium Detail Cutoff" offset="0x10" visible="True" />
+  <float32 name="Low Detail Cutoff" offset="0x0C" visible="True" />
+  <float32 name="Super-Low Detail Cutoff" offset="0x08" visible="True" />
+  <int16 name="Super-High Detail Node Count" offset="0x1C" visible="True" />
+  <int16 name="High Detail Node Count" offset="0x1E" visible="True" />
+  <int16 name="Medium Detail Node Count" offset="0x20" visible="True" />
+  <int16 name="Low Detail Node Count" offset="0x22" visible="True" />
+  <int16 name="Super-Low Detail Node Count" offset="0x24" visible="True" />
+  <float32 name="Base Map U-Scale" offset="0x30" visible="True" />
+  <float32 name="Base Map V-Scale" offset="0x34" visible="True" />
+  <struct name="Markers" offset="0xAC" visible="True" size="64">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <int16 name="Magic Identifier" offset="0x20" visible="True" />
+    <struct name="Instances" offset="0x34" visible="True" size="32">
+      <float32 name="Translation: x" offset="0x04" visible="True" />
+      <float32 name="Translation: y" offset="0x08" visible="True" />
+      <float32 name="Translation: z" offset="0x0C" visible="True" />
+      <float32 name="Rotation: i (1)" offset="0x10" visible="True" />
+      <float32 name="Rotation: i (2)" offset="0x14" visible="True" />
+      <float32 name="Rotation: k" offset="0x18" visible="True" />
+      <float32 name="Rotation: w" offset="0x1C" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Nodes" offset="0xB8" visible="True" size="156">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <float32 name="Default Translation: x" offset="0x28" visible="True" />
+    <float32 name="Default Translation: y" offset="0x2C" visible="True" />
+    <float32 name="Default Translation: z" offset="0x30" visible="True" />
+    <float32 name="Default Rotation: i (1)" offset="0x34" visible="True" />
+    <float32 name="Default Rotation: i (2)" offset="0x38" visible="True" />
+    <float32 name="Default Rotation: k" offset="0x3C" visible="True" />
+    <float32 name="Default Rotation: w" offset="0x40" visible="True" />
+    <float32 name="Node Distance From Parent" offset="0x44" visible="True" />
+  </struct>
+  <struct name="Regions" offset="0xC4" visible="True" size="76">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <struct name="Permutations" offset="0x40" visible="True" size="88">
+      <string name="Name" offset="0x00" visible="True" length="32" />
+      <bitmask8 name="Flags" offset="0x20" visible="True">
+        <option name="Cannot Be Chosen Randomly" value="7" />
+      </bitmask8>
+      <int16 name="super low" offset="0x40" visible="True" />
+      <int16 name="low" offset="0x42" visible="True" />
+      <int16 name="medium" offset="0x44" visible="True" />
+      <int16 name="high" offset="0x46" visible="True" />
+      <int16 name="super high" offset="0x48" visible="True" />
+      <struct name="Markers" offset="0x4C" visible="True" size="80">
+        <string name="Name" offset="0x00" visible="True" length="32" />
+        <float32 name="Rotation: i (1)" offset="0x24" visible="True" />
+        <float32 name="Rotation: i (2)" offset="0x28" visible="True" />
+        <float32 name="Rotation: k" offset="0x2C" visible="True" />
+        <float32 name="Rotation: w" offset="0x30" visible="True" />
+        <float32 name="Translation: x" offset="0x34" visible="True" />
+        <float32 name="Translation: y" offset="0x38" visible="True" />
+        <float32 name="Translation: z" offset="0x3C" visible="True" />
+      </struct>
+    </struct>
+  </struct>
+  <struct name="Geometries" offset="0xD0" visible="True" size="48">
+    <struct name="Parts" offset="0x24" visible="True" size="132">
+      <bitmask8 name="Flags" offset="0x00" visible="True">
+        <option name="Stripped (Internal)" value="7" />
+        <option name="ZONER" value="6" />
+      </bitmask8>
+      <int16 name="Shader Index" offset="0x04" visible="True" />
+      <int16 name="Centroid Primary Node" offset="0x08" visible="True" />
+      <int16 name="Centroid Secondary Node" offset="0x0A" visible="True" />
+      <float32 name="Centroid Primary Weight" offset="0x0C" visible="True" />
+      <float32 name="Centroid Secondary Weight" offset="0x10" visible="True" />
+      <float32 name="Centroid: x" offset="0x14" visible="True" />
+      <float32 name="Centroid: y" offset="0x18" visible="True" />
+      <float32 name="Centroid: z" offset="0x1C" visible="True" />
+      <int32 name="Faces Count" offset="0x48" visible="True" />
+      <int32 name="Faces Offset" offset="0x4C" visible="True" />
+      <int32 name="Vertices Count" offset="0x58" visible="True" />
+      <int32 name="?" offset="0x5C" visible="True" />
+      <int32 name="?" offset="0x60" visible="True" />
+      <int32 name="Vertices Offset" offset="0x64" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Shaders" offset="0xDC" visible="True" size="32">
+    <tagref name="Shader" offset="0x08" visible="True" />
+  </struct>
+</plugin>

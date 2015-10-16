@@ -1,0 +1,38 @@
+<plugin>
+  <revisions />
+  <string name="Light Volume.Attachment Marker" offset="0x00" visible="True" length="32" />
+  <bitmask16 name="Light Volume.Flags" offset="0x22" visible="True">
+    <option name="Interpolate Color in HSV" value="15" />
+    <option name="...More Colors" value="14" />
+  </bitmask16>
+  <float32 name="Brightness Scale.Near Fade Distance" offset="0x34" visible="True" />
+  <float32 name="Brightness Scale.Far Fade Distance" offset="0x38" visible="True" />
+  <float32 name="Brightness Scale.Perpendicular Brightness Scale" offset="0x3C" visible="True" />
+  <float32 name="Brightness Scale.Parallel Brightness Scale" offset="0x40" visible="True" />
+  <enum16 name="Brightness Scale.Brightness Scale Source" offset="0x44" visible="True">
+    <option name="None" value="00" />
+    <option name="A out" value="01" />
+    <option name="B out" value="02" />
+    <option name="C out" value="03" />
+    <option name="D out" value="04" />
+  </enum16>
+  <int16 name="Bitmaps.Sequence Index" offset="0x6C" visible="True" />
+  <int16 name="Bitmaps.Count" offset="0x6E" visible="True" />
+  <enum16 name="Frame Animation Source" offset="0xB8" visible="True">
+    <option name="None" value="00" />
+    <option name="A out" value="01" />
+    <option name="B out" value="02" />
+    <option name="C out" value="03" />
+    <option name="D out" value="04" />
+  </enum16>
+  <struct name="Frames" offset="0x120" visible="True" size="176">
+    <float32 name="Offset From Marker" offset="0x10" visible="True" />
+    <float32 name="Offset Exponent" offset="0x14" visible="True" />
+    <float32 name="Length" offset="0x18" visible="True" />
+    <float32 name="Radius Hither" offset="0x3C" visible="True" />
+    <float32 name="Radius Yon" offset="0x40" visible="True" />
+    <float32 name="Radius Exponent" offset="0x44" visible="True" />
+    <float32 name="Tint Color Exponent" offset="0x88" visible="True" />
+    <float32 name="Brightness Exponent" offset="0x8C" visible="True" />
+  </struct>
+</plugin>

@@ -1,0 +1,631 @@
+<plugin>
+  <revisions />
+  <bitmask16 name="Flags" offset="0x02" visible="True">
+    <option name="Does Not Cast Shadow" value="15" />
+    <option name="Transparent Self-Occlusion" value="14" />
+    <option name="Brighter Than It Should Be" value="13" />
+    <option name="Not a Pathfinding Obstacle" value="12" />
+  </bitmask16>
+  <float32 name="Bounding Radius" offset="0x04" visible="True" />
+  <float32 name="Bounding Offset: x" offset="0x08" visible="True" />
+  <float32 name="Bounding Offset: y" offset="0x0C" visible="True" />
+  <float32 name="Bounding Offset: z" offset="0x10" visible="True" />
+  <float32 name="Origin Offset: x" offset="0x14" visible="True" />
+  <float32 name="Origin Offset: y" offset="0x18" visible="True" />
+  <float32 name="Origin Offset: z" offset="0x1C" visible="True" />
+  <float32 name="Acceleration Scale" offset="0x20" visible="True" />
+  <float32 name="Render Bounding Radius" offset="0x104" visible="True" />
+  <enum16 name="Export to Functions.A in" offset="0x108" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <enum16 name="Export to Functions.B in" offset="0x10A" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <enum16 name="Export to Functions.C in" offset="0x10C" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <enum16 name="Export to Functions.D in" offset="0x10E" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <int16 name="Export to Functions.HUD Text Message Index" offset="0x13C" visible="True" />
+  <int16 name="Export to Functions.Forced Shader Permutation Index" offset="0x13E" visible="True" />
+  <struct name="Attachments" offset="0x140" visible="True" size="72">
+    <string name="Marker" offset="0x10" visible="True" length="32" />
+    <enum16 name="Primary Scale" offset="0x30" visible="True">
+      <option name="None" value="00" />
+      <option name="A out" value="01" />
+      <option name="B out" value="02" />
+      <option name="C out" value="03" />
+      <option name="D out" value="04" />
+    </enum16>
+    <enum16 name="Secondary Scale" offset="0x32" visible="True">
+      <option name="None" value="00" />
+      <option name="A out" value="01" />
+      <option name="B out" value="02" />
+      <option name="C out" value="03" />
+      <option name="D out" value="04" />
+    </enum16>
+    <enum16 name="Change Color" offset="0x34" visible="True">
+      <option name="None" value="00" />
+      <option name="A" value="01" />
+      <option name="B" value="02" />
+      <option name="C" value="03" />
+      <option name="D" value="04" />
+    </enum16>
+  </struct>
+  <struct name="Widgets" offset="0x14C" visible="True" size="32" />
+  <struct name="Functions" offset="0x158" visible="True" size="360">
+    <bitmask32 name="Flags" offset="0x0" visible="True">
+      <option name="Invert" value="31" />
+      <option name="Additive" value="30" />
+      <option name="Always Active" value="29" />
+    </bitmask32>
+    <float32 name="Period" offset="0x04" visible="True" />
+    <enum16 name="Scale Period By" offset="0x08" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Function" offset="0x0A" visible="True">
+      <option name="One" value="00" />
+      <option name="Zero" value="01" />
+      <option name="Cosine" value="02" />
+      <option name="Cosine (variable period)" value="03" />
+      <option name="Diagonal Wave" value="04" />
+      <option name="Diagonal Wave (variable period)" value="05" />
+      <option name="Slide" value="06" />
+      <option name="Slide (variable period)" value="07" />
+      <option name="Noise" value="08" />
+      <option name="Jitter" value="09" />
+      <option name="Wander" value="10" />
+      <option name="Spark" value="11" />
+    </enum16>
+    <enum16 name="Scale Function By" offset="0x0C" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Wobble Function" offset="0x0E" visible="True">
+      <option name="One" value="00" />
+      <option name="Zero" value="01" />
+      <option name="Cosine" value="02" />
+      <option name="Cosine (variable period)" value="03" />
+      <option name="Diagonal Wave" value="04" />
+      <option name="Diagonal Wave (variable period)" value="05" />
+      <option name="Slide" value="06" />
+      <option name="Slide (variable period)" value="07" />
+      <option name="Noise" value="08" />
+      <option name="Jitter" value="09" />
+      <option name="Wander" value="10" />
+      <option name="Spark" value="11" />
+    </enum16>
+    <float32 name="Wobble Period" offset="0x10" visible="True" />
+    <float32 name="Wobble Magnitude" offset="0x14" visible="True" />
+    <float32 name="Square Wave Threshold" offset="0x18" visible="True" />
+    <int16 name="Step Count" offset="0x1C" visible="True" />
+    <enum16 name="Map to" offset="0x1E" visible="True">
+      <option name="Linear" value="00" />
+      <option name="Early" value="01" />
+      <option name="Very Early" value="02" />
+      <option name="Late" value="03" />
+      <option name="Very Late" value="04" />
+      <option name="Cosine" value="05" />
+    </enum16>
+    <int16 name="Sawtooth Count" offset="0x20" visible="True" />
+    <enum16 name="Add" offset="0x22" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Scale Result by" offset="0x24" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Bounds Mode" offset="0x26" visible="True">
+      <option name="Clip" value="00" />
+      <option name="Clip and Normalize" value="01" />
+      <option name="Scale to Fit" value="02" />
+    </enum16>
+    <float32 name="Bounds: from" offset="0x28" visible="True" />
+    <float32 name="Bounds: to" offset="0x2C" visible="True" />
+    <enum16 name="Turn off with" offset="0x36" visible="True">
+      <option name="None" value="65535" />
+      <option name="A out (Function 1)" value="00" />
+      <option name="B out (Function 2)" value="01" />
+      <option name="C out (Function 3)" value="02" />
+      <option name="D out (Function 4)" value="03" />
+    </enum16>
+    <float32 name="Scale by" offset="0x38" visible="True" />
+    <float32 name="Function Acceleration Scale" offset="0x138" visible="True" />
+    <string name="Usage" offset="0x148" visible="True" length="32" />
+  </struct>
+  <struct name="Change Colors" offset="0x164" visible="True" size="44">
+    <enum16 name="Darken by" offset="0x00" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <enum16 name="Scale by" offset="0x02" visible="True">
+      <option name="None" value="00" />
+      <option name="A in" value="01" />
+      <option name="B in" value="02" />
+      <option name="C in" value="03" />
+      <option name="D in" value="04" />
+      <option name="A out" value="05" />
+      <option name="B out" value="06" />
+      <option name="C out" value="07" />
+      <option name="D out" value="08" />
+    </enum16>
+    <bitmask32 name="Scale Flags" offset="0x04" visible="True">
+      <option name="Blend in HSV" value="31" />
+      <option name="...More Colors" value="30" />
+    </bitmask32>
+    <struct name="Permutations" offset="0x20" visible="True" size="28">
+      <float32 name="Weight" offset="0x00" visible="True" />
+    </struct>
+  </struct>
+  <bitmask16 name="Item.Flags" offset="0x17C" visible="True">
+    <option name="Always Mantains Z Up" value="15" />
+    <option name="Destroyed by Explosions" value="14" />
+    <option name="Unaffected by Gravity" value="13" />
+  </bitmask16>
+  <int16 name="Item.Message-Index.Message Index" offset="0x180" visible="True" />
+  <int16 name="Item.Message-Index.Sort Order" offset="0x182" visible="True" />
+  <float32 name="Item.Message-Index.Scale" offset="0x184" visible="True" />
+  <int16 name="Item.Message-Index.HUD Message Value Scale" offset="0x188" visible="True" />
+  <enum16 name="Item.Message-Index.A in" offset="0x18A" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <enum16 name="Item.Message-Index.B in" offset="0x1B9" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <enum16 name="Item.Message-Index.C in" offset="0x1E8" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <enum16 name="Item.Message-Index.D in" offset="0x217" visible="True">
+    <option name="None" value="00" />
+    <option name="Body Vitality" value="01" />
+    <option name="Shield Vitality" value="02" />
+    <option name="Recent Body Damage" value="03" />
+    <option name="Recent Shield Damage" value="04" />
+    <option name="Random Constant" value="05" />
+    <option name="Umbrella Shield Vitality" value="06" />
+    <option name="Shield Stun" value="07" />
+    <option name="Recent Umbrella Shield Vitality" value="08" />
+    <option name="Umbrella Shield Stun" value="09" />
+    <option name="Region #00 Damage" value="10" />
+    <option name="Region #01 Damage" value="11" />
+    <option name="Region #02 Damage" value="12" />
+    <option name="Region #03 Damage" value="13" />
+    <option name="Region #04 Damage" value="14" />
+    <option name="Region #05 Damage" value="15" />
+    <option name="Region #06 Damage" value="16" />
+    <option name="Region #07 Damage" value="17" />
+    <option name="Alive" value="18" />
+    <option name="Compass" value="19" />
+  </enum16>
+  <float32 name="Item.Detonation Delay: from" offset="0x2E0" visible="True" />
+  <float32 name="Item.Detonation Delay: to" offset="0x2E4" visible="True" />
+  <bitmask32 name="Weapon.Flags" offset="0x308" visible="True">
+    <option name="Vertical Heat Display" value="31" />
+    <option name="Mutually Exclusive Triggers" value="30" />
+    <option name="Attacks Automatically on Bump" value="29" />
+    <option name="Must Be Readied" value="28" />
+    <option name="Doesn't Count Toward Maximum" value="27" />
+    <option name="Aim Assists Only When Zoomed" value="26" />
+    <option name="Prevents Grenade Throwing" value="25" />
+    <option name="Must Be Picked Up" value="24" />
+    <option name="Holds Triggers When Dropped" value="23" />
+    <option name="Prevents Melee Attack" value="22" />
+    <option name="Detonates When Dropped" value="21" />
+    <option name="Cannot Fire at Maximum Age" value="20" />
+    <option name="Secondary Trigger Overrides Grenades" value="19" />
+    <option name="(OBSOLETE) Does Not Depower Active Camo in Multiplayer" value="18" />
+    <option name="Enables Integrated Night Vision" value="17" />
+    <option name="AIs Use Weapon Melee Damage" value="16" />
+  </bitmask32>
+  <string name="Weapon.Label" offset="0x30C" visible="True" length="32" />
+  <enum32 name="Weapon.Label" offset="0x30C" visible="True">
+    <option name="None" value="00" />
+    <option name="AI: Sentinel Beam (ar)" value="1694528097" />
+    <option name="Special: Skull Ball (b)" value="98" />
+    <option name="Special: Flag (f)" value="1811939430" />
+    <option name="Vehicle (Covenant): Type-26 Banshee; Type-32 RAV Ghost; Type-25 (and Type-52?) Wraith (gun)" value="7239015" />
+    <option name="Vehicle (Covenant): Type-26 ASG Shade Gun Turret; DX-class Spirit Dropship (gt)" value="29799" />
+    <option name="Vehicle (Human): M12 Warthog (cg)" value="26467" />
+    <option name="Vehicle (Human): M808B MBT Scorpion (cannon)" value="1852727651" />
+    <option name="Weapon (Human): MA5 Assault Rifle; Gravity Rifle (ar)" value="1811968609" />
+    <option name="Weapon (Human): M7057 Flamethrower (ft)" value="1811969126" />
+    <option name="Weapon (Human): M6 Pistol (hp)" value="28776" />
+    <option name="Weapon (Human): M19 SSM / M41 SSR Rocket Launcher (rl)" value="1811967090" />
+    <option name="Weapon (Human): M90 CAWS Shotgun (sg)" value="1811965811" />
+    <option name="Weapon (Human): 99D-S2 Sniper Rifle (sr)" value="1811968627" />
+    <option name="Weapon, Melee (Covenant): Energy Sword (fb)" value="25190" />
+    <option name="Weapon (Covenant): Type-33 Fuel Rod Gun (fr)" value="1811968614" />
+    <option name="Weapon (Covenant): Type-33 GML Needler (ne)" value="1811965294" />
+    <option name="Weapon (Covenant): Plasma Pistol (pp)" value="1811968112" />
+    <option name="Weapon (Covenant): Plasma Rifle (pr)" value="1811968624" />
+    <option name="Weapon (Covenant): Plasma Cannon (pc)" value="1811964784" />
+  </enum32>
+  <enum16 name="Weapon.Secondary Trigger Mode" offset="0x32C" visible="True">
+    <option name="Normal" value="00" />
+    <option name="Slaved to Primary" value="01" />
+    <option name="Inhibits Primary" value="02" />
+    <option name="Loads Alternate Ammunition" value="03" />
+    <option name="Loads Multiple Primary Ammunition" value="04" />
+  </enum16>
+  <int16 name="Weapon.Maximum Alternate Shots Loaded" offset="0x32E" visible="True" />
+  <enum16 name="Export to Functions.A in" offset="0x330" visible="True">
+    <option name="None" value="00" />
+    <option name="Heat" value="01" />
+    <option name="Primary Ammunition" value="02" />
+    <option name="Secondary Ammunition" value="03" />
+    <option name="Primary Rate of Fire" value="04" />
+    <option name="Secondary Rate of Fire" value="05" />
+    <option name="Ready" value="06" />
+    <option name="Primary Ejection Port" value="07" />
+    <option name="Secondary Ejection Port" value="08" />
+    <option name="Overheated" value="09" />
+    <option name="Primary Charged" value="10" />
+    <option name="Secondary Charged" value="11" />
+    <option name="Illumination" value="12" />
+    <option name="Age" value="13" />
+    <option name="Integrated Light" value="14" />
+    <option name="Primary Firing" value="15" />
+    <option name="Secondary Firing" value="16" />
+    <option name="Primary Firing On" value="17" />
+    <option name="Secondary Firing On" value="18" />
+  </enum16>
+  <enum16 name="Export to Functions.B in" offset="0x332" visible="True">
+    <option name="None" value="00" />
+    <option name="Heat" value="01" />
+    <option name="Primary Ammunition" value="02" />
+    <option name="Secondary Ammunition" value="03" />
+    <option name="Primary Rate of Fire" value="04" />
+    <option name="Secondary Rate of Fire" value="05" />
+    <option name="Ready" value="06" />
+    <option name="Primary Ejection Port" value="07" />
+    <option name="Secondary Ejection Port" value="08" />
+    <option name="Overheated" value="09" />
+    <option name="Primary Charged" value="10" />
+    <option name="Secondary Charged" value="11" />
+    <option name="Illumination" value="12" />
+    <option name="Age" value="13" />
+    <option name="Integrated Light" value="14" />
+    <option name="Primary Firing" value="15" />
+    <option name="Secondary Firing" value="16" />
+    <option name="Primary Firing On" value="17" />
+    <option name="Secondary Firing On" value="18" />
+  </enum16>
+  <enum16 name="Export to Functions.C in" offset="0x334" visible="True">
+    <option name="None" value="00" />
+    <option name="Heat" value="01" />
+    <option name="Primary Ammunition" value="02" />
+    <option name="Secondary Ammunition" value="03" />
+    <option name="Primary Rate of Fire" value="04" />
+    <option name="Secondary Rate of Fire" value="05" />
+    <option name="Ready" value="06" />
+    <option name="Primary Ejection Port" value="07" />
+    <option name="Secondary Ejection Port" value="08" />
+    <option name="Overheated" value="09" />
+    <option name="Primary Charged" value="10" />
+    <option name="Secondary Charged" value="11" />
+    <option name="Illumination" value="12" />
+    <option name="Age" value="13" />
+    <option name="Integrated Light" value="14" />
+    <option name="Primary Firing" value="15" />
+    <option name="Secondary Firing" value="16" />
+    <option name="Primary Firing On" value="17" />
+    <option name="Secondary Firing On" value="18" />
+  </enum16>
+  <enum16 name="Export to Functions.D in" offset="0x336" visible="True">
+    <option name="None" value="00" />
+    <option name="Heat" value="01" />
+    <option name="Primary Ammunition" value="02" />
+    <option name="Secondary Ammunition" value="03" />
+    <option name="Primary Rate of Fire" value="04" />
+    <option name="Secondary Rate of Fire" value="05" />
+    <option name="Ready" value="06" />
+    <option name="Primary Ejection Port" value="07" />
+    <option name="Secondary Ejection Port" value="08" />
+    <option name="Overheated" value="09" />
+    <option name="Primary Charged" value="10" />
+    <option name="Secondary Charged" value="11" />
+    <option name="Illumination" value="12" />
+    <option name="Age" value="13" />
+    <option name="Integrated Light" value="14" />
+    <option name="Primary Firing" value="15" />
+    <option name="Secondary Firing" value="16" />
+    <option name="Primary Firing On" value="17" />
+    <option name="Secondary Firing On" value="18" />
+  </enum16>
+  <float32 name="Export to Functions.Ready Time" offset="0x338" visible="True" />
+  <float32 name="Heat.Heat Recovery Threshold" offset="0x34C" visible="True" />
+  <float32 name="Heat.Overheated Threshold" offset="0x350" visible="True" />
+  <float32 name="Heat.Heat Detonation Threshold" offset="0x354" visible="True" />
+  <float32 name="Heat.Heat Detonation Fraction" offset="0x358" visible="True" />
+  <float32 name="Heat.Heat Loss per Second" offset="0x35C" visible="True" />
+  <float32 name="Heat.Heat Illumination" offset="0x360" visible="True" />
+  <float32 name="Reticle.Near Reticle Range" offset="0x3CC" visible="True" />
+  <float32 name="Reticle.Far Reticle Range" offset="0x3D0" visible="True" />
+  <float32 name="Reticle.Intersection Reticle Range" offset="0x3D4" visible="True" />
+  <int16 name="Zoom.Magnification Levels" offset="0x3DA" visible="True" />
+  <float32 name="Zoom.Magnification Range: from" offset="0x3DC" visible="True" />
+  <float32 name="Zoom.Magnification Range: to" offset="0x3E0" visible="True" />
+  <float32 name="Aim Assist.Autoaim Angle" offset="0x3E4" visible="True" />
+  <float32 name="Aim Assist.Autoaim Range" offset="0x3E8" visible="True" />
+  <float32 name="Aim Assist.Magnetism Angle" offset="0x3EC" visible="True" />
+  <float32 name="Aim Assist.Magnetism Range" offset="0x3F0" visible="True" />
+  <float32 name="Aim Assist.Deviation Angle" offset="0x3F4" visible="True" />
+  <enum16 name="Movement.Movement Penalized" offset="0x3FC" visible="True">
+    <option name="Always" value="00" />
+    <option name="When Zoomed" value="01" />
+    <option name="When Zoomed or Reloading" value="02" />
+  </enum16>
+  <float32 name="Movement.Forward Movement Penalty" offset="0x400" visible="True" />
+  <float32 name="Movement.Sideways Movement Penalty" offset="0x404" visible="True" />
+  <float32 name="AI Targeting Parameters.Minimum Target Range" offset="0x40C" visible="True" />
+  <float32 name="AI Targeting Parameters.Looking Time Modifier" offset="0x410" visible="True" />
+  <float32 name="Miscellaneous.Light Power-On Time" offset="0x418" visible="True" />
+  <float32 name="Miscellaneous.Light Power-Off Time" offset="0x41C" visible="True" />
+  <float32 name="Miscellaneous.Age Heat Recovery Penalty" offset="0x440" visible="True" />
+  <float32 name="Miscellaneous.Age Rate of Fire Penalty" offset="0x444" visible="True" />
+  <float32 name="Miscellaneous.Age Misfire Start" offset="0x448" visible="True" />
+  <float32 name="Miscellaneous.Age Misfire Chance" offset="0x44C" visible="True" />
+  <float32 name="Interface.Active Camo Ding" offset="0x4CC" visible="True" />
+  <float32 name="Interface.Active Camo Regrowth Rate" offset="0x4D0" visible="True" />
+  <enum16 name="More Miscellaneous.Weapon Type" offset="0x4E2" visible="True">
+    <option name="Undefined" value="00" />
+    <option name="Shotgun" value="01" />
+    <option name="Needler" value="02" />
+    <option name="Plasma Pistol" value="03" />
+    <option name="Plasma Rifle" value="04" />
+  </enum16>
+  <struct name="Magazines" offset="0x4F0" visible="True" size="112">
+    <bitmask32 name="Flags" offset="0x0" visible="True">
+      <option name="Wastes Rounds When Reloaded" value="31" />
+      <option name="Every Round Must Be Chambered" value="30" />
+    </bitmask32>
+    <int16 name="Rounds Recharged" offset="0x4" visible="True" />
+    <int16 name="Rounds Total Initial" offset="0x6" visible="True" />
+    <int16 name="Rounds Total Maximum" offset="0x8" visible="True" />
+    <int16 name="Rounds Loaded Maximum" offset="0xA" visible="True" />
+    <float32 name="Reload Time" offset="0x14" visible="True" />
+    <int16 name="Rounds Reloaded" offset="0x18" visible="True" />
+    <float32 name="Chamber Time" offset="0x1C" visible="True" />
+    <struct name="(Equipment) Magazines" offset="0x64" visible="True" size="28">
+      <int16 name="(Equipment) Rounds" offset="0x0" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Triggers" offset="0x4FC" visible="True" size="276">
+    <bitmask32 name="Flags" offset="0x0" visible="True">
+      <option name="Tracks Fired Projectile" value="31" />
+      <option name="Random Firing Effects" value="30" />
+      <option name="Can Fire With Partial Ammo" value="29" />
+      <option name="Does Not Repeat Automatically" value="28" />
+      <option name="Locks in On/Off State" value="27" />
+      <option name="Projectiles Use Weapon Origin" value="26" />
+      <option name="Sticks When Dropped" value="25" />
+      <option name="Ejects During Chamber" value="24" />
+      <option name="Discharging Spews" value="23" />
+      <option name="Analog Rate of Fire" value="22" />
+      <option name="Use Error When Unzoomed" value="21" />
+      <option name="Projectile Vector Cannot Be Adjusted" value="20" />
+      <option name="Projectiles Have Identical Error" value="19" />
+      <option name="Projectile is Client-Side Only" value="18" />
+    </bitmask32>
+    <float32 name="Firing.Rounds per Second: from" offset="0x4" visible="True" />
+    <float32 name="Firing.Rounds per Second: to" offset="0x8" visible="True" />
+    <float32 name="Firing.Acceleration Time" offset="0xC" visible="True" />
+    <float32 name="Firing.Deceleration Time" offset="0x10" visible="True" />
+    <float32 name="Firing.Blurred Rate of Fire" offset="0x14" visible="True" />
+    <int16 name="Firing.Rounds per Shot" offset="0x22" visible="True" />
+    <int16 name="Firing.Minimum Rounds Loaded" offset="0x24" visible="True" />
+    <int16 name="Firing.Rounds Between Tracers" offset="0x26" visible="True" />
+    <enum16 name="Firing.Firing Noise" offset="0x2E" visible="True">
+      <option name="Silent" value="0" />
+      <option name="Medium" value="1" />
+      <option name="Loud" value="2" />
+      <option name="Shout" value="3" />
+      <option name="Quiet" value="4" />
+    </enum16>
+    <float32 name="Error.Error: from" offset="0x30" visible="True" />
+    <float32 name="Error.Error: to" offset="0x34" visible="True" />
+    <float32 name="Error.Acceleration Time" offset="0x38" visible="True" />
+    <float32 name="Error.Deceleration Time" offset="0x3C" visible="True" />
+    <float32 name="Charging.Charging Time" offset="0x48" visible="True" />
+    <float32 name="Charging.Charged Time" offset="0x4C" visible="True" />
+    <enum16 name="Charging.Overcharged Action" offset="0x50" visible="True">
+      <option name="None" value="0" />
+      <option name="Explode" value="1" />
+      <option name="Discharge" value="2" />
+    </enum16>
+    <float32 name="Charging.Charged Illumination" offset="0x54" visible="True" />
+    <float32 name="Charging.Spew Time" offset="0x58" visible="True" />
+    <enum16 name="Projectile.Distribution Function" offset="0x6C" visible="True">
+      <option name="Point" value="0" />
+      <option name="Horizontal Fan" value="1" />
+    </enum16>
+    <int16 name="Projectile.Projectiles per Shot" offset="0x6E" visible="True" />
+    <float32 name="Projectile.Distribution Angle" offset="0x70" visible="True" />
+    <float32 name="Projectile.Minimum Error" offset="0x78" visible="True" />
+    <float32 name="Projectile.Error Angle: from" offset="0x7C" visible="True" />
+    <float32 name="Projectile.Error Angle: to" offset="0x80" visible="True" />
+    <float32 name="Projectile.First Person Offset: x" offset="0x84" visible="True" />
+    <float32 name="Projectile.First Person Offset: y" offset="0x88" visible="True" />
+    <float32 name="Projectile.First Person Offset: z" offset="0x8C" visible="True" />
+    <float32 name="Miscellaneous.Ejection Port Recovery Time" offset="0xA4" visible="True" />
+    <float32 name="Miscellaneous.Illumination Recovery Time" offset="0xA8" visible="True" />
+    <float32 name="Miscellaneous.Heat Generated per Round" offset="0xB8" visible="True" />
+    <float32 name="Miscellaneous.Age Generated per Round" offset="0xBC" visible="True" />
+    <float32 name="Miscellaneous.Overload Time" offset="0xC4" visible="True" />
+    <struct name="Firing Effects" offset="0x108" visible="True" size="132">
+      <int16 name="Shot Count Lower Bound" offset="0x0" visible="True" />
+      <int16 name="Shot Count Upper Bound" offset="0x2" visible="True" />
+    </struct>
+  </struct>
+</plugin>

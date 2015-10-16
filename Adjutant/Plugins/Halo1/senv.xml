@@ -1,0 +1,180 @@
+<plugin>
+  <revisions />
+  <bitmask16 name="Radiosity Properties.Flags" offset="0x00" visible="True">
+    <option name="Simple Parameterization" value="15" />
+    <option name="Ignore Normals" value="14" />
+    <option name="Transparent Lit" value="13" />
+  </bitmask16>
+  <enum16 name="Radiosity Properties.Detail Level" offset="0x02" visible="True">
+    <option name="High" value="00" />
+    <option name="Medium" value="01" />
+    <option name="Low" value="02" />
+    <option name="Turd" value="03" />
+  </enum16>
+  <float32 name="Radiosity Properties.Power" offset="0x04" visible="True" />
+  <enum16 name="Physics Properties.Material Type" offset="0x22" visible="True">
+    <option name="Dirt" value="00" />
+    <option name="Sand" value="01" />
+    <option name="Stone" value="02" />
+    <option name="Snow" value="03" />
+    <option name="Wood" value="04" />
+    <option name="Metal (hollow)" value="05" />
+    <option name="Metal (thin)" value="06" />
+    <option name="Metal (thick)" value="07" />
+    <option name="Rubber" value="08" />
+    <option name="Glass" value="09" />
+    <option name="Force Field" value="10" />
+    <option name="Grunt" value="11" />
+    <option name="Hunter Armor" value="12" />
+    <option name="Hunter Skin" value="13" />
+    <option name="Elite" value="14" />
+    <option name="Jackal" value="15" />
+    <option name="Jackal Energy Shield" value="16" />
+    <option name="Engineer Skin" value="17" />
+    <option name="Engineer Force Field" value="18" />
+    <option name="Flood Combat Form" value="19" />
+    <option name="Flood Carrier Form" value="20" />
+    <option name="Cyborg Armor" value="21" />
+    <option name="Cyborg Energy Shield" value="22" />
+    <option name="Human Armor" value="23" />
+    <option name="Human Skin" value="24" />
+    <option name="Sentinel" value="25" />
+    <option name="Monitor" value="26" />
+    <option name="Plastic" value="27" />
+    <option name="Water" value="28" />
+    <option name="Leaves" value="29" />
+    <option name="Elite Energy Shield" value="30" />
+    <option name="Ice" value="31" />
+    <option name="Hunter Shield" value="32" />
+  </enum16>
+  <bitmask16 name="Environment Shader.Flags" offset="0x28" visible="True">
+    <option name="Alpha-Tested" value="15" />
+    <option name="Bump Map is Specular Mask" value="14" />
+    <option name="True Atmospheric Fog" value="13" />
+  </bitmask16>
+  <enum16 name="Environment Shader Type.Type" offset="0x2A" visible="True">
+    <option name="Normal" value="00" />
+    <option name="Blended" value="01" />
+    <option name="Blended Base Specular" value="02" />
+  </enum16>
+  <float32 name="Lens Flares.Lens Flare Spacing" offset="0x2C" visible="True" />
+  <bitmask16 name="Diffuse Properties.Flags" offset="0x6C" visible="True">
+    <option name="Rescale Detail Maps" value="15" />
+    <option name="Rescale Bump Maps" value="14" />
+  </bitmask16>
+  <enum16 name="Diffuse Properties.Detail Map Function" offset="0xB0" visible="True">
+    <option name="Double/Biased Multiply" value="00" />
+    <option name="Multiply" value="01" />
+    <option name="Double/Biased Add" value="02" />
+  </enum16>
+  <float32 name="Diffuse Properties.Primary Detail Map Scale" offset="0xB4" visible="True" />
+  <float32 name="Diffuse Properties.Secondary Detail Map Scale" offset="0xC8" visible="True" />
+  <enum16 name="Diffuse Properties.Micro Detail Map Function" offset="0xF4" visible="True">
+    <option name="Double/Biased Multiply" value="00" />
+    <option name="Multiply" value="01" />
+    <option name="Double/Biased Add" value="02" />
+  </enum16>
+  <float32 name="Diffuse Properties.Micro Detail Map Scale" offset="0xF8" visible="True" />
+  <float32 name="Bump Properties.Bump Map Scale" offset="0x124" visible="True" />
+  <enum16 name="Texture Scrolling Animation.U-Animation Function" offset="0x150" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Texture Scrolling Animation.U-Animation Period" offset="0x154" visible="True" />
+  <float32 name="Texture Scrolling Animation.U-Animation Scale" offset="0x158" visible="True" />
+  <enum16 name="Texture Scrolling Animation.V-Animation Function" offset="0x15C" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Texture Scrolling Animation.V-Animation Period" offset="0x160" visible="True" />
+  <float32 name="Texture Scrolling Animation.V-Animation Scale" offset="0x164" visible="True" />
+  <bitmask8 name="Self-Illumination Properties.Flags" offset="0x180" visible="True">
+    <option name="Unfiltered" value="07" />
+  </bitmask8>
+  <enum16 name="Self-Illumination Properties.Primary Animation Function" offset="0x1B4" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Self-Illumination Properties.Primary Animation Period" offset="0x1B8" visible="True" />
+  <float32 name="Self-Illumination Properties.Primary Animation Phase" offset="0x1BC" visible="True" />
+  <enum16 name="Self-Illumination Properties.Secondary Animation Function" offset="0x1F0" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Self-Illumination Properties.Secondary Animation Period" offset="0x1F4" visible="True" />
+  <float32 name="Self-Illumination Properties.Secondary Animation Phase" offset="0x1F8" visible="True" />
+  <enum16 name="Self-Illumination Properties.Plasma Animation Function" offset="0x22C" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Self-Illumination Properties.Plasma Animation Period" offset="0x230" visible="True" />
+  <float32 name="Self-Illumination Properties.Plasma Animation Phase" offset="0x234" visible="True" />
+  <float32 name="Self-Illumination Properties.Map Scale" offset="0x250" visible="True" />
+  <bitmask16 name="Specular Properties.Flags" offset="0x27C" visible="True">
+    <option name="Overbright" value="15" />
+    <option name="Extra-Shiny" value="14" />
+    <option name="Lightmap is Specular" value="13" />
+  </bitmask16>
+  <float32 name="Specular Properties.Brightness" offset="0x290" visible="True" />
+  <bitmask8 name="Reflection Properties.Flags" offset="0x2D0" visible="True">
+    <option name="Dynamic Mirror" value="07" />
+  </bitmask8>
+  <enum16 name="Reflection Properties.Type" offset="0x2D2" visible="True">
+    <option name="Bumped Cube-Map" value="00" />
+    <option name="Flat Cube-Map" value="01" />
+    <option name="Bumped Radiosity" value="02" />
+  </enum16>
+  <float32 name="Reflection Properties.Lightmap Brightness Scale" offset="0x2D4" visible="True" />
+  <float32 name="Reflection Properties.Perpendicular Brightness" offset="0x2F4" visible="True" />
+  <float32 name="Reflection Properties.Parallel Brightness" offset="0x2F8" visible="True" />
+</plugin>

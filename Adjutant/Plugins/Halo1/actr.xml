@@ -1,0 +1,247 @@
+<plugin>
+  <revisions />
+  <bitmask32 name="Flags" offset="0x00" visible="True">
+    <option name="Can See in Darkness" value="31" />
+    <option name="Sneak Uncovering Target" value="30" />
+    <option name="Sneak Uncovering Pursuit Position" value="29" />
+    <option name="Unused" value="28" />
+    <option name="Shoot at Target's Last Location" value="27" />
+    <option name="Try to Stay Still When Crouched" value="26" />
+    <option name="Crouch When Not in Combat" value="25" />
+    <option name="Crouch When Guarding" value="24" />
+    <option name="Unused" value="23" />
+    <option name="Must Crouch to Shoot" value="22" />
+    <option name="Panic When Surprised" value="21" />
+    <option name="Always Charge at Enemies" value="20" />
+    <option name="Gets in Vehicles with Player" value="19" />
+    <option name="Start Firing Before Aligned" value="18" />
+    <option name="Standing Must Move Forward" value="17" />
+    <option name="Crouching Must Move Forward" value="16" />
+    <option name="Defensive Crouch While Charging" value="15" />
+    <option name="Use Stalking Behavior" value="14" />
+    <option name="Stalking Freeze if Exposed" value="13" />
+    <option name="Always Berserk in Attacking Mode" value="12" />
+    <option name="Berserking Uses Panicked Movement" value="11" />
+    <option name="Flying" value="10" />
+    <option name="Panicked by Unopposable Enemy" value="09" />
+    <option name="Crouch When Hiding From Unopposable" value="08" />
+    <option name="Always Charge in 'Attacking' Mode" value="07" />
+    <option name="Dive Off Ledges" value="06" />
+    <option name="Swarm" value="05" />
+    <option name="Suicidal Melee Attack" value="04" />
+    <option name="Cannot Move While Crouching" value="03" />
+    <option name="Fixed Crouch Facing" value="02" />
+    <option name="Crouch When in Line of Fire" value="01" />
+    <option name="Avoid Friends' Line of Fire" value="00" />
+  </bitmask32>
+  <bitmask32 name="More Flags" offset="0x04" visible="True">
+    <option name="Avoid All Enemy Attack Vectors" value="31" />
+    <option name="Must Stand to Fire" value="30" />
+    <option name="Must Stop to Fire" value="29" />
+    <option name="Disallow Vehicle Combat" value="28" />
+    <option name="Pathfinding Ignores Danger" value="27" />
+    <option name="Panic in Groups" value="26" />
+    <option name="No Corpse Shooting" value="25" />
+  </bitmask32>
+  <enum16 name="Type" offset="0x14" visible="True">
+    <option name="Elite" value="00" />
+    <option name="Jackal" value="01" />
+    <option name="Grunt" value="02" />
+    <option name="Hunter" value="03" />
+    <option name="Engineer" value="04" />
+    <option name="Assassin" value="05" />
+    <option name="Player" value="06" />
+    <option name="Marine" value="07" />
+    <option name="Crew" value="08" />
+    <option name="Combat Form" value="09" />
+    <option name="Infection Form" value="10" />
+    <option name="Carrier Form" value="11" />
+    <option name="Monitor" value="12" />
+    <option name="Sentinel" value="13" />
+    <option name="None" value="14" />
+    <option name="Mounted Weapon" value="15" />
+  </enum16>
+  <float32 name="Perception.Max Vision Distance" offset="0x18" visible="True" />
+  <float32 name="Perception.Central Vision Angle" offset="0x1C" visible="True" />
+  <float32 name="Perception.Max Vision Angle" offset="0x20" visible="True" />
+  <float32 name="Perception.Peripheral Vision Angle" offset="0x28" visible="True" />
+  <float32 name="Perception.Peripheral Distance" offset="0x2C" visible="True" />
+  <float32 name="Perception.Standing Gun Offset: i" offset="0x34" visible="True" />
+  <float32 name="Perception.Standing Gun Offset: i" offset="0x38" visible="True" />
+  <float32 name="Perception.Standing Gun Offset: k" offset="0x3C" visible="True" />
+  <float32 name="Perception.Crouching Gun Offset: i" offset="0x40" visible="True" />
+  <float32 name="Perception.Crouching Gun Offset: i" offset="0x44" visible="True" />
+  <float32 name="Perception.Crouching Gun Offset: k" offset="0x48" visible="True" />
+  <float32 name="Perception.Hearing Distance" offset="0x4C" visible="True" />
+  <float32 name="Perception.Notice Projectile Chance" offset="0x50" visible="True" />
+  <float32 name="Perception.Notice Vehicle Chance" offset="0x54" visible="True" />
+  <float32 name="Perception.Combat Perception Time" offset="0x60" visible="True" />
+  <float32 name="Perception.Guard Perception Time" offset="0x64" visible="True" />
+  <float32 name="Perception.Non-Combat Perception Time" offset="0x68" visible="True" />
+  <float32 name="Movement.Dive into Cover Chance" offset="0x80" visible="True" />
+  <float32 name="Movement.Emerge From Cover Chance" offset="0x84" visible="True" />
+  <float32 name="Movement.Dive From Grenade Chance" offset="0x88" visible="True" />
+  <float32 name="Movement.Pathfinding Radius" offset="0x8C" visible="True" />
+  <float32 name="Movement.Glass Ignorance Chance" offset="0x90" visible="True" />
+  <float32 name="Movement.Stationary Movement Distance" offset="0x94" visible="True" />
+  <float32 name="Movement.Free-Flying Sidestep" offset="0x98" visible="True" />
+  <float32 name="Movement.Begin Moving Angle" offset="0x9C" visible="True" />
+  <float32 name="Looking.Maximum Aiming Deviation: y" offset="0xA4" visible="True" />
+  <float32 name="Looking.Maximum Aiming Deviation: p" offset="0xA8" visible="True" />
+  <float32 name="Looking.Maximum Looking Deviation: y" offset="0xAC" visible="True" />
+  <float32 name="Looking.Maximum Looking Deviation: p" offset="0xB0" visible="True" />
+  <float32 name="Looking.Noncombat Look Delta L" offset="0xB4" visible="True" />
+  <float32 name="Looking.Noncombat Look Delta R" offset="0xB8" visible="True" />
+  <float32 name="Looking.Combat Look Delta L" offset="0xBC" visible="True" />
+  <float32 name="Looking.Combat Look Delta R" offset="0xC0" visible="True" />
+  <float32 name="Looking.Idle Aiming Range: y" offset="0xC4" visible="True" />
+  <float32 name="Looking.Idle Aiming Range: p" offset="0xC8" visible="True" />
+  <float32 name="Looking.Idle Looking Range: y" offset="0xCC" visible="True" />
+  <float32 name="Looking.Idle Looking Range: p" offset="0xD0" visible="True" />
+  <float32 name="Looking.Event Look Time Modifier: from" offset="0xD4" visible="True" />
+  <float32 name="Looking.Event Look Time Modifier: to" offset="0xD8" visible="True" />
+  <float32 name="Looking.Noncombat Idle Facing: from" offset="0xDC" visible="True" />
+  <float32 name="Looking.Noncombat Idle Facing: to" offset="0xE0" visible="True" />
+  <float32 name="Looking.Noncombat Idle Aiming: from" offset="0xE4" visible="True" />
+  <float32 name="Looking.Noncombat Idle Aiming: to" offset="0xE8" visible="True" />
+  <float32 name="Looking.Noncombat Idle Looking: from" offset="0xEC" visible="True" />
+  <float32 name="Looking.Noncombat Idle Looking: to" offset="0xF0" visible="True" />
+  <float32 name="Looking.Guard Idle Facing: from" offset="0xF4" visible="True" />
+  <float32 name="Looking.Guard Idle Facing: to" offset="0xF8" visible="True" />
+  <float32 name="Looking.Guard Idle Aiming: from" offset="0xFC" visible="True" />
+  <float32 name="Looking.Guard Idle Aiming: to" offset="0x100" visible="True" />
+  <float32 name="Looking.Guard Idle Looking: from" offset="0x104" visible="True" />
+  <float32 name="Looking.Guard Idle Looking: to" offset="0x108" visible="True" />
+  <float32 name="Looking.Combat Idle Facing: from" offset="0x10C" visible="True" />
+  <float32 name="Looking.Combat Idle Facing: to" offset="0x110" visible="True" />
+  <float32 name="Looking.Combat Idle Aiming: from" offset="0x114" visible="True" />
+  <float32 name="Looking.Combat Idle Aiming: to" offset="0x118" visible="True" />
+  <float32 name="Looking.Combat Idle Looking: from" offset="0x11C" visible="True" />
+  <float32 name="Looking.Combat Idle Looking: to" offset="0x120" visible="True" />
+  <enum16 name="Unopposable.Unreachable Danger Trigger" offset="0x268" visible="True">
+    <option name="Never" value="00" />
+    <option name="Visible" value="01" />
+    <option name="Shooting" value="02" />
+    <option name="Shooting Near Us" value="03" />
+    <option name="Damaging Us" value="04" />
+    <option name="Unused (1)" value="05" />
+    <option name="Unused (2)" value="06" />
+    <option name="Unused (3)" value="07" />
+    <option name="Unused (4)" value="08" />
+    <option name="Unused (5)" value="09" />
+  </enum16>
+  <enum16 name="Unopposable.Vehicle Danger Trigger" offset="0x26A" visible="True">
+    <option name="Never" value="00" />
+    <option name="Visible" value="01" />
+    <option name="Shooting" value="02" />
+    <option name="Shooting Near Us" value="03" />
+    <option name="Damaging Us" value="04" />
+    <option name="Unused (1)" value="05" />
+    <option name="Unused (2)" value="06" />
+    <option name="Unused (3)" value="07" />
+    <option name="Unused (4)" value="08" />
+    <option name="Unused (5)" value="09" />
+  </enum16>
+  <enum16 name="Unopposable.Player Danger Trigger" offset="0x26C" visible="True">
+    <option name="Never" value="00" />
+    <option name="Visible" value="01" />
+    <option name="Shooting" value="02" />
+    <option name="Shooting Near Us" value="03" />
+    <option name="Damaging Us" value="04" />
+    <option name="Unused (1)" value="05" />
+    <option name="Unused (2)" value="06" />
+    <option name="Unused (3)" value="07" />
+    <option name="Unused (4)" value="08" />
+    <option name="Unused (5)" value="09" />
+  </enum16>
+  <float32 name="Unopposable.Danger Trigger Time: from" offset="0x270" visible="True" />
+  <float32 name="Unopposable.Danger Trigger Time: to" offset="0x274" visible="True" />
+  <int16 name="Unopposable.Friends Killed Trigger" offset="0x278" visible="True" />
+  <int16 name="Unopposable.Friends Retreating Trigger" offset="0x27A" visible="True" />
+  <float32 name="Unopposable.Retreat Time: from" offset="0x288" visible="True" />
+  <float32 name="Unopposable.Retreat Time: to" offset="0x28C" visible="True" />
+  <float32 name="Panic.Cowering Time: from" offset="0x298" visible="True" />
+  <float32 name="Panic.Cowering Time: to" offset="0x29C" visible="True" />
+  <float32 name="Panic.Friend Killed Panic Chance" offset="0x2A0" visible="True" />
+  <enum16 name="Panic.Leader Type" offset="0x2A4" visible="True">
+    <option name="Elite" value="00" />
+    <option name="Jackal" value="01" />
+    <option name="Grunt" value="02" />
+    <option name="Hunter" value="03" />
+    <option name="Engineer" value="04" />
+    <option name="Assassin" value="05" />
+    <option name="Player" value="06" />
+    <option name="Marine" value="07" />
+    <option name="Crew" value="08" />
+    <option name="Combat Form" value="09" />
+    <option name="Infection Form" value="10" />
+    <option name="Carrier Form" value="11" />
+    <option name="Monitor" value="12" />
+    <option name="Sentinel" value="13" />
+    <option name="None" value="14" />
+    <option name="Mounted Weapon" value="15" />
+  </enum16>
+  <float32 name="Panic.Leader Killed Panic Chance" offset="0x2A8" visible="True" />
+  <float32 name="Panic.Panic Damage Threshold" offset="0x2AC" visible="True" />
+  <float32 name="Panic.Surprise Distance" offset="0x2B0" visible="True" />
+  <float32 name="Defensive.Hide Behind Cover Time: from" offset="0x2D0" visible="True" />
+  <float32 name="Defensive.Hide Behind Cover Time: to" offset="0x2D4" visible="True" />
+  <float32 name="Defensive.Hide Target-Not-Visible Time: to" offset="0x2D8" visible="True" />
+  <float32 name="Defensive.Hide Shield Fraction" offset="0x2DC" visible="True" />
+  <float32 name="Defensive.Attack Shield Fraction" offset="0x2E0" visible="True" />
+  <float32 name="Defensive.Pursue Shield Fraction" offset="0x2E4" visible="True" />
+  <enum16 name="Defensive.Defensive Crouch Type" offset="0x2F8" visible="True">
+    <option name="Never" value="00" />
+    <option name="Danger" value="01" />
+    <option name="Low Shields" value="02" />
+    <option name="Hide Behind Shield" value="03" />
+    <option name="Any Target" value="04" />
+    <option name="Flood Shamble" value="05" />
+  </enum16>
+  <float32 name="Defensive.Attacking Crouch Threshold" offset="0x2FC" visible="True" />
+  <float32 name="Defensive.Defending Crouch Threshold" offset="0x300" visible="True" />
+  <float32 name="Defensive.Minimum Stand Time" offset="0x304" visible="True" />
+  <float32 name="Defensive.Minimum Crouch Time" offset="0x308" visible="True" />
+  <float32 name="Defensive.Defending Hide Time Modifier" offset="0x30C" visible="True" />
+  <float32 name="Defensive.Attacking Evasion Threshold" offset="0x310" visible="True" />
+  <float32 name="Defensive.Defending Evasion Threshold" offset="0x314" visible="True" />
+  <float32 name="Defensive.Evasion Seek-Cover Chance" offset="0x318" visible="True" />
+  <float32 name="Defensive.Evasion Delay Time" offset="0x31C" visible="True" />
+  <float32 name="Defensive.Max Seek-Cover Distance" offset="0x320" visible="True" />
+  <float32 name="Defensive.Cover Damage Threshold" offset="0x324" visible="True" />
+  <float32 name="Defensive.Stalking Discovery Time" offset="0x328" visible="True" />
+  <float32 name="Defensive.Stalking Max Distance" offset="0x32C" visible="True" />
+  <float32 name="Defensive.Stationary Facing Angle" offset="0x330" visible="True" />
+  <float32 name="Defensive.Change-Facing Stand Time" offset="0x334" visible="True" />
+  <float32 name="Pursuit.Uncover Delay Time: from" offset="0x33C" visible="True" />
+  <float32 name="Pursuit.Uncover Delay Time: to" offset="0x340" visible="True" />
+  <float32 name="Pursuit.Target Search Time: from" offset="0x344" visible="True" />
+  <float32 name="Pursuit.Target Search Time: to" offset="0x348" visible="True" />
+  <float32 name="Pursuit.Pursuit-Position Time: from" offset="0x34C" visible="True" />
+  <float32 name="Pursuit.Pursuit-Position Time: to" offset="0x350" visible="True" />
+  <int16 name="Pursuit.Number of Positions (coordinated)" offset="0x354" visible="True" />
+  <int16 name="Pursuit.Number of Positions (normal)" offset="0x356" visible="True" />
+  <float32 name="Berserk.Melee Attack Delay" offset="0x378" visible="True" />
+  <float32 name="Berserk.Melee Fudge Factor" offset="0x37C" visible="True" />
+  <float32 name="Berserk.Melee Charge Time" offset="0x380" visible="True" />
+  <float32 name="Berserk.Melee Leap Range: from" offset="0x384" visible="True" />
+  <float32 name="Berserk.Melee Leap Range: to" offset="0x388" visible="True" />
+  <float32 name="Berserk.Melee Leap Velocity" offset="0x38C" visible="True" />
+  <float32 name="Berserk.Melee Leap Chance" offset="0x390" visible="True" />
+  <float32 name="Berserk.Melee Leap Ballistic" offset="0x394" visible="True" />
+  <float32 name="Berserk.Berserk Damage Amount" offset="0x398" visible="True" />
+  <float32 name="Berserk.Berserk Damage Threshold" offset="0x39C" visible="True" />
+  <float32 name="Berserk.Berserk Proximity" offset="0x3A0" visible="True" />
+  <float32 name="Berserk.Suicide Sensing Distance" offset="0x3A4" visible="True" />
+  <float32 name="Berserk.Berserk Grenade Chance" offset="0x3A8" visible="True" />
+  <float32 name="Firing Positions.Guard Position Time: from" offset="0x3B8" visible="True" />
+  <float32 name="Firing Positions.Guard Position Time: to" offset="0x3BC" visible="True" />
+  <float32 name="Firing Positions.Combat Position Time: from   (" offset="0x3C0" visible="True" />
+  <float32 name="Firing Positions.Combat Position Time: to" offset="0x3C4" visible="True" />
+  <float32 name="Firing Positions.Old Position Avoid Distance" offset="0x3C8" visible="True" />
+  <float32 name="Firing Positions.Friend Avoid Distance" offset="0x3CC" visible="True" />
+  <float32 name="Communication.Noncombat Idle Speech Time: from" offset="0x3F8" visible="True" />
+  <float32 name="Communication.Noncombat Idle Speech Time: to" offset="0x3FC" visible="True" />
+  <float32 name="Communication.Combat Idle Speech Time: from" offset="0x400" visible="True" />
+  <float32 name="Communication.Combat Idle Speech Time: to" offset="0x404" visible="True" />
+</plugin>

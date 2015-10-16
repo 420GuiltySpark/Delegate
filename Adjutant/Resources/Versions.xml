@@ -1,5 +1,9 @@
 <versions>
-  <version name="HaloXbox">
+  <version name="Halo1">
+    <header/>
+    <indexheader/>
+  </version>
+  <version name="Halo2Xbox">
     <header
 			fileSize="8"
 			indexOffset="16"

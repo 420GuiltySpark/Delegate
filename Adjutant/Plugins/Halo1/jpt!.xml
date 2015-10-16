@@ -1,0 +1,183 @@
+<plugin>
+  <revisions />
+  <float32 name="Radius: from" offset="0x00" visible="True" />
+  <float32 name="Radius: to" offset="0x04" visible="True" />
+  <float32 name="Cutoff Scale" offset="0x08" visible="True" />
+  <bitmask16 name="Flags" offset="0x0C" visible="True">
+    <option name="Don't Scale Damage by Distance" value="15" />
+    <option name="'Keep the change, ya filthy aminal!'" value="15" />
+    <option name="'Would you like fries with that?'" value="15" />
+    <option name="'Yarr, them's good provisions, Mayte!'" value="15" />
+    <option name="Sparky can't accept only one flag in bitmasks." value="15" />
+  </bitmask16>
+  <enum16 name="Screen Flash.Type" offset="0x24" visible="True">
+    <option name="None" value="00" />
+    <option name="Lighten" value="01" />
+    <option name="Darken" value="02" />
+    <option name="Maximum" value="03" />
+    <option name="Minimum" value="04" />
+    <option name="Invert" value="05" />
+    <option name="Tint" value="06" />
+  </enum16>
+  <enum16 name="Screen Flash.Priority" offset="0x26" visible="True">
+    <option name="Low" value="00" />
+    <option name="Medium" value="01" />
+    <option name="High" value="02" />
+  </enum16>
+  <float32 name="Screen Flash.Duration" offset="0x34" visible="True" />
+  <enum16 name="Screen Flash.Fade Function" offset="0x38" visible="True">
+    <option name="Linear" value="00" />
+    <option name="Early" value="01" />
+    <option name="Very Early" value="02" />
+    <option name="Late" value="03" />
+    <option name="Very Late (Monoman: 'Procrastination is like... nvm, I'll finish that thought later.')" value="04" />
+    <option name="Cosine" value="05" />
+  </enum16>
+  <float32 name="Screen Flash.Maximum Intensity" offset="0x44" visible="True" />
+  <float32 name="Low Frequency Vibrate.Frequency" offset="0x5C" visible="True" />
+  <float32 name="Low Frequency Vibrate.Duration" offset="0x60" visible="True" />
+  <enum16 name="Low Frequency.Fade Function" offset="0x64" visible="True">
+    <option name="Linear" value="00" />
+    <option name="Early" value="01" />
+    <option name="Very Early" value="02" />
+    <option name="Late" value="03" />
+    <option name="Very Late" value="04" />
+    <option name="Cosine" value="05" />
+  </enum16>
+  <float32 name="High Frequency Vibrate.Frequency" offset="0x70" visible="True" />
+  <float32 name="High Frequency Vibrate.Duration" offset="0x74" visible="True" />
+  <enum16 name="High Frequency.Fade Function" offset="0x78" visible="True">
+    <option name="Linear" value="00" />
+    <option name="Early" value="01" />
+    <option name="Very Early" value="02" />
+    <option name="Late" value="03" />
+    <option name="Very Late" value="04" />
+    <option name="Cosine" value="05" />
+  </enum16>
+  <float32 name="Temporary Camera Impulse.Duration" offset="0x98" visible="True" />
+  <enum16 name="Temporary Camera Impulse.Fade Function" offset="0x9C" visible="True">
+    <option name="Linear" value="00" />
+    <option name="Early" value="01" />
+    <option name="Very Early" value="02" />
+    <option name="Late" value="03" />
+    <option name="Very Late" value="04" />
+    <option name="Cosine" value="05" />
+  </enum16>
+  <float32 name="Temporary Camera Impulse.Rotation" offset="0xA0" visible="True" />
+  <float32 name="Temporary Camera Impulse.Pushback" offset="0xA4" visible="True" />
+  <float32 name="Temporary Camera Impulse.Jitter: from" offset="0xA8" visible="True" />
+  <float32 name="Temporary Camera Impulse.Jitter: to" offset="0xAC" visible="True" />
+  <float32 name="Permanent Camera Impulse.Angle" offset="0xB8" visible="True" />
+  <float32 name="Camera Shaking.Duration" offset="0xCC" visible="True" />
+  <enum16 name="Camera Shaking.Falloff Function" offset="0xD0" visible="True">
+    <option name="Linear" value="00" />
+    <option name="Early" value="01" />
+    <option name="Very Early" value="02" />
+    <option name="Late" value="03" />
+    <option name="Very Late" value="04" />
+    <option name="Cosine" value="05" />
+  </enum16>
+  <float32 name="Camera Shaking.Random Translation" offset="0xD4" visible="True" />
+  <float32 name="Camera Shaking.Random Rotation" offset="0xD8" visible="True" />
+  <enum16 name="Camera Shaking.Wobble Function" offset="0xE8" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Camera Shaking.Wobble Function Period" offset="0xEC" visible="True" />
+  <float32 name="Camera Shaking.Wobble Weight" offset="0xF0" visible="True" />
+  <float32 name="Breaking Effect.Forward Velocity" offset="0x194" visible="True" />
+  <float32 name="Breaking Effect.Forward Radius" offset="0x198" visible="True" />
+  <float32 name="Breaking Effect.Forward Exponent" offset="0x19C" visible="True" />
+  <float32 name="Breaking Effect.Outward Velocity" offset="0x1AC" visible="True" />
+  <float32 name="Breaking Effect.Outward Radius" offset="0x1B0" visible="True" />
+  <float32 name="Breaking Effect.Outward Exponent" offset="0x1B4" visible="True" />
+  <enum16 name="Damage.Side Effect" offset="0x1C4" visible="True">
+    <option name="None" value="00" />
+    <option name="Harmless" value="01" />
+    <option name="Lethal to the Unsuspecting" value="02" />
+    <option name="EMP" value="03" />
+  </enum16>
+  <enum16 name="Damage.Category" offset="0x1C6" visible="True">
+    <option name="None" value="00" />
+    <option name="Falling" value="01" />
+    <option name="Bullet" value="02" />
+    <option name="Grenade" value="03" />
+    <option name="High Explosive" value="04" />
+    <option name="Sniper" value="05" />
+    <option name="Melee" value="06" />
+    <option name="Flame" value="07" />
+    <option name="Mounted Weapon" value="08" />
+    <option name="Vehicle" value="09" />
+    <option name="Plasma" value="10" />
+    <option name="Needle" value="11" />
+    <option name="Shotgun" value="12" />
+  </enum16>
+  <bitmask16 name="Damage.Flags" offset="0x1C8" visible="True">
+    <option name="Does Not Hurt Owner" value="15" />
+    <option name="Can Cause Headshots" value="14" />
+    <option name="Pings Resistant Units" value="13" />
+    <option name="Does Not Hurt Friends" value="12" />
+    <option name="Does Not Ping Units" value="11" />
+    <option name="Detonates Explosives" value="10" />
+    <option name="Only Hurts Shields" value="9" />
+    <option name="Causes Flaming Death" value="8" />
+    <option name="Damage Indicators Always Point Down" value="7" />
+    <option name="Skips Shields" value="6" />
+    <option name="Only Hurts One Infection Form" value="5" />
+    <option name="Can Cause Multiplayer Headshots" value="4" />
+    <option name="Infection Form Pop" value="3" />
+  </bitmask16>
+  <float32 name="Damage.AOE Core Radius" offset="0x1CC" visible="True" />
+  <float32 name="Damage.Damage Lower Bound" offset="0x1D0" visible="True" />
+  <float32 name="Damage.Damage Upper Bound: from" offset="0x1D4" visible="True" />
+  <float32 name="Damage.Damage Upper Bound: to" offset="0x1D8" visible="True" />
+  <float32 name="Damage.Vehicle Passthrough Penalty" offset="0x1DC" visible="True" />
+  <float32 name="Damage.Active Camouflage Damage" offset="0x1E0" visible="True" />
+  <float32 name="Damage.Stun" offset="0x1E4" visible="True" />
+  <float32 name="Damage.Maximum Stun" offset="0x1E8" visible="True" />
+  <float32 name="Damage.Stun Time" offset="0x1EC" visible="True" />
+  <float32 name="Damage.Instantaneous Acceleration / Force" offset="0x1F4" visible="True" />
+  <float32 name="Damage Modifiers.1 Dirt" offset="0x200" visible="True" />
+  <float32 name="Damage Modifiers.2 Sand" offset="0x204" visible="True" />
+  <float32 name="Damage Modifiers.3 Stone" offset="0x208" visible="True" />
+  <float32 name="Damage Modifiers.4 Snow" offset="0x20C" visible="True" />
+  <float32 name="Damage Modifiers.5 Wood" offset="0x210" visible="True" />
+  <float32 name="Damage Modifiers.6 Metal (Hollow)" offset="0x214" visible="True" />
+  <float32 name="Damage Modifiers.7 Metal (Thin)" offset="0x218" visible="True" />
+  <float32 name="Damage Modifiers.8 Metal (Thick)" offset="0x21C" visible="True" />
+  <float32 name="Damage Modifiers.9 Rubber" offset="0x220" visible="True" />
+  <float32 name="Damage Modifiers.10 Glass" offset="0x224" visible="True" />
+  <float32 name="Damage Modifiers.11 Forcefield" offset="0x228" visible="True" />
+  <float32 name="Damage Modifiers.12 Grunt" offset="0x22C" visible="True" />
+  <float32 name="Damage Modifiers.13 Hunter Armor" offset="0x230" visible="True" />
+  <float32 name="Damage Modifiers.14 Hunter Skin" offset="0x234" visible="True" />
+  <float32 name="Damage Modifiers.15 Elite" offset="0x238" visible="True" />
+  <float32 name="Damage Modifiers.16 Jackal" offset="0x23C" visible="True" />
+  <float32 name="Damage Modifiers.17 Jackal Energy Shield" offset="0x240" visible="True" />
+  <float32 name="Damage Modifiers.18 Engineer" offset="0x244" visible="True" />
+  <float32 name="Damage Modifiers.19 Engineer Force Field" offset="0x248" visible="True" />
+  <float32 name="Damage Modifiers.20 Flood Combat Form" offset="0x24C" visible="True" />
+  <float32 name="Damage Modifiers.21 Flood Carrier Form" offset="0x250" visible="True" />
+  <float32 name="Damage Modifiers.22 Cyborg" offset="0x254" visible="True" />
+  <float32 name="Damage Modifiers.23 Cyborg Energy Shield" offset="0x258" visible="True" />
+  <float32 name="Damage Modifiers.24 Armored Human" offset="0x25C" visible="True" />
+  <float32 name="Damage Modifiers.25 Human" offset="0x260" visible="True" />
+  <float32 name="Damage Modifiers.26 Sentinel" offset="0x264" visible="True" />
+  <float32 name="Damage Modifiers.27 Monitor" offset="0x268" visible="True" />
+  <float32 name="Damage Modifiers.28 Plastic" offset="0x26C" visible="True" />
+  <float32 name="Damage Modifiers.29 Water" offset="0x270" visible="True" />
+  <float32 name="Damage Modifiers.30 Leaves" offset="0x274" visible="True" />
+  <float32 name="Damage Modifiers.31 Elite Energy Shield" offset="0x278" visible="True" />
+  <float32 name="Damage Modifiers.32 Ice" offset="0x27C" visible="True" />
+  <float32 name="Damage Modifiers.33 Hunter Shield" offset="0x280" visible="True" />
+</plugin>

@@ -1,0 +1,191 @@
+<plugin>
+  <revisions />
+  <bitmask16 name="Radiosity Properties.Flags" offset="0x00" visible="True">
+    <option name="Simple Parametrization" value="15" />
+    <option name="Ignore Normals" value="14" />
+    <option name="Transparent Lit" value="13" />
+  </bitmask16>
+  <enum16 name="Radiosity Properties.Detail Level" offset="0x02" visible="True">
+    <option name="High" value="00" />
+    <option name="Medium" value="01" />
+    <option name="Low" value="02" />
+    <option name="Turd" value="03" />
+  </enum16>
+  <float32 name="Radiosity Properties.Power" offset="0x04" visible="True" />
+  <enum16 name="Physics Properties.Material Type" offset="0x22" visible="True">
+    <option name="Dirt" value="00" />
+    <option name="Sand" value="01" />
+    <option name="Stone" value="02" />
+    <option name="Snow" value="03" />
+    <option name="Wood" value="04" />
+    <option name="Metal (hollow)" value="05" />
+    <option name="Metal (thin)" value="06" />
+    <option name="Metal (thick)" value="07" />
+    <option name="Rubber" value="08" />
+    <option name="Glass" value="09" />
+    <option name="Force Field" value="10" />
+    <option name="Grunt" value="11" />
+    <option name="Hunter Armor" value="12" />
+    <option name="Hunter Skin" value="13" />
+    <option name="Elite" value="14" />
+    <option name="Jackal" value="15" />
+    <option name="Jackal Energy Shield" value="16" />
+    <option name="Engineer Skin" value="17" />
+    <option name="Engineer Force Field" value="18" />
+    <option name="Flood Combat Form" value="19" />
+    <option name="Flood Carrier Form" value="20" />
+    <option name="Cyborg Armor" value="21" />
+    <option name="Cyborg Energy Shield" value="22" />
+    <option name="Human Armor" value="23" />
+    <option name="Human Skin" value="24" />
+    <option name="Sentinel" value="25" />
+    <option name="Monitor" value="26" />
+    <option name="Plastic" value="27" />
+    <option name="Water" value="28" />
+    <option name="Leaves" value="29" />
+    <option name="Elite Energy Shield" value="30" />
+    <option name="Ice" value="31" />
+    <option name="Hunter Shield" value="32" />
+  </enum16>
+  <bitmask16 name="Model Shader.Flags" offset="0x28" visible="True">
+    <option name="Detail After Reflection" value="15" />
+    <option name="Two-Sided" value="14" />
+    <option name="Not Alpha-Tested" value="13" />
+    <option name="Alpha-Blended Decal" value="12" />
+    <option name="True Atmospheric Fog" value="11" />
+    <option name="Disable Two-Sided Culling" value="10" />
+  </bitmask16>
+  <float32 name="Model Shader.Translucency" offset="0x38" visible="True" />
+  <enum16 name="Change Color.Change Color Source" offset="0x4C" visible="True">
+    <option name="None" value="00" />
+    <option name="A" value="01" />
+    <option name="B" value="02" />
+    <option name="C" value="03" />
+    <option name="D" value="04" />
+  </enum16>
+  <bitmask8 name="Self-Illumination.Flags" offset="0x6C" visible="True">
+    <option name="No Random Phase" value="07" />
+  </bitmask8>
+  <enum16 name="Self-Illumination.Color Source" offset="0x70" visible="True">
+    <option name="None" value="00" />
+    <option name="A" value="01" />
+    <option name="B" value="02" />
+    <option name="C" value="03" />
+    <option name="D" value="04" />
+  </enum16>
+  <enum16 name="Self-Illumination.Animation Function" offset="0x72" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Self-Illumination.Animation Period" offset="0x74" visible="True" />
+  <float32 name="Maps.Map U-Scale" offset="0x9C" visible="True" />
+  <float32 name="Maps.Map V-Scale" offset="0xA0" visible="True" />
+  <tagRef name="Maps.Base Map" offset="0xAC" visible="True" />
+  <tagRef name="Maps.Multi Map" offset="0xC4" visible="True" />
+  <enum16 name="Maps.Detail Function" offset="0xD4" visible="True">
+    <option name="Double/Biased Multiply" value="00" />
+    <option name="Multiply" value="01" />
+    <option name="Double/Biased Add" value="02" />
+  </enum16>
+  <enum16 name="Maps.Detail Mask" offset="0xD6" visible="True">
+    <option name="None" value="00" />
+    <option name="Reflection Mask Inverse" value="01" />
+    <option name="Reflection Mask" value="02" />
+    <option name="Self-Illumination Mask Inverse" value="03" />
+    <option name="Self-Illumination Mask" value="04" />
+    <option name="Change-Color Mask Inverse" value="05" />
+    <option name="Change-Color Mask" value="06" />
+    <option name="Multipurpose Map Alpha Inverse" value="07" />
+    <option name="Multipurpose Map Alpha" value="08" />
+  </enum16>
+  <float32 name="Maps.Detail Map Scale" offset="0xD8" visible="True" />
+  <float32 name="Maps.Detail Map V-Scale" offset="0xEC" visible="True" />
+  <enum16 name="Texture Scrolling Animation.U-Animation Source" offset="0xFC" visible="True">
+    <option name="None" value="00" />
+    <option name="A out" value="01" />
+    <option name="B out" value="02" />
+    <option name="C out" value="03" />
+    <option name="D out" value="04" />
+  </enum16>
+  <enum16 name="Texture Scrolling Animation.U-Animation Function" offset="0xFE" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Texture Scrolling Animation.U-Animation Period" offset="0x100" visible="True" />
+  <float32 name="Texture Scrolling Animation.U-Animation Phase" offset="0x104" visible="True" />
+  <float32 name="Texture Scrolling Animation.U-Animation Scale" offset="0x108" visible="True" />
+  <enum16 name="Texture Scrolling Animation.V-Animation Source" offset="0x10C" visible="True">
+    <option name="None" value="00" />
+    <option name="A out" value="01" />
+    <option name="B out" value="02" />
+    <option name="C out" value="03" />
+    <option name="D out" value="04" />
+  </enum16>
+  <enum16 name="Texture Scrolling Animation.V-Animation Function" offset="0x10E" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Texture Scrolling Animation.V-Animation Period" offset="0x110" visible="True" />
+  <float32 name="Texture Scrolling Animation.V-Animation Phase" offset="0x114" visible="True" />
+  <float32 name="Texture Scrolling Animation.V-Animation Scale" offset="0x118" visible="True" />
+  <enum16 name="Texture Scrolling Animation.Rotation-Animation Source" offset="0x11C" visible="True">
+    <option name="None" value="00" />
+    <option name="A out" value="01" />
+    <option name="B out" value="02" />
+    <option name="C out" value="03" />
+    <option name="D out" value="04" />
+  </enum16>
+  <enum16 name="Texture Scrolling Animation.Rotation-Animation Function" offset="0x11E" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Texture Scrolling Animation.Rotation-Animation Period" offset="0x120" visible="True" />
+  <float32 name="Texture Scrolling Animation.Rotation-Animation Phase" offset="0x124" visible="True" />
+  <float32 name="Texture Scrolling Animation.Rotation-Animation Scale" offset="0x128" visible="True" />
+  <float32 name="Texture Scrolling Animation.Rotation-Animation Center: x" offset="0x12C" visible="True" />
+  <float32 name="Texture Scrolling Animation.Rotation-Animation Center: y" offset="0x130" visible="True" />
+  <float32 name="Reflection Properties.Reflection Falloff Distance" offset="0x13C" visible="True" />
+  <float32 name="Reflection Properties.Reflection Cutoff Distance" offset="0x140" visible="True" />
+  <float32 name="Reflection Properties.Perpendicular Brightness" offset="0x144" visible="True" />
+  <float32 name="Reflection Properties.Parallel Brightness" offset="0x154" visible="True" />
+</plugin>

@@ -149,6 +149,7 @@ namespace Adjutant.Controls
 
                 #region mode
                 case "mode":
+                case "mod2":
                     tabRaw.Controls.Clear();
                     vSbsp.Visible = false;
                     vMode.Visible = true;
@@ -518,6 +519,7 @@ namespace Adjutant.Controls
                         break;
 
                     case "mode":
+                    case "mod2":
                         if (!rawLoaded)
                         {
                             eMode.DataFolder = settings.dataFolder;
@@ -587,6 +589,7 @@ namespace Adjutant.Controls
                 switch(tag.ClassCode)
                 {
                     case "mode":
+                    case "mod2":
                         if (!modelLoaded)
                         {
                             vSbsp.Visible = false;

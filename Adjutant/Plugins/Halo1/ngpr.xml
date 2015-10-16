@@ -1,0 +1,6 @@
+<plugin>
+  <revisions />
+  <string name="Name" offset="0x00" visible="True" length="32" />
+  <int16 name="Pattern Bitmap Index" offset="0x48" visible="True" />
+  <int16 name="Decal Bitmap Index" offset="0x5C" visible="True" />
+</plugin>

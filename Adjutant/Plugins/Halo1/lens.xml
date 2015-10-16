@@ -1,0 +1,74 @@
+<plugin>
+  <revisions />
+  <float32 name="Lens Flare.Falloff Angle" offset="0x00" visible="True" />
+  <float32 name="Lens Flare.Cutoff Angle" offset="0x04" visible="True" />
+  <float32 name="Lens Flare.Occlusion Modifier" offset="0x08" visible="True" />
+  <float32 name="Occlusion.Occlusion Radius" offset="0x10" visible="True" />
+  <enum16 name="Occlusion.Occlusion Offset Direction" offset="0x14" visible="True">
+    <option name="Toward Viewer" value="00" />
+    <option name="Marker Forward" value="01" />
+    <option name="None" value="02" />
+  </enum16>
+  <float32 name="Occlusion.Near Fade Distance" offset="0x18" visible="True" />
+  <float32 name="Occlusion.Far Fade Distance" offset="0x1C" visible="True" />
+  <bitmask8 name="Bitmaps.Flags" offset="0x30" visible="True">
+    <option name="Sun" value="07" />
+  </bitmask8>
+  <enum16 name="Corona Rotation.Rotation Function" offset="0x80" visible="True">
+    <option name="None" value="00" />
+    <option name="Rotation A" value="01" />
+    <option name="Rotation B" value="02" />
+    <option name="Rotation-Translation" value="03" />
+    <option name="Translation" value="04" />
+  </enum16>
+  <float32 name="Corona Rotation.Rotation Function Scale" offset="0x84" visible="True" />
+  <float32 name="Corona Radius Scale.Horizontal Scale" offset="0xA0" visible="True" />
+  <float32 name="Corona Radius Scale.Vertical Scale" offset="0xA4" visible="True" />
+  <struct name="Reflections" offset="0xC4" visible="True" size="128">
+    <bitmask16 name="Flags" offset="0x00" visible="True">
+      <option name="Align Rotation with Screen Center" value="15" />
+      <option name="Radius NOT Scaled by Distance" value="14" />
+      <option name="Radius Scaled by Occlusion Factor" value="13" />
+      <option name="Occluded by Solid Objects" value="12" />
+    </bitmask16>
+    <int16 name="Bitmap Index" offset="0x04" visible="True" />
+    <float32 name="Position (along flare axis)" offset="0x1C" visible="True" />
+    <float32 name="Rotation Offset" offset="0x20" visible="True" />
+    <float32 name="Radius: from" offset="0x28" visible="True" />
+    <float32 name="Radius: to" offset="0x2C" visible="True" />
+    <enum16 name="Radius Scaled by" offset="0x30" visible="True">
+      <option name="None" value="00" />
+      <option name="Rotation" value="01" />
+      <option name="Rotation and Strafing" value="02" />
+      <option name="Distance From Center" value="03" />
+    </enum16>
+    <float32 name="Brightness: from" offset="0x34" visible="True" />
+    <float32 name="Brightness: to" offset="0x38" visible="True" />
+    <enum16 name="Brightness Scaled by" offset="0x3C" visible="True">
+      <option name="None" value="00" />
+      <option name="Rotation" value="01" />
+      <option name="Rotation and Strafing" value="02" />
+      <option name="Distance From Center" value="03" />
+    </enum16>
+    <bitmask16 name="Animation.Flags" offset="0x70" visible="True">
+      <option name="Interpolate Color in HSV" value="15" />
+      <option name="...More Colors" value="14" />
+    </bitmask16>
+    <enum16 name="Animation.Animation Function" offset="0x72" visible="True">
+      <option name="One" value="00" />
+      <option name="Zero" value="01" />
+      <option name="Cosine" value="02" />
+      <option name="Cosine (variable period)" value="03" />
+      <option name="Diagonal Wave" value="04" />
+      <option name="Diagonal Wave (variable period)" value="05" />
+      <option name="Slide" value="06" />
+      <option name="Slide (variable period)" value="07" />
+      <option name="Noise" value="08" />
+      <option name="Jitter" value="09" />
+      <option name="Wander" value="10" />
+      <option name="Spark" value="11" />
+    </enum16>
+    <float32 name="Animation.Animation Period" offset="0x74" visible="True" />
+    <float32 name="Animation.Animation Phase" offset="0x78" visible="True" />
+  </struct>
+</plugin>

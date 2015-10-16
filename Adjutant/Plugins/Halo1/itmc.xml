@@ -1,0 +1,7 @@
+<plugin>
+  <revisions />
+  <struct name="Item Permutations" offset="0x00" visible="True" size="84">
+    <float32 name="Weight" offset="0x20" visible="True" />
+  </struct>
+  <int16 name="Spawn Time" offset="0x0C" visible="True" />
+</plugin>

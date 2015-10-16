@@ -1,0 +1,12 @@
+<plugin>
+  <revisions />
+  <struct name="Control Points" offset="0x04" visible="True" size="60">
+    <float32 name="Position: i (1)" offset="0x00" visible="True" />
+    <float32 name="Position: i (2)" offset="0x04" visible="True" />
+    <float32 name="Position: k" offset="0x08" visible="True" />
+    <float32 name="Orientation: i (1)" offset="0x0C" visible="True" />
+    <float32 name="Orientation: i (2)" offset="0x10" visible="True" />
+    <float32 name="Orientation: k" offset="0x14" visible="True" />
+    <float32 name="Orientation: w" offset="0x18" visible="True" />
+  </struct>
+</plugin>

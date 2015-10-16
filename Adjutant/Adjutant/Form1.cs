@@ -143,7 +143,7 @@ namespace Adjutant
             var ofd = new System.Windows.Forms.OpenFileDialog()
             {
                 InitialDirectory = settings.mapFolder,
-                Filter = "Xbox Halo Files|*.map;*.s3dpak",
+                Filter = "Halo Map Files|*.map;*.s3dpak",
                 Multiselect = true
             };
 
@@ -160,7 +160,7 @@ namespace Adjutant
             var ofd = new System.Windows.Forms.OpenFileDialog()
             {
                 InitialDirectory = settings.mapFolder,
-                Filter = "Xbox Halo Files|*.map"//;*.s3dpak"
+                Filter = "Halo Map Files|*.map"//;*.s3dpak"
             };
 
             if (ofd.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;

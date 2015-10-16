@@ -1,0 +1,92 @@
+<plugin>
+  <revisions />
+  <string name="Attachment Marker" offset="0x00" visible="True" length="32" />
+  <int16 name="Number of Particles" offset="0x20" visible="True" />
+  <enum16 name="Boundary Effect" offset="0x22" visible="True">
+    <option name="Bounce" value="00" />
+    <option name="Wrap" value="01" />
+  </enum16>
+  <enum16 name="Normal Particle Distribution" offset="0x24" visible="True">
+    <option name="Distributed Randomly" value="00" />
+    <option name="Distributed Uniformly" value="01" />
+  </enum16>
+  <enum16 name="Trailing Particle Distribution" offset="0x26" visible="True">
+    <option name="Emit Vertically" value="00" />
+    <option name="Emit Normal (up)" value="01" />
+    <option name="Emit Randomly" value="02" />
+  </enum16>
+  <bitmask16 name="Glow Flags" offset="0x28" visible="True">
+    <option name="Modify Particle Color in Range" value="15" />
+    <option name="Particles Move Backwards" value="14" />
+    <option name="Particles Move in Both Directions" value="13" />
+    <option name="Trailing Particles Fade Over Time" value="12" />
+    <option name="Trailing Particles Shrink Over Time" value="11" />
+    <option name="Trailing Particles Slow Over Time" value="10" />
+  </bitmask16>
+  <enum16 name="Attachment" offset="0x50" visible="True">
+    <option name="None" value="65535" />
+    <option name="A out" value="00" />
+    <option name="B out" value="01" />
+    <option name="C out" value="02" />
+    <option name="D out" value="03" />
+  </enum16>
+  <float32 name="Particle Rotational Velocity" offset="0x54" visible="True" />
+  <float32 name="Particle Rotational Velocity Multiple Low" offset="0x58" visible="True" />
+  <float32 name="Particle Rotational Velocity Multiple High" offset="0x5C" visible="True" />
+  <enum16 name="Attachment" offset="0x60" visible="True">
+    <option name="None" value="65535" />
+    <option name="A out" value="00" />
+    <option name="B out" value="01" />
+    <option name="C out" value="02" />
+    <option name="D out" value="03" />
+  </enum16>
+  <float32 name="Effect Rotational Velocity" offset="0x64" visible="True" />
+  <float32 name="Effect Rotational Velocity Multiple Low" offset="0x68" visible="True" />
+  <float32 name="Effect Rotational Velocity Multiple High" offset="0x6C" visible="True" />
+  <enum16 name="Attachment" offset="0x70" visible="True">
+    <option name="None" value="65535" />
+    <option name="A out" value="00" />
+    <option name="B out" value="01" />
+    <option name="C out" value="02" />
+    <option name="D out" value="03" />
+  </enum16>
+  <float32 name="Effect Translational Velocity" offset="0x74" visible="True" />
+  <float32 name="Effect Translational Velocity Multiple Low" offset="0x78" visible="True" />
+  <float32 name="Effect Translational Velocity Multiple High" offset="0x7C" visible="True" />
+  <enum16 name="Attachment" offset="0x80" visible="True">
+    <option name="None" value="65535" />
+    <option name="A out" value="00" />
+    <option name="B out" value="01" />
+    <option name="C out" value="02" />
+    <option name="D out" value="03" />
+  </enum16>
+  <float32 name="Minimum Distance Particle to Object" offset="0x84" visible="True" />
+  <float32 name="Maximum Distance Particle to Object" offset="0x88" visible="True" />
+  <float32 name="Distance to Object Multiple Low" offset="0x8C" visible="True" />
+  <float32 name="Distance to Object Multiple High" offset="0x90" visible="True" />
+  <enum16 name="Attachment" offset="0x9C" visible="True">
+    <option name="None" value="65535" />
+    <option name="A out" value="00" />
+    <option name="B out" value="01" />
+    <option name="C out" value="02" />
+    <option name="D out" value="03" />
+  </enum16>
+  <float32 name="Particle Size Bounds: from" offset="0xA0" visible="True" />
+  <float32 name="Particle Size Bounds: to" offset="0xA4" visible="True" />
+  <float32 name="Size Attachment Multiplier: from" offset="0xA8" visible="True" />
+  <float32 name="Size Attachment Multiplier: to" offset="0xAC" visible="True" />
+  <enum16 name="Attachment" offset="0xB0" visible="True">
+    <option name="None" value="65535" />
+    <option name="A out" value="00" />
+    <option name="B out" value="01" />
+    <option name="C out" value="02" />
+    <option name="D out" value="03" />
+  </enum16>
+  <float32 name="Color Rate of Change" offset="0xF4" visible="True" />
+  <float32 name="Fading Percentage of Glow" offset="0xF8" visible="True" />
+  <float32 name="Particle Generation Frequency" offset="0xFC" visible="True" />
+  <float32 name="Lifetime of Trailing Particles" offset="0x100" visible="True" />
+  <float32 name="Velocity of Trailing Particles" offset="0x104" visible="True" />
+  <float32 name="Trailing Particle Minimum Translation" offset="0x108" visible="True" />
+  <float32 name="Trailing Particle Maximum Translation" offset="0x10C" visible="True" />
+</plugin>

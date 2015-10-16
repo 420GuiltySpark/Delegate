@@ -1,0 +1,91 @@
+<plugin>
+  <revisions />
+  <bitmask32 name="Flags" offset="0x00" visible="True">
+    <option name="Dynamic" value="31" />
+    <option name="No Specular" value="30" />
+    <option name="Don't Light Own Object" value="29" />
+    <option name="Supersize in First Person" value="28" />
+    <option name="First Person Flashlight" value="27" />
+    <option name="Don't Fade Active Camouflage" value="26" />
+  </bitmask32>
+  <float32 name="Shape.Radius" offset="0x04" visible="True" />
+  <float32 name="Shape.Radius Modifier: from" offset="0x08" visible="True" />
+  <float32 name="Shape.Radius Modifier: to" offset="0x0C" visible="True" />
+  <float32 name="Shape.Falloff Angle" offset="0x10" visible="True" />
+  <float32 name="Shape.Cutoff Angle" offset="0x14" visible="True" />
+  <float32 name="Shape.Lens Flare Only Radius" offset="0x18" visible="True" />
+  <bitmask8 name="Color.Interpolation Flags" offset="0x34" visible="True">
+    <option name="Blend in HSV" value="07" />
+    <option name="...More Colors" value="06" />
+  </bitmask8>
+  <enum16 name="Gel.Texture Animation Function" offset="0x76" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Gel.Texture Animation Period" offset="0x78" visible="True" />
+  <enum16 name="Gel.Yaw Function" offset="0x8E" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Gel.Yaw Period" offset="0x90" visible="True" />
+  <enum16 name="Gel.Roll Function" offset="0x96" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Gel.Roll Period" offset="0x98" visible="True" />
+  <enum16 name="Gel.Pitch Function" offset="0x9E" visible="True">
+    <option name="One" value="00" />
+    <option name="Zero" value="01" />
+    <option name="Cosine" value="02" />
+    <option name="Cosine (variable period)" value="03" />
+    <option name="Diagonal Wave" value="04" />
+    <option name="Diagonal Wave (variable period)" value="05" />
+    <option name="Slide" value="06" />
+    <option name="Slide (variable period)" value="07" />
+    <option name="Noise" value="08" />
+    <option name="Jitter" value="09" />
+    <option name="Wander" value="10" />
+    <option name="Spark" value="11" />
+  </enum16>
+  <float32 name="Gel.Pitch Period" offset="0xA0" visible="True" />
+  <float32 name="Radiosity.Intensity" offset="0xD4" visible="True" />
+  <float32 name="Effect Parameters.Duration" offset="0xF4" visible="True" />
+  <enum16 name="Effect Parameters.Falloff Function" offset="0xFA" visible="True">
+    <option name="Linear" value="00" />
+    <option name="Early" value="01" />
+    <option name="Very Early" value="02" />
+    <option name="Late" value="03" />
+    <option name="Very Late" value="04" />
+    <option name="Cosine" value="05" />
+  </enum16>
+</plugin>

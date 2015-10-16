@@ -120,6 +120,8 @@ namespace Adjutant.Library.Definitions
 
             public StringTable(CacheBase Cache)
             {
+                if (Cache.Version <= DefinitionSet.Halo1AE) return;
+
                 cache = Cache;
                 var Reader = cache.Reader;
                 var CH = cache.Header;
@@ -309,6 +311,12 @@ namespace Adjutant.Library.Definitions
 
                         switch (Cache.Version)
                         {
+                            case DefinitionSet.Halo1Xbox:
+                            case DefinitionSet.Halo1CE:
+                            case DefinitionSet.Halo1PC:
+                            case DefinitionSet.Halo1AE:
+                                xml = new MemoryStream(Adjutant.Properties.Resources.Classes_H1);
+                                break;
                             case DefinitionSet.Halo2Xbox:
                             case DefinitionSet.Halo2Vista:
                                 xml = new MemoryStream(Adjutant.Properties.Resources.Classes_H2);

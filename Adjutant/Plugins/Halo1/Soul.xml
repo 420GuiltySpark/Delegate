@@ -1,0 +1,4 @@
+<plugin>
+  <revisions />
+  <struct name="UI Widget Definitions" offset="0x00" visible="True" size="16" />
+</plugin>

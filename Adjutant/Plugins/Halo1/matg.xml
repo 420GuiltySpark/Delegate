@@ -1,0 +1,216 @@
+<plugin>
+  <revisions />
+  <struct name="Sounds" offset="0xF8" visible="True" size="16" />
+  <struct name="Camera" offset="0x104" visible="True" size="16" />
+  <struct name="Player Control" offset="0x110" visible="True" size="128">
+    <float32 name="Magnetism Friction" offset="0x00" visible="True" />
+    <float32 name="Magnetism Adhesion" offset="0x04" visible="True" />
+    <float32 name="Inconsequential Target Scale" offset="0x08" visible="True" />
+    <float32 name="Look Acceleration Time" offset="0x40" visible="True" />
+    <float32 name="Look Acceleration Scale" offset="0x44" visible="True" />
+    <float32 name="Look Peg Threshold" offset="0x48" visible="True" />
+    <float32 name="Look Default Pitch Rate" offset="0x4C" visible="True" />
+    <float32 name="Look Default Yaw Rate" offset="0x50" visible="True" />
+    <float32 name="Look Auto-Leveling Scale" offset="0x54" visible="True" />
+    <int16 name="Minimum Weapon Swap Ticks" offset="0x6C" visible="True" />
+    <int16 name="Minimum Auto-Leveling Ticks" offset="0x6E" visible="True" />
+    <float32 name="Minimum Angle for Vehicle Flipping" offset="0x70" visible="True" />
+    <struct name="Look Function" offset="0x74" visible="True" size="4">
+      <float32 name="Scale" offset="0x00" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Difficulty" offset="0x11C" visible="True" size="644">
+    <float32 name="Health.Easy Enemy Damage" offset="0x00" visible="True" />
+    <float32 name="Health.Normal Enemy Damage" offset="0x04" visible="True" />
+    <float32 name="Health.Hard Enemy Damage" offset="0x08" visible="True" />
+    <float32 name="Health.Impossible Enemy Damage" offset="0x0C" visible="True" />
+    <float32 name="Health.Easy Enemy Vitality" offset="0x10" visible="True" />
+    <float32 name="Health.Normal Enemy Vitality" offset="0x14" visible="True" />
+    <float32 name="Health.Hard Enemy Vitality" offset="0x18" visible="True" />
+    <float32 name="Health.Impossible Enemy Vitality" offset="0x1C" visible="True" />
+    <float32 name="Health.Easy Enemy Shield" offset="0x20" visible="True" />
+    <float32 name="Health.Normal Enemy Shield" offset="0x24" visible="True" />
+    <float32 name="Health.Hard Enemy Shield" offset="0x28" visible="True" />
+    <float32 name="Health.Impossible Enemy Shield" offset="0x2C" visible="True" />
+    <float32 name="Health.Easy Enemy Recharge" offset="0x30" visible="True" />
+    <float32 name="Health.Normal Enemy Recharge" offset="0x34" visible="True" />
+    <float32 name="Health.Hard Enemy Recharge" offset="0x38" visible="True" />
+    <float32 name="Health.Impossible Enemy Recharge" offset="0x3C" visible="True" />
+    <float32 name="Health.Easy Friend Damage" offset="0x40" visible="True" />
+    <float32 name="Health.Normal Friend Damage" offset="0x44" visible="True" />
+    <float32 name="Health.Hard Friend Damage" offset="0x48" visible="True" />
+    <float32 name="Health.Impossible Friend Damage" offset="0x4C" visible="True" />
+    <float32 name="Health.Easy Friend Vitality" offset="0x50" visible="True" />
+    <float32 name="Health.Normal Friend Vitality" offset="0x54" visible="True" />
+    <float32 name="Health.Hard Friend Vitality" offset="0x58" visible="True" />
+    <float32 name="Health.Impossible Friend Vitality" offset="0x5C" visible="True" />
+    <float32 name="Health.Easy Friend Shield" offset="0x60" visible="True" />
+    <float32 name="Health.Normal Friend Shield" offset="0x64" visible="True" />
+    <float32 name="Health.Hard Friend Shield" offset="0x68" visible="True" />
+    <float32 name="Health.Impossible Friend Shield" offset="0x6C" visible="True" />
+    <float32 name="Health.Easy Friend Recharge" offset="0x70" visible="True" />
+    <float32 name="Health.Normal Friend Recharge" offset="0x74" visible="True" />
+    <float32 name="Health.Hard Friend Recharge" offset="0x78" visible="True" />
+    <float32 name="Health.Impossible Friend Recharge" offset="0x7C" visible="True" />
+    <float32 name="Health.Easy Infection Forms" offset="0x80" visible="True" />
+    <float32 name="Health.Normal Infection Forms" offset="0x84" visible="True" />
+    <float32 name="Health.Hard Infection Forms" offset="0x88" visible="True" />
+    <float32 name="Health.Impossible Infection Forms" offset="0x8C" visible="True" />
+    <float32 name="Ranged Fire.Easy Rate of Fire" offset="0xA0" visible="True" />
+    <float32 name="Ranged Fire.Normal Rate of Fire" offset="0xA4" visible="True" />
+    <float32 name="Ranged Fire.Hard Rate of Fire" offset="0xA8" visible="True" />
+    <float32 name="Ranged Fire.Impossible Rate of Fire" offset="0xAC" visible="True" />
+    <float32 name="Ranged Fire.Easy Projectile Error" offset="0xB0" visible="True" />
+    <float32 name="Ranged Fire.Normal Projectile Error" offset="0xB4" visible="True" />
+    <float32 name="Ranged Fire.Hard Projectile Error" offset="0xB8" visible="True" />
+    <float32 name="Ranged Fire.Impossible Projectile Error" offset="0xBC" visible="True" />
+    <float32 name="Ranged Fire.Easy Burst Error" offset="0xC0" visible="True" />
+    <float32 name="Ranged Fire.Normal Burst Error" offset="0xC4" visible="True" />
+    <float32 name="Ranged Fire.Hard Burst Error" offset="0xC8" visible="True" />
+    <float32 name="Ranged Fire.Impossible Burst Error" offset="0xCC" visible="True" />
+    <float32 name="Ranged Fire.Easy New Target Delay" offset="0xD0" visible="True" />
+    <float32 name="Ranged Fire.Normal New Target Delay" offset="0xD4" visible="True" />
+    <float32 name="Ranged Fire.Hard New Target Delay" offset="0xD8" visible="True" />
+    <float32 name="Ranged Fire.Impossible New Target Delay (enemy new-target delay scale factor on impossible difficulty)" offset="0xDC" visible="True" />
+    <float32 name="Ranged Fire.Easy Burst Separation" offset="0xE0" visible="True" />
+    <float32 name="Ranged Fire.Normal Burst Separation" offset="0xE4" visible="True" />
+    <float32 name="Ranged Fire.Hard Burst Separation" offset="0xE8" visible="True" />
+    <float32 name="Ranged Fire.Impossible Burst Separation" offset="0xEC" visible="True" />
+    <float32 name="Ranged Fire.Easy Target Tracking" offset="0xF0" visible="True" />
+    <float32 name="Ranged Fire.Normal Target Tracking" offset="0xF4" visible="True" />
+    <float32 name="Ranged Fire.Hard Target Tracking" offset="0xF8" visible="True" />
+    <float32 name="Ranged Fire.Impossible Target Tracking" offset="0xFC" visible="True" />
+    <float32 name="Ranged Fire.Easy Target Leading" offset="0x100" visible="True" />
+    <float32 name="Ranged Fire.Normal Target Leading" offset="0x104" visible="True" />
+    <float32 name="Ranged Fire.Hard Target Leading" offset="0x108" visible="True" />
+    <float32 name="Ranged Fire.Impossible Target Leading" offset="0x10C" visible="True" />
+    <float32 name="Ranged Fire.Easy Overcharge Chance" offset="0x110" visible="True" />
+    <float32 name="Ranged Fire.Normal Overcharge Chance" offset="0x114" visible="True" />
+    <float32 name="Ranged Fire.Hard Overcharge Chance" offset="0x118" visible="True" />
+    <float32 name="Ranged Fire.Impossible Overcharge Chance" offset="0x11C" visible="True" />
+    <float32 name="Ranged Fire.Easy Special Fire Delay" offset="0x120" visible="True" />
+    <float32 name="Ranged Fire.Normal Special Fire Delay" offset="0x124" visible="True" />
+    <float32 name="Ranged Fire.Hard Special Fire Delay" offset="0x128" visible="True" />
+    <float32 name="Ranged Fire.Impossible Special Fire Delay" offset="0x12C" visible="True" />
+    <float32 name="Ranged Fire.Easy Guidance vs. Player" offset="0x130" visible="True" />
+    <float32 name="Ranged Fire.Normal Guidance vs. Player" offset="0x134" visible="True" />
+    <float32 name="Ranged Fire.Hard Guidance vs. Player" offset="0x138" visible="True" />
+    <float32 name="Ranged Fire.Impossible Guidance vs. Player" offset="0x13C" visible="True" />
+    <float32 name="Ranged Fire.Easy Melee Delay Base" offset="0x140" visible="True" />
+    <float32 name="Ranged Fire.Normal Melee Delay Base" offset="0x144" visible="True" />
+    <float32 name="Ranged Fire.Hard Melee Delay Base" offset="0x148" visible="True" />
+    <float32 name="Ranged Fire.Impossible Melee Delay Base" offset="0x14C" visible="True" />
+    <float32 name="Ranged Fire.Easy Melee Delay Scale" offset="0x150" visible="True" />
+    <float32 name="Ranged Fire.Normal Melee Delay Scale" offset="0x154" visible="True" />
+    <float32 name="Ranged Fire.Hard Melee Delay Scale" offset="0x158" visible="True" />
+    <float32 name="Ranged Fire.Impossible Melee Delay Scale" offset="0x15C" visible="True" />
+    <float32 name="Grenades.Easy Grenade Chance Scale (scale factor affecting decisions to throw a grenade on easy difficulty)" offset="0x170" visible="True" />
+    <float32 name="Grenades.Normal Grenade Chance Scale (scale factor affecting decisions to throw a grenade on normal difficulty)" offset="0x174" visible="True" />
+    <float32 name="Grenades.Hard Grenade Chance Scale (scale factor affecting decisions to throw a grenade on hard difficulty)" offset="0x178" visible="True" />
+    <float32 name="Grenades.Impossible Grenade Chance Scale (scale factor affecting decisions to throw a grenade on impossible difficulty)" offset="0x17C" visible="True" />
+    <float32 name="Grenades.Easy Grenade Timer Scale (scale factor affecting the delay period between grenades thrown from the same encounter (lower is more often) on easy difficulty)" offset="0x180" visible="True" />
+    <float32 name="Grenades.Normal Grenade Timer Scale (scale factor affecting the delay period between grenades thrown from the same encounter (lower is more often) on normal difficulty)" offset="0x184" visible="True" />
+    <float32 name="Grenades.Hard Grenade Timer Scale (scale factor affecting the delay period between grenades thrown from the same encounter (lower is more often) on hard difficulty)" offset="0x188" visible="True" />
+    <float32 name="Grenades.Impossible Grenade Timer Scale (scale factor affecting the delay period between grenades thrown from the same encounter (lower is more often) on impossible difficulty)" offset="0x18C" visible="True" />
+    <float32 name="Placement.Easy Major Upgrade (Normal)" offset="0x1C0" visible="True" />
+    <float32 name="Placement.Normal Major Upgrade (Normal)" offset="0x1C4" visible="True" />
+    <float32 name="Placement.Hard Major Upgrade (Normal)" offset="0x1C8" visible="True" />
+    <float32 name="Placement.Impossible Major Upgrade (Normal)" offset="0x1CC" visible="True" />
+    <float32 name="Placement.Easy Major Upgrade (Few)" offset="0x1D0" visible="True" />
+    <float32 name="Placement.Normal Major Upgrade (Few)" offset="0x1D4" visible="True" />
+    <float32 name="Placement.Hard Major Upgrade (Few)" offset="0x1D8" visible="True" />
+    <float32 name="Placement.Impossible Major Upgrade (Few)" offset="0x1DC" visible="True" />
+    <float32 name="Placement.Easy Major Upgrade (Many)" offset="0x1E0" visible="True" />
+    <float32 name="Placement.Normal Major Upgrade (Many)" offset="0x1E4" visible="True" />
+    <float32 name="Placement.Hard Major Upgrade (Many)" offset="0x1E8" visible="True" />
+    <float32 name="Placement.Impossible Major Upgrade (Many)" offset="0x1EC" visible="True" />
+  </struct>
+  <struct name="Grenades" offset="0x128" visible="True" size="68">
+    <int16 name="Maximum Count" offset="0x00" visible="True" />
+    <int16 name="Multiplayer Spawn Default" offset="0x02" visible="True" />
+  </struct>
+  <struct name="Rasterizer Data" offset="0x134" visible="True" size="428">
+    <bitmask8 name="Active Camouflage.Flags" offset="0x170" visible="True">
+      <option name="Tint Edge Density" value="07" />
+    </bitmask8>
+    <float32 name="Active Camouflage.Refraction Amount" offset="0x174" visible="True" />
+    <float32 name="Active Camouflage.Distance Falloff" offset="0x178" visible="True" />
+    <float32 name="Active Camouflage.Hyper-Stealth Refraction" offset="0x188" visible="True" />
+    <float32 name="Active Camouflage.Hyper-Stealth Distance Falloff" offset="0x18C" visible="True" />
+  </struct>
+  <struct name="Interface Bitmaps" offset="0x140" visible="True" size="304" />
+  <struct name="Weapon List" offset="0x14C" visible="True" size="16" />
+  <struct name="Cheat Powerups" offset="0x158" visible="True" size="16" />
+  <struct name="Multiplayer Information" offset="0x164" visible="True" size="160">
+    <struct name="Vehicles" offset="0x20" visible="True" size="16" />
+    <struct name="Sounds" offset="0x5C" visible="True" size="16" />
+  </struct>
+  <struct name="Player Information" offset="0x170" visible="True" size="244">
+    <float32 name="Walking Speed" offset="0x2C" visible="True" />
+    <float32 name="'Double Speed' Multiplier" offset="0x30" visible="True" />
+    <float32 name="Run Forward" offset="0x34" visible="True" />
+    <float32 name="Run Backward" offset="0x38" visible="True" />
+    <float32 name="Run Sideways" offset="0x3C" visible="True" />
+    <float32 name="Run Acceleration" offset="0x40" visible="True" />
+    <float32 name="Sneak Forward" offset="0x44" visible="True" />
+    <float32 name="Sneak Backward" offset="0x48" visible="True" />
+    <float32 name="Sneak Sideways" offset="0x4C" visible="True" />
+    <float32 name="Sneak Acceleration" offset="0x50" visible="True" />
+    <float32 name="Airborne Acceleration" offset="0x54" visible="True" />
+    <float32 name="Speed Multiplier" offset="0x58" visible="True" />
+    <float32 name="Grenade Origin: x" offset="0x68" visible="True" />
+    <float32 name="Grenade Origin: y" offset="0x6C" visible="True" />
+    <float32 name="Grenade Origin: z" offset="0x70" visible="True" />
+    <float32 name="Stun Movement Penalty" offset="0x80" visible="True" />
+    <float32 name="Stun Turning Penalty" offset="0x84" visible="True" />
+    <float32 name="Stun Jumping Penalty" offset="0x88" visible="True" />
+    <float32 name="Minimum Stun Time" offset="0x8C" visible="True" />
+    <float32 name="Maximum Stun Time" offset="0x90" visible="True" />
+    <float32 name="First Person Idle Time: from" offset="0x9C" visible="True" />
+    <float32 name="First Person Idle Time: to" offset="0xA0" visible="True" />
+    <float32 name="First Person Skip Fraction" offset="0xA4" visible="True" />
+  </struct>
+  <struct name="First Person Interface" offset="0x17C" visible="True" size="192">
+    <int16 name="Shield Meter Origin: x" offset="0x30" visible="True" />
+    <int16 name="Shield Meter Origin: y" offset="0x32" visible="True" />
+    <int16 name="Body Meter Origin: x" offset="0x44" visible="True" />
+    <int16 name="Body Meter Origin: y" offset="0x46" visible="True" />
+  </struct>
+  <struct name="Falling Damage" offset="0x188" visible="True" size="152">
+    <float32 name="Harmful Falling Distance: from" offset="0x08" visible="True" />
+    <float32 name="Harmful Falling Distance: to" offset="0x0C" visible="True" />
+    <float32 name="Maximum Falling Distance" offset="0x28" visible="True" />
+    <float32 name="Falling Damage Sensitivity" offset="0x90" visible="True" />
+    <float32 name="Falling Distance Damage Modifier" offset="0x94" visible="True" />
+  </struct>
+  <struct name="Materials" offset="0x194" visible="True" size="884">
+    <float32 name="Vehicle Terrain Parameters.Ground Friction Scale" offset="0x94" visible="True" />
+    <float32 name="Vehicle Terrain Parameters.Ground Friction Normal k1 Scale" offset="0x98" visible="True" />
+    <float32 name="Vehicle Terrain Parameters.Ground Friction Normal k0 Scale" offset="0x9C" visible="True" />
+    <float32 name="Vehicle Terrain Parameters.Ground Depth Scale" offset="0xA0" visible="True" />
+    <float32 name="Vehicle Terrain Parameters.Ground Damp Fraction Scale" offset="0xA4" visible="True" />
+    <float32 name="Breakable Surface Parameters.Maximum Vitality" offset="0x2D4" visible="True" />
+    <struct name="Particle Effects" offset="0x31C" visible="True" size="128">
+      <bitmask16 name="Flags" offset="0x10" visible="True">
+        <option name="Interpolate Color in HSV" value="15" />
+        <option name="...More Colors" value="14" />
+      </bitmask16>
+      <float32 name="Density" offset="0x14" visible="True" />
+      <float32 name="Velocity Scale: from" offset="0x18" visible="True" />
+      <float32 name="Velocity Scale: to" offset="0x1C" visible="True" />
+      <float32 name="Angular Velocity: from" offset="0x24" visible="True" />
+      <float32 name="Angular Velocity: to" offset="0x28" visible="True" />
+      <float32 name="Radius: from" offset="0x34" visible="True" />
+      <float32 name="Radius: to" offset="0x38" visible="True" />
+    </struct>
+  </struct>
+  <struct name="Playlist Members" offset="0x1A0" visible="True" size="148">
+    <string name="Map Name" offset="0x00" visible="True" length="32" />
+    <string name="Game Variant" offset="0x20" visible="True" length="32" />
+    <int32 name="Minimum Experience" offset="0x40" visible="True" />
+    <int32 name="Maximum Experience" offset="0x44" visible="True" />
+    <int32 name="Minimum Player Count" offset="0x48" visible="True" />
+    <int32 name="Maximum Player Count" offset="0x4C" visible="True" />
+    <int32 name="Rating" offset="0x50" visible="True" />
+  </struct>
+</plugin>

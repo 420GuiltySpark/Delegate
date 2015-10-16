@@ -139,6 +139,9 @@
   <data name="AMFImporter" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\AMF2.ms;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="Classes_H1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\classes_h1.xml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Classes_H2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\classes_h2.xml;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

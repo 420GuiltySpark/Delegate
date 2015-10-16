@@ -1,0 +1,34 @@
+<plugin>
+  <revisions />
+  <bitmask16 name="Flags.Flags" offset="0x00" visible="True">
+    <option name="Is Water" value="15" />
+    <option name="Atmosphere Dominant" value="14" />
+    <option name="Fog Screen Only" value="13" />
+  </bitmask16>
+  <float32 name="Density.Maximum Density" offset="0x58" visible="True" />
+  <float32 name="Density.Opaque Distance" offset="0x60" visible="True" />
+  <float32 name="Density.Opaque Depth" offset="0x68" visible="True" />
+  <float32 name="Density.Distance to Water Plane" offset="0x74" visible="True" />
+  <bitmask16 name="Screen Layers.Flags" offset="0x84" visible="True">
+    <option name="No Environment Multipass" value="15" />
+    <option name="No Model Multipass" value="14" />
+    <option name="No Texture-Based Falloff" value="13" />
+  </bitmask16>
+  <int16 name="Screen Layers.Layer Count" offset="0x86" visible="True" />
+  <float32 name="Screen Layers.Distance to Gradient: from" offset="0x88" visible="True" />
+  <float32 name="Screen Layers.Distance to Gradient: to" offset="0x8C" visible="True" />
+  <float32 name="Screen Layers.Density Gradient: from" offset="0x90" visible="True" />
+  <float32 name="Screen Layers.Density Gradient: to" offset="0x94" visible="True" />
+  <float32 name="Screen Layers.Start Distance From Fog Plane" offset="0x98" visible="True" />
+  <float32 name="Screen Layers.Rotation Multiplier" offset="0xA4" visible="True" />
+  <float32 name="Screen Layers.Strafing Multiplier" offset="0xA8" visible="True" />
+  <float32 name="Screen Layers.Zoom Multiplier" offset="0xAC" visible="True" />
+  <float32 name="Screen Layers.Map Scale" offset="0xB8" visible="True" />
+  <float32 name="Screen Layer Animation.Animation Period" offset="0xCC" visible="True" />
+  <float32 name="Screen Layer Animation.Wind Velocity: from" offset="0xD4" visible="True" />
+  <float32 name="Screen Layer Animation.Wind Velocity: to" offset="0xD8" visible="True" />
+  <float32 name="Screen Layer Animation.Wind Period: from" offset="0xDC" visible="True" />
+  <float32 name="Screen Layer Animation.Wind Period: to" offset="0xE0" visible="True" />
+  <float32 name="Screen Layer Animation.Wind Acceleration Weight" offset="0xE4" visible="True" />
+  <float32 name="Screen Layer Animation.Wind Perpendicular Weight" offset="0xE8" visible="True" />
+</plugin>

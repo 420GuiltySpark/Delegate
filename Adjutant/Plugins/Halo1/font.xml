@@ -1,0 +1,21 @@
+<plugin>
+  <revisions />
+  <int16 name="Flags" offset="0x00" visible="True" />
+  <int16 name="Ascending Height" offset="0x04" visible="True" />
+  <int16 name="Descending Height" offset="0x06" visible="True" />
+  <int16 name="Leading Height" offset="0x08" visible="True" />
+  <int16 name="Leading Width" offset="0x0A" visible="True" />
+  <struct name="Character Tables" offset="0x30" visible="True" size="12">
+    <struct name="Character Table" offset="0x00" visible="True" size="2" />
+  </struct>
+  <struct name="Characters" offset="0x7C" visible="True" size="20">
+    <int16 name="Character" offset="0x00" visible="True" />
+    <int16 name="Character Width" offset="0x02" visible="True" />
+    <int16 name="Bitmap Width" offset="0x04" visible="True" />
+    <int16 name="Bitmap Height" offset="0x06" visible="True" />
+    <int16 name="Bitmap Origin X" offset="0x08" visible="True" />
+    <int16 name="Bitmap Origin Y" offset="0x0A" visible="True" />
+    <int16 name="Hardware Character Index" offset="0x0C" visible="True" />
+    <int16 name="Pixels Offset" offset="0x0E" visible="True" />
+  </struct>
+</plugin>

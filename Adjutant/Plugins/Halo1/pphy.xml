@@ -1,0 +1,19 @@
+<plugin>
+  <revisions />
+  <bitmask32 name="Flags" offset="0x00" visible="True">
+    <option name="Flamethrower Particle Collision" value="31" />
+    <option name="Collides with Structures" value="30" />
+    <option name="Collides with Water Surface" value="29" />
+    <option name="Uses Simple Wind" value="28" />
+    <option name="Uses Dampened Wind" value="27" />
+    <option name="No Gravity" value="26" />
+  </bitmask32>
+  <float32 name="Particle Translation Wind Coefficient" offset="0x04" visible="True" />
+  <float32 name="Particle Translation Wind Sine Modifier" offset="0x08" visible="True" />
+  <float32 name="Particle Translation Rate: z" offset="0x0C" visible="True" />
+  <float32 name="Density" offset="0x20" visible="True" />
+  <float32 name="Air Friction" offset="0x24" visible="True" />
+  <float32 name="Water Friction" offset="0x28" visible="True" />
+  <float32 name="Surface Friction" offset="0x2C" visible="True" />
+  <float32 name="Elasticity" offset="0x30" visible="True" />
+</plugin>

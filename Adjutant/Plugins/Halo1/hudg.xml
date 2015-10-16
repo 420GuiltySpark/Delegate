@@ -1,0 +1,97 @@
+<plugin>
+  <revisions />
+  <enum16 name="Messaging Parameters.Anchor" offset="0x00" visible="True">
+    <option name="Top Left" value="00" />
+    <option name="Top Right" value="01" />
+    <option name="Bottom Left" value="02" />
+    <option name="Bottom Right" value="03" />
+    <option name="Center" value="04" />
+  </enum16>
+  <int16 name="Messaging Parameters.Anchor Offset: x" offset="0x24" visible="True" />
+  <int16 name="Messaging Parameters.Anchor Offset: y" offset="0x26" visible="True" />
+  <float32 name="Messaging Parameters.Width Scale" offset="0x28" visible="True" />
+  <float32 name="Messaging Parameters.Height Scale" offset="0x2C" visible="True" />
+  <bitmask16 name="Messaging Parameters.Scaling Flags" offset="0x30" visible="True">
+    <option name="Don't Scale Offset" value="15" />
+    <option name="Don't Scale Size" value="14" />
+    <option name="Use High-Resolution Scale" value="13" />
+  </bitmask16>
+  <float32 name="Messaging Parameters.Up Time" offset="0x68" visible="True" />
+  <float32 name="Messaging Parameters.Fade Time" offset="0x6C" visible="True" />
+  <float32 name="Messaging Parameters.Text Spacing" offset="0x90" visible="True" />
+  <struct name="Button Icons" offset="0xC4" visible="True" size="16">
+    <int16 name="Messaging Information.Sequence Index" offset="0x00" visible="True" />
+    <int16 name="Messaging Information.Width Offset" offset="0x02" visible="True" />
+    <int16 name="Messaging Information.Offset From Reference Corner: x" offset="0x04" visible="True" />
+    <int16 name="Messaging Information.Offset From Reference Corner: y" offset="0x06" visible="True" />
+    <bitmask16 name="Messaging Information.Flags" offset="0x0D" visible="True">
+      <option name="Use Text From String_List Instead" value="15" />
+      <option name="Override Default Color" value="14" />
+      <option name="Width Offset is Absolute Icon Width" value="13" />
+    </bitmask16>
+    <int16 name="Messaging Information.Text Index" offset="0x0E" visible="True" />
+  </struct>
+  <float32 name="HUD Help Text Color.Flash Period" offset="0xD8" visible="True" />
+  <float32 name="HUD Help Text Color.Flash Delay" offset="0xDC" visible="True" />
+  <int16 name="HUD Help Text Color.Number of Flashes" offset="0xE0" visible="True" />
+  <bitmask8 name="HUD Help Text Color.Flash Flags" offset="0xE2" visible="True">
+    <option name="Reverse Default / Flashing Colors" value="07" />
+  </bitmask8>
+  <float32 name="HUD Help Text Color.Flash Length" offset="0xE4" visible="True" />
+  <float32 name="Objective Colors.Flash Period" offset="0x108" visible="True" />
+  <float32 name="Objective Colors.Flash Delay" offset="0x10C" visible="True" />
+  <int16 name="Objective Colors.Number of Flashes" offset="0x110" visible="True" />
+  <bitmask8 name="Objective Colors.Flash Flags" offset="0x112" visible="True">
+    <option name="Reverse Default / Flashing Colors" value="07" />
+  </bitmask8>
+  <float32 name="Objective Colors.Flash Length" offset="0x114" visible="True" />
+  <int16 name="Objective Colors.Uptime Ticks" offset="0x11C" visible="True" />
+  <int16 name="Objective Colors.Fade Ticks" offset="0x11E" visible="True" />
+  <float32 name="Waypoint Parameters.Top Offset" offset="0x120" visible="True" />
+  <float32 name="Waypoint Parameters.Bottom Offset" offset="0x124" visible="True" />
+  <float32 name="Waypoint Parameters.Left Offset" offset="0x128" visible="True" />
+  <float32 name="Waypoint Parameters.Right Offset" offset="0x12C" visible="True" />
+  <struct name="Waypoint Arrows" offset="0x160" visible="True" size="104">
+    <string name="Name" offset="0x00" visible="True" length="32" />
+    <float32 name="Opacity" offset="0x2C" visible="True" />
+    <float32 name="Translucency" offset="0x30" visible="True" />
+    <int16 name="On-Screen Sequence Index" offset="0x34" visible="True" />
+    <int16 name="Off-Screen Sequence Index" offset="0x36" visible="True" />
+    <int16 name="Occluded Sequence Index" offset="0x38" visible="True" />
+    <bitmask8 name="Flags" offset="0x4C" visible="True">
+      <option name="Don't Rotate When Pointing Off-Screen" value="07" />
+    </bitmask8>
+  </struct>
+  <float32 name="Multiplayer Parameters.HUD Scale in Multiplayer" offset="0x1BC" visible="True" />
+  <float32 name="HUD Globals.Motion Sensor Range" offset="0x2D0" visible="True" />
+  <float32 name="HUD Globals.Motion Sensor Velocity Sensitivity" offset="0x2D4" visible="True" />
+  <float32 name="HUD Globals.Motion Sensor Scale" offset="0x2D8" visible="True" />
+  <int16 name="HUD Globals.Default Chapter Title Bounds: top" offset="0x2DC" visible="True" />
+  <int16 name="HUD Globals.Default Chapter Title Bounds: left" offset="0x2DE" visible="True" />
+  <int16 name="HUD Globals.Default Chapter Title Bounds: bottom" offset="0x2E0" visible="True" />
+  <int16 name="HUD Globals.Default Chapter Title Bounds: right" offset="0x2E2" visible="True" />
+  <int16 name="HUD Damage Indicators.Top Offset" offset="0x310" visible="True" />
+  <int16 name="HUD Damage Indicators.Bottom Offset" offset="0x312" visible="True" />
+  <int16 name="HUD Damage Indicators.Left Offset" offset="0x314" visible="True" />
+  <int16 name="HUD Damage Indicators.Right Offset" offset="0x316" visible="True" />
+  <int16 name="HUD Damage Indicators.Sequence Index" offset="0x348" visible="True" />
+  <int16 name="HUD Damage Indicators.Multiplayer Sequence Index" offset="0x34A" visible="True" />
+  <float32 name="HUD Timer Definitions.Not Much Time Left Flash Color.Flash Period" offset="0x368" visible="True" />
+  <float32 name="HUD Timer Definitions.Not Much Time Left Flash Color.Flash Delay" offset="0x36C" visible="True" />
+  <int16 name="HUD Timer Definitions.Not Much Time Left Flash Color.Number of Flashes" offset="0x370" visible="True" />
+  <bitmask8 name="HUD Timer Definitions.Not Much Time Left Flash Color.Flash Flags" offset="0x372" visible="True">
+    <option name="Reverse Default / Flashing Colors" value="07" />
+  </bitmask8>
+  <float32 name="HUD Timer Definitions.Not Much Time Left Flash Color.Flash Length" offset="0x374" visible="True" />
+  <float32 name="HUD Timer Definitions.Time Out Flash Color.Flash Period" offset="0x388" visible="True" />
+  <float32 name="HUD Timer Definitions.Time Out Flash Color.Flash Delay" offset="0x38C" visible="True" />
+  <int16 name="HUD Timer Definitions.Time Out Flash Color.Number of Flashes" offset="0x390" visible="True" />
+  <bitmask8 name="HUD Timer Definitions.Time Out Flash Color.Flash Flags" offset="0x392" visible="True">
+    <option name="Reverse Default / Flashing Colors" value="07" />
+  </bitmask8>
+  <float32 name="HUD Timer Definitions.Time Out Flash Color.Flash Length" offset="0x394" visible="True" />
+  <int16 name="HUD Info That Wouldn't Fit Anywhere Else.Loading Begin Text" offset="0x3D8" visible="True" />
+  <int16 name="HUD Info That Wouldn't Fit Anywhere Else.Loading End Text" offset="0x3DA" visible="True" />
+  <int16 name="HUD Info That Wouldn't Fit Anywhere Else.Checkpoint Begin Text" offset="0x3DC" visible="True" />
+  <int16 name="HUD Info That Wouldn't Fit Anywhere Else.Checkpoint End Text" offset="0x3DE" visible="True" />
+</plugin>

@@ -1,0 +1,134 @@
+<plugin>
+  <revisions />
+  <bitmask16 name="Flags" offset="0x00" visible="True">
+    <option name="Deleted When Attachment Deactivates" value="15" />
+    <option name="Required For Gameplay" value="14" />
+  </bitmask16>
+  <struct name="Locations" offset="0x28" visible="True" size="32">
+    <string name="Marker Name" offset="0x00" visible="True" length="32" />
+  </struct>
+  <struct name="Events" offset="0x34" visible="True" size="68">
+    <float32 name="Skip Fraction" offset="0x04" visible="True" />
+    <float32 name="Delay Bounds: from" offset="0x08" visible="True" />
+    <float32 name="Delay Bounds: to" offset="0x0C" visible="True" />
+    <float32 name="Duration Bounds: from" offset="0x10" visible="True" />
+    <float32 name="Duration Bounds: to" offset="0x14" visible="True" />
+    <struct name="Parts" offset="0x2C" visible="True" size="104">
+      <enum16 name="Create In (1)" offset="0x00" visible="True">
+        <option name="Any Environment" value="0" />
+        <option name="Air Only" value="1" />
+        <option name="Water Only" value="2" />
+        <option name="Space Only" value="3" />
+      </enum16>
+      <enum16 name="Create In (2)" offset="0x02" visible="True">
+        <option name="Either Mode" value="0" />
+        <option name="Violent Mode Only" value="1" />
+        <option name="Nonviolent Mode Only" value="2" />
+      </enum16>
+      <bitmask16 name="Flags" offset="0x06" visible="True">
+        <option name="Face Down Regardless of Location" value="15" />
+      </bitmask16>
+      <float32 name="Velocity Bounds: from" offset="0x40" visible="True" />
+      <float32 name="Velocity Bounds: to" offset="0x44" visible="True" />
+      <float32 name="Velocity Cone Angle" offset="0x48" visible="True" />
+      <float32 name="Angular Velocity Bounds: from" offset="0x4C" visible="True" />
+      <float32 name="Angular Velocity Bounds: to" offset="0x50" visible="True" />
+      <float32 name="Radius Modifier Bounds: from" offset="0x54" visible="True" />
+      <float32 name="Radius Modifier Bounds: to" offset="0x58" visible="True" />
+      <bitmask32 name="Scale Modifiers.A Scales Values" offset="0x60" visible="True">
+        <option name="Velocity" value="31" />
+        <option name="Velocity Delta" value="30" />
+        <option name="Velocity Cone Angle" value="29" />
+        <option name="Angular Velocity" value="28" />
+        <option name="Angular Velocity Delta" value="27" />
+        <option name="Type-Specific Scale" value="26" />
+      </bitmask32>
+      <bitmask32 name="Scale Modifiers.B Scales Values" offset="0x64" visible="True">
+        <option name="Velocity" value="31" />
+        <option name="Velocity Delta" value="30" />
+        <option name="Velocity Cone Angle" value="29" />
+        <option name="Angular Velocity" value="28" />
+        <option name="Angular Velocity Delta" value="27" />
+        <option name="Type-Specific Scale" value="26" />
+      </bitmask32>
+    </struct>
+    <struct name="Particles" offset="0x38" visible="True" size="232">
+      <enum16 name="Create In (1)" offset="0x00" visible="True">
+        <option name="Any Environment" value="0" />
+        <option name="Air Only" value="1" />
+        <option name="Water Only" value="2" />
+        <option name="Space Only" value="3" />
+      </enum16>
+      <enum16 name="Create In (2)" offset="0x02" visible="True">
+        <option name="Either Mode" value="0" />
+        <option name="Violent Mode Only" value="1" />
+        <option name="Nonviolent Mode Only" value="2" />
+      </enum16>
+      <enum16 name="Create" offset="0x04" visible="True">
+        <option name="Independent of Camera Mode" value="0" />
+        <option name="Only in First Person" value="1" />
+        <option name="Only in Third Person" value="2" />
+        <option name="In First Person If Possible" value="3" />
+      </enum16>
+      <float32 name="Relative Direction: y" offset="0x0C" visible="True" />
+      <float32 name="Relative Direction: p" offset="0x10" visible="True" />
+      <float32 name="Relative Offset: i (1)" offset="0x14" visible="True" />
+      <float32 name="Relative Offset: i (2)" offset="0x18" visible="True" />
+      <float32 name="Relative Offset: k" offset="0x1C" visible="True" />
+      <bitmask16 name="Flags" offset="0x64" visible="True">
+        <option name="Stay Attached to Marker" value="15" />
+        <option name="Random Initial Angle" value="14" />
+        <option name="Tint From Object Color" value="13" />
+        <option name="Interpolate Tint as HSV" value="12" />
+        <option name="?Across the Long Hue Path" value="11" />
+      </bitmask16>
+      <enum16 name="Distribution Function" offset="0x68" visible="True">
+        <option name="Start" value="0" />
+        <option name="End" value="1" />
+        <option name="Constant" value="2" />
+        <option name="Buildup" value="3" />
+        <option name="Falloff" value="4" />
+        <option name="Buildup and Falloff" value="5" />
+      </enum16>
+      <int16 name="Count: from" offset="0x6C" visible="True" />
+      <int16 name="Count: to" offset="0x6E" visible="True" />
+      <float32 name="Distribution Radius: from" offset="0x70" visible="True" />
+      <float32 name="Distribution Radius: to" offset="0x74" visible="True" />
+      <float32 name="Velocity: from" offset="0x84" visible="True" />
+      <float32 name="Velocity: to" offset="0x88" visible="True" />
+      <float32 name="Velocity Cone Angle" offset="0x8C" visible="True" />
+      <float32 name="Angular Velocity: from" offset="0x90" visible="True" />
+      <float32 name="Angular Velocity: to" offset="0x94" visible="True" />
+      <float32 name="Radius: from" offset="0xA0" visible="True" />
+      <float32 name="Radius: to" offset="0xA4" visible="True" />
+      <bitmask32 name="Scale Modifiers.A Scales Values" offset="0xE0" visible="True">
+        <option name="Velocity" value="31" />
+        <option name="Velocity Delta" value="30" />
+        <option name="Velocity Cone Angle" value="29" />
+        <option name="Angular Velocity" value="28" />
+        <option name="Angular Velocity Delta" value="27" />
+        <option name="Count" value="26" />
+        <option name="Count Delta" value="25" />
+        <option name="Distribution Radius" value="24" />
+        <option name="Distribution Radius Delta" value="23" />
+        <option name="Particle Radius" value="22" />
+        <option name="Particle Radius Delta" value="21" />
+        <option name="Tint" value="20" />
+      </bitmask32>
+      <bitmask32 name="Scale Modifiers.B Scales Values" offset="0xE4" visible="True">
+        <option name="Velocity" value="31" />
+        <option name="Velocity Delta" value="30" />
+        <option name="Velocity Cone Angle" value="29" />
+        <option name="Angular Velocity" value="28" />
+        <option name="Angular Velocity Delta" value="27" />
+        <option name="Count" value="26" />
+        <option name="Count Delta" value="25" />
+        <option name="Distribution Radius" value="24" />
+        <option name="Distribution Radius Delta" value="23" />
+        <option name="Particle Radius" value="22" />
+        <option name="Particle Radius Delta" value="21" />
+        <option name="Tint" value="20" />
+      </bitmask32>
+    </struct>
+  </struct>
+</plugin>

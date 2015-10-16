@@ -1,0 +1,13 @@
+<plugin>
+  <revisions />
+  <enum16 name="Device Type" offset="0x00" visible="True">
+    <option name="Mouse and Keyboard" value="00" />
+    <option name="Joysticks/Gamepads/etc..." value="01" />
+    <option name="Full Profile Definition" value="02" />
+  </enum16>
+  <bitmask8 name="Flags" offset="0x02" visible="True">
+    <option name="Unused" value="07" />
+  </bitmask8>
+  <int32 name="Device ID" offset="0x04" visible="True" />
+  <int32 name="Profile" offset="0x18" visible="True" />
+</plugin>

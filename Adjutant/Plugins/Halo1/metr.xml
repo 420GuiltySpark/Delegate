@@ -1,0 +1,19 @@
+<plugin>
+  <revisions />
+  <int16 name="Stencil Sequence Index" offset="0x24" visible="True" />
+  <int16 name="Source Sequence Index" offset="0x26" visible="True" />
+  <enum16 name="Interpolate Colors..." offset="0x3C" visible="True">
+    <option name="Linearly" value="00" />
+    <option name="Faster Near Empty" value="01" />
+    <option name="Faster Near Full" value="02" />
+    <option name="Through Random Noise" value="03" />
+  </enum16>
+  <enum16 name="Anchor Colors..." offset="0x3E" visible="True">
+    <option name="At Both Ends" value="00" />
+    <option name="At Empty" value="01" />
+    <option name="At Full" value="02" />
+  </enum16>
+  <float32 name="Unmask Distance" offset="0x7C" visible="True" />
+  <float32 name="Mask Distance" offset="0x80" visible="True" />
+  <int32 name="Encoded Stencil" offset="0x98" visible="True" />
+</plugin>

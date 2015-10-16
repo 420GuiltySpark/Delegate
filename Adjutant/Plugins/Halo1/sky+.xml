@@ -1,0 +1,30 @@
+<plugin>
+  <revisions />
+  <float32 name="Indoor Ambient Radiosity Power" offset="0x44" visible="True" />
+  <float32 name="Outdoor Ambient Radiosity Power" offset="0x54" visible="True" />
+  <float32 name="Outdoor Fog Maximum Density" offset="0x6C" visible="True" />
+  <float32 name="Outdoor Fog Start Distance" offset="0x70" visible="True" />
+  <float32 name="Outdoor Fog Opaque Distance" offset="0x74" visible="True" />
+  <float32 name="Indoor Fog Maximum Density" offset="0x8C" visible="True" />
+  <float32 name="Indoor Fog Start Distance" offset="0x90" visible="True" />
+  <float32 name="Indoor Fog Opaque Distance" offset="0x94" visible="True" />
+  <struct name="Shader Functions" offset="0xAC" visible="True" size="36">
+    <string name="Global Function Name" offset="0x00" visible="True" length="32" />
+  </struct>
+  <struct name="Animations" offset="0xB8" visible="True" size="36">
+    <int16 name="Animation Index" offset="0x00" visible="True" />
+    <float32 name="Period" offset="0x04" visible="True" />
+  </struct>
+  <struct name="Lights" offset="0xC4" visible="True" size="116">
+    <string name="Lens Flare.Lens Flare Marker Name" offset="0x10" visible="True" length="32" />
+    <bitmask32 name="Radiosity.Flags" offset="0x4C" visible="True">
+      <option name="Affects Exteriors" value="31" />
+      <option name="Affects Interiors" value="30" />
+    </bitmask32>
+    <float32 name="Radiosity.Power" offset="0x5C" visible="True" />
+    <float32 name="Radiosity.Test Distance" offset="0x60" visible="True" />
+    <float32 name="Radiosity.Direction: y = left/right" offset="0x68" visible="True" />
+    <float32 name="Radiosity.Direction: p = down/up" offset="0x6C" visible="True" />
+    <float32 name="Radiosity.Diameter" offset="0x70" visible="True" />
+  </struct>
+</plugin>
