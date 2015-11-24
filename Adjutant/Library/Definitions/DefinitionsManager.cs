@@ -46,6 +46,8 @@ namespace Adjutant.Library.Definitions
                     return new Halo3Retail.cache_file_resource_gestalt(Cache, Tag.Offset);
 
                 case DefinitionSet.Halo4Beta:
+                    return new Halo4Beta.cache_file_resource_gestalt(Cache, Tag.Offset);
+
                 case DefinitionSet.Halo4Retail:
                     return new Halo4Retail.cache_file_resource_gestalt(Cache, Tag.Offset);
 
