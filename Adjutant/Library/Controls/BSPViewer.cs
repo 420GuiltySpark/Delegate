@@ -493,7 +493,7 @@ namespace Adjutant.Library.Controls
             foreach (var obj in atpl.Objects)
             {
                 if (obj.isInherited || obj.isInheritor) continue;
-                if (obj.Submeshes == null) continue;
+                if (obj._2E01 == null) continue;
 
                 pNode.Nodes.Add(new TreeNode(obj._B903.Name) { Tag = obj });
 
@@ -702,7 +702,7 @@ namespace Adjutant.Library.Controls
 
             foreach (var obj in atpl.Objects)
             {
-                if (obj.isInherited || obj.Submeshes == null) continue;
+                if (obj.isInherited || obj._2E01 == null) continue;
 
                 try
                 {

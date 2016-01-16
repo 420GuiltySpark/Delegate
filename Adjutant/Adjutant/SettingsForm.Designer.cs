@@ -50,6 +50,8 @@
             this.cmbMode = new System.Windows.Forms.ComboBox();
             this.btnColour = new System.Windows.Forms.Button();
             this.cmbSnd_ = new System.Windows.Forms.ComboBox();
+            this.tbMapScale = new System.Windows.Forms.TrackBar();
+            this.tbPakScale = new System.Windows.Forms.TrackBar();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.chkFlags = new System.Windows.Forms.CheckedListBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
@@ -59,21 +61,19 @@
             this.label7 = new System.Windows.Forms.Label();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
-            this.tbMapScale = new System.Windows.Forms.TrackBar();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.tbPakScale = new System.Windows.Forms.TrackBar();
-            this.lblMapScale = new System.Windows.Forms.Label();
-            this.lblPakScale = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.lblPakScale = new System.Windows.Forms.Label();
+            this.lblMapScale = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbMapScale)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbPakScale)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbMapScale)).BeginInit();
             this.groupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbPakScale)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox2
@@ -311,6 +311,42 @@
             this.cmbSnd_.TabIndex = 7;
             this.toolTip1.SetToolTip(this.cmbSnd_, "The format to use when batch extracting sounds");
             // 
+            // tbMapScale
+            // 
+            this.tbMapScale.AutoSize = false;
+            this.tbMapScale.LargeChange = 25;
+            this.tbMapScale.Location = new System.Drawing.Point(14, 46);
+            this.tbMapScale.Maximum = 100;
+            this.tbMapScale.Minimum = 10;
+            this.tbMapScale.Name = "tbMapScale";
+            this.tbMapScale.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.tbMapScale.Size = new System.Drawing.Size(42, 155);
+            this.tbMapScale.SmallChange = 5;
+            this.tbMapScale.TabIndex = 7;
+            this.tbMapScale.TickFrequency = 10;
+            this.tbMapScale.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.toolTip1.SetToolTip(this.tbMapScale, "Texture quality when viewing .map BSPs.\r\nLower values will use less memory.");
+            this.tbMapScale.Value = 100;
+            this.tbMapScale.ValueChanged += new System.EventHandler(this.tbMapScale_ValueChanged);
+            // 
+            // tbPakScale
+            // 
+            this.tbPakScale.AutoSize = false;
+            this.tbPakScale.LargeChange = 25;
+            this.tbPakScale.Location = new System.Drawing.Point(62, 46);
+            this.tbPakScale.Maximum = 100;
+            this.tbPakScale.Minimum = 10;
+            this.tbPakScale.Name = "tbPakScale";
+            this.tbPakScale.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.tbPakScale.Size = new System.Drawing.Size(42, 155);
+            this.tbPakScale.SmallChange = 5;
+            this.tbPakScale.TabIndex = 8;
+            this.tbPakScale.TickFrequency = 10;
+            this.tbPakScale.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.toolTip1.SetToolTip(this.tbPakScale, "Texture quality when viewing .s3dpak BSPs.\r\nLower values will use less memory.");
+            this.tbPakScale.Value = 100;
+            this.tbPakScale.ValueChanged += new System.EventHandler(this.tbPakScale_ValueChanged);
+            // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.chkFlags);
@@ -336,7 +372,8 @@
             "Use permutation filter",
             "Use class filter",
             "Show invisibles in meta viewer",
-            "Force-load models in viewer"});
+            "Force-load models in viewer",
+            "Separate output by tag type"});
             this.chkFlags.Location = new System.Drawing.Point(9, 19);
             this.chkFlags.Name = "chkFlags";
             this.chkFlags.Size = new System.Drawing.Size(235, 109);
@@ -419,24 +456,6 @@
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
-            // tbMapScale
-            // 
-            this.tbMapScale.AutoSize = false;
-            this.tbMapScale.LargeChange = 25;
-            this.tbMapScale.Location = new System.Drawing.Point(14, 46);
-            this.tbMapScale.Maximum = 100;
-            this.tbMapScale.Minimum = 10;
-            this.tbMapScale.Name = "tbMapScale";
-            this.tbMapScale.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.tbMapScale.Size = new System.Drawing.Size(42, 155);
-            this.tbMapScale.SmallChange = 5;
-            this.tbMapScale.TabIndex = 7;
-            this.tbMapScale.TickFrequency = 10;
-            this.tbMapScale.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.toolTip1.SetToolTip(this.tbMapScale, "Texture quality when viewing .map BSPs.\r\nLower values will use less memory.");
-            this.tbMapScale.Value = 100;
-            this.tbMapScale.ValueChanged += new System.EventHandler(this.tbMapScale_ValueChanged);
-            // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.label11);
@@ -454,33 +473,32 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Model Viewer";
             // 
-            // tbPakScale
+            // label11
             // 
-            this.tbPakScale.AutoSize = false;
-            this.tbPakScale.LargeChange = 25;
-            this.tbPakScale.Location = new System.Drawing.Point(62, 46);
-            this.tbPakScale.Maximum = 100;
-            this.tbPakScale.Minimum = 10;
-            this.tbPakScale.Name = "tbPakScale";
-            this.tbPakScale.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.tbPakScale.Size = new System.Drawing.Size(42, 155);
-            this.tbPakScale.SmallChange = 5;
-            this.tbPakScale.TabIndex = 8;
-            this.tbPakScale.TickFrequency = 10;
-            this.tbPakScale.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.toolTip1.SetToolTip(this.tbPakScale, "Texture quality when viewing .s3dpak BSPs.\r\nLower values will use less memory.");
-            this.tbPakScale.Value = 100;
-            this.tbPakScale.ValueChanged += new System.EventHandler(this.tbPakScale_ValueChanged);
+            this.label11.Location = new System.Drawing.Point(60, 32);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(42, 18);
+            this.label11.TabIndex = 12;
+            this.label11.Text = "PAK";
+            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // lblMapScale
+            // label10
             // 
-            this.lblMapScale.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMapScale.Location = new System.Drawing.Point(12, 199);
-            this.lblMapScale.Name = "lblMapScale";
-            this.lblMapScale.Size = new System.Drawing.Size(44, 14);
-            this.lblMapScale.TabIndex = 8;
-            this.lblMapScale.Text = "100%";
-            this.lblMapScale.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.label10.Location = new System.Drawing.Point(13, 32);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(42, 18);
+            this.label10.TabIndex = 11;
+            this.label10.Text = "MAP";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 16);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(105, 13);
+            this.label9.TabIndex = 10;
+            this.label9.Text = "BSP Texture Quality:";
             // 
             // lblPakScale
             // 
@@ -492,32 +510,15 @@
             this.lblPakScale.Text = "100%";
             this.lblPakScale.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // label9
+            // lblMapScale
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 16);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(105, 13);
-            this.label9.TabIndex = 10;
-            this.label9.Text = "BSP Texture Quality:";
-            // 
-            // label10
-            // 
-            this.label10.Location = new System.Drawing.Point(13, 32);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(42, 18);
-            this.label10.TabIndex = 11;
-            this.label10.Text = "MAP";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label11
-            // 
-            this.label11.Location = new System.Drawing.Point(60, 32);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(42, 18);
-            this.label11.TabIndex = 12;
-            this.label11.Text = "PAK";
-            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblMapScale.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblMapScale.Location = new System.Drawing.Point(12, 199);
+            this.lblMapScale.Name = "lblMapScale";
+            this.lblMapScale.Size = new System.Drawing.Size(44, 14);
+            this.lblMapScale.TabIndex = 8;
+            this.lblMapScale.Text = "100%";
+            this.lblMapScale.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // SettingsForm
             // 
@@ -545,13 +546,13 @@
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbMapScale)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbPakScale)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbMapScale)).EndInit();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbPakScale)).EndInit();
             this.ResumeLayout(false);
 
         }

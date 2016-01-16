@@ -97,7 +97,7 @@ namespace Adjutant
         UseClassFilter   = 512,     //0000001000000000
         ShowInvisibles   = 1024,    //0000010000000000
         ForceLoadModels  = 2048,    //0000100000000000
-        bit13            = 4096,    //0001000000000000
+        OutputByType     = 4096,    //0001000000000000
         bit14            = 8192,    //0010000000000000
         bit15            = 16384,   //0100000000000000
         HierarchyView    = 32768,   //1000000000000000

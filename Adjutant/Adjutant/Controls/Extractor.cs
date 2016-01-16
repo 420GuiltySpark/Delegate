@@ -97,7 +97,7 @@ namespace Adjutant.Controls
                     }
 
                     var tag = child.Tag as CacheBase.IndexItem;
-                    var fName = dest + /*"\\" + tag.ClassName +*/ "\\" + tag.Filename;
+                    var fName = dest + ((settings.Flags.HasFlag(SettingsFlags.OutputByType)) ? "\\" + tag.ClassName : "") + "\\" + tag.Filename;
                     var tName = tag.Filename + "." + tag.ClassCode;
 
                     switch (tag.ClassCode)
