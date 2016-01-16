@@ -147,11 +147,14 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                 for (int j = 0; j < section.vertcount; j++)
                 {
                     reader.SeekTo(section.hSize + section.rOffset[vIndex] + ((section.rSize[vIndex] / section.vertcount) * j));
-                    var v = new Vertex();
+                    var v = new Vertex() { FormatName = "" };
                     var p = new RealQuat(
                         ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 
                         ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 
                         ((float)reader.ReadInt16() + (float)0x7FFF) / (float)0xFFFF, 0);
+
+                    v.Values.Add(new VertexValue(p, 0, "position", 0));
+                    
                     var b = new RealQuat();
                     var w = new RealQuat();
 
@@ -207,7 +210,6 @@ namespace Adjutant.Library.Definitions.Halo2Xbox
                         b.d = (w.d == 0) ? 0 : bArr[(int)b.d];
                     }
 
-                    v.Values.Add(new VertexValue(p, 0, "position", 0));
                     v.Values.Add(new VertexValue(b, 0, "blendindices", 0));
                     v.Values.Add(new VertexValue(w, 0, "blendweight", 0));
 
