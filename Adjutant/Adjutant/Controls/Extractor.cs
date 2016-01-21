@@ -162,6 +162,7 @@ namespace Adjutant.Controls
                         #endregion
                         #region mode
                         case "mode":
+                        case "mod2":
                             try
                             {
                                 switch (settings.ModeFormat)

@@ -25,6 +25,7 @@ namespace Adjutant.Library.Definitions.Halo1PC
             Reader.SeekTo(Address);
 
             Name = "gbxmodel";
+            Flags = new Bitmask(Reader.ReadInt16());
 
             Reader.SeekTo(Address + 0x30);
             uScale = Reader.ReadSingle();
@@ -119,7 +120,9 @@ namespace Adjutant.Library.Definitions.Halo1PC
                         var binormal = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
                         var tangent = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
                         var texcoord = new RealQuat(reader.ReadSingle() * uScale, 1f - reader.ReadSingle() * vScale);
-                        var nodes = new RealQuat(reader.ReadInt16(), reader.ReadInt16(), 0, 0);
+                        var nodes = (Flags.Values[1]) ? 
+                            new RealQuat(submesh.LocalNodes[reader.ReadInt16()], submesh.LocalNodes[reader.ReadInt16()], 0, 0) : 
+                            new RealQuat(reader.ReadInt16(), reader.ReadInt16(), 0, 0);
                         var weights = new RealQuat(reader.ReadSingle(), reader.ReadSingle(), 0, 0);
 
                         v.Values.Add(new VertexValue(position, VertexValue.ValueType.Float32_3, "position", 0));
@@ -295,6 +298,7 @@ namespace Adjutant.Library.Definitions.Halo1PC
             {
                 public int FaceOffset;
                 public int VertOffset;
+                public List<byte> LocalNodes = new List<byte>();
 
                 public Submesh(CacheBase Cache, int Address)
                 {
@@ -314,13 +318,10 @@ namespace Adjutant.Library.Definitions.Halo1PC
                     Reader.ReadInt32();
                     VertOffset = Reader.ReadInt32();
 
-                    //Reader.ReadInt16();
-                    //FaceIndex = Reader.ReadUInt16();
-                    //FaceCount = Reader.ReadUInt16();
-                    //SubsetIndex = Reader.ReadUInt16();
-                    //SubsetCount = Reader.ReadUInt16();
-                    //Reader.ReadInt16();
-                    //VertexCount = Reader.ReadUInt16();
+                    Reader.Skip(3);
+                    int iCount = Reader.ReadByte();
+                    for (int i = 0; i < iCount; i++)
+                        LocalNodes.Add(Reader.ReadByte());
                 }
             }
         }
